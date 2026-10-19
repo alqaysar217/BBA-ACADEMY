@@ -79,12 +79,12 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
             </div>
             <div className="relative aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-8 border-white order-1 lg:order-2 max-w-md mx-auto">
               <Image 
-                src="https://picsum.photos/seed/story-hero/800/1000" 
+                src="/story.png" 
                 alt="BBA Story Beginning" 
                 fill 
                 className="object-cover"
                 priority
-                data-ai-hint="visionary speaker person"
+                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
             </div>
