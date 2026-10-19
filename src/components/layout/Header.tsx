@@ -5,19 +5,32 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
-import { Menu, Languages } from 'lucide-react';
+import { 
+  Menu, 
+  Languages, 
+  BookOpen, 
+  Info, 
+  History, 
+  Map, 
+  Library, 
+  PhoneCall,
+  Home,
+  ChevronRight,
+  ChevronLeft
+} from 'lucide-react';
 import Image from 'next/image';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: { en: 'Programs', ar: 'البرامج' }, href: '/programs' },
-  { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about' },
-  { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story' },
-  { name: { en: 'Planning', ar: 'التخطيط' }, href: '/planning' },
-  { name: { en: 'Resources', ar: 'الموارد' }, href: '/ny-resources' },
-  { name: { en: 'Contact', ar: 'اتصل بنا' }, href: '/contact' },
+  { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home }, // Base is /lang/
+  { name: { en: 'Programs', ar: 'البرامج' }, href: '/programs', icon: BookOpen },
+  { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
+  { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
+  { name: { en: 'Planning', ar: 'التخطيط' }, href: '/planning', icon: Map },
+  { name: { en: 'Resources', ar: 'الموارد' }, href: '/ny-resources', icon: Library },
+  { name: { en: 'Contact', ar: 'اتصل بنا' }, href: '/contact', icon: PhoneCall },
 ];
 
 export function Header({ lang }: { lang: Locale }) {
@@ -32,9 +45,16 @@ export function Header({ lang }: { lang: Locale }) {
   };
 
   const otherLang = lang === 'en' ? 'ar' : 'en';
+  const isAr = lang === 'ar';
 
   const t = {
     applyNow: lang === 'en' ? 'Apply Now' : 'سجل الآن',
+  };
+
+  const isLinkActive = (href: string) => {
+    const fullHref = `/${lang}${href}`;
+    if (href === '') return pathname === `/${lang}`;
+    return pathname.startsWith(fullHref);
   };
 
   return (
@@ -60,7 +80,7 @@ export function Header({ lang }: { lang: Locale }) {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
-            {navigation.map((item) => (
+            {navigation.filter(i => i.href !== '').map((item) => (
               <Link
                 key={item.href}
                 href={`/${lang}${item.href}`}
@@ -100,33 +120,64 @@ export function Header({ lang }: { lang: Locale }) {
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side={lang === 'ar' ? 'right' : 'left'} className="w-[300px] border-none bg-primary text-white">
-              <div className="flex flex-col gap-8 mt-12 px-2">
-                <div className="flex h-16 w-16 items-center justify-center mb-4 bg-white rounded-xl p-2">
-                  <Image 
-                    src="/logo.png" 
-                    alt="BBA Academy Logo" 
-                    width={56}
-                    height={56}
-                    className="object-contain"
-                    unoptimized
-                  />
+            <SheetContent side={isAr ? 'right' : 'left'} className="w-[320px] p-0 border-none bg-primary text-white overflow-y-auto">
+              <div className="flex flex-col h-full">
+                {/* Mobile Sidebar Header */}
+                <div className="p-8 border-b border-white/10">
+                  <SheetTitle className="sr-only">Menu</SheetTitle>
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 items-center justify-center bg-white rounded-2xl p-2 shrink-0 flex">
+                      <Image 
+                        src="/logo.png" 
+                        alt="BBA Academy Logo" 
+                        width={40}
+                        height={40}
+                        className="object-contain"
+                        unoptimized
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-black tracking-tight text-white leading-none">BBA</span>
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-secondary font-black">Academy</span>
+                    </div>
+                  </div>
                 </div>
-                {navigation.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={`/${lang}${item.href}`}
-                    onClick={() => setIsOpen(false)}
-                    className="text-xl font-bold hover:text-secondary transition-colors"
-                  >
-                    {item.name[lang]}
+
+                {/* Navigation Items */}
+                <nav className="flex-1 py-6 px-4 space-y-2">
+                  {navigation.map((item) => {
+                    const active = isLinkActive(item.href);
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={`/${lang}${item.href}`}
+                        onClick={() => setIsOpen(false)}
+                        className={cn(
+                          "flex items-center justify-between p-4 rounded-2xl transition-all group",
+                          active 
+                            ? "bg-secondary text-white shadow-lg shadow-secondary/20" 
+                            : "hover:bg-white/5 text-white/70 hover:text-white"
+                        )}
+                      >
+                        <div className="flex items-center gap-4">
+                          <Icon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
+                          <span className="font-bold text-lg">{item.name[lang]}</span>
+                        </div>
+                        {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                {/* Mobile Sidebar Footer */}
+                <div className="p-6 mt-auto border-t border-white/10">
+                  <Link href={`/${lang}/enroll`} onClick={() => setIsOpen(false)}>
+                    <Button className="w-full bg-secondary hover:bg-white hover:text-secondary text-white font-black h-14 rounded-2xl shadow-xl transition-all">
+                      {t.applyNow}
+                    </Button>
                   </Link>
-                ))}
-                <Link href={`/${lang}/enroll`} onClick={() => setIsOpen(false)} className="pt-4">
-                  <Button className="w-full bg-secondary text-white font-bold h-12 rounded-xl">
-                    {t.applyNow}
-                  </Button>
-                </Link>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
