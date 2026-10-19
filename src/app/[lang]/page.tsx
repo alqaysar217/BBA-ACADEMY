@@ -74,7 +74,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
         <div className="container-tight relative z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8 sm:space-y-10">
-            {/* Redesigned Premium Welcome Tag - No longer a common "pill" shape */}
+            {/* Redesigned Premium Welcome Tag */}
             <div className="relative group inline-flex items-center gap-4 py-2 px-6">
               {/* Architectural Border & Background */}
               <div className="absolute inset-0 bg-white/10 border-l-4 border-secondary -skew-x-12 backdrop-blur-md transition-all group-hover:bg-white/20" />
@@ -104,7 +104,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                 </Button>
               </Link>
               <Link href={`/${lang}/programs`}>
-                <Button size="lg" variant="outline" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg border-2 border-white/40 text-white hover:bg-white hover:text-primary rounded-full transition-all backdrop-blur-md font-bold">
+                <Button size="lg" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg bg-white text-primary hover:bg-primary hover:text-white rounded-full transition-all font-bold shadow-xl border-none">
                   {t.hero.explore}
                 </Button>
               </Link>
