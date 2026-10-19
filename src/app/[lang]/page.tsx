@@ -52,39 +52,48 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               src="/Academy background.png" 
               alt="Academy background" 
               fill 
-              className="object-cover opacity-60 grayscale-[10%]"
-              priority
-              unoptimized
-            />
-          </div>
-          {/* Mobile Image - Using object-cover to fill all area on mobile */}
-          <div className="block sm:hidden absolute inset-0">
-            <Image 
-              src="/Academy background-phone.png" 
-              alt="Academy background mobile" 
-              fill 
               className="object-cover opacity-80"
               priority
               unoptimized
             />
           </div>
-          {/* Overlay - Balanced for visibility and readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/30 to-primary/60" />
+          {/* Mobile Image */}
+          <div className="block sm:hidden absolute inset-0">
+            <Image 
+              src="/Academy background-phone.png" 
+              alt="Academy background mobile" 
+              fill 
+              className="object-cover opacity-85"
+              priority
+              unoptimized
+            />
+          </div>
+          {/* Refined Overlay for better visual depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/30 to-primary/80" />
         </div>
 
         <div className="container-tight relative z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8 sm:space-y-10">
-            <div className="inline-flex items-center gap-2 rounded-full bg-secondary/20 border border-secondary/30 px-5 py-2 text-sm font-bold text-white uppercase tracking-wider backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary text-white"></span>
-              </span>
-              {t.hero.welcome}
+            {/* Redesigned Premium Welcome Tag - No longer a common "pill" shape */}
+            <div className="relative group inline-flex items-center gap-4 py-2 px-6">
+              {/* Architectural Border & Background */}
+              <div className="absolute inset-0 bg-white/10 border-l-4 border-secondary -skew-x-12 backdrop-blur-md transition-all group-hover:bg-white/20" />
+              <div className="relative flex items-center gap-3">
+                {/* Dynamic Pulse Indicator */}
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+                </div>
+                <span className="text-xs sm:text-sm font-black tracking-[0.25em] text-white uppercase drop-shadow-md">
+                  {t.hero.welcome}
+                </span>
+              </div>
             </div>
+
             <h1 className="text-4xl font-black tracking-tight text-white sm:text-7xl leading-[1.1] drop-shadow-2xl">
               {t.hero.title}
             </h1>
-            <p className="text-lg sm:text-xl text-white leading-relaxed max-w-3xl font-bold drop-shadow-lg">
+            <p className="text-lg sm:text-xl text-white/90 leading-relaxed max-w-3xl font-bold drop-shadow-lg">
               {t.hero.desc}
             </p>
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pt-4">
