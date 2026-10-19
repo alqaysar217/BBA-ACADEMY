@@ -20,7 +20,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'برنامج المرحلة الابتدائية (3-5)' : 'Grade 3-5 Remote Program',
         desc: isAr ? 'تجربة تعليمية متوازنة تعزز الأسس الأكاديمية وتبني الهوية الإسلامية.' : 'A balanced learning experience that strengthens academic foundations and builds Islamic identity.',
         icon: BookOpen,
-        image: "https://picsum.photos/seed/grade35/800/600",
+        image: "/program-1.png",
         color: 'bg-primary'
       },
       {
@@ -28,7 +28,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'المرحلة المتوسطة والثانوية (6-12)' : 'Grades 6–12 Remote Program',
         desc: isAr ? 'دعم أكاديمي شامل وتعزيز للمهارات اللغوية عبر منصات تعلم عالمية.' : 'Comprehensive academic support and language skill enhancement via global platforms.',
         icon: GraduationCap,
-        image: "https://picsum.photos/seed/grade612/800/600",
+        image: "/program-2.png",
         color: 'bg-accent'
       },
       {
@@ -36,7 +36,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'برنامج عطلة نهاية الأسبوع' : 'Weekend Remote Program',
         desc: isAr ? 'تعزيز اللغة العربية والقرآن الكريم للأطفال المقيمين في الخارج.' : 'Strengthening Arabic language and Quran for children living abroad.',
         icon: Calendar,
-        image: "https://picsum.photos/seed/weekend/800/600",
+        image: "/program-3.png",
         color: 'bg-secondary'
       }
     ]
@@ -56,12 +56,6 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
             </defs>
             <rect width="100%" height="100%" fill="url(#grid-pattern)" />
           </svg>
-        </div>
-
-        {/* Floating Decorative Elements */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-[140px]" />
-          <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-accent/10 rounded-full blur-[120px]" />
         </div>
 
         <div className="container px-4 md:px-8 relative z-10 text-center space-y-4">
@@ -87,7 +81,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
                     alt={prog.title} 
                     fill 
                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                    data-ai-hint="educational program image"
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent" />
                   <div className={cn("absolute top-4 left-4 h-12 w-12 sm:h-14 sm:w-14 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-transform duration-500 group-hover:scale-110", prog.color)}>
@@ -96,7 +90,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
                 </div>
                 
                 <div className="p-8 sm:p-10 flex-1 flex flex-col space-y-4">
-                  <h3 className="text-sm sm:text-xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
+                  <h3 className="text-sm sm:text-lg font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
                     {prog.title}
                   </h3>
                   <p className="text-slate-500 font-medium text-xs sm:text-base leading-relaxed">

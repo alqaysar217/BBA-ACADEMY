@@ -28,7 +28,7 @@ const getProgramData = (id: string, isAr: boolean) => {
       outcomes: isAr 
         ? 'مهارات قوية في القراءة والكتابة بالعربية، تحسين تلاوة وحفظ القرآن بالتجويد، فهم عميق للمفاهيم الإسلامية، جاهزية أكاديمية وفق المعايير الأمريكية، هوية واثقة متجذرة في اللغة والدين.'
         : 'Stronger Arabic reading and writing, Improved Quran recitation and Tajweed, Meaningful understanding of core Islamic concepts, Academic readiness aligned with American standards, Confident identity rooted in faith.',
-      image: "https://picsum.photos/seed/grade35/1200/600"
+      image: "/program-1.png"
     },
     'grades-6-12': {
       name: isAr ? 'المرحلة المتوسطة والثانوية (الصفوف 6-12)' : 'Grades 6–12 Remote Program',
@@ -50,7 +50,7 @@ const getProgramData = (id: string, isAr: boolean) => {
       outcomes: isAr 
         ? 'إكمال الدورات عبر الإنترنت بانتظام، مهارات تعلم مستقل وتنظيم قوية، تحسين القراءة والكتابة الأكاديمية، وعي أكبر بالمسؤوليات الدراسية، تطوير مستمر لتلاوة القرآن والمعرفة الإسلامية، فهم أعمق للقيم الشخصية.'
         : 'Consistent course completion, Stronger independent learning and organization, Improved reading and writing, Greater awareness of academic goals, Continued Quran and Islamic development, Deeper understanding of values.',
-      image: "https://picsum.photos/seed/grade612/1200/600"
+      image: "/program-2.png"
     },
     'weekend': {
       name: isAr ? 'برنامج عطلة نهاية الأسبوع' : 'Weekend Remote Program',
@@ -72,7 +72,7 @@ const getProgramData = (id: string, isAr: boolean) => {
       outcomes: isAr 
         ? 'تلاوة أكثر دقة للقرآن، إلمام أفضل بالتجويد، مهارات لغوية عربية قوية، تواصل وكتابة أفضل بالعربية، فهم أكبر للمعرفة والممارسات الإسلامية، شخصية إسلامية واثقة، ارتباط قوي بالدين واللغة.'
         : 'More accurate Quranic recitation, Improved Tajweed familiarity, Stronger Arabic language skills, Better communication, Greater understanding of Islamic practices, Confident Islamic character, Stronger faith connection.',
-      image: "https://picsum.photos/seed/weekend/1200/600"
+      image: "/program-3.png"
     }
   };
   return programs[id];
@@ -95,7 +95,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
       <div className="relative h-[30vh] sm:h-[40vh] min-h-[200px]">
-        <Image src={data.image} alt={data.name} fill className="object-cover" priority />
+        <Image src={data.image} alt={data.name} fill className="object-cover" priority unoptimized />
         <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px]" />
         <div className="absolute inset-0 flex items-center justify-center text-center p-6">
           <div className="container-tight">
@@ -115,7 +115,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
       <div className="container-tight py-12 sm:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-          {/* Main Content Area (5 Sections) */}
+          {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-16">
             
             {/* 1. Name & Intro */}
@@ -163,7 +163,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             </section>
           </div>
 
-          {/* Sidebar Area (2 Sections) */}
+          {/* Sidebar Area */}
           <div className="space-y-10">
             {/* 5. Key Features */}
             <div className="bg-white p-8 rounded-[2rem] shadow-premium border border-slate-100 space-y-6">
