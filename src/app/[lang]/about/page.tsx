@@ -1,6 +1,6 @@
 import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
-import { Target, Eye, ShieldCheck, CheckCircle2, Users, Heart, Star, MapPin, GraduationCap, Globe, Handshake } from 'lucide-react';
+import { Target, Eye, CheckCircle2, Users, Heart, Star, MapPin, GraduationCap, Globe, Handshake } from 'lucide-react';
 
 export default async function AboutPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
@@ -73,38 +73,36 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white">
-      {/* Hero Section - Simplified and Professional */}
-      <section className="relative py-20 lg:py-32 bg-primary">
-        <div className="container-tight relative z-10 text-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-lg border border-white/20">
-            <Star className="h-4 w-4 text-secondary fill-secondary" />
-            <span className="text-xs font-bold text-white uppercase tracking-widest">{t.subtitle}</span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
-            {t.title}
-          </h1>
-          <p className="text-xl sm:text-2xl font-bold text-secondary italic">
-            {t.tagline}
-          </p>
-        </div>
-      </section>
-
-      {/* Intro Section */}
-      <section className="section-padding border-b border-slate-100">
+      {/* Page Title & Intro - Integrated and Compact */}
+      <section className="py-16 lg:py-24 border-b border-slate-100">
         <div className="container-tight">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <p className="text-2xl sm:text-3xl text-primary font-black leading-tight border-l-4 border-secondary pl-6">
-                {t.intro}
-              </p>
-              <div className="space-y-4 text-slate-600 leading-relaxed font-medium text-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-secondary">
+                  <Star className="h-5 w-5 fill-secondary" />
+                  <span className="text-xs font-black uppercase tracking-[0.2em]">{t.subtitle}</span>
+                </div>
+                <h1 className="text-4xl lg:text-5xl font-black text-primary tracking-tight leading-tight">
+                  {t.title}
+                </h1>
+                <p className="text-xl font-bold text-secondary italic">
+                  {t.tagline}
+                </p>
+              </div>
+              
+              <div className="space-y-6 text-slate-600 leading-relaxed font-medium text-lg">
+                <p className="text-primary font-black text-xl leading-snug border-l-4 border-secondary pl-6">
+                  {t.intro}
+                </p>
                 <p>{t.history}</p>
                 <p>{t.serving}</p>
               </div>
             </div>
-            <div className="relative aspect-video rounded-2xl overflow-hidden shadow-xl">
+            
+            <div className="relative aspect-square lg:aspect-[4/5] rounded-xl overflow-hidden shadow-2xl border-4 border-white">
               <Image 
-                src="https://picsum.photos/seed/bba-foundation/1200/800" 
+                src="https://picsum.photos/seed/bba-foundation/1200/1500" 
                 alt="Academy Foundation" 
                 fill 
                 className="object-cover"
@@ -119,13 +117,13 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       <section className="section-padding bg-slate-50/50">
         <div className="container-tight">
           <div className="mb-12">
-            <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-tight">{t.sections.beliefs.title}</h2>
-            <div className="h-1 w-16 bg-secondary mt-2" />
+            <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.beliefs.title}</h2>
+            <div className="h-1 w-12 bg-secondary mt-2" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {t.sections.beliefs.items.map((belief, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 flex gap-6 items-start">
-                <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+              <div key={idx} className="bg-white p-8 rounded-lg border border-slate-200 flex gap-6 items-start shadow-sm">
+                <div className="h-12 w-12 rounded bg-secondary/10 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="h-6 w-6 text-secondary" />
                 </div>
                 <p className="text-lg text-primary font-bold leading-relaxed">{belief}</p>
@@ -139,22 +137,25 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       <section className="section-padding">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-            <div className="space-y-6">
-              <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-primary">
-                {t.sections.approach.title}
-              </h2>
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <h2 className="text-2xl lg:text-3xl font-black uppercase tracking-tight text-primary">
+                  {t.sections.approach.title}
+                </h2>
+                <div className="h-1 w-12 bg-secondary" />
+              </div>
               <div className="space-y-4 text-lg font-medium leading-relaxed text-slate-600">
                 <p className="text-primary font-black text-xl">{t.sections.approach.content1}</p>
                 <p>{t.sections.approach.content2}</p>
                 <p>{t.sections.approach.content3}</p>
               </div>
             </div>
-            <div className="bg-primary p-10 rounded-2xl text-white space-y-8 shadow-xl">
+            <div className="bg-primary p-10 rounded-lg text-white space-y-8 shadow-xl">
               <div className="flex items-center gap-4">
                 <Users className="h-8 w-8 text-secondary" />
                 <h3 className="text-xl font-black uppercase tracking-widest">{isAr ? 'تركيزنا الأساسي' : 'Our Core Focus'}</h3>
               </div>
-              <ul className="space-y-6">
+              <ul className="space-y-4">
                 {[
                   isAr ? 'فهم قصة كل طالب' : 'Understanding every student\'s story',
                   isAr ? 'توجيه أكاديمي مستمر' : 'Ongoing academic guidance',
@@ -162,7 +163,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
                   isAr ? 'قرارات تعليمية مدروسة' : 'Informed educational decisions'
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-center gap-4">
-                    <div className="h-2 w-2 rounded-full bg-secondary" />
+                    <div className="h-2 w-2 bg-secondary" />
                     <span className="font-bold text-lg">{item}</span>
                   </li>
                 ))}
@@ -175,8 +176,8 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       {/* Mission & Vision Section */}
       <section className="section-padding bg-slate-50/50">
         <div className="container-tight">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            <div className="bg-white border border-slate-200 p-10 rounded-2xl space-y-6 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white border border-slate-200 p-10 rounded-lg space-y-6 shadow-sm">
               <Target className="h-10 w-10 text-primary" />
               <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.mission.title}</h2>
               <p className="text-slate-600 leading-relaxed font-bold text-lg">
@@ -184,7 +185,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
               </p>
             </div>
 
-            <div className="bg-primary text-white p-10 rounded-2xl space-y-6 shadow-xl">
+            <div className="bg-primary text-white p-10 rounded-lg space-y-6 shadow-xl">
               <Eye className="h-10 w-10 text-secondary" />
               <h2 className="text-2xl font-black uppercase tracking-tight text-white">{t.sections.vision.title}</h2>
               <p className="text-white/80 leading-relaxed font-medium text-lg">
@@ -198,35 +199,37 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       {/* Commitment Section */}
       <section className="section-padding">
         <div className="container-tight text-center max-w-4xl mx-auto space-y-12">
-          <div className="space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-tight">{t.sections.commitment.title}</h2>
-            <div className="h-1 w-16 bg-secondary mx-auto" />
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.commitment.title}</h2>
+            <div className="h-1 w-12 bg-secondary mx-auto" />
           </div>
-          <div className="bg-white p-10 lg:p-16 rounded-2xl shadow-xl border border-slate-100 space-y-8">
+          <div className="bg-white p-10 lg:p-16 rounded-lg shadow-sm border border-slate-200 space-y-8">
             <div className="flex justify-center">
               <Heart className="h-12 w-12 text-secondary fill-secondary" />
             </div>
             <h3 className="text-2xl sm:text-3xl font-black text-primary">{t.sections.commitment.intro}</h3>
-            <p className="text-lg sm:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
-              {t.sections.commitment.text}
-            </p>
-            <p className="text-xl sm:text-2xl font-black text-secondary leading-tight">
-              {t.sections.commitment.goal}
-            </p>
+            <div className="space-y-6">
+              <p className="text-lg text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                {t.sections.commitment.text}
+              </p>
+              <p className="text-xl sm:text-2xl font-black text-secondary leading-tight">
+                {t.sections.commitment.goal}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* At a Glance Section */}
-      <section className="section-padding bg-slate-900 text-white">
+      <section className="section-padding bg-primary text-white">
         <div className="container-tight">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">{t.sections.glance.title}</h2>
-            <div className="h-1 w-16 bg-secondary mx-auto mt-2" />
+            <h2 className="text-2xl font-black uppercase tracking-tight">{t.sections.glance.title}</h2>
+            <div className="h-1 w-12 bg-secondary mx-auto mt-2" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {t.sections.glance.items.map((stat, idx) => (
-              <div key={idx} className="bg-white/5 p-8 rounded-xl border border-white/10 text-center space-y-4 hover:bg-white/10 transition-colors">
+              <div key={idx} className="bg-white/5 p-8 rounded border border-white/10 text-center space-y-4 hover:bg-white/10 transition-colors">
                 <div className="mx-auto h-12 w-12 text-secondary flex items-center justify-center">
                   <stat.icon className="h-8 w-8" />
                 </div>
