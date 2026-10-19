@@ -90,7 +90,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               </div>
             </div>
 
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-7xl leading-[1.1] drop-shadow-2xl">
+            <h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-7xl leading-[1.1] drop-shadow-2xl">
               {t.hero.title}
             </h1>
             <p className="text-lg sm:text-xl text-white/90 leading-relaxed max-w-3xl font-bold drop-shadow-lg">
