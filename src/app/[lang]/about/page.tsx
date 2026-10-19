@@ -9,7 +9,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
   const t = {
     title: isAr ? 'حول أكاديمية بنين وبنات' : 'About BBA Academy',
     subtitle: isAr ? 'BBA أكثر من مجرد مدرسة' : 'BBA is More Than a School',
-    tagline: isAr ? 'شريك عائلتك التعليمي' : 'It’s Your Family\'s Educational Partner',
+    tagline: isAr ? 'شريك عائلتك التعليمي' : 'It\'s Your Family\'s Educational Partner',
     intro: isAr 
       ? 'في أكاديمية بنين وبنات (BBA)، نؤمن بأن التعليم هو أكثر من مجرد إكمال الدورات أو كسب الساعات المعتمدة. إنه يتعلق بمساعدة الطلاب على بناء أساس قوي لمستقبلهم مع دعم العائلات في كل خطوة على الطريق.'
       : 'At Baneen and Banaat Academy (BBA), we believe that education is more than completing courses or earning credits. It is about helping students build a strong foundation for their future while supporting families every step of the way.',
@@ -73,125 +73,97 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white">
-      {/* Distinct Hero Section for About Page */}
-      <section className="relative py-24 lg:py-36 bg-primary overflow-hidden">
-        {/* New Specialized Background Pattern */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-primary to-accent opacity-90" />
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff)', backgroundSize: '60px 60px', backgroundPosition: '0 0, 30px 30px' }} />
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/20 rounded-full blur-[120px] translate-x-1/3 -translate-y-1/3" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/30 rounded-full blur-[120px] -translate-x-1/3 translate-y-1/3" />
-        </div>
-        
-        <div className="container-tight relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-10">
-            <div className="inline-flex items-center gap-3 px-6 py-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-full">
-              <Star className="h-4 w-4 text-secondary fill-secondary" />
-              <span className="text-xs sm:text-sm font-black text-white uppercase tracking-[0.3em]">{t.subtitle}</span>
-            </div>
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-tight tracking-tight drop-shadow-2xl">
-              {t.title}
-            </h1>
-            <p className="text-xl sm:text-3xl font-bold text-secondary italic drop-shadow-lg">
-              {t.tagline}
-            </p>
-            <div className="h-2 w-32 bg-white/20 mx-auto rounded-full overflow-hidden">
-               <div className="h-full w-1/2 bg-secondary animate-pulse" />
-            </div>
+      {/* Hero Section - Simplified and Professional */}
+      <section className="relative py-20 lg:py-32 bg-primary">
+        <div className="container-tight relative z-10 text-center space-y-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-lg border border-white/20">
+            <Star className="h-4 w-4 text-secondary fill-secondary" />
+            <span className="text-xs font-bold text-white uppercase tracking-widest">{t.subtitle}</span>
           </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+            {t.title}
+          </h1>
+          <p className="text-xl sm:text-2xl font-bold text-secondary italic">
+            {t.tagline}
+          </p>
         </div>
       </section>
 
-      {/* Intro & History Section */}
-      <section className="section-padding bg-slate-50/50">
+      {/* Intro Section */}
+      <section className="section-padding border-b border-slate-100">
         <div className="container-tight">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
               <p className="text-2xl sm:text-3xl text-primary font-black leading-tight border-l-4 border-secondary pl-6">
                 {t.intro}
               </p>
-              <div className="space-y-6 text-slate-600 leading-relaxed font-medium text-lg">
+              <div className="space-y-4 text-slate-600 leading-relaxed font-medium text-lg">
                 <p>{t.history}</p>
                 <p>{t.serving}</p>
               </div>
             </div>
-            <div className="relative aspect-square rounded-[4rem] overflow-hidden shadow-2xl ring-12 ring-white">
+            <div className="relative aspect-video rounded-2xl overflow-hidden shadow-xl">
               <Image 
-                src="https://picsum.photos/seed/bba-foundation/800/800" 
+                src="https://picsum.photos/seed/bba-foundation/1200/800" 
                 alt="Academy Foundation" 
                 fill 
                 className="object-cover"
-                data-ai-hint="educational partnership"
+                data-ai-hint="academic excellence"
               />
-              <div className="absolute inset-0 bg-primary/10" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* What We Believe Section */}
-      <section className="section-padding">
+      {/* Beliefs Section */}
+      <section className="section-padding bg-slate-50/50">
         <div className="container-tight">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.sections.beliefs.title}</h2>
-            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+          <div className="mb-12">
+            <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-tight">{t.sections.beliefs.title}</h2>
+            <div className="h-1 w-16 bg-secondary mt-2" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {t.sections.beliefs.items.map((belief, idx) => (
-              <div key={idx} className="bg-white p-12 rounded-[3rem] shadow-premium border border-slate-100 flex gap-8 items-start group hover:border-secondary transition-all hover:scale-[1.02]">
-                <div className="h-16 w-16 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary group-hover:text-white transition-all shadow-sm">
-                  <CheckCircle2 className="h-8 w-8 text-secondary group-hover:text-white" />
+              <div key={idx} className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 flex gap-6 items-start">
+                <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-6 w-6 text-secondary" />
                 </div>
-                <p className="text-xl text-primary font-bold leading-relaxed">{belief}</p>
+                <p className="text-lg text-primary font-bold leading-relaxed">{belief}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Our Approach Section */}
-      <section className="section-padding bg-primary text-white overflow-hidden relative">
-        <div className="absolute inset-0 opacity-5 pointer-events-none">
-          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="approach-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#approach-grid)" />
-          </svg>
-        </div>
-        
-        <div className="container-tight relative z-10">
+      {/* Approach Section */}
+      <section className="section-padding">
+        <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-            <div className="space-y-8">
-              <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-secondary">
+            <div className="space-y-6">
+              <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-primary">
                 {t.sections.approach.title}
               </h2>
-              <div className="h-1.5 w-24 bg-white/20 rounded-full" />
-              <div className="space-y-6 text-xl font-medium leading-relaxed opacity-90">
-                <p className="text-white font-black text-2xl">{t.sections.approach.content1}</p>
+              <div className="space-y-4 text-lg font-medium leading-relaxed text-slate-600">
+                <p className="text-primary font-black text-xl">{t.sections.approach.content1}</p>
                 <p>{t.sections.approach.content2}</p>
                 <p>{t.sections.approach.content3}</p>
               </div>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 space-y-10 shadow-2xl">
-              <div className="flex items-center gap-6">
-                <div className="h-20 w-20 rounded-3xl bg-secondary flex items-center justify-center shadow-lg shadow-secondary/20">
-                  <Users className="h-10 w-10 text-white" />
-                </div>
-                <h3 className="text-3xl font-black">{isAr ? 'تركيزنا الأساسي' : 'Our Core Focus'}</h3>
+            <div className="bg-primary p-10 rounded-2xl text-white space-y-8 shadow-xl">
+              <div className="flex items-center gap-4">
+                <Users className="h-8 w-8 text-secondary" />
+                <h3 className="text-xl font-black uppercase tracking-widest">{isAr ? 'تركيزنا الأساسي' : 'Our Core Focus'}</h3>
               </div>
-              <ul className="space-y-8">
+              <ul className="space-y-6">
                 {[
                   isAr ? 'فهم قصة كل طالب' : 'Understanding every student\'s story',
                   isAr ? 'توجيه أكاديمي مستمر' : 'Ongoing academic guidance',
                   isAr ? 'إعداد الطلاب للتخرج' : 'Preparing students for graduation',
                   isAr ? 'قرارات تعليمية مدروسة' : 'Informed educational decisions'
                 ].map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-6 group">
-                    <div className="h-3 w-3 rounded-full bg-secondary group-hover:scale-150 transition-transform" />
-                    <span className="font-bold text-xl">{item}</span>
+                  <li key={idx} className="flex items-center gap-4">
+                    <div className="h-2 w-2 rounded-full bg-secondary" />
+                    <span className="font-bold text-lg">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -201,56 +173,44 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="section-padding">
+      <section className="section-padding bg-slate-50/50">
         <div className="container-tight">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
-            <div className="bg-slate-50 border-2 border-slate-100 p-16 rounded-[4rem] relative overflow-hidden group hover:border-secondary/20 transition-all">
-              <div className="relative z-10 space-y-8">
-                <div className="h-20 w-20 rounded-3xl bg-primary flex items-center justify-center shadow-xl shadow-primary/20 group-hover:scale-110 transition-transform">
-                  <Target className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.sections.mission.title}</h2>
-                <p className="text-slate-600 leading-relaxed font-bold text-xl sm:text-2xl">
-                  {t.sections.mission.text}
-                </p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            <div className="bg-white border border-slate-200 p-10 rounded-2xl space-y-6 shadow-sm">
+              <Target className="h-10 w-10 text-primary" />
+              <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.mission.title}</h2>
+              <p className="text-slate-600 leading-relaxed font-bold text-lg">
+                {t.sections.mission.text}
+              </p>
             </div>
 
-            <div className="bg-primary text-white p-16 rounded-[4rem] shadow-premium relative overflow-hidden group">
-              <div className="relative z-10 space-y-8">
-                <div className="h-20 w-20 rounded-3xl bg-secondary flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                  <Eye className="h-10 w-10 text-white" />
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">{t.sections.vision.title}</h2>
-                <p className="text-white/80 leading-relaxed font-medium text-xl sm:text-2xl">
-                  {t.sections.vision.text}
-                </p>
-              </div>
-              <div className="absolute -bottom-10 -right-10 w-60 h-60 bg-white/5 rounded-full" />
+            <div className="bg-primary text-white p-10 rounded-2xl space-y-6 shadow-xl">
+              <Eye className="h-10 w-10 text-secondary" />
+              <h2 className="text-2xl font-black uppercase tracking-tight text-white">{t.sections.vision.title}</h2>
+              <p className="text-white/80 leading-relaxed font-medium text-lg">
+                {t.sections.vision.text}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Our Commitment Section */}
-      <section className="section-padding bg-slate-50/50">
-        <div className="container-tight text-center max-w-5xl mx-auto space-y-16">
+      {/* Commitment Section */}
+      <section className="section-padding">
+        <div className="container-tight text-center max-w-4xl mx-auto space-y-12">
           <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.sections.commitment.title}</h2>
-            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+            <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-tight">{t.sections.commitment.title}</h2>
+            <div className="h-1 w-16 bg-secondary mx-auto" />
           </div>
-          <div className="space-y-12 bg-white p-16 lg:p-24 rounded-[4rem] shadow-2xl border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-2 h-full bg-secondary" />
-            <div className="flex justify-center mb-8">
-              <div className="h-24 w-24 rounded-full bg-secondary/10 flex items-center justify-center">
-                <Heart className="h-12 w-12 text-secondary fill-secondary" />
-              </div>
+          <div className="bg-white p-10 lg:p-16 rounded-2xl shadow-xl border border-slate-100 space-y-8">
+            <div className="flex justify-center">
+              <Heart className="h-12 w-12 text-secondary fill-secondary" />
             </div>
-            <h3 className="text-3xl sm:text-4xl font-black text-primary">{t.sections.commitment.intro}</h3>
-            <p className="text-xl sm:text-2xl text-slate-600 font-medium leading-relaxed max-w-3xl mx-auto">
+            <h3 className="text-2xl sm:text-3xl font-black text-primary">{t.sections.commitment.intro}</h3>
+            <p className="text-lg sm:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
               {t.sections.commitment.text}
             </p>
-            <p className="text-2xl sm:text-4xl font-black text-secondary leading-tight drop-shadow-sm">
+            <p className="text-xl sm:text-2xl font-black text-secondary leading-tight">
               {t.sections.commitment.goal}
             </p>
           </div>
@@ -258,21 +218,21 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* At a Glance Section */}
-      <section className="section-padding">
+      <section className="section-padding bg-slate-900 text-white">
         <div className="container-tight">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.sections.glance.title}</h2>
-            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">{t.sections.glance.title}</h2>
+            <div className="h-1 w-16 bg-secondary mx-auto mt-2" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {t.sections.glance.items.map((stat, idx) => (
-              <div key={idx} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-premium text-center space-y-6 group hover:shadow-2xl hover:-translate-y-3 transition-all duration-500">
-                <div className="mx-auto h-20 w-20 rounded-[2rem] bg-slate-50 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all shadow-inner">
-                  <stat.icon className="h-10 w-10" />
+              <div key={idx} className="bg-white/5 p-8 rounded-xl border border-white/10 text-center space-y-4 hover:bg-white/10 transition-colors">
+                <div className="mx-auto h-12 w-12 text-secondary flex items-center justify-center">
+                  <stat.icon className="h-8 w-8" />
                 </div>
-                <div className="space-y-2">
-                  <div className="text-xs font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
-                  <div className="text-xl font-black text-primary leading-tight">{stat.value}</div>
+                <div>
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</div>
+                  <div className="text-lg font-black text-white">{stat.value}</div>
                 </div>
               </div>
             ))}
