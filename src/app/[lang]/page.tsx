@@ -12,7 +12,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   const t = {
     hero: {
       welcome: isAr ? 'مرحباً بكم في أكاديمية بنين وبنات' : 'Welcome To Baneen and Banaat Academy',
-      title: isAr ? 'تعليم يبني العقول وقيم تصقل الشخصية' : 'Education That Builds Minds, Values That Shape Character',
+      title: isAr ? 'عقول تُبنى.. وقيم تُصقل' : 'Building Minds & Character',
       desc: isAr ? 'شريك تعليمي موثوق يساعد الطلاب والعائلات على تحقيق النجاح الأكاديمي من خلال التعلم المرن عبر الإنترنت والتوجيه الشخصي والالتزام بالتميز.' : 'A trusted educational partner helping students and families achieve academic success through flexible online learning, personalized guidance, and a commitment to excellence.',
       apply: isAr ? 'سجل الآن' : 'Apply Now',
       explore: isAr ? 'استكشف البرامج' : 'Explore Programs',
@@ -20,7 +20,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
     why: {
       title: isAr ? 'لماذا تختار العائلات BBA؟' : 'Why Families Choose BBA?!',
       items: [
-        { title: isAr ? 'مسارات ثانوية معتمدة' : 'Accredited High School Pathways', icon: ShieldCheck },
+        { title: isAr ? 'مساحات ثانوية معتمدة' : 'Accredited High School Pathways', icon: ShieldCheck },
         { title: isAr ? 'دعم طلابي شخصي' : 'Personalized Student Support', icon: Users },
         { title: isAr ? 'نخدم العائلات في جميع أنحاء البلاد' : 'Serving Families Nationwide', icon: GraduationCap },
         { title: isAr ? 'توجيه للتعليم المنزلي' : 'Homeschool Guidance', icon: MapPin },
@@ -52,7 +52,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               src="/Academy background.png" 
               alt="Academy background" 
               fill 
-              className="object-cover opacity-80"
+              className="object-cover opacity-100"
               priority
               unoptimized
             />
@@ -63,13 +63,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               src="/Academy background-phone.png" 
               alt="Academy background mobile" 
               fill 
-              className="object-cover opacity-85"
+              className="object-cover opacity-100"
               priority
               unoptimized
             />
           </div>
           {/* Refined Overlay for better visual depth */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/30 to-primary/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/20 to-primary/60" />
         </div>
 
         <div className="container-tight relative z-10">
