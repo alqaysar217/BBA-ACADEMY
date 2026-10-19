@@ -77,14 +77,14 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
                 <p>{t.intro.vision}</p>
               </div>
             </div>
-            {/* Restored Hero Image */}
             <div className="relative aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-8 border-white order-1 lg:order-2 max-w-md mx-auto">
               <Image 
-                src="https://picsum.photos/seed/story-vision/800/1000" 
-                alt="BBA Founders Vision" 
+                src="https://picsum.photos/seed/story-hero/800/1000" 
+                alt="BBA Story Beginning" 
                 fill 
                 className="object-cover"
-                data-ai-hint="visionary speaker academy"
+                priority
+                data-ai-hint="visionary speaker person"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
             </div>
@@ -103,11 +103,9 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
           <div className="max-w-4xl mx-auto space-y-10">
             {t.milestones.map((milestone, idx) => (
               <div key={idx} className="bg-white border border-slate-200 rounded-xl p-8 lg:p-12 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                {/* Decorative background icon hidden on mobile */}
                 <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity hidden sm:block pointer-events-none">
                    <History className="h-32 w-32 text-primary" />
                 </div>
-                {/* Updated Milestone Layout: Year on top, text below */}
                 <div className="flex flex-col gap-6 relative z-10">
                   <div className="space-y-2">
                     <div className="text-2xl lg:text-3xl font-black text-secondary leading-none">{milestone.year}</div>
@@ -129,7 +127,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
       <section className="py-20 lg:py-24">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div className="relative aspect-[16/10] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl order-1 lg:order-1">
+            <div className="relative aspect-[16/10] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl">
               <Image 
                 src="https://picsum.photos/seed/partnership/800/800" 
                 alt="Academy Core Principle" 
@@ -138,7 +136,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
                 data-ai-hint="school family partnership"
               />
             </div>
-            <div className="space-y-8 order-2 lg:order-2">
+            <div className="space-y-8">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Target className="h-8 w-8 text-secondary" />
