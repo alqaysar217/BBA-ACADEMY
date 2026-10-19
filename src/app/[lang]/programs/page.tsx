@@ -45,7 +45,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="bg-slate-50/30 min-h-screen pb-20">
-      {/* Page Header - Professional Redesign with Reduced Height */}
+      {/* Page Header - Professional Redesign with Optimized Height */}
       <section className="bg-primary text-white py-12 sm:py-20 relative overflow-hidden">
         {/* Subtle Grid Pattern Overlay */}
         <div className="absolute inset-0 opacity-[0.15]">
@@ -63,8 +63,6 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-secondary/30 rounded-full blur-[140px] animate-pulse" />
           <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px]" />
-          <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/5 -rotate-6" />
-          <div className="absolute top-1/3 left-0 w-full h-[1px] bg-white/5 rotate-3" />
         </div>
 
         <div className="container px-4 md:px-8 relative z-10 text-center space-y-6">
@@ -98,7 +96,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
                 </div>
                 
                 <div className="p-10 flex-1 flex flex-col space-y-4">
-                  <h3 className="text-lg sm:text-2xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
+                  <h3 className="text-base sm:text-2xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
                     {prog.title}
                   </h3>
                   <p className="text-slate-500 font-medium leading-relaxed">
