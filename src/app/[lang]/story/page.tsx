@@ -3,6 +3,7 @@ import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
 import { Target, Users, ArrowRight, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default async function OurStoryPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
@@ -52,7 +53,9 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         : 'At Baneen and Banaat Academy, education is about building character, inspiring confidence, strengthening families, and preparing students for lifelong success.'
     },
     closing: {
-      text: "Our story is still being written. And we would be honored for your family to become part of it.",
+      text: isAr 
+        ? 'قصتنا لا تزال تُكتب. وسيكون من دواعي سرورنا أن تصبح عائلتكم جزءاً منها.'
+        : 'Our story is still being written. And we would be honored for your family to become part of it.',
       btn: isAr ? 'كن جزءاً من قصتنا' : 'Become Part of Our Story'
     }
   };
@@ -70,7 +73,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
 
             {/* Hero Card with Image and Phrase */}
             <div className="bg-white border border-slate-200 rounded-[2rem] p-4 lg:p-6 shadow-2xl overflow-hidden">
-              <div className="relative aspect-square sm:aspect-[4/3] max-w-2xl mx-auto rounded-2xl overflow-hidden mb-8">
+              <div className="relative aspect-[4/3] max-w-2xl mx-auto rounded-2xl overflow-hidden mb-8">
                 <Image 
                   src="/story.png" 
                   alt="BBA Story" 
