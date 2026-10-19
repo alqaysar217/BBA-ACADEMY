@@ -48,7 +48,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
         title: isAr ? 'رؤيتنا' : 'Our Vision',
         text: isAr 
           ? 'أن نصبح أحد أكثر الشركاء التعليميين موثوقية للعائلات في جميع أنحاء الولايات المتحدة من خلال توفير التوجيه والدعم والمسارات التعليمية التي تلهم الطلاب للوصول إلى إمكاناتهم الكاملة مع البقاء متجذرين في عقيدتهم وقيمهم وهويتهم.'
-          : 'To become one of the most trusted educational partners for families across the United States by providing guidance, support, and educational pathways that inspire students to reach their full potential while remaining grounded in their faith, values, and identity.'
+          : 'To become one of the most trusted educational partners for families across the United States by providing guidance, support, and educational pathways that inspire students to reach their full potential while remaining grounded in their faith, values, and identity.',
       },
       commitment: {
         title: isAr ? 'التزامنا' : 'Our Commitment',
@@ -78,7 +78,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-8">
               <div className="space-y-4">
-                <h1 className="text-2xl lg:text-5xl font-black text-primary tracking-tight leading-tight">
+                <h1 className="text-2xl lg:text-4xl font-black text-primary tracking-tight leading-tight">
                   {t.title}
                 </h1>
                 <p className="text-xl font-bold text-secondary italic">
@@ -200,7 +200,9 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
           </div>
           <div className="bg-white p-10 lg:p-16 rounded-lg shadow-sm border border-slate-200 space-y-8">
             <div className="flex justify-center">
-              <Heart className="h-12 w-12 text-secondary fill-secondary" />
+              <div className="h-12 w-12 text-secondary flex items-center justify-center">
+                <Heart className="h-10 w-10 fill-secondary" />
+              </div>
             </div>
             <h3 className="text-2xl sm:text-3xl font-black text-primary">{t.sections.commitment.intro}</h3>
             <div className="space-y-6">
@@ -224,7 +226,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {t.sections.glance.items.map((stat, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-xl border border-slate-200 text-center space-y-4 shadow-sm hover:shadow-md transition-all">
+              <div key={idx} className="bg-white p-8 rounded border border-slate-200 text-center space-y-4 shadow-sm hover:shadow-md transition-all">
                 <div className="mx-auto h-12 w-12 text-secondary flex items-center justify-center">
                   <stat.icon className="h-8 w-8" />
                 </div>
