@@ -50,7 +50,10 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         ? 'في أكاديمية بنين وبنات، التعليم يتعلق ببناء الشخصية، وإلهام الثقة، وتقوية العائلات، وإعداد الطلاب لنجاح طويل الأمد.'
         : 'At Baneen and Banaat Academy, education is about building character, inspiring confidence, strengthening families, and preparing students for lifelong success.'
     },
-    closing: "Our story is still being written. And we would be honored for your family to become part of it."
+    closing: {
+      text: "Our story is still being written. And we would be honored for your family to become part of it.",
+      btn: isAr ? 'كن جزءاً من قصتنا' : 'Become Part of Our Story'
+    }
   };
 
   return (
@@ -107,15 +110,18 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
             <div className="h-1 w-12 bg-secondary mx-auto mt-4" />
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-12">
+          <div className="max-w-4xl mx-auto space-y-16">
             {t.milestones.map((milestone, idx) => (
-              <div key={idx} className="space-y-4">
-                {/* Year Title Alone on Top */}
-                <div className="text-2xl lg:text-3xl font-black text-secondary px-2">
-                  {milestone.year}
+              <div key={idx} className="space-y-6">
+                {/* Year Title with Underline */}
+                <div className="inline-block px-2">
+                  <div className="text-3xl lg:text-4xl font-black text-secondary mb-2">
+                    {milestone.year}
+                  </div>
+                  <div className="h-1.5 w-full bg-secondary/30 rounded-full" />
                 </div>
                 {/* Card with Text Content */}
-                <div className="bg-white border border-slate-200 rounded-xl p-8 lg:p-12 shadow-sm hover:shadow-md transition-shadow">
+                <div className="bg-white border border-slate-200 rounded-[2rem] p-8 lg:p-12 shadow-sm hover:shadow-xl transition-all duration-300">
                   <p className="text-slate-600 leading-relaxed font-medium text-base lg:text-lg">
                     {milestone.content}
                   </p>
@@ -163,23 +169,23 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         </div>
       </section>
 
-      {/* Closing Section */}
-      <section className="py-20 lg:py-24 bg-primary text-white">
+      {/* Closing Section - Changed background to distinguish from footer */}
+      <section className="py-24 lg:py-32 bg-slate-100 border-t border-slate-200">
         <div className="container-tight text-center max-w-4xl mx-auto space-y-12">
           <div className="flex justify-center">
-            <div className="h-16 w-16 bg-white/10 rounded-2xl flex items-center justify-center text-secondary">
+            <div className="h-16 w-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
               <Users className="h-8 w-8" />
             </div>
           </div>
-          <h2 className="text-2xl lg:text-4xl font-black leading-tight px-4">
-            {t.closing}
+          <h2 className="text-2xl lg:text-4xl font-black leading-tight px-4 text-primary">
+            {t.closing.text}
           </h2>
           <div className="pt-4">
             <Link 
               href={`/${lang}/enroll`}
-              className="inline-flex items-center gap-4 bg-secondary hover:bg-white hover:text-secondary text-white px-10 py-5 rounded-full font-black text-lg transition-all shadow-xl shadow-secondary/20"
+              className="inline-flex items-center gap-4 bg-secondary hover:bg-primary text-white px-10 py-5 rounded-full font-black text-lg transition-all shadow-xl shadow-secondary/20"
             >
-              {isAr ? 'كن جزءاً من قصتنا' : 'Become Part of Our Story'}
+              {t.closing.btn}
               {isAr ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
             </Link>
           </div>
