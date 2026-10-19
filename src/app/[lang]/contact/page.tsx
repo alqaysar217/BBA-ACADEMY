@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Mail, Phone, MessageCircle, MapPin, Clock, Instagram, Youtube, Facebook, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MessageCircle, MapPin, Clock, Instagram, Youtube, Facebook, CheckCircle2, Send } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function ContactPage({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -35,8 +35,8 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
     ],
     formTitle: isAr ? 'لنبدأ المحادثة' : 'Let\'s Start the Conversation',
     formText: isAr 
-      ? 'تبدأ رحلة كل طالب بمحادثة واحدة. سواء كنت تبحث عن إجابات، أو تستكشف فرصاً تعليمية جديدة، أو مستعداً للتسجيل، يسعدنا مساعدتك في اتخاذ الخطوة التالية. رحلة عائلتك التعليمية يمكن أن تبدأ بمحادثة واحدة.'
-      : 'Every student\'s journey begins with a single conversation. Whether you are looking for answers, exploring new educational opportunities, or ready to enroll, we are happy to help you take the next step. Your family\'s educational journey can begin with one conversation.',
+      ? 'تبدأ رحلة كل طالب بمحادثة واحدة. سواء كنت تبحث عن إجابات، أو تستكشف فرصاً تعليمية جديدة، أو مستعداً للتسجيل، يسعدنا مساعدتك في اتخاذ الخطوة التالية.'
+      : 'Every student\'s journey begins with a single conversation. Whether you are looking for answers, exploring new educational opportunities, or ready to enroll, we are happy to help you take the next step.',
     socialTitle: isAr ? 'تابعنا على وسائل التواصل الاجتماعي' : 'Follow Us on Social Media',
     labels: {
       name: isAr ? 'الاسم الكامل' : 'Full Name',
@@ -54,30 +54,33 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
   ];
 
   return (
-    <div className="bg-slate-50/50">
-      {/* Header Section */}
-      <section className="py-20 lg:py-24 bg-primary text-white text-center">
+    <div className="bg-white">
+      {/* Header Section - Improved: White background, clear text */}
+      <section className="py-20 lg:py-24 bg-white text-center">
         <div className="container-tight space-y-6">
-          <h1 className="text-3xl lg:text-5xl font-black tracking-tight">{t.title}</h1>
+          <div className="space-y-2">
+             <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-primary uppercase">{t.title}</h1>
+             <div className="h-1.5 w-20 bg-secondary mx-auto rounded-full" />
+          </div>
           <p className="text-xl lg:text-2xl font-bold text-secondary">{t.subtitle}</p>
-          <p className="text-white/80 max-w-4xl mx-auto leading-relaxed text-lg font-medium">
+          <p className="text-slate-600 max-w-4xl mx-auto leading-relaxed text-lg font-medium italic">
             {t.intro}
           </p>
         </div>
       </section>
 
       <div className="container-tight py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
           
-          {/* Contact Details & Info */}
+          {/* Contact Details Column */}
           <div className="lg:col-span-1 space-y-10">
-            {/* Contact Info Card */}
+            {/* Contact Info Group */}
             <div className="space-y-8">
               <h2 className="text-2xl font-black text-primary uppercase tracking-tight border-b-4 border-secondary pb-2 inline-block">
                 {t.contactInfoTitle}
               </h2>
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
                   <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
                     <Phone className="h-5 w-5 text-secondary" />
                   </div>
@@ -87,42 +90,41 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
                   <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
                     <MessageCircle className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
                     <h3 className="font-black text-primary text-sm">WhatsApp</h3>
-                    <Link href="https://wa.me/13136555778" target="_blank" className="text-slate-600 font-bold hover:text-secondary underline">
+                    <Link href="https://wa.me/13136555778" target="_blank" className="text-slate-600 font-bold hover:text-secondary underline decoration-secondary/30 underline-offset-4">
                       {t.contactInfo.whatsapp}
                     </Link>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
                   <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
                     <Mail className="h-5 w-5 text-secondary" />
                   </div>
                   <div>
                     <h3 className="font-black text-primary text-sm">{isAr ? 'البريد الإلكتروني' : 'Email'}</h3>
                     {t.contactInfo.emails.map(email => (
-                      <p key={email} className="text-slate-600 font-bold truncate">{email}</p>
+                      <p key={email} className="text-slate-600 font-bold truncate text-sm">{email}</p>
                     ))}
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
                   <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
                     <Clock className="h-5 w-5 text-secondary" />
                   </div>
                   <div>
                     <h3 className="font-black text-primary text-sm">{isAr ? 'ساعات العمل' : 'Office Hours'}</h3>
                     <p className="text-slate-600 font-bold text-sm leading-relaxed">{t.contactInfo.hours}</p>
-                    <p className="text-[10px] text-secondary font-black uppercase tracking-widest mt-1">{isAr ? 'توقيت شرق أمريكا (ET)' : 'Eastern Time (ET)'}</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
                   <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
                     <MapPin className="h-5 w-5 text-secondary" />
                   </div>
@@ -134,15 +136,18 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
               </div>
             </div>
 
-            {/* How We Can Help Section */}
-            <div className="bg-primary text-white p-8 rounded-3xl shadow-xl space-y-6">
-              <h2 className="text-xl font-black uppercase tracking-tight border-b border-white/20 pb-4">
+            {/* Help Items Section */}
+            <div className="bg-primary text-white p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+                 <CheckCircle2 className="h-24 w-24" />
+              </div>
+              <h2 className="text-xl font-black uppercase tracking-tight border-b border-white/20 pb-4 mb-6 relative z-10">
                 {t.helpTitle}
               </h2>
-              <ul className="space-y-4">
+              <ul className="space-y-4 relative z-10">
                 {t.helpItems.map((item, idx) => (
                   <li key={idx} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-secondary shrink-0" />
+                    <div className="h-2 w-2 rounded-full bg-secondary shrink-0" />
                     <span className="font-bold text-sm opacity-90">{item}</span>
                   </li>
                 ))}
@@ -150,57 +155,68 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
             </div>
           </div>
 
-          {/* Form Section */}
+          {/* Form Column - Improved Input styling */}
           <div className="lg:col-span-2 space-y-10">
-            <Card className="premium-card rounded-[2.5rem] border-none shadow-2xl overflow-hidden bg-white">
-              <CardHeader className="bg-primary text-white p-8 lg:p-12 text-center lg:text-start space-y-4">
-                <CardTitle className="text-3xl font-black uppercase tracking-tight">{t.formTitle}</CardTitle>
-                <p className="text-white/70 font-medium leading-relaxed italic">
+            <Card className="rounded-[2.5rem] border border-slate-100 shadow-2xl overflow-hidden bg-white">
+              <CardHeader className="bg-slate-50 p-8 lg:p-12 border-b border-slate-100">
+                <CardTitle className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">{t.formTitle}</CardTitle>
+                <p className="text-slate-500 font-bold leading-relaxed mt-4 max-w-xl">
                   {t.formText}
                 </p>
               </CardHeader>
               <CardContent className="p-8 lg:p-12 space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t.labels.name}</label>
-                    <Input placeholder={isAr ? 'أدخل اسمك الكامل' : 'Enter your full name'} className="h-14 bg-slate-50 border-none rounded-xl font-bold" />
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.name}</label>
+                    <Input 
+                      placeholder={isAr ? 'أدخل اسمك الكامل' : 'Enter your full name'} 
+                      className="h-14 bg-white border border-slate-200 rounded-xl font-bold transition-all focus:border-secondary focus:ring-secondary/10" 
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t.labels.email}</label>
-                    <Input type="email" placeholder="email@example.com" className="h-14 bg-slate-50 border-none rounded-xl font-bold" />
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.email}</label>
+                    <Input 
+                      type="email" 
+                      placeholder="email@example.com" 
+                      className="h-14 bg-white border border-slate-200 rounded-xl font-bold transition-all focus:border-secondary focus:ring-secondary/10" 
+                    />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t.labels.subject}</label>
-                  <Input placeholder={isAr ? 'موضوع الرسالة' : 'Subject of message'} className="h-14 bg-slate-50 border-none rounded-xl font-bold" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400">{t.labels.message}</label>
-                  <Textarea 
-                    placeholder={isAr ? 'كيف يمكننا مساعدتك؟ نحن مستعدون للرد على كافة أسئلتك.' : 'How can we help you? We are ready to answer all your questions.'} 
-                    className="min-h-[180px] bg-slate-50 border-none rounded-xl font-bold p-6"
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.subject}</label>
+                  <Input 
+                    placeholder={isAr ? 'موضوع الرسالة' : 'Subject of message'} 
+                    className="h-14 bg-white border border-slate-200 rounded-xl font-bold transition-all focus:border-secondary focus:ring-secondary/10" 
                   />
                 </div>
-                <Button className="w-full bg-secondary hover:bg-primary text-white font-black h-16 text-lg rounded-2xl shadow-xl shadow-secondary/20 transition-all scale-100 hover:scale-[1.02] active:scale-[0.98]">
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.message}</label>
+                  <Textarea 
+                    placeholder={isAr ? 'كيف يمكننا مساعدتك؟ نحن مستعدون للرد على كافة أسئلتك.' : 'How can we help you? We are ready to answer all your questions.'} 
+                    className="min-h-[180px] bg-white border border-slate-200 rounded-xl font-bold p-6 transition-all focus:border-secondary focus:ring-secondary/10"
+                  />
+                </div>
+                <Button className="w-full bg-secondary hover:bg-primary text-white font-black h-16 text-lg rounded-2xl shadow-xl shadow-secondary/20 transition-all scale-100 hover:scale-[1.01] active:scale-[0.99] gap-3">
                   {t.labels.send}
+                  <Send className={isAr ? "h-5 w-5 rotate-180" : "h-5 w-5"} />
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Social Media Section */}
-            <div className="text-center space-y-8 pt-8">
+            {/* Social Links Footer */}
+            <div className="text-center space-y-10 pt-8 border-t border-slate-100">
               <h2 className="text-xl font-black text-primary uppercase tracking-tight">
                 {t.socialTitle}
               </h2>
-              <div className="flex flex-wrap justify-center gap-6">
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-10">
                 {socials.map((social, idx) => (
                   <Link 
                     key={idx} 
                     href={social.href} 
                     target="_blank" 
-                    className="group flex flex-col items-center gap-3"
+                    className="group flex flex-col items-center gap-4"
                   >
-                    <div className="h-16 w-16 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center transition-all group-hover:bg-secondary group-hover:border-secondary group-hover:scale-110 group-hover:-rotate-6">
+                    <div className="h-16 w-16 rounded-3xl bg-white border border-slate-100 shadow-sm flex items-center justify-center transition-all group-hover:bg-secondary group-hover:border-secondary group-hover:-translate-y-2 group-hover:rotate-6">
                       <social.icon className="h-7 w-7 text-primary group-hover:text-white transition-colors" />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-secondary transition-colors">
