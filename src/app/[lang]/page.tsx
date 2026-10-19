@@ -116,17 +116,17 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       {/* Why BBA Section */}
       <section className="section-padding bg-white">
         <div className="container-tight">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="text-4xl font-black text-primary">{t.why.title}</h2>
+          <div className="text-center mb-16 sm:mb-20 space-y-4">
+            <h2 className="text-2xl sm:text-4xl font-black text-primary">{t.why.title}</h2>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {t.why.items.map((item, idx) => (
-              <div key={idx} className="premium-card p-10 rounded-[2rem] text-center space-y-6">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-50 text-secondary shadow-inner">
-                  <item.icon className="h-10 w-10" />
+              <div key={idx} className="premium-card p-8 sm:p-10 rounded-[2rem] text-center space-y-6">
+                <div className="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-3xl bg-slate-50 text-secondary shadow-inner">
+                  <item.icon className="h-8 w-8 sm:h-10 sm:w-10" />
                 </div>
-                <h3 className="font-extrabold text-xl text-primary leading-tight">{item.title}</h3>
+                <h3 className="font-extrabold text-lg sm:text-xl text-primary leading-tight">{item.title}</h3>
               </div>
             ))}
           </div>
@@ -136,17 +136,17 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       {/* Educational Pathways Section */}
       <section className="section-padding bg-slate-50/50">
         <div className="container-tight">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div className="space-y-10 order-2 lg:order-1">
-              <div className="space-y-6">
-                <h2 className="text-4xl font-black text-primary sm:text-5xl tracking-tight leading-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div className="space-y-8 sm:space-y-10 order-2 lg:order-1">
+              <div className="space-y-4 sm:space-y-6">
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-primary tracking-tight leading-tight">
                   {t.pathways.title}
                 </h2>
-                <p className="text-lg text-slate-600 leading-relaxed italic border-l-4 border-secondary pl-6 py-2">
+                <p className="text-base sm:text-lg text-slate-600 leading-relaxed italic border-l-4 border-secondary pl-6 py-2">
                   {t.pathways.desc}
                 </p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 sm:gap-y-6">
                 {t.pathways.features.map((feature, idx) => (
                   <div key={idx} className="flex items-center gap-4 group">
                     <div className="h-3 w-3 rounded-full bg-secondary shadow-sm shadow-secondary/50 group-hover:scale-125 transition-transform" />
@@ -154,14 +154,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   </div>
                 ))}
               </div>
-              <Link href={`/${lang}/planning`} className="block pt-4">
-                <Button className="bg-primary hover:bg-accent rounded-full h-14 px-8 text-md font-bold">
+              <Link href={`/${lang}/planning`} className="block pt-2">
+                <Button className="bg-primary hover:bg-accent rounded-full h-12 sm:h-14 px-8 text-sm sm:text-md font-bold">
                   {t.pathways.cta}
                   {isAr ? <ArrowLeft className="mr-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
                 </Button>
               </Link>
             </div>
-            <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 ring-8 ring-white/50">
+            <div className="relative aspect-[4/3] rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 ring-8 ring-white/50">
               <Image 
                 src="https://picsum.photos/seed/bba1/1000/800" 
                 alt="Students learning" 
