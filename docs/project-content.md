@@ -147,8 +147,6 @@ Because the program uses Edgenuity and requires independent online learning, stu
 - **Independent learning skills:** The ability to work independently with follow-up and guidance.
 - **Reliable technology:** Consistent access to a laptop or tablet and a stable internet connection.
 
-These requirements help students benefit from the online learning platform and the academy's support system.
-
 ### Key Program Features
 
 - Online English coursework through Edgenuity.
