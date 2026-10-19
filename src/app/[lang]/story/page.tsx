@@ -138,11 +138,11 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative aspect-[16/10] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl">
               <Image 
-                src="https://picsum.photos/seed/partnership/800/800" 
+                src="/Digital Expansion.png" 
                 alt="Academy Core Principle" 
                 fill 
                 className="object-cover"
-                data-ai-hint="school family partnership"
+                unoptimized
               />
             </div>
             <div className="space-y-8">
@@ -169,7 +169,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         </div>
       </section>
 
-      {/* Closing Section - Changed background to distinguish from footer */}
+      {/* Closing Section */}
       <section className="py-24 lg:py-32 bg-slate-100 border-t border-slate-200">
         <div className="container-tight text-center max-w-4xl mx-auto space-y-12">
           <div className="flex justify-center">
