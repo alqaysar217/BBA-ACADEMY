@@ -5,14 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
-import { Menu, Globe, ChevronDown } from 'lucide-react';
+import { Menu, ArrowLeftRight } from 'lucide-react';
 import Image from 'next/image';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -36,6 +30,8 @@ export function Header({ lang }: { lang: Locale }) {
     segments[1] = locale;
     return segments.join('/');
   };
+
+  const otherLang = lang === 'en' ? 'ar' : 'en';
 
   const t = {
     applyNow: lang === 'en' ? 'Apply Now' : 'سجل الآن',
@@ -80,23 +76,16 @@ export function Header({ lang }: { lang: Locale }) {
         </div>
 
         <div className="flex items-center gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2 text-primary/70 hover:text-primary">
-                <Globe className="h-4 w-4" />
-                <span className="uppercase text-xs font-bold">{lang}</span>
-                <ChevronDown className="h-3 w-3 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem asChild>
-                <Link href={redirectedPathname('en')} className="font-medium cursor-pointer">English</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={redirectedPathname('ar')} className="font-medium cursor-pointer font-arabic">العربية</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Language Toggle Button */}
+          <Link
+            href={redirectedPathname(otherLang)}
+            title={lang === 'en' ? 'تبديل للعربية' : 'Switch to English'}
+            className="group flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 hover:border-secondary hover:bg-white transition-all shadow-sm"
+          >
+            <span className={cn("text-lg transition-opacity", lang === 'en' ? "opacity-100" : "opacity-30")}>🇺🇸</span>
+            <ArrowLeftRight className="h-3 w-3 text-slate-300 group-hover:text-secondary transition-colors" />
+            <span className={cn("text-lg transition-opacity", lang === 'ar' ? "opacity-100" : "opacity-30")}>🇸🇦</span>
+          </Link>
 
           <Link href={`/${lang}/enroll`} className="hidden sm:block">
             <Button size="sm" className="bg-primary hover:bg-accent shadow-md rounded-full px-6 transition-all duration-300">
