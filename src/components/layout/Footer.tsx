@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { type Locale } from '@/lib/i18n/config';
 import { 
@@ -22,9 +23,15 @@ import {
   GraduationCap
 } from 'lucide-react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 export function Footer({ lang }: { lang: Locale }) {
   const isAr = lang === 'ar';
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
   
   const content = {
     intro: isAr 
@@ -198,7 +205,7 @@ export function Footer({ lang }: { lang: Locale }) {
         {/* Footer Bottom */}
         <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] font-black text-white/30 tracking-[0.2em] uppercase text-center md:text-start">
-            © {new Date().getFullYear()} Baneen & Banaat Academy. {content.copyright}
+            © {currentYear ?? '2025'} Baneen & Banaat Academy. {content.copyright}
           </p>
           <div className="flex items-center gap-8 text-[10px] font-black text-white/40 tracking-widest uppercase">
             <Link href="#" className="hover:text-secondary transition-colors">Privacy Policy</Link>
@@ -208,8 +215,4 @@ export function Footer({ lang }: { lang: Locale }) {
       </div>
     </footer>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }
