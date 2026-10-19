@@ -43,7 +43,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   return (
     <div className="flex flex-col">
       {/* Hero Section with Responsive Background Images */}
-      <section className="relative min-h-[70vh] sm:min-h-[85vh] flex items-center overflow-hidden bg-primary py-16 sm:py-24 lg:py-32">
+      <section className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center overflow-hidden bg-primary py-16 sm:py-24 lg:py-32">
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
           {/* Desktop Image */}
@@ -57,19 +57,19 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               unoptimized
             />
           </div>
-          {/* Mobile Image */}
-          <div className="block sm:hidden absolute inset-0 bg-primary">
+          {/* Mobile Image - Using object-cover to fill all area on mobile */}
+          <div className="block sm:hidden absolute inset-0">
             <Image 
               src="/Academy background-phone.png" 
               alt="Academy background mobile" 
               fill 
-              className="object-contain opacity-80"
+              className="object-cover opacity-80"
               priority
               unoptimized
             />
           </div>
           {/* Overlay - Balanced for visibility and readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/30 to-primary/60" />
         </div>
 
         <div className="container-tight relative z-10">
@@ -81,7 +81,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               </span>
               {t.hero.welcome}
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-7xl leading-[1.1] drop-shadow-xl">
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-7xl leading-[1.1] drop-shadow-2xl">
               {t.hero.title}
             </h1>
             <p className="text-lg sm:text-xl text-white leading-relaxed max-w-3xl font-bold drop-shadow-lg">
