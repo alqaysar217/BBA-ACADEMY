@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState } from 'react';
@@ -107,8 +106,14 @@ const getGuideSections = (isAr: boolean) => [
     description: isAr ? 'دليلك لاستخدام منصة التعلم والوصول للمواد.' : 'Your guide to using the learning platform and accessing materials.',
     content: (
       <div className="space-y-6 py-2 sm:py-4 text-center">
-        <div className="aspect-video bg-slate-900 rounded-[1.5rem] sm:rounded-[2.5rem] flex items-center justify-center border-4 border-white shadow-xl overflow-hidden group">
-          <Monitor className="h-10 w-10 sm:h-12 sm:w-12 text-white/20 group-hover:scale-110 transition-transform" />
+        <div className="aspect-video bg-slate-900 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden border-4 border-white shadow-xl group relative">
+          <iframe
+            className="absolute inset-0 w-full h-full"
+            src="https://www.youtube.com/embed/wTuSRO3BJ8k"
+            title="BBA Academy - Edgenuity Orientation"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-start">
           {[
