@@ -1,3 +1,4 @@
+
 import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
 import { Target, Users, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -69,7 +70,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
 
             {/* Hero Card with Image and Phrase */}
             <div className="bg-white border border-slate-200 rounded-[2rem] p-4 lg:p-6 shadow-2xl overflow-hidden">
-              <div className="relative aspect-square rounded-2xl overflow-hidden mb-8">
+              <div className="relative aspect-square sm:aspect-[4/3] max-w-2xl mx-auto rounded-2xl overflow-hidden mb-8">
                 <Image 
                   src="/story.png" 
                   alt="BBA Story" 
@@ -113,14 +114,12 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
           <div className="max-w-4xl mx-auto space-y-16">
             {t.milestones.map((milestone, idx) => (
               <div key={idx} className="space-y-6">
-                {/* Year Title with Underline */}
                 <div className="inline-block px-2">
                   <div className="text-3xl lg:text-4xl font-black text-secondary mb-2">
                     {milestone.year}
                   </div>
                   <div className="h-1.5 w-full bg-secondary/30 rounded-full" />
                 </div>
-                {/* Card with Text Content */}
                 <div className="bg-white border border-slate-200 rounded-[2rem] p-8 lg:p-12 shadow-sm hover:shadow-xl transition-all duration-300">
                   <p className="text-slate-600 leading-relaxed font-medium text-base lg:text-lg">
                     {milestone.content}
@@ -181,13 +180,12 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
             {t.closing.text}
           </h2>
           <div className="pt-4">
-            <Link 
-              href={`/${lang}/enroll`}
-              className="inline-flex items-center gap-4 bg-secondary hover:bg-primary text-white px-6 py-4 sm:px-10 sm:py-5 rounded-full font-black text-base sm:text-lg transition-all shadow-xl shadow-secondary/20"
-            >
-              {t.closing.btn}
-              {isAr ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
-            </Link>
+            <Button asChild size="lg" className="h-auto bg-secondary hover:bg-primary text-white px-6 py-4 sm:px-10 sm:py-5 rounded-full font-black text-base sm:text-lg transition-all shadow-xl shadow-secondary/20 scale-100 active:scale-95">
+              <Link href={`/${lang}/enroll`}>
+                {t.closing.btn}
+                {isAr ? <ArrowLeft className="h-5 w-5 mr-3" /> : <ArrowRight className="h-5 w-5 ml-3" />}
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
