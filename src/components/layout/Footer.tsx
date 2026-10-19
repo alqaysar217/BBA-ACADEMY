@@ -2,7 +2,25 @@
 
 import Link from 'next/link';
 import { type Locale } from '@/lib/i18n/config';
-import { Mail, Phone, MessageCircle, MapPin, Clock, Instagram, Youtube, Facebook, ChevronRight } from 'lucide-react';
+import { 
+  Mail, 
+  Phone, 
+  MessageCircle, 
+  MapPin, 
+  Clock, 
+  Instagram, 
+  Youtube, 
+  Facebook, 
+  ChevronRight,
+  Home,
+  BookOpen,
+  Info,
+  History,
+  Map,
+  Library,
+  PhoneCall,
+  GraduationCap
+} from 'lucide-react';
 import Image from 'next/image';
 
 export function Footer({ lang }: { lang: Locale }) {
@@ -31,14 +49,14 @@ export function Footer({ lang }: { lang: Locale }) {
   ];
 
   const quickLinks = [
-    { name: { en: 'Home', ar: 'الرئيسية' }, href: '' },
-    { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs' },
-    { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about' },
-    { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story' },
-    { name: { en: 'Planning', ar: 'التخطيط والتخرج' }, href: '/planning' },
-    { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide' },
-    { name: { en: 'NY Resources', ar: 'موارد نيويورك' }, href: '/ny-resources' },
-    { name: { en: 'Contact Us', ar: 'اتصل بنا' }, href: '/contact' },
+    { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home },
+    { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs', icon: BookOpen },
+    { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
+    { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
+    { name: { en: 'Planning', ar: 'التخطيط والتخرج' }, href: '/planning', icon: Map },
+    { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide', icon: GraduationCap },
+    { name: { en: 'NY Resources', ar: 'موارد نيويورك' }, href: '/ny-resources', icon: Library },
+    { name: { en: 'Contact Us', ar: 'اتصل بنا' }, href: '/contact', icon: PhoneCall },
   ];
 
   return (
@@ -86,22 +104,27 @@ export function Footer({ lang }: { lang: Locale }) {
             </div>
           </div>
 
-          {/* Column 2: Quick Links */}
+          {/* Column 2: Quick Links with Icons */}
           <div className="space-y-8">
             <h4 className="text-lg font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
               {content.links}
             </h4>
-            <nav className="grid grid-cols-1 gap-3">
-              {quickLinks.map((link, idx) => (
-                <Link 
-                  key={idx} 
-                  href={`/${lang}${link.href}`}
-                  className="text-white/60 hover:text-secondary text-sm font-bold flex items-center gap-2 group transition-colors"
-                >
-                  <ChevronRight className={cn("h-3 w-3 text-secondary/40 group-hover:text-secondary transition-colors", isAr && "rotate-180")} />
-                  {link.name[lang]}
-                </Link>
-              ))}
+            <nav className="grid grid-cols-1 gap-4">
+              {quickLinks.map((link, idx) => {
+                const Icon = link.icon;
+                return (
+                  <Link 
+                    key={idx} 
+                    href={`/${lang}${link.href}`}
+                    className="text-white/60 hover:text-secondary text-sm font-bold flex items-center gap-3 group transition-colors"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-secondary/20 transition-all shrink-0">
+                      <Icon className="h-4 w-4 text-secondary/70 group-hover:text-secondary" />
+                    </div>
+                    {link.name[lang]}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
@@ -160,7 +183,6 @@ export function Footer({ lang }: { lang: Locale }) {
                 <span className="text-xs font-bold text-white/50">{content.weekends}</span>
               </div>
               
-              {/* Quick WhatsApp Link in Footer */}
               <Link 
                 href="https://wa.me/13136555778" 
                 target="_blank" 
