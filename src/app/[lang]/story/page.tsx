@@ -33,7 +33,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
           : 'As more families placed their trust in our mission, Baneen and Banaat Academy expanded by opening a boys\' division and establishing a second campus, allowing even more families to benefit from the academy\'s educational philosophy and student-centered approach.'
       },
       {
-        year: isAr ? 'التوسع' : 'Expansion',
+        year: isAr ? 'التوسع الرقمي' : 'Digital Expansion',
         content: isAr
           ? 'استجابة لأولياء الأمور في جميع أنحاء الولايات المتحدة، أطلقت الأكاديمية برامجها للتعلم عن بعد—بدءاً بطلاب المرحلتين المتوسطة والثانوية قبل التوسع إلى مستويات دراسية إضافية وبرامج متخصصة، بما في ذلك برامج عطلة نهاية الأسبوع ومبادرات تعليم الكبار.'
           : 'In response to parents across the United States, the academy launched its remote learning programs—initially serving middle and high school students before expanding to additional grade levels and specialized programs, including weekend learning opportunities and adult education initiatives.'
@@ -56,17 +56,17 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="bg-white">
-      {/* Hero Section: Founder & Intro Quote */}
-      <section className="py-20 lg:py-32 border-b border-slate-100">
+      {/* Hero Section */}
+      <section className="py-16 lg:py-24 border-b border-slate-100">
         <div className="container-tight">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="space-y-8 order-2 lg:order-1">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded text-secondary font-black text-[10px] uppercase tracking-widest">
                   <Quote className="h-3 w-3" />
                   {t.heroQuote}
                 </div>
-                <h1 className="text-3xl lg:text-5xl font-black text-primary leading-tight tracking-tight">
+                <h1 className="text-2xl lg:text-4xl font-black text-primary leading-tight tracking-tight">
                   {t.intro.question}
                 </h1>
               </div>
@@ -77,7 +77,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
                 <p>{t.intro.vision}</p>
               </div>
             </div>
-            <div className="relative aspect-square lg:aspect-[4/5] rounded-xl overflow-hidden shadow-2xl border-4 border-white order-1 lg:order-2">
+            <div className="relative aspect-[4/5] rounded-xl overflow-hidden shadow-2xl border-4 border-white order-1 lg:order-2 max-w-md mx-auto">
               <Image 
                 src="https://picsum.photos/seed/founder-vision/600/800" 
                 alt="Founder Vision" 
@@ -90,27 +90,28 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         </div>
       </section>
 
-      {/* Timeline / Milestones Section */}
-      <section className="py-24 bg-slate-50/50">
+      {/* Timeline Section */}
+      <section className="py-20 lg:py-24 bg-slate-50/50">
         <div className="container-tight">
           <div className="mb-16 text-center">
-            <h2 className="text-2xl lg:text-4xl font-black text-primary uppercase tracking-tight">{t.milestonesTitle}</h2>
+            <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">{t.milestonesTitle}</h2>
             <div className="h-1 w-12 bg-secondary mx-auto mt-4" />
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-12">
+          <div className="max-w-4xl mx-auto space-y-10">
             {t.milestones.map((milestone, idx) => (
               <div key={idx} className="bg-white border border-slate-200 rounded-lg p-8 lg:p-12 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                {/* Decorative icon hidden on mobile to avoid layout issues */}
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity hidden sm:block">
                    <History className="h-24 w-24 text-primary" />
                 </div>
                 <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
                   <div className="shrink-0">
-                    <div className="text-3xl font-black text-secondary leading-none">{milestone.year}</div>
+                    <div className="text-2xl lg:text-3xl font-black text-secondary leading-none">{milestone.year}</div>
                     <div className="h-1 w-8 bg-secondary mt-2" />
                   </div>
                   <div className="space-y-4">
-                    <p className="text-slate-600 leading-relaxed font-medium text-lg">
+                    <p className="text-slate-600 leading-relaxed font-medium text-base lg:text-lg">
                       {milestone.content}
                     </p>
                   </div>
@@ -121,10 +122,10 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         </div>
       </section>
 
-      {/* Our Core Principle Section */}
-      <section className="py-24">
+      {/* Principle Section */}
+      <section className="py-20 lg:py-24">
         <div className="container-tight">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative aspect-[16/10] lg:aspect-square rounded-xl overflow-hidden shadow-2xl">
               <Image 
                 src="https://picsum.photos/seed/principle/800/800" 
@@ -138,14 +139,14 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Target className="h-8 w-8 text-secondary" />
-                  <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">
+                  <h2 className="text-xl lg:text-2xl font-black text-primary uppercase tracking-tight">
                     {t.principle.title}
                   </h2>
                 </div>
                 <div className="h-1 w-12 bg-secondary" />
               </div>
               <div className="space-y-6">
-                <p className="text-2xl lg:text-3xl font-black text-primary leading-tight italic border-l-4 border-secondary pl-6 py-2">
+                <p className="text-xl lg:text-2xl font-black text-primary leading-tight italic border-l-4 border-secondary pl-6 py-2">
                   "{t.principle.main}"
                 </p>
                 <div className="space-y-4 text-slate-600 font-medium text-lg leading-relaxed">
@@ -159,14 +160,14 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
       </section>
 
       {/* Closing Section */}
-      <section className="py-24 bg-primary text-white border-t border-white/10">
+      <section className="py-20 lg:py-24 bg-primary text-white">
         <div className="container-tight text-center max-w-4xl mx-auto space-y-12">
           <div className="flex justify-center">
-            <div className="h-16 w-16 bg-secondary/20 rounded-2xl flex items-center justify-center text-secondary">
+            <div className="h-16 w-16 bg-white/10 rounded-2xl flex items-center justify-center text-secondary">
               <Users className="h-8 w-8" />
             </div>
           </div>
-          <h2 className="text-2xl lg:text-4xl font-black leading-tight">
+          <h2 className="text-2xl lg:text-4xl font-black leading-tight px-4">
             {t.closing}
           </h2>
           <div className="pt-4">
