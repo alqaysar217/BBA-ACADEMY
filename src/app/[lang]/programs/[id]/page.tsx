@@ -87,6 +87,9 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
   const sectionLabel = (en: string, ar: string) => isAr ? ar : en;
 
+  // Split logic that handles both English and Arabic commas
+  const splitList = (text: string) => text.split(/[،,]/).map(s => s.trim()).filter(Boolean);
+
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Header */}
@@ -114,7 +117,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-12">
             
-            {/* 1 & 2. Name and Intro */}
             <section className="space-y-6">
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-secondary/10 rounded-full text-secondary font-black text-xs uppercase tracking-widest">
                 <Star className="h-4 w-4" />
@@ -125,7 +127,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </p>
             </section>
 
-            {/* 3. What Students Learn */}
             <section className="space-y-6 p-8 sm:p-10 bg-slate-50 rounded-[2rem] border border-slate-100">
               <h3 className="text-2xl font-black text-primary flex items-center gap-4">
                 <BookOpen className="h-6 w-6 text-secondary" />
@@ -136,7 +137,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </p>
             </section>
 
-            {/* 4. Study Schedule */}
             <section className="space-y-6">
               <h3 className="text-2xl font-black text-primary flex items-center gap-4">
                 <Calendar className="h-6 w-6 text-secondary" />
@@ -147,7 +147,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </div>
             </section>
 
-            {/* 5. Teachers */}
             <section className="space-y-6 p-8 sm:p-10 bg-secondary/5 rounded-[2rem] border border-secondary/10">
               <h3 className="text-2xl font-black text-primary flex items-center gap-4">
                 <Users className="h-6 w-6 text-secondary" />
@@ -161,37 +160,34 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
           {/* Sidebar Area */}
           <div className="space-y-10">
-            {/* 6. Key Features */}
             <div className="bg-white p-8 rounded-[2rem] shadow-premium border border-slate-100 space-y-6">
               <h3 className="text-xl font-black text-primary uppercase tracking-tight border-b pb-4">
                 {sectionLabel('Key Features', 'أبرز المميزات')}
               </h3>
               <ul className="space-y-4">
-                {data.features.split('،').map((feature: string, i: number) => (
+                {splitList(data.features).map((feature, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                    <span className="font-bold text-slate-700 text-sm leading-relaxed">{feature.trim()}</span>
+                    <span className="font-bold text-slate-700 text-sm leading-relaxed">{feature}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* 7. Expected Outcomes */}
             <div className="bg-primary p-8 rounded-[2rem] text-white space-y-6">
               <h3 className="text-xl font-black uppercase tracking-tight border-b border-white/10 pb-4">
                 {sectionLabel('Expected Outcomes', 'المخرجات المتوقعة')}
               </h3>
               <div className="space-y-4">
-                {data.outcomes.split('،').map((outcome: string, i: number) => (
+                {splitList(data.outcomes).map((outcome, i) => (
                   <div key={i} className="flex items-center gap-4">
                     <div className="h-2 w-2 rounded-full bg-secondary" />
-                    <span className="font-bold text-sm leading-relaxed opacity-90">{outcome.trim()}</span>
+                    <span className="font-bold text-sm leading-relaxed opacity-90">{outcome}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Enroll CTA */}
             <div className="pt-6">
               <Link href={`/${lang}/enroll`}>
                 <Button className="w-full bg-secondary hover:bg-secondary/90 text-white font-black h-16 rounded-2xl shadow-xl shadow-secondary/20 transition-all scale-100 hover:scale-[1.02] active:scale-[0.98]">
