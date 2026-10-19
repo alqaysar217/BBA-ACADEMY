@@ -93,7 +93,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Section */}
       <div className="relative h-[30vh] sm:h-[40vh] min-h-[200px]">
         <Image src={data.image} alt={data.name} fill className="object-cover" priority unoptimized />
         <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px]" />
@@ -115,10 +114,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
       <div className="container-tight py-12 sm:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-          {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-16">
-            
-            {/* 1. Name & Intro */}
             <section className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded-full text-secondary font-black text-[10px] uppercase tracking-[0.2em]">
                 <Star className="h-3 w-3" />
@@ -129,7 +125,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </p>
             </section>
 
-            {/* 2. What Students Learn */}
             <section className="space-y-6">
               <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
                 <BookOpen className="h-6 w-6 text-secondary" />
@@ -140,7 +135,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </p>
             </section>
 
-            {/* 3. Study Schedule */}
             <section className="space-y-6">
               <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
                 <Calendar className="h-6 w-6 text-secondary" />
@@ -151,7 +145,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </div>
             </section>
 
-            {/* 4. Teachers */}
             <section className="space-y-6">
               <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
                 <Users className="h-6 w-6 text-secondary" />
@@ -163,9 +156,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             </section>
           </div>
 
-          {/* Sidebar Area */}
           <div className="space-y-10">
-            {/* 5. Key Features */}
             <div className="bg-white p-8 rounded-[2rem] shadow-premium border border-slate-100 space-y-6">
               <h3 className="text-lg font-black text-primary uppercase tracking-tight border-b pb-4">
                 {sectionLabel('Key Program Features', 'المميزات')}
@@ -180,7 +171,6 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </ul>
             </div>
 
-            {/* 6. Expected Outcomes */}
             <div className="bg-primary p-8 rounded-[2rem] text-white space-y-6 shadow-2xl shadow-primary/20">
               <h3 className="text-lg font-black uppercase tracking-tight border-b border-white/10 pb-4">
                 {sectionLabel('Expected Learning Outcomes', 'المخرجات التعليمية المتوقعة')}
@@ -195,14 +185,13 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
 
-            {/* CTA Button */}
             <div className="pt-4">
-              <Link href={`/${lang}/enroll`}>
-                <Button className="w-full bg-secondary hover:bg-white hover:text-secondary text-white font-black h-16 rounded-2xl shadow-xl transition-all border-2 border-transparent hover:border-secondary">
+              <Button asChild className="w-full bg-secondary hover:bg-white hover:text-secondary text-white font-black h-16 rounded-2xl shadow-xl transition-all border-2 border-transparent hover:border-secondary">
+                <Link href={`/${lang}/enroll`}>
                   {sectionLabel('Enroll Now', 'سجل الآن')}
                   {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

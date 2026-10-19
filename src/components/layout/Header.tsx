@@ -20,11 +20,11 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home }, // Base is /lang/
+  { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home },
   { name: { en: 'Programs', ar: 'البرامج' }, href: '/programs', icon: BookOpen },
   { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
   { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
@@ -36,6 +36,11 @@ const navigation = [
 export function Header({ lang }: { lang: Locale }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const redirectedPathname = (locale: string) => {
     if (!pathname) return '/';
@@ -52,10 +57,26 @@ export function Header({ lang }: { lang: Locale }) {
   };
 
   const isLinkActive = (href: string) => {
+    if (!pathname) return false;
     const fullHref = `/${lang}${href}`;
     if (href === '') return pathname === `/${lang}`;
     return pathname.startsWith(fullHref);
   };
+
+  if (!mounted) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
+        <div className="container-tight flex h-20 items-center justify-between">
+          <div className="flex items-center gap-12">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 bg-slate-100 rounded-xl animate-pulse" />
+              <div className="h-6 w-20 bg-slate-100 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
@@ -82,16 +103,17 @@ export function Header({ lang }: { lang: Locale }) {
           <nav className="hidden lg:flex items-center gap-8">
             {navigation.filter(i => i.href !== '').map((item) => {
               const Icon = item.icon;
+              const active = isLinkActive(item.href);
               return (
                 <Link
                   key={item.href}
                   href={`/${lang}${item.href}`}
                   className={cn(
                     "text-sm font-semibold transition-colors hover:text-secondary flex items-center gap-2",
-                    pathname?.includes(item.href) ? "text-secondary" : "text-primary/70"
+                    active ? "text-secondary" : "text-primary/70"
                   )}
                 >
-                  <Icon className="h-4 w-4 text-secondary/60 group-hover:text-secondary" />
+                  <Icon className={cn("h-4 w-4", active ? "text-secondary" : "text-secondary/60")} />
                   {item.name[lang]}
                 </Link>
               );
@@ -100,7 +122,6 @@ export function Header({ lang }: { lang: Locale }) {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Compact Language Toggle */}
           <Link
             href={redirectedPathname(otherLang)}
             title={lang === 'en' ? 'تبديل للعربية' : 'Switch to English'}
@@ -112,11 +133,9 @@ export function Header({ lang }: { lang: Locale }) {
             </span>
           </Link>
 
-          <Link href={`/${lang}/enroll`} className="hidden sm:block">
-            <Button size="sm" className="bg-primary hover:bg-accent shadow-md rounded-full px-6 transition-all duration-300">
-              {t.applyNow}
-            </Button>
-          </Link>
+          <Button asChild size="sm" className="hidden sm:inline-flex bg-primary hover:bg-accent shadow-md rounded-full px-6 transition-all duration-300">
+            <Link href={`/${lang}/enroll`}>{t.applyNow}</Link>
+          </Button>
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -126,7 +145,6 @@ export function Header({ lang }: { lang: Locale }) {
             </SheetTrigger>
             <SheetContent side={isAr ? 'right' : 'left'} className="w-[320px] p-0 border-none bg-primary text-white overflow-y-auto">
               <div className="flex flex-col h-full">
-                {/* Mobile Sidebar Header */}
                 <div className="p-8 border-b border-white/10">
                   <SheetTitle className="sr-only">Menu</SheetTitle>
                   <div className="flex items-center gap-3">
@@ -147,7 +165,6 @@ export function Header({ lang }: { lang: Locale }) {
                   </div>
                 </div>
 
-                {/* Navigation Items */}
                 <nav className="flex-1 py-6 px-4 space-y-2">
                   {navigation.map((item) => {
                     const active = isLinkActive(item.href);
@@ -174,13 +191,12 @@ export function Header({ lang }: { lang: Locale }) {
                   })}
                 </nav>
 
-                {/* Mobile Sidebar Footer */}
                 <div className="p-6 mt-auto border-t border-white/10">
-                  <Link href={`/${lang}/enroll`} onClick={() => setIsOpen(false)}>
-                    <Button className="w-full bg-secondary hover:bg-white hover:text-secondary text-white font-black h-14 rounded-2xl shadow-xl transition-all">
+                  <Button asChild className="w-full bg-secondary hover:bg-white hover:text-secondary text-white font-black h-14 rounded-2xl shadow-xl transition-all">
+                    <Link href={`/${lang}/enroll`} onClick={() => setIsOpen(false)}>
                       {t.applyNow}
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </SheetContent>

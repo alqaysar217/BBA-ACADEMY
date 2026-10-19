@@ -44,9 +44,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="bg-slate-50/30 min-h-screen pb-20">
-      {/* Page Header - Professional Design with Reduced Height */}
       <section className="bg-primary text-white py-12 sm:py-16 relative overflow-hidden">
-        {/* Subtle Grid Pattern Overlay */}
         <div className="absolute inset-0 opacity-[0.15]">
           <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -68,7 +66,6 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         </div>
       </section>
 
-      {/* Programs Cards Grid */}
       <section className="container px-4 md:px-8 -mt-6 sm:-mt-8 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
           {t.programs.map((prog) => {
@@ -98,12 +95,12 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
                   </p>
                   
                   <div className="pt-6 mt-auto">
-                    <Link href={`/${lang}/programs/${prog.id}`}>
-                      <Button variant="outline" className="w-full rounded-xl sm:rounded-2xl h-12 sm:h-14 border-primary/20 text-primary font-black text-xs sm:text-sm hover:bg-primary hover:text-white transition-all duration-300">
+                    <Button asChild variant="outline" className="w-full rounded-xl sm:rounded-2xl h-12 sm:h-14 border-primary/20 text-primary font-black text-xs sm:text-sm hover:bg-primary hover:text-white transition-all duration-300">
+                      <Link href={`/${lang}/programs/${prog.id}`}>
                         {t.viewDetails}
                         {isAr ? <ArrowLeft className="mr-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </div>

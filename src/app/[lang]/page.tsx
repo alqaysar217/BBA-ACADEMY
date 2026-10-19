@@ -42,11 +42,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section with Responsive Background Images */}
       <section className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center overflow-hidden bg-primary py-16 sm:py-24 lg:py-32">
-        {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
-          {/* Desktop Image */}
           <div className="hidden sm:block absolute inset-0">
             <Image 
               src="/Academy background.png" 
@@ -57,7 +54,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               unoptimized
             />
           </div>
-          {/* Mobile Image */}
           <div className="block sm:hidden absolute inset-0">
             <Image 
               src="/Academy background-phone.png" 
@@ -68,18 +64,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               unoptimized
             />
           </div>
-          {/* Refined Overlay for better visual depth */}
           <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/20 to-primary/60" />
         </div>
 
         <div className="container-tight relative z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8 sm:space-y-10">
-            {/* Redesigned Premium Welcome Tag */}
             <div className="relative group inline-flex items-center gap-4 py-2 px-6">
-              {/* Architectural Border & Background */}
               <div className="absolute inset-0 bg-white/10 border-l-4 border-secondary -skew-x-12 backdrop-blur-md transition-all group-hover:bg-white/20" />
               <div className="relative flex items-center gap-3">
-                {/* Dynamic Pulse Indicator */}
                 <div className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
@@ -97,23 +89,22 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               {t.hero.desc}
             </p>
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pt-4">
-              <Link href={`/${lang}/enroll`}>
-                <Button size="lg" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl shadow-secondary/20 rounded-full transition-all hover:scale-105 active:scale-95 font-black">
+              <Button asChild size="lg" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl shadow-secondary/20 rounded-full transition-all hover:scale-105 active:scale-95 font-black">
+                <Link href={`/${lang}/enroll`}>
                   {t.hero.apply}
                   {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
-                </Button>
-              </Link>
-              <Link href={`/${lang}/programs`}>
-                <Button size="lg" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg bg-white text-primary hover:bg-primary hover:text-white rounded-full transition-all font-bold shadow-xl border-none">
+                </Link>
+              </Button>
+              <Button asChild size="lg" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg bg-white text-primary hover:bg-primary hover:text-white rounded-full transition-all font-bold shadow-xl border-none">
+                <Link href={`/${lang}/programs`}>
                   {t.hero.explore}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Why BBA Section */}
       <section className="section-padding bg-white">
         <div className="container-tight">
           <div className="text-center mb-16 sm:mb-20 space-y-4">
@@ -133,7 +124,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* Educational Pathways Section */}
       <section className="section-padding bg-slate-50/50">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -154,12 +144,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   </div>
                 ))}
               </div>
-              <Link href={`/${lang}/planning`} className="block pt-2">
-                <Button className="bg-primary hover:bg-accent rounded-full h-12 sm:h-14 px-8 text-sm sm:text-md font-bold">
+              <Button asChild className="bg-primary hover:bg-accent rounded-full h-12 sm:h-14 px-8 text-sm sm:text-md font-bold">
+                <Link href={`/${lang}/planning`}>
                   {t.pathways.cta}
                   {isAr ? <ArrowLeft className="mr-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
             <div className="relative aspect-[4/3] rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 ring-8 ring-white/50">
               <Image 
