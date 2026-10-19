@@ -43,7 +43,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   return (
     <div className="flex flex-col">
       {/* Hero Section with Responsive Background Images */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-primary py-24 lg:py-32">
+      <section className="relative min-h-[70vh] sm:min-h-[85vh] flex items-center overflow-hidden bg-primary py-16 sm:py-24 lg:py-32">
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
           {/* Desktop Image */}
@@ -58,22 +58,22 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
             />
           </div>
           {/* Mobile Image */}
-          <div className="block sm:hidden absolute inset-0">
+          <div className="block sm:hidden absolute inset-0 bg-primary">
             <Image 
               src="/Academy background-phone.png" 
               alt="Academy background mobile" 
               fill 
-              className="object-cover opacity-60 grayscale-[10%]"
+              className="object-contain opacity-80"
               priority
               unoptimized
             />
           </div>
-          {/* Overlay - Reduced opacity for more clarity */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/30 to-primary/60" />
+          {/* Overlay - Balanced for visibility and readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/50" />
         </div>
 
         <div className="container-tight relative z-10">
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-10">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8 sm:space-y-10">
             <div className="inline-flex items-center gap-2 rounded-full bg-secondary/20 border border-secondary/30 px-5 py-2 text-sm font-bold text-white uppercase tracking-wider backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
@@ -81,21 +81,21 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               </span>
               {t.hero.welcome}
             </div>
-            <h1 className="text-5xl font-black tracking-tight text-white sm:text-7xl leading-[1.1] drop-shadow-lg">
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-7xl leading-[1.1] drop-shadow-xl">
               {t.hero.title}
             </h1>
-            <p className="text-xl text-white leading-relaxed max-w-3xl font-bold drop-shadow-md">
+            <p className="text-lg sm:text-xl text-white leading-relaxed max-w-3xl font-bold drop-shadow-lg">
               {t.hero.desc}
             </p>
-            <div className="flex flex-wrap justify-center gap-6 pt-4">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pt-4">
               <Link href={`/${lang}/enroll`}>
-                <Button size="lg" className="h-16 px-12 text-lg bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl shadow-secondary/20 rounded-full transition-all hover:scale-105 active:scale-95 font-black">
+                <Button size="lg" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl shadow-secondary/20 rounded-full transition-all hover:scale-105 active:scale-95 font-black">
                   {t.hero.apply}
                   {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
               </Link>
               <Link href={`/${lang}/programs`}>
-                <Button size="lg" variant="outline" className="h-16 px-12 text-lg border-2 border-white/40 text-white hover:bg-white hover:text-primary rounded-full transition-all backdrop-blur-md font-bold">
+                <Button size="lg" variant="outline" className="h-14 sm:h-16 px-10 sm:px-12 text-md sm:text-lg border-2 border-white/40 text-white hover:bg-white hover:text-primary rounded-full transition-all backdrop-blur-md font-bold">
                   {t.hero.explore}
                 </Button>
               </Link>
