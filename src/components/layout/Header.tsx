@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -13,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState, use } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
@@ -45,7 +46,7 @@ export function Header({ lang }: { lang: Locale }) {
       <div className="container-tight flex h-20 items-center justify-between">
         <div className="flex items-center gap-12">
           <Link href={`/${lang}`} className="group flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0">
+            <div className="relative flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0 overflow-visible">
               <Image 
                 src="/logo.png" 
                 alt="BBA Academy Logo" 
@@ -53,6 +54,7 @@ export function Header({ lang }: { lang: Locale }) {
                 height={48}
                 className="object-contain"
                 priority
+                unoptimized
               />
             </div>
             <div className="flex flex-col">
@@ -117,6 +119,7 @@ export function Header({ lang }: { lang: Locale }) {
                     width={56}
                     height={56}
                     className="object-contain"
+                    unoptimized
                   />
                 </div>
                 {navigation.map((item) => (

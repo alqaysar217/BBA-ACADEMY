@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { type Locale } from '@/lib/i18n/config';
 import { Mail, Phone, MessageCircle, MapPin } from 'lucide-react';
@@ -29,6 +30,7 @@ export function Footer({ lang }: { lang: Locale }) {
                   width={40}
                   height={40}
                   className="object-contain"
+                  unoptimized
                 />
               </div>
               <div className="flex flex-col">
