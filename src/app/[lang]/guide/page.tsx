@@ -21,7 +21,10 @@ import {
   ArrowLeft,
   X,
   Menu,
-  ExternalLink
+  ExternalLink,
+  Mail,
+  Phone,
+  Users
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -30,42 +33,62 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-// --- Structured Guide Data ---
+// --- Data Structure ---
 const getGuideData = (isAr: boolean) => [
   {
     id: 'getting-started',
     icon: Rocket,
     title: isAr ? 'البدء في BBA' : 'Getting Started at BBA',
-    description: isAr ? 'الخطوات الأولى لبدء رحلتك التعليمية بنجاح.' : 'The first steps to start your educational journey successfully.',
+    description: isAr ? 'الخطوات الخمس الأولى لبداية رحلتك التعليمية.' : 'The first five steps to begin your educational journey.',
     content: (
-      <div className="space-y-8">
-        <p className="text-lg text-slate-600 leading-relaxed">
-          {isAr 
-            ? 'تهانينا لانضمامك إلى أكاديمية بنين وبنات! بمجرد اكتمال تسجيلك، ستكون جاهزاً لبدء رحلة التعلم الخاصة بك. قبل بدء دورتك الأولى، خذ بضع دقائق لإكمال الخطوات أدناه.'
-            : 'Congratulations on joining Banaat Academy! Once your enrollment has been completed, you\'re ready to begin your learning journey. Before starting your first course, take a few moments to complete the steps below.'}
-        </p>
-        <div className="grid gap-6">
+      <div className="space-y-12">
+        <header className="space-y-4">
+          <p className="text-lg text-slate-600 leading-relaxed font-medium">
+            {isAr 
+              ? 'تهانينا لانضمامك إلى أكاديمية بنين وبنات! بمجرد اكتمال تسجيلك، ستكون جاهزاً لبدء رحلة التعلم. اتبع هذه الخطوات بعناية:'
+              : 'Congratulations on joining Banaat Academy! Once your enrollment is complete, you are ready to start. Follow these steps carefully:'}
+          </p>
+        </header>
+
+        <div className="space-y-8">
           {[
             {
-              t: isAr ? '1.1 تحقق من بريدك الإلكتروني الترحيبي' : '1.1 Check Your Welcome Email',
-              d: isAr ? 'يحتوي بريدك الإلكتروني الترحيبي على كل ما تحتاجه للبدء، بما في ذلك معلومات تسجيل الدخول إلى Edgenuity، وخطة الطالب الشخصية، ومعلومات التواصل مع مرشدك المخصص.' : 'Your Welcome Email contains everything you need to get started, including your Edgenuity login information, your personalized Student Plan, your assigned mentor and their contact info.'
+              n: "01",
+              t: isAr ? 'التحقق من البريد الترحيبي' : 'Check Your Welcome Email',
+              d: isAr ? 'يحتوي على معلومات الدخول، خطة الطالب الشخصية، ومعلومات التواصل مع مرشدك. تأكد من فحص البريد المهمل (Spam).' : 'Contains login info, your Student Plan, and mentor contact details. Be sure to check your Spam folder.'
             },
             {
-              t: isAr ? '1.2 سجل الدخول إلى حساب Edgenuity' : '1.2 Log Into Your Edgenuity Account',
-              d: isAr ? 'Edgenuity هي منصة التعلم عبر الإنترنت حيث ستكمل جميع دروسك ومهامك واختباراتك. هذا هو المكان الذي ستكتمل فيه معظم أنشطتك الدراسية.' : 'Edgenuity is the online learning platform where you will complete all of your lessons, assignments, quizzes, exams, and coursework.'
+              n: "02",
+              t: isAr ? 'تسجيل الدخول إلى Edgenuity' : 'Log Into Edgenuity',
+              d: isAr ? 'المنصة الأساسية لإكمال الدروس والمهام. شاهد الفيديو التوجيهي إذا كنت تستخدمها لأول مرة.' : 'The main platform for lessons and assignments. Watch the orientation video if you are new.'
             },
             {
-              t: isAr ? '1.3 راجع خطة الطالب الخاصة بك' : '1.3 Review Your Student Plan',
-              d: isAr ? 'يتلقى كل طالب خطة توضح الدورات المتوقع إكمالها. عادة، يكمل الطلاب 10 دورات بين سبتمبر ويونيو، بمعدل دورة واحدة كل شهر.' : 'Every student receives a Student Plan outlining the courses they are expected to complete. Typically, students complete 10 courses between September and June.'
+              n: "03",
+              t: isAr ? 'مراجعة خطة الطالب' : 'Review Your Student Plan',
+              d: isAr ? 'خارطة الطريق الخاصة بك. عادة ما يكمل الطلاب 10 دورات سنوياً بمعدل دورة كل شهر.' : 'Your educational roadmap. Typically 10 courses per year, averaging one per month.'
             },
             {
-              t: isAr ? '1.4 قابل مرشدك الأكاديمي' : '1.4 Meet Your Mentor',
-              d: isAr ? 'يتم تعيين مرشد لكل طالب للإجابة على الأسئلة ومراقبة التقدم. مرشدك هو نقطة الاتصال الأولى لأي مساعدة.' : 'Every student is assigned a BBA mentor who is available to answer questions, provide guidance, and monitor progress.'
+              n: "04",
+              t: isAr ? 'لقاء المرشد الأكاديمي' : 'Meet Your Mentor',
+              d: isAr ? 'مرشدك هو نقطة الاتصال الأولى للإجابة على تساؤلاتك ومتابعة تقدمك.' : 'Your mentor is your first point of contact for questions and progress monitoring.'
+            },
+            {
+              n: "05",
+              t: isAr ? 'بدء الدورة الأولى' : 'Start Your First Course',
+              d: isAr ? 'ابدأ بالدورة الأولى والتزم بالعمل اليومي لبناء عادات دراسية جيدة.' : 'Begin your first course and stick to a daily routine for best results.'
             }
           ].map((step, i) => (
-            <div key={i} className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-              <h4 className="font-black text-primary mb-2">{step.t}</h4>
-              <p className="text-slate-600 text-sm leading-relaxed">{step.d}</p>
+            <div key={i} className="flex gap-6 group">
+              <div className="flex flex-col items-center">
+                <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center font-black text-xs shrink-0 shadow-lg shadow-primary/20">
+                  {step.n}
+                </div>
+                {i < 4 && <div className="w-px h-full bg-slate-200 my-2" />}
+              </div>
+              <div className="pb-8">
+                <h4 className="text-xl font-black text-primary mb-2 group-hover:text-secondary transition-colors">{step.t}</h4>
+                <p className="text-slate-500 leading-relaxed font-medium">{step.d}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -75,28 +98,32 @@ const getGuideData = (isAr: boolean) => [
   {
     id: 'how-it-works',
     icon: BookOpen,
-    title: isAr ? 'كيف يعمل برنامج BBA' : 'How the BBA Program Works',
-    description: isAr ? 'فهم نظام التعلم المرن والتقدم الأكاديمي.' : 'Understanding the flexible learning system and academic progress.',
+    title: isAr ? 'آلية عمل البرنامج' : 'How the BBA Program Works',
+    description: isAr ? 'فهم الاختلاف عن المدارس التقليدية ونظام المرونة.' : 'Understanding the difference from traditional schools and flexibility.',
     content: (
-      <div className="space-y-8">
-        <div className="bg-primary/5 p-8 rounded-3xl border border-primary/10">
-          <h3 className="text-xl font-black text-primary mb-4">{isAr ? 'BBA تختلف عن المدرسة التقليدية' : 'BBA Is Different From a Traditional School'}</h3>
-          <p className="text-slate-600 leading-relaxed">
-            {isAr 
-              ? 'بدلاً من حضور فصول دراسية مباشرة يومياً، يكمل الطلاب دوراتهم عبر الإنترنت من خلال Edgenuity مع تلقي التوجيه من الفريق الأكاديمي.'
-              : 'Instead of attending live classes every day, students complete their coursework online through Edgenuity while receiving guidance and support from BBA\'s academic team.'}
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {[
-            { t: isAr ? 'اتبع خطة الطالب' : 'Follow Your Student Plan', d: isAr ? 'خارطة الطريق الخاصة بك للنجاح والتخرج في الوقت المحدد.' : 'Your roadmap to success and graduating on time.' },
-            { t: isAr ? 'تعلم بالسرعة التي تناسبك' : 'Learn at Your Own Pace', d: isAr ? 'لا توجد ساعات عمل إجبارية، يمكنك الدراسة في الوقت الذي يناسبك.' : 'No required daily class hours. Study whenever fits your schedule.' },
-            { t: isAr ? 'التقدم هو الأهم' : 'Progress Is What Matters', d: isAr ? 'النجاح لا يقاس بالحضور، بل بإحراز تقدم ثابت في المواد.' : 'Success isn\'t measured by attendance! It\'s measured by progress.' },
-            { t: isAr ? 'تعلم من أي مكان' : 'Learn From Anywhere', d: isAr ? 'فصلك الدراسي يسافر معك أينما وجد إنترنت مستقر.' : 'Your classroom travels with you wherever you have reliable internet.' }
+            { 
+              t: isAr ? 'تعلم بالسرعة التي تناسبك' : 'Learn at Your Own Pace', 
+              d: isAr ? 'لا توجد ساعات عمل إجبارية، مما يسمح لك ببناء جدول يناسب نمط حياتك.' : 'No required daily class hours, letting you build a schedule that fits your lifestyle.' 
+            },
+            { 
+              t: isAr ? 'التقدم هو المقياس' : 'Progress Is Key', 
+              d: isAr ? 'النجاح لا يقاس بالحضور، بل بإكمال 5-7% من المادة يومياً.' : 'Success isn\'t measured by attendance but by completing 5–7% daily.' 
+            },
+            { 
+              t: isAr ? 'الدعم الفردي' : 'One-on-One Support', 
+              d: isAr ? 'مرشدك يتابع تقدمك ويساعدك في تجاوز التحديات الأكاديمية.' : 'Your mentor monitors progress and helps you overcome academic challenges.' 
+            },
+            { 
+              t: isAr ? 'تعلم من أي مكان' : 'Learn From Anywhere', 
+              d: isAr ? 'فصلك الدراسي معك أينما وجد الإنترنت المستقر.' : 'Your classroom is with you wherever you have stable internet.' 
+            }
           ].map((item, i) => (
-            <div key={i} className="p-6 rounded-2xl border border-slate-100 hover:border-secondary transition-all">
-              <h4 className="font-black text-primary mb-2">{item.t}</h4>
-              <p className="text-slate-500 text-sm leading-relaxed">{item.d}</p>
+            <div key={i} className="p-8 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md transition-all">
+              <h4 className="text-lg font-black text-primary mb-3">{item.t}</h4>
+              <p className="text-slate-500 text-sm leading-relaxed font-medium">{item.d}</p>
             </div>
           ))}
         </div>
@@ -106,34 +133,25 @@ const getGuideData = (isAr: boolean) => [
   {
     id: 'edgenuity-guide',
     icon: Monitor,
-    title: isAr ? 'البدء مع Edgenuity' : 'Getting Started With Edgenuity',
-    description: isAr ? 'دليل استخدام منصة التعلم والوصول للمواد.' : 'Guide to using the learning platform and accessing materials.',
+    title: isAr ? 'دليل Edgenuity' : 'Getting Started with Edgenuity',
+    description: isAr ? 'كيفية استخدام منصة التعلم والوصول للمواد.' : 'How to use the learning platform and access materials.',
     content: (
-      <div className="space-y-8">
-        <div className="aspect-video bg-slate-100 rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-300 relative overflow-hidden group">
-          <div className="text-center p-8 relative z-10">
-            <Monitor className="h-12 w-12 text-slate-400 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-            <p className="font-bold text-slate-500">{isAr ? 'فيديو توجيهي للمنصة' : 'Platform Orientation Video'}</p>
-            <p className="text-xs text-slate-400 mt-2">{isAr ? '(سيتم تفعيل الرابط قريباً)' : '(Video link coming soon)'}</p>
+      <div className="space-y-12">
+        <div className="aspect-video bg-slate-900 rounded-[2.5rem] flex items-center justify-center border-8 border-white shadow-2xl overflow-hidden group">
+          <div className="text-center p-8 space-y-4">
+             <div className="h-20 w-20 bg-white/10 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform cursor-pointer">
+                <Monitor className="h-10 w-10 text-white" />
+             </div>
+             <p className="text-white font-bold">{isAr ? 'شاهد الفيديو التوجيهي للمنصة' : 'Watch the Platform Orientation Video'}</p>
           </div>
         </div>
-        <div className="flex justify-center">
-          <Button asChild size="lg" className="bg-secondary hover:bg-primary text-white rounded-full px-12 h-14 font-black shadow-xl shadow-secondary/20">
+        <div className="flex justify-center pt-8">
+          <Button asChild size="lg" className="bg-secondary hover:bg-primary text-white rounded-full px-12 h-16 font-black shadow-2xl shadow-secondary/20 transition-all scale-100 hover:scale-105">
             <Link href="https://student.edgenuity.com/login" target="_blank">
-              {isAr ? 'تسجيل دخول الطالب' : 'Student Login'}
-              <ExternalLink className="ml-2 h-4 w-4" />
+              {isAr ? 'تسجيل الدخول للمنصة' : 'Student Login to Edgenuity'}
+              <ExternalLink className={cn("h-4 w-4", isAr ? "mr-2" : "ml-2")} />
             </Link>
           </Button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
-            <h4 className="font-black text-primary mb-3">{isAr ? 'الدورات التدريبية' : 'Courses'}</h4>
-            <p className="text-sm text-slate-500">{isAr ? 'الوصول إلى جميع الدورات المعينة في مكان واحد مناسب.' : 'Access all assigned courses in one convenient location.'}</p>
-          </div>
-          <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
-            <h4 className="font-black text-primary mb-3">{isAr ? 'الدرجات والتقدم' : 'Grades & Progress'}</h4>
-            <p className="text-sm text-slate-500">{isAr ? 'راقب أداءك الأكاديمي في أي وقت لضمان البقاء في المسار.' : 'Monitor your academic performance at any time.'}</p>
-          </div>
         </div>
       </div>
     )
@@ -141,45 +159,35 @@ const getGuideData = (isAr: boolean) => [
   {
     id: 'success-formula',
     icon: ClipboardCheck,
-    title: isAr ? 'خطة الطالب ومعادلة النجاح' : 'Student Plan & Success Formula',
-    description: isAr ? 'المسار المختصر لضمان التخرج والنجاح.' : 'The shortcut to ensure graduation and success.',
+    title: isAr ? 'معادلة النجاح' : 'Student Plan & Success Formula',
+    description: isAr ? 'خمس خطوات تضمن لك التخرج في الوقت المحدد.' : 'Five steps ensuring you graduate on time.',
     content: (
-      <div className="space-y-10">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          {[
-            { id: 1, text: isAr ? 'تسجيل الدخول يومياً' : 'Log in every weekday' },
-            { id: 2, text: isAr ? 'إنجاز 5-7% يومياً' : 'Complete 5–7% daily' },
-            { id: 3, text: isAr ? 'إنهاء دورة شهرياً' : 'Finish 1 course each month' },
-            { id: 4, text: isAr ? 'إكمال 10 دورات سنوياً' : 'Complete all 10 courses' },
-            { id: 5, text: isAr ? 'البقاء في مسار التخرج' : 'Stay on track for graduation' }
-          ].map((step, i) => (
-            <div key={i} className="relative flex flex-col items-center text-center p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
-              <div className="h-10 w-10 rounded-full bg-secondary text-white flex items-center justify-center font-black mb-4">
-                {step.id}
-              </div>
-              <p className="text-sm font-bold text-primary leading-tight">{step.text}</p>
-              {i < 4 && (
-                <div className={cn(
-                  "hidden lg:block absolute top-1/2 -right-4 translate-y-[-50%] z-10 text-slate-300",
-                  isAr ? "rotate-180" : ""
-                )}>
-                  <ChevronRight className="h-6 w-6" />
+      <div className="space-y-12">
+        <div className="bg-primary text-white p-12 rounded-[3rem] shadow-2xl relative overflow-hidden">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8">
+            {[
+              { n: "1", t: isAr ? "دخول يومي" : "Daily Login" },
+              { n: "2", t: isAr ? "5-7% إنجاز" : "5-7% Done" },
+              { n: "3", t: isAr ? "دورة شهرياً" : "1 Course/Mo" },
+              { n: "4", t: isAr ? "10 دورات سنوياً" : "10 Courses/Yr" },
+              { n: "5", t: isAr ? "تخرج بنجاح" : "Graduate!" }
+            ].map((step, i) => (
+              <div key={i} className="flex flex-col items-center text-center gap-4">
+                <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center font-black text-xl shadow-lg">
+                  {step.n}
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-10">
-            <ClipboardCheck className="h-32 w-32" />
+                <p className="text-xs font-black uppercase tracking-widest">{step.t}</p>
+                {i < 4 && <ArrowRight className={cn("hidden md:block h-4 w-4 text-white/20", isAr && "rotate-180")} />}
+              </div>
+            ))}
           </div>
-          <h3 className="text-2xl font-black mb-6 text-secondary">{isAr ? 'نصيحة ذهبية' : 'Pro Tip'}</h3>
-          <p className="text-lg text-slate-300 leading-relaxed italic">
-            {isAr 
-              ? 'لا تنتظر حتى نهاية الشهر لبدء العمل. الطلاب الذين يحققون تقدماً طفيفاً كل يوم هم أكثر نجاحاً بكثير من أولئك الذين يحاولون إنهاء دورة كاملة في اللحظة الأخيرة.'
-              : 'Don\'t wait until the end of the month to begin working. Students who make a little progress every weekday are far more successful than those who try to finish an entire course at the last minute.'}
-          </p>
+          <div className="absolute top-0 right-0 p-8 opacity-5">
+            <ClipboardCheck className="h-64 w-64" />
+          </div>
         </div>
+        <p className="text-center text-slate-500 font-bold italic">
+          {isAr ? '"الطلاب الذين يحققون تقدماً طفيفاً كل يوم هم الأكثر نجاحاً."' : '"Students who make a little progress every day are the most successful."'}
+        </p>
       </div>
     )
   },
@@ -187,37 +195,33 @@ const getGuideData = (isAr: boolean) => [
     id: 'understanding-courses',
     icon: HelpCircle,
     title: isAr ? 'فهم الدورات والتقييمات' : 'Understanding Courses & Assessments',
-    description: isAr ? 'إجابات على أكثر الأسئلة شيوعاً حول النظام.' : 'Answers to common questions about the system.',
+    description: isAr ? 'إجابات على الأسئلة الشائعة حول المواد.' : 'Answers to common questions about materials.',
     content: (
       <div className="space-y-6">
         <Accordion type="single" collapsible className="space-y-4">
           {[
             { 
               q: isAr ? 'كم عدد الدورات التي سأكملها؟' : 'How many courses will I complete?', 
-              a: isAr ? 'يتم تعيين 10 دورات لمعظم الطلاب خلال العام الدراسي، وهي موضحة في خطتك الشخصية.' : 'Most students are assigned 10 courses to complete during the school year, listed in your personalized Student Plan.'
+              a: isAr ? 'يتم تعيين 10 دورات لمعظم الطلاب خلال العام الدراسي، وهي موضحة في خطتك الشخصية.' : 'Most students are assigned 10 courses to complete during the school year, as outlined in your personalized Student Plan.'
             },
             { 
-              q: isAr ? 'هل يمكنني العمل على أكثر من دورة؟' : 'Can I work on more than one course at a time?', 
-              a: isAr ? 'في معظم الحالات، لا. يجب التركيز على دورة واحدة لضمان الإتقان وعدم الارتباك.' : 'In most cases, NO. Focusing on one course at a time improves learning and prevents becoming overwhelmed.'
+              q: isAr ? 'هل يمكنني العمل على أكثر من دورة؟' : 'Can I work on more than one course?', 
+              a: isAr ? 'في معظم الحالات، لا. التركيز على دورة واحدة يحسن التعلم ويمنع الارتباك.' : 'In most cases, NO. Focusing on one course at a time improves learning and prevents becoming overwhelmed.'
             },
             { 
-              q: isAr ? 'كم من الوقت يجب أن تستغرق كل دورة؟' : 'How long should each course take?', 
-              a: isAr ? 'عادة ما تستغرق الدورة 3-4 أسابيع، مما يتيح إنهاء دورة واحدة كل شهر تقريباً.' : 'Courses are generally completed within 3–4 weeks, allowing students to finish about one course per month.'
+              q: isAr ? 'هل يمكنني إعادة الاختبارات؟' : 'Can I redo assignments or exams?', 
+              a: isAr ? 'نعم، إذا كانت الدرجة أقل من النجاح، لكن فرص الإعادة محدودة وتتطلب تنسيقاً مع المرشد.' : 'Yes, if the grade is below passing, but retake opportunities are limited and require coordination with your mentor.'
             },
             { 
-              q: isAr ? 'هل يمكنني تخطي الدروس أو الواجبات؟' : 'Can I skip lessons or assignments?', 
-              a: isAr ? 'لا. كل درس ومهمة مصممة لمساعدتك على إتقان المادة، والتخطي غير مسموح به.' : 'No. Every lesson and assignment is designed to help you master the material. Skipping is not permitted.'
-            },
-            { 
-              q: isAr ? 'كيف أحصل على دورتي التالية؟' : 'How do I receive my next course?', 
-              a: isAr ? 'أنهِ دورتك الحالية، أبلغ مرشدك، سيقوم الفريق بمراجعة درجاتك ثم تعيين الدورة التالية.' : 'Complete current course, notify mentor, team reviews grade, then next course is assigned.'
+              q: isAr ? 'كم تستغرق كل دورة؟' : 'How long should each course take?', 
+              a: isAr ? 'عادة 3-4 أسابيع عند الالتزام بالتقدم اليومي المطلوب (5-7%).' : 'Typically 3–4 weeks when maintaining the required daily progress (5–7%).'
             }
           ].map((item, i) => (
-            <AccordionItem key={i} value={`item-${i}`} className="bg-white border-none rounded-2xl px-6 shadow-sm">
-              <AccordionTrigger className="text-primary font-black hover:no-underline text-start">
+            <AccordionItem key={i} value={`faq-${i}`} className="bg-white border border-slate-100 rounded-3xl px-8 shadow-sm">
+              <AccordionTrigger className="text-primary font-black hover:no-underline text-start py-6">
                 {item.q}
               </AccordionTrigger>
-              <AccordionContent className="text-slate-500 font-medium leading-relaxed">
+              <AccordionContent className="text-slate-500 font-medium leading-relaxed pb-6">
                 {item.a}
               </AccordionContent>
             </AccordionItem>
@@ -229,42 +233,42 @@ const getGuideData = (isAr: boolean) => [
   {
     id: 'agreements',
     icon: ShieldCheck,
-    title: isAr ? 'اتفاقية الطالب ومسؤوليات الأهل' : 'Student Agreement & Parent Responsibilities',
-    description: isAr ? 'الحقوق والواجبات لضمان بيئة تعليمية ناجحة.' : 'Rights and responsibilities for a successful learning environment.',
+    title: isAr ? 'اتفاقية الطالب والأهل' : 'Student Agreement & Parent Responsibilities',
+    description: isAr ? 'المسؤوليات المشتركة لضمان بيئة تعليمية ناجحة.' : 'Shared responsibilities for a successful learning environment.',
     content: (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-6 bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+        <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-6">
           <h4 className="text-xl font-black text-primary flex items-center gap-3">
             <UserCheck className="h-6 w-6 text-secondary" />
-            {isAr ? 'ماذا تتوقع BBA من الطلاب' : 'What BBA Expects From Students'}
+            {isAr ? 'مسؤوليات الطالب' : 'Student Expectations'}
           </h4>
           <ul className="space-y-4">
             {[
-              isAr ? 'تسجيل الدخول بانتظام وتحقيق تقدم ثابت.' : 'Log into Edgenuity regularly and make consistent progress.',
-              isAr ? 'اتباع خطة الطالب وإكمال الدورات في وقتها.' : 'Follow their Student Plan and complete courses on schedule.',
-              isAr ? 'الرد على رسائل المرشد عند الضرورة.' : 'Read and respond to messages from their mentor.',
-              isAr ? 'إنجاز جميع المهام بصدق وبجهد شخصي.' : 'Complete all assignments honestly using their own work.'
+              isAr ? 'الدخول للمنصة بانتظام وتحقيق تقدم ثابت.' : 'Log in regularly and make consistent progress.',
+              isAr ? 'إكمال 5-7% من المادة كل يوم عمل.' : 'Complete 5–7% of coursework each weekday.',
+              isAr ? 'الرد على رسائل المرشد الأكاديمي.' : 'Read and respond to messages from your mentor.',
+              isAr ? 'إنجاز المهام بصدق وبجهد شخصي.' : 'Complete all assignments honestly using your own work.'
             ].map((li, i) => (
-              <li key={i} className="flex gap-3 text-sm font-bold text-slate-600">
+              <li key={i} className="flex gap-4 text-sm font-bold text-slate-600">
                 <div className="h-2 w-2 rounded-full bg-secondary shrink-0 mt-1.5" />
                 {li}
               </li>
             ))}
           </ul>
         </div>
-        <div className="space-y-6 bg-primary/5 p-8 rounded-[2.5rem] border border-primary/10">
+        <div className="p-10 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm space-y-6">
           <h4 className="text-xl font-black text-primary flex items-center gap-3">
-            <UsersIcon className="h-6 w-6 text-secondary" />
-            {isAr ? 'مسؤوليات أولياء الأمور' : 'Parent Responsibilities'}
+            <Users className="h-6 w-6 text-secondary" />
+            {isAr ? 'دور أولياء الأمور' : 'Parent Responsibilities'}
           </h4>
           <ul className="space-y-4">
             {[
-              isAr ? 'تشجيع الطفل على الحفاظ على روتين تعليمي ثابت.' : 'Encourage a consistent learning routine.',
-              isAr ? 'البقاء على تواصل مع المرشدين وفريق الأكاديمية.' : 'Stay in communication with mentors and BBA team.',
-              isAr ? 'مراقبة التقدم الأكاديمي للطفل بانتظام.' : 'Monitor child\'s academic progress regularly.',
-              isAr ? 'دعم الطفل في البقاء متحفزاً ومنظماً.' : 'Support child in staying motivated and organized.'
+              isAr ? 'تشجيع الطالب على الحفاظ على روتين يومي.' : 'Encourage a consistent learning routine.',
+              isAr ? 'التواصل المستمر مع المرشدين والأكاديمية.' : 'Stay in communication with mentors and BBA.',
+              isAr ? 'مراقبة التقدم الأكاديمي بشكل دوري.' : 'Monitor child\'s academic progress regularly.',
+              isAr ? 'دعم الطالب في البقاء متحفزاً ومنظماً.' : 'Support child in staying motivated and organized.'
             ].map((li, i) => (
-              <li key={i} className="flex gap-3 text-sm font-bold text-slate-600">
+              <li key={i} className="flex gap-4 text-sm font-bold text-slate-600">
                 <div className="h-2 w-2 rounded-full bg-secondary shrink-0 mt-1.5" />
                 {li}
               </li>
@@ -275,242 +279,179 @@ const getGuideData = (isAr: boolean) => [
     )
   },
   {
-    id: 'mentoring-support',
+    id: 'support',
     icon: MessageSquare,
-    title: isAr ? 'التوجيه والدعم الأكاديمي' : 'Mentoring, Academic Support & Communication',
-    description: isAr ? 'أنت لست وحدك، فريقنا معك في كل خطوة.' : 'You\'re never alone, our team is with you every step.',
+    title: isAr ? 'الدعم والتواصل' : 'Support & Communication',
+    description: isAr ? 'نحن معك في كل خطوة، تواصل معنا عند الحاجة.' : 'We are with you every step, reach out whenever needed.',
     content: (
-      <div className="space-y-8">
-        <p className="text-lg text-slate-600 leading-relaxed font-bold italic">
-          {isAr 
-            ? '"واحدة من أكبر المفاهيم الخاطئة هي أن الطلاب يدرسون بمفردهم. في BBA، هذا غير صحيح أبداً."'
-            : '"One of the biggest misconceptions about online learning is that students are expected to figure everything out on their own. At BBA, that\'s never the case."'}
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { t: isAr ? 'مراقبة التقدم' : 'Monitoring Progress', i: ClipboardCheck },
-            { t: isAr ? 'توجيه أكاديمي' : 'Academic Guidance', i: UserCheck },
-            { t: isAr ? 'الإجابة على الأسئلة' : 'Answering Questions', i: HelpCircle }
-          ].map((feature, i) => (
-            <div key={i} className="p-8 text-center bg-white border border-slate-100 rounded-3xl shadow-sm">
-              <feature.i className="h-10 w-10 text-secondary mx-auto mb-4" />
-              <h4 className="font-black text-primary">{feature.t}</h4>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  },
-  {
-    id: 'contact-help',
-    icon: HelpCircle,
-    title: isAr ? 'المساعدة والتواصل' : 'Frequently Asked Questions & Contact',
-    description: isAr ? 'طرق التواصل معنا للحصول على الدعم الفني والأكاديمي.' : 'Ways to contact us for technical and academic support.',
-    content: (
-      <div className="space-y-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-8 bg-white border border-slate-100 rounded-[2rem] flex items-center gap-6 shadow-sm">
-            <div className="h-14 w-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
-              <MailIcon className="h-7 w-7" />
-            </div>
-            <div>
-              <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{isAr ? 'البريد الإلكتروني' : 'Email'}</div>
-              <div className="text-lg font-black text-primary">banaatacademy@gmail.com</div>
-            </div>
-          </div>
-          <div className="p-8 bg-white border border-slate-100 rounded-[2rem] flex items-center gap-6 shadow-sm">
-            <div className="h-14 w-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
-              <PhoneIcon className="h-7 w-7" />
-            </div>
-            <div>
-              <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{isAr ? 'الهاتف' : 'Phone'}</div>
-              <div className="text-lg font-black text-primary">(313) 455-0322</div>
-            </div>
-          </div>
-        </div>
-        <div className="text-center p-12 bg-slate-50 rounded-[3rem] border border-slate-100 space-y-6">
-          <p className="text-xl font-bold text-slate-500 italic max-w-2xl mx-auto">
-            {isAr 
-              ? '"النجاح لا يقاس بمدى سرعتك في الانتهاء؛ إنه يبنى من خلال الجهد المستمر والفضول والمثابرة في كل خطوة على الطريق."'
-              : '"Success isn’t measured by how quickly you finish; it’s built through consistent effort, curiosity, and perseverance every step of the way."'}
+      <div className="space-y-12 text-center">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <p className="text-xl font-bold text-primary italic leading-relaxed">
+            {isAr ? '"التعليم يكون أقوى عندما تعمل المدارس والعائلات معاً كشركاء."' : '"Education is strongest when schools and families work together as partners."'}
           </p>
-          <div className="font-black text-primary">— Baneen and Banaat Academy</div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          <div className="p-8 bg-white border border-slate-100 rounded-3xl shadow-sm flex flex-col items-center gap-4">
+            <Mail className="h-8 w-8 text-secondary" />
+            <div className="text-sm font-black text-slate-400 uppercase tracking-widest">Email</div>
+            <div className="text-lg font-black text-primary">banaatacademy@gmail.com</div>
+          </div>
+          <div className="p-8 bg-white border border-slate-100 rounded-3xl shadow-sm flex flex-col items-center gap-4">
+            <Phone className="h-8 w-8 text-secondary" />
+            <div className="text-sm font-black text-slate-400 uppercase tracking-widest">Phone</div>
+            <div className="text-lg font-black text-primary">(313) 455-0322</div>
+          </div>
         </div>
       </div>
     )
   }
 ];
 
-function UsersIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> }
-function MailIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> }
-function PhoneIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2v3a2 2 0 0 1 1.51 1.96 15.38 15.38 0 0 0 3.3 5.4 15.38 15.38 0 0 0 5.4 3.3A2 2 0 0 1 19.07 15v1.92z"/></svg> }
-
 export default function StudentGuidePage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
   const isAr = lang === 'ar';
   const data = getGuideData(isAr);
 
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const activeSection = data.find(s => s.id === activeSectionId);
-  const currentIndex = data.findIndex(s => s.id === activeSectionId);
+  const activeSection = data.find(s => s.id === activeId);
+  const currentIndex = data.findIndex(s => s.id === activeId);
 
-  const filteredData = useMemo(() => {
-    if (!searchQuery) return data;
-    const q = searchQuery.toLowerCase();
-    return data.filter(s => 
-      s.title.toLowerCase().includes(q) || 
-      s.description.toLowerCase().includes(q)
-    );
-  }, [searchQuery, data]);
+  const filtered = useMemo(() => {
+    if (!search) return data;
+    const q = search.toLowerCase();
+    return data.filter(s => s.title.toLowerCase().includes(q) || s.description.toLowerCase().includes(q));
+  }, [search, data]);
 
-  const handleNext = () => {
-    if (currentIndex < data.length - 1) {
-      setActiveSectionId(data[currentIndex + 1].id);
+  const handleNav = (dir: 'next' | 'prev') => {
+    const nextIdx = dir === 'next' ? currentIndex + 1 : currentIndex - 1;
+    if (nextIdx >= 0 && nextIdx < data.length) {
+      setActiveId(data[nextIdx].id);
       window.scrollTo(0, 0);
     }
   };
 
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setActiveSectionId(data[currentIndex - 1].id);
-      window.scrollTo(0, 0);
-    }
-  };
-
-  // Sync scroll to top on section change
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [activeSectionId]);
+  }, [activeId]);
 
   return (
-    <div className="bg-slate-50 min-h-screen flex flex-col">
+    <div className="bg-slate-50/50 min-h-screen">
       {/* Search Header */}
-      <section className="bg-white border-b sticky top-20 z-40">
-        <div className="container-tight h-20 flex items-center justify-between gap-4">
+      <nav className="bg-white/80 backdrop-blur-md border-b sticky top-20 z-40 transition-all">
+        <div className="container-tight h-20 flex items-center justify-between gap-6">
           <div className="flex items-center gap-4 flex-1">
-            {activeSectionId && (
+            {activeId && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => setActiveSectionId(null)}
-                className="text-primary hover:bg-slate-100 shrink-0"
+                onClick={() => setActiveId(null)}
+                className="text-primary hover:bg-slate-100 rounded-xl"
               >
                 <LayoutGrid className="h-5 w-5" />
               </Button>
             )}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <div className="relative flex-1 max-w-md group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-secondary transition-colors" />
               <Input 
-                placeholder={isAr ? 'ابحث في الدليل...' : 'Search the guide...'} 
-                className="pl-10 h-11 bg-slate-50 border-none rounded-xl"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={isAr ? 'ابحث في محتوى الدليل...' : 'Search guide content...'} 
+                className="pl-11 h-12 bg-slate-50 border-none rounded-2xl font-medium focus:ring-2 focus:ring-secondary/20"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
           </div>
-          <div className="hidden lg:flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
-              {isAr ? 'دليل طالب BBA الرسمي' : 'Official BBA Student Guide'}
-            </span>
-          </div>
-          {activeSectionId && (
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsSidebarOpen(true)}>
+          {activeId && (
+            <Button variant="ghost" size="icon" className="lg:hidden text-primary" onClick={() => setSidebarOpen(true)}>
               <Menu className="h-6 w-6" />
             </Button>
           )}
         </div>
-      </section>
+      </nav>
 
-      <div className="flex-1 flex container-tight py-12">
-        {/* Main Content Area */}
+      <div className="container-tight py-12 lg:py-20 flex">
         <main className="flex-1 min-w-0">
-          {!activeSectionId ? (
-            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {/* Directory Landing */}
-              <div className="space-y-4 text-center">
-                <h1 className="text-4xl lg:text-6xl font-black text-primary uppercase tracking-tight">
-                  {isAr ? 'دليل طالب BBA' : 'BBA Student Guide'}
+          {!activeId ? (
+            <div className="space-y-16 animate-in fade-in slide-in-from-bottom-6 duration-700">
+              <div className="text-center space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-full text-secondary font-black text-[10px] uppercase tracking-[0.2em]">
+                  <Rocket className="h-3 w-3" />
+                  {isAr ? 'دليل الطالب الرسمي' : 'Official Student Guide'}
+                </div>
+                <h1 className="text-4xl lg:text-7xl font-black text-primary tracking-tight leading-tight uppercase">
+                  {isAr ? 'مركز BBA الإرشادي' : 'BBA Guide Hub'}
                 </h1>
-                <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium">
+                <p className="text-lg lg:text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
                   {isAr 
-                    ? 'كل ما يحتاجه الطلاب وأولياء الأمور لمعرفته من أجل عام دراسي ناجح ومثمر.'
-                    : 'Everything Students & Parents Need to Know for a Successful and Productive School Year.'}
+                    ? 'وجهتك الشاملة لفهم آلية الدراسة وضمان رحلة تعليمية ناجحة ومثمرة.'
+                    : 'Your comprehensive destination for understanding the study system and ensuring a successful journey.'}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredData.map((section) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filtered.map((s) => (
                   <Card 
-                    key={section.id} 
-                    className="premium-card rounded-[2.5rem] border-none shadow-sm cursor-pointer group hover:shadow-xl hover:-translate-y-1 transition-all"
-                    onClick={() => setActiveSectionId(section.id)}
+                    key={s.id} 
+                    className="group rounded-[2.5rem] border-none shadow-premium hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer bg-white overflow-hidden"
+                    onClick={() => setActiveId(s.id)}
                   >
-                    <CardContent className="p-8 space-y-6">
-                      <div className="h-14 w-14 rounded-2xl bg-primary/5 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all">
-                        <section.icon className="h-7 w-7" />
+                    <CardContent className="p-10 space-y-6">
+                      <div className="h-16 w-16 rounded-3xl bg-slate-50 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all shadow-inner">
+                        <s.icon className="h-8 w-8" />
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-black text-primary leading-tight">{section.title}</h3>
-                        <p className="text-sm text-slate-500 font-medium leading-relaxed">{section.description}</p>
+                      <div className="space-y-3">
+                        <h3 className="text-2xl font-black text-primary group-hover:text-secondary transition-colors leading-tight">{s.title}</h3>
+                        <p className="text-sm text-slate-400 font-medium leading-relaxed">{s.description}</p>
                       </div>
-                      <div className="flex items-center gap-2 text-secondary font-black text-xs uppercase tracking-widest pt-2">
-                        {isAr ? 'استكشف الآن' : 'Explore Now'}
+                      <div className="pt-4 flex items-center gap-3 text-secondary font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                        {isAr ? 'استكشف القسم' : 'Explore Section'}
                         {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
-
-              {filteredData.length === 0 && (
-                <div className="text-center py-20 text-slate-400 font-bold">
-                  {isAr ? 'لم يتم العثور على نتائج تطابق بحثك.' : 'No results found matching your search.'}
-                </div>
-              )}
             </div>
           ) : (
-            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
-              {/* Section Detail View */}
-              <div className="space-y-6">
-                <nav className="flex items-center gap-2 text-xs font-black uppercase text-slate-400 tracking-widest">
-                  <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => setActiveSectionId(null)}>
-                    {isAr ? 'الدليل' : 'Guide'}
+            <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="space-y-8">
+                <nav className="flex items-center gap-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                  <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => setActiveId(null)}>
+                    {isAr ? 'دليل الطالب' : 'Guide Hub'}
                   </span>
-                  <ChevronRight className={cn("h-3 w-3", isAr ? "rotate-180" : "")} />
+                  <ChevronRight className={cn("h-3 w-3", isAr && "rotate-180")} />
                   <span className="text-secondary">{activeSection?.title}</span>
                 </nav>
-                <div className="flex items-center gap-6">
-                  <div className="h-16 w-16 rounded-3xl bg-secondary text-white flex items-center justify-center shrink-0 shadow-lg shadow-secondary/20">
-                    {activeSection && <activeSection.icon className="h-8 w-8" />}
+                <div className="flex items-center gap-8">
+                  <div className="h-20 w-20 rounded-[2rem] bg-secondary text-white flex items-center justify-center shrink-0 shadow-2xl shadow-secondary/20">
+                    {activeSection && <activeSection.icon className="h-10 w-10" />}
                   </div>
-                  <h2 className="text-3xl lg:text-5xl font-black text-primary leading-tight uppercase tracking-tight">
+                  <h2 className="text-3xl lg:text-6xl font-black text-primary leading-tight uppercase tracking-tight">
                     {activeSection?.title}
                   </h2>
                 </div>
               </div>
 
-              <div className="bg-white rounded-[3rem] p-8 lg:p-16 shadow-premium border border-slate-100">
+              <div className="bg-white rounded-[3.5rem] p-10 lg:p-20 shadow-premium border border-slate-100">
                 {activeSection?.content}
               </div>
 
-              {/* Internal Navigation Buttons */}
-              <div className="flex justify-between items-center py-12 border-t">
+              <div className="flex justify-between items-center py-12 border-t mt-12">
                 <Button 
                   variant="outline" 
                   disabled={currentIndex === 0}
-                  onClick={handlePrev}
-                  className="rounded-full h-12 px-8 font-bold gap-2"
+                  onClick={() => handleNav('prev')}
+                  className="rounded-full h-14 px-10 font-bold gap-3 border-slate-200 text-slate-400 hover:text-primary transition-all"
                 >
                   {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
                   {isAr ? 'السابق' : 'Previous'}
                 </Button>
                 <Button 
-                  onClick={handleNext}
+                  onClick={() => handleNav('next')}
                   disabled={currentIndex === data.length - 1}
-                  className="bg-primary hover:bg-accent text-white rounded-full h-12 px-8 font-bold gap-2 shadow-lg"
+                  className="bg-primary hover:bg-accent text-white rounded-full h-14 px-10 font-bold gap-3 shadow-xl transition-all"
                 >
                   {isAr ? 'التالي' : 'Next'}
                   {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -520,88 +461,81 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
           )}
         </main>
 
-        {/* Desktop Sidebar (Only visible when a section is active) */}
-        {activeSectionId && (
-          <aside className="hidden lg:block w-72 shrink-0 ml-12 space-y-8 sticky top-44 h-fit">
-            <div className="space-y-4">
+        {activeId && (
+          <aside className="hidden lg:block w-80 shrink-0 ml-16 space-y-10 sticky top-48 h-fit">
+            <div className="space-y-6">
               <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest pl-4">
-                {isAr ? 'أقسام الدليل' : 'Guide Sections'}
+                {isAr ? 'محتويات الدليل' : 'Guide Sections'}
               </h4>
-              <nav className="space-y-1">
-                {data.map((section) => (
+              <nav className="space-y-2">
+                {data.map((s) => (
                   <button
-                    key={section.id}
-                    onClick={() => setActiveSectionId(section.id)}
+                    key={s.id}
+                    onClick={() => setActiveId(s.id)}
                     className={cn(
-                      "w-full text-start p-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-between group",
-                      activeSectionId === section.id 
-                        ? "bg-secondary text-white shadow-lg shadow-secondary/20" 
-                        : "text-slate-500 hover:bg-white hover:text-primary"
+                      "w-full text-start p-5 rounded-2xl font-black text-sm transition-all flex items-center justify-between group border-2",
+                      activeId === s.id 
+                        ? "bg-primary border-primary text-white shadow-xl shadow-primary/20" 
+                        : "bg-transparent border-transparent text-slate-400 hover:bg-white hover:border-slate-100 hover:text-primary"
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <section.icon className={cn("h-4 w-4", activeSectionId === section.id ? "text-white" : "text-secondary")} />
-                      {section.title}
+                    <div className="flex items-center gap-4">
+                      <s.icon className={cn("h-4 w-4", activeId === s.id ? "text-secondary" : "text-slate-300 group-hover:text-secondary")} />
+                      {s.title}
                     </div>
-                    {activeSectionId !== section.id && <ChevronRight className={cn("h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity", isAr ? "rotate-180" : "")} />}
                   </button>
                 ))}
               </nav>
             </div>
-            <div className="bg-primary text-white p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
+            <div className="bg-secondary p-10 rounded-[2.5rem] text-white shadow-2xl shadow-secondary/20 relative overflow-hidden group">
                <div className="relative z-10 space-y-4">
-                  <h4 className="text-sm font-black uppercase tracking-tight">{isAr ? 'تحتاج لمساعدة؟' : 'Need Help?'}</h4>
-                  <p className="text-xs text-white/70 leading-relaxed font-medium">{isAr ? 'فريقنا متاح دائماً للإجابة على استفساراتكم الأكاديمية والتقنية.' : 'Our team is always available to answer your academic and technical questions.'}</p>
-                  <Button asChild variant="secondary" size="sm" className="w-full rounded-xl font-bold">
+                  <h4 className="text-sm font-black uppercase tracking-tight">{isAr ? 'هل تحتاج لمساعدة؟' : 'Need Support?'}</h4>
+                  <p className="text-[10px] text-white/70 leading-relaxed font-bold">{isAr ? 'فريقنا متاح خلال ساعات العمل الرسمية للرد على كافة استفساراتكم.' : 'Our team is available during office hours to answer all inquiries.'}</p>
+                  <Button asChild variant="secondary" size="sm" className="w-full rounded-xl font-black bg-white text-secondary hover:bg-primary hover:text-white transition-all">
                     <Link href={`/${lang}/contact`}>{isAr ? 'اتصل بنا' : 'Contact Us'}</Link>
                   </Button>
                </div>
-               <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <HelpCircle className="h-20 w-20" />
+               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform">
+                  <HelpCircle className="h-24 w-24" />
                </div>
             </div>
           </aside>
         )}
       </div>
 
-      {/* Mobile Navigation Drawer */}
-      {activeSectionId && isSidebarOpen && (
+      {/* Mobile Drawer */}
+      {activeId && sidebarOpen && (
         <div className="fixed inset-0 z-[100] lg:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+          <div className="absolute inset-0 bg-primary/40 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
           <div className={cn(
-            "absolute inset-y-0 w-80 bg-white p-8 shadow-2xl transition-transform",
+            "absolute inset-y-0 w-80 bg-white p-10 shadow-2xl transition-transform",
             isAr ? "right-0" : "left-0"
           )}>
-            <div className="flex justify-between items-center mb-8">
-              <h4 className="font-black text-primary uppercase">{isAr ? 'القائمة' : 'Menu'}</h4>
-              <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
-                <X className="h-5 w-5" />
+            <div className="flex justify-between items-center mb-10">
+              <h4 className="font-black text-primary uppercase text-sm tracking-widest">{isAr ? 'الأقسام' : 'Sections'}</h4>
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="rounded-xl">
+                <X className="h-6 w-6" />
               </Button>
             </div>
             <nav className="space-y-2 overflow-y-auto max-h-[70vh]">
-              {data.map((section) => (
+              {data.map((s) => (
                 <button
-                  key={section.id}
+                  key={s.id}
                   onClick={() => {
-                    setActiveSectionId(section.id);
-                    setIsSidebarOpen(false);
+                    setActiveId(s.id);
+                    setSidebarOpen(false);
                   }}
                   className={cn(
-                    "w-full text-start p-4 rounded-xl font-bold text-sm transition-all",
-                    activeSectionId === section.id 
-                      ? "bg-secondary text-white" 
-                      : "text-slate-500 hover:bg-slate-100"
+                    "w-full text-start p-5 rounded-2xl font-black text-sm transition-all",
+                    activeId === s.id 
+                      ? "bg-primary text-white shadow-lg" 
+                      : "text-slate-400 hover:bg-slate-50"
                   )}
                 >
-                  {section.title}
+                  {s.title}
                 </button>
               ))}
             </nav>
-            <div className="mt-8 pt-8 border-t">
-              <Button asChild className="w-full bg-primary rounded-xl font-bold h-12">
-                <Link href={`/${lang}/contact`} onClick={() => setIsSidebarOpen(false)}>{isAr ? 'اتصل بنا' : 'Contact Us'}</Link>
-              </Button>
-            </div>
           </div>
         </div>
       )}
