@@ -6,6 +6,7 @@ import { Noto_Sans_Arabic, Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+import { WhatsAppButton } from '@/components/WhatsAppButton';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const notoArabic = Noto_Sans_Arabic({ subsets: ['arabic'], variable: '--font-noto-sans-arabic' });
@@ -33,6 +34,7 @@ export default async function RootLayout({
             <Header lang={lang} />
             <main className="flex-1">{children}</main>
             <Footer lang={lang} />
+            <WhatsAppButton lang={lang} />
           </div>
         </FirebaseClientProvider>
       </body>
