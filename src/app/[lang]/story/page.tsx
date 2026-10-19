@@ -79,7 +79,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
                   unoptimized
                 />
               </div>
-              <div className="pb-6 px-4">
+              <div className="pb-6 px-4 text-center">
                 <p className="text-xl lg:text-2xl font-black text-secondary italic">
                   {t.heroQuote}
                 </p>
@@ -183,7 +183,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
           <div className="pt-4">
             <Link 
               href={`/${lang}/enroll`}
-              className="inline-flex items-center gap-4 bg-secondary hover:bg-primary text-white px-10 py-5 rounded-full font-black text-lg transition-all shadow-xl shadow-secondary/20"
+              className="inline-flex items-center gap-4 bg-secondary hover:bg-primary text-white px-6 py-4 sm:px-10 sm:py-5 rounded-full font-black text-base sm:text-lg transition-all shadow-xl shadow-secondary/20"
             >
               {t.closing.btn}
               {isAr ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
