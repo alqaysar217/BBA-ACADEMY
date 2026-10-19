@@ -49,9 +49,12 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)"],
-        arabic: ["var(--font-noto-sans-arabic)"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        arabic: ["var(--font-noto-sans-arabic)", "system-ui", "sans-serif"],
       },
+      boxShadow: {
+        'premium': '0 20px 25px -5px rgba(11, 31, 91, 0.05), 0 8px 10px -6px rgba(11, 31, 91, 0.05)',
+      }
     },
   },
   plugins: [],

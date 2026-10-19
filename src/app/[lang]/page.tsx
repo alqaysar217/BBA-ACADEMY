@@ -1,7 +1,7 @@
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShieldCheck, Users, GraduationCap, MapPin } from 'lucide-react';
+import { ShieldCheck, Users, GraduationCap, MapPin, ArrowRight, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 
 export default async function HomePage({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -11,7 +11,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   const t = {
     hero: {
       welcome: isAr ? 'مرحباً بكم في أكاديمية بنين وبنات' : 'Welcome To Baneen and Banaat Academy',
-      title: isAr ? 'تعليم يبني العقول.. وقيم تصقل الشخصية' : 'Education That Builds Minds, Values That Shape Character',
+      title: isAr ? 'تعليم يبني العقول وقيم تصقل الشخصية' : 'Education That Builds Minds, Values That Shape Character',
       desc: isAr ? 'شريك تعليمي موثوق يساعد الطلاب والعائلات على تحقيق النجاح الأكاديمي من خلال التعلم المرن عبر الإنترنت والتوجيه الشخصي والالتزام بالتميز.' : 'A trusted educational partner helping students and families achieve academic success through flexible online learning, personalized guidance, and a commitment to excellence.',
       apply: isAr ? 'سجل الآن' : 'Apply Now',
       explore: isAr ? 'استكشف البرامج' : 'Explore Programs',
@@ -30,90 +30,112 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       desc: isAr ? 'رحلة كل طالب التعليمية فريدة من نوعها. نحن نعمل بشكل وثيق مع العائلات لمساعدة الطلاب على اتباع مسارات تعليمية معترف بها تدعم أهدافهم الأكاديمية وتعدهم للتخرج والتعليم العالي.' : 'Every student’s educational journey is unique. We work closely with families to help students follow recognized educational pathways that support their academic goals and prepare them for graduation and higher education.',
       features: [
         isAr ? 'تخطيط التخرج' : 'Graduation Planning',
-        isAr ? 'تخطيط الدورة التدريبية' : 'Course Planning',
+        isAr ? 'تخطيط الدورات' : 'Course Planning',
         isAr ? 'توجيه شخصي' : 'Personal Guidance',
-        isAr ? 'السجلات الأكاديمية' : 'Academic Records',
-        isAr ? 'التحضير للكلية' : 'College Preparation'
-      ]
+        isAr ? 'سجلات أكاديمية' : 'Academic Records',
+        isAr ? 'التحضير للجامعة' : 'College Preparation'
+      ],
+      cta: isAr ? 'اعرف المزيد عن التخطيط' : 'Explore Planning Services'
     }
   };
 
   return (
     <div className="flex flex-col">
-      <section className="relative overflow-hidden bg-background py-24 lg:py-32 border-b">
-        <div className="container relative px-4 md:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-block rounded-full bg-secondary/10 px-4 py-1 text-sm font-bold text-secondary mb-6">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-white hero-gradient section-padding border-b">
+        <div className="container-tight relative z-10">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-10">
+            <div className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-4 py-2 text-sm font-bold text-secondary uppercase tracking-wider">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+              </span>
               {t.hero.welcome}
-            </span>
-            <h1 className="text-4xl font-extrabold tracking-tight text-primary sm:text-6xl mb-8 leading-[1.1]">
+            </div>
+            <h1 className="text-5xl font-black tracking-tight text-primary sm:text-7xl leading-[1.1]">
               {t.hero.title}
             </h1>
-            <p className="text-lg text-muted-foreground mb-12 leading-relaxed">
+            <p className="text-xl text-slate-600 leading-relaxed max-w-3xl">
               {t.hero.desc}
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-6 pt-4">
               <Link href={`/${lang}/enroll`}>
-                <Button size="lg" className="h-14 px-10 text-lg bg-primary hover:bg-primary/90">
+                <Button size="lg" className="h-16 px-12 text-lg bg-primary hover:bg-accent shadow-xl shadow-primary/20 rounded-full transition-all hover:scale-105 active:scale-95">
                   {t.hero.apply}
+                  {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
               </Link>
               <Link href={`/${lang}/programs`}>
-                <Button size="lg" variant="outline" className="h-14 px-10 text-lg">
+                <Button size="lg" variant="outline" className="h-16 px-12 text-lg border-2 border-primary/10 text-primary hover:bg-primary/5 rounded-full transition-all">
                   {t.hero.explore}
                 </Button>
               </Link>
             </div>
           </div>
         </div>
+        
+        {/* Abstract Background Elements */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       </section>
 
-      <section className="py-24 bg-white">
-        <div className="container px-4 md:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-primary">{t.why.title}</h2>
+      {/* Why BBA Section */}
+      <section className="section-padding bg-white">
+        <div className="container-tight">
+          <div className="text-center mb-20 space-y-4">
+            <h2 className="text-4xl font-black text-primary">{t.why.title}</h2>
+            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {t.why.items.map((item, idx) => (
-              <div key={idx} className="premium-card p-8 rounded-2xl text-center space-y-4">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary/10 text-secondary">
-                  <item.icon className="h-8 w-8" />
+              <div key={idx} className="premium-card p-10 rounded-[2rem] text-center space-y-6">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-50 text-secondary shadow-inner">
+                  <item.icon className="h-10 w-10" />
                 </div>
-                <h3 className="font-bold text-primary">{item.title}</h3>
+                <h3 className="font-extrabold text-xl text-primary leading-tight">{item.title}</h3>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-24 bg-muted/30">
-        <div className="container px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <h2 className="text-3xl font-extrabold text-primary sm:text-4xl">{t.pathways.title}</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                {t.pathways.desc}
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Educational Pathways Section */}
+      <section className="section-padding bg-slate-50/50">
+        <div className="container-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="space-y-10 order-2 lg:order-1">
+              <div className="space-y-6">
+                <h2 className="text-4xl font-black text-primary sm:text-5xl tracking-tight leading-tight">
+                  {t.pathways.title}
+                </h2>
+                <p className="text-lg text-slate-600 leading-relaxed italic border-l-4 border-secondary pl-6 py-2">
+                  {t.pathways.desc}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                 {t.pathways.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-secondary" />
-                    <span className="font-medium text-primary/80">{feature}</span>
+                  <div key={idx} className="flex items-center gap-4 group">
+                    <div className="h-3 w-3 rounded-full bg-secondary shadow-sm shadow-secondary/50 group-hover:scale-125 transition-transform" />
+                    <span className="font-bold text-primary group-hover:text-secondary transition-colors">{feature}</span>
                   </div>
                 ))}
               </div>
-              <Button asChild className="bg-primary mt-4">
-                <Link href={`/${lang}/planning`}>{isAr ? 'اعرف المزيد' : 'Learn More'}</Link>
-              </Button>
+              <Link href={`/${lang}/planning`} className="block pt-4">
+                <Button className="bg-primary hover:bg-accent rounded-full h-14 px-8 text-md font-bold">
+                  {t.pathways.cta}
+                  {isAr ? <ArrowLeft className="mr-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
+                </Button>
+              </Link>
             </div>
-            <div className="relative aspect-square lg:aspect-video rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 ring-8 ring-white">
               <Image 
-                src="https://picsum.photos/seed/bba1/800/600" 
+                src="https://picsum.photos/seed/bba1/1000/800" 
                 alt="Students learning" 
                 fill 
                 className="object-cover"
-                data-ai-hint="online learning"
+                data-ai-hint="online learning student"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
             </div>
           </div>
         </div>

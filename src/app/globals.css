@@ -1,30 +1,35 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 48 100% 98%; /* Ivory Ivory */
-    --foreground: 217 33% 17%; /* Navy text */
+    --background: 210 40% 98%; /* Very light blue-gray background */
+    --foreground: 222 47% 11%; /* Deep Navy Charcoal */
     --card: 0 0% 100%;
-    --card-foreground: 217 33% 17%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 217 33% 17%;
-    --primary: 217 33% 17%; /* Deep Navy */
-    --primary-foreground: 48 100% 98%;
-    --secondary: 41 51% 56%; /* Muted Gold */
-    --secondary-foreground: 217 33% 17%;
-    --muted: 217 33% 94%;
-    --muted-foreground: 217 33% 40%;
-    --accent: 41 51% 56%; /* Muted Gold */
-    --accent-foreground: 217 33% 17%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 224 78% 20%; /* Official Navy Blue from Logo */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 200 84% 46%; /* Educational Bright Blue from Logo */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 222 76% 26%; /* Medium Blue from Logo */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 90%;
-    --input: 217 33% 90%;
-    --ring: 217 33% 17%;
-    --radius: 0.5rem;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 224 78% 20%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    /* Dark mode omitted for simplicity as requested per academic institution feel */
   }
 }
 
@@ -35,6 +40,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
@@ -43,5 +49,18 @@
 }
 
 .premium-card {
-  @apply bg-white border border-border/50 shadow-sm transition-all hover:shadow-md hover:border-accent/30;
+  @apply bg-white border border-slate-200/60 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-secondary/20;
+}
+
+.hero-gradient {
+  background: radial-gradient(circle at top right, hsl(var(--secondary) / 0.05), transparent),
+              radial-gradient(circle at bottom left, hsl(var(--primary) / 0.03), transparent);
+}
+
+.section-padding {
+  @apply py-20 lg:py-32;
+}
+
+.container-tight {
+  @apply max-w-6xl mx-auto px-4 md:px-8;
 }
