@@ -12,7 +12,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   const t = {
     hero: {
       welcome: isAr ? 'مرحباً بكم في أكاديمية بنين وبنات' : 'Welcome To Baneen and Banaat Academy',
-      title: isAr ? 'عقول تُبنى.. وقيم تُصقل' : 'Building Minds & Character',
+      title: isAr ? 'التعليم الذي يبني العقول' : 'Education That Builds Minds',
       desc: isAr ? 'شريك تعليمي موثوق يساعد الطلاب والعائلات على تحقيق النجاح الأكاديمي من خلال التعلم المرن عبر الإنترنت والتوجيه الشخصي والالتزام بالتميز.' : 'A trusted educational partner helping students and families achieve academic success through flexible online learning, personalized guidance, and a commitment to excellence.',
       apply: isAr ? 'سجل الآن' : 'Apply Now',
       explore: isAr ? 'استكشف البرامج' : 'Explore Programs',
