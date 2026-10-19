@@ -98,7 +98,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
                 </div>
                 
                 <div className="p-10 flex-1 flex flex-col space-y-4">
-                  <h3 className="text-2xl font-black text-primary group-hover:text-secondary transition-colors duration-300">
+                  <h3 className="text-xl sm:text-2xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
                     {prog.title}
                   </h3>
                   <p className="text-slate-500 font-medium leading-relaxed">
