@@ -2,7 +2,8 @@ import { type Locale } from '@/lib/i18n/config';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
 
-export default function PlanningPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function PlanningPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const isAr = lang === 'ar';
 
   const t = {

@@ -5,7 +5,6 @@ import { Footer } from '@/components/layout/Footer';
 import { Noto_Sans_Arabic, Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { initializeFirebase } from '@/firebase';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -15,25 +14,25 @@ export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }));
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: { lang: Locale };
+  params: Promise<{ lang: Locale }>;
 }) {
-  const isRtl = params.lang === 'ar';
-  const { firebaseApp, firestore, auth } = initializeFirebase();
+  const { lang } = await params;
+  const isRtl = lang === 'ar';
 
   return (
-    <html lang={params.lang} dir={isRtl ? 'rtl' : 'ltr'} className={cn(inter.variable, notoArabic.variable)}>
+    <html lang={lang} dir={isRtl ? 'rtl' : 'ltr'} className={cn(inter.variable, notoArabic.variable)}>
       <body className={cn("min-h-screen font-sans antialiased", isRtl && "font-arabic")}>
-        <FirebaseClientProvider firebaseApp={firebaseApp} firestore={firestore} auth={auth}>
+        <FirebaseClientProvider>
           <FirebaseErrorListener />
           <div className="relative flex min-h-screen flex-col">
-            <Header lang={params.lang} />
+            <Header lang={lang} />
             <main className="flex-1">{children}</main>
-            <Footer lang={params.lang} />
+            <Footer lang={lang} />
           </div>
         </FirebaseClientProvider>
       </body>

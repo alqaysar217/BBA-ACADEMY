@@ -1,8 +1,8 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
 
-export default function AboutPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function AboutPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const isAr = lang === 'ar';
 
   const t = {

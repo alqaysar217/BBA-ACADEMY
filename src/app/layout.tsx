@@ -1,20 +1,13 @@
 
-import type { Metadata } from "next";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "New Project",
-  description: "Built with Firebase Studio",
-};
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body className="antialiased">{children}</body>
-    </html>
-  );
+}) {
+  // The actual <html> and <body> tags are defined in src/app/[lang]/layout.tsx
+  // This root layout must simply return children to avoid nesting multiple <html>/<body> tags
+  // which causes hydration and rendering issues in Next.js 15.
+  return children;
 }

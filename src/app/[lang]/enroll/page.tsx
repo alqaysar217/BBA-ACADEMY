@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +13,7 @@ import { useFirestore } from '@/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import Link from 'next/link';
 
 const steps = [
   { id: 1, name: { en: 'Parent Info', ar: 'بيانات ولي الأمر' } },
@@ -22,7 +22,8 @@ const steps = [
   { id: 4, name: { en: 'Documents', ar: 'المستندات' } },
 ];
 
-export default function EnrollmentPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default function EnrollmentPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({
     parent1Name: '',
@@ -320,5 +321,3 @@ export default function EnrollmentPage({ params: { lang } }: { params: { lang: L
     </div>
   );
 }
-
-import Link from 'next/link';

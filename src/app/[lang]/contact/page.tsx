@@ -1,4 +1,3 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Mail, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ContactPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function ContactPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const isAr = lang === 'ar';
 
   const t = {
@@ -52,7 +52,6 @@ export default function ContactPage({ params: { lang } }: { params: { lang: Loca
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Contact Details */}
           <div className="space-y-8 lg:col-span-1">
             <div className="space-y-6">
               <div className="flex items-start gap-4">
@@ -110,21 +109,8 @@ export default function ContactPage({ params: { lang } }: { params: { lang: Loca
                 </div>
               </div>
             </div>
-
-            <div className="bg-primary text-primary-foreground p-8 rounded-3xl">
-              <h3 className="font-bold text-secondary mb-4">{isAr ? 'يمكننا المساعدة في:' : 'We Can Help With:'}</h3>
-              <ul className="space-y-2">
-                {t.helpItems.map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-sm opacity-80">
-                    <div className="h-1 w-1 rounded-full bg-secondary shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
 
-          {/* Contact Form */}
           <Card className="lg:col-span-2 premium-card rounded-3xl border-none shadow-xl overflow-hidden">
             <CardHeader className="bg-primary text-primary-foreground p-8">
               <CardTitle className="text-2xl">{t.formTitle}</CardTitle>

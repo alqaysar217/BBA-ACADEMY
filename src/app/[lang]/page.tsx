@@ -1,11 +1,11 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ShieldCheck, Users, GraduationCap, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
-export default function HomePage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function HomePage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const isAr = lang === 'ar';
   
   const t = {
@@ -40,7 +40,6 @@ export default function HomePage({ params: { lang } }: { params: { lang: Locale 
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
       <section className="relative overflow-hidden bg-background py-24 lg:py-32 border-b">
         <div className="container relative px-4 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
@@ -67,13 +66,8 @@ export default function HomePage({ params: { lang } }: { params: { lang: Locale 
             </div>
           </div>
         </div>
-        
-        {/* Subtle decorative elements */}
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       </section>
 
-      {/* Why Choose Us */}
       <section className="py-24 bg-white">
         <div className="container px-4 md:px-8">
           <div className="text-center mb-16">
@@ -92,7 +86,6 @@ export default function HomePage({ params: { lang } }: { params: { lang: Locale 
         </div>
       </section>
 
-      {/* Educational Pathways */}
       <section className="py-24 bg-muted/30">
         <div className="container px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">

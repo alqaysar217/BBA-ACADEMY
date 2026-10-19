@@ -1,11 +1,11 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { BookOpen, GraduationCap, Calendar } from 'lucide-react';
 import Image from 'next/image';
 
-export default function ProgramsPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function ProgramsPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const isAr = lang === 'ar';
 
   const t = {

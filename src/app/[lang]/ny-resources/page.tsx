@@ -2,7 +2,8 @@ import { type Locale } from '@/lib/i18n/config';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Info, AlertCircle, FileText, CheckSquare } from 'lucide-react';
 
-export default function NyResourcesPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function NyResourcesPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const isAr = lang === 'ar';
 
   const t = {

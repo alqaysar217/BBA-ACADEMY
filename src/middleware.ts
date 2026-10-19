@@ -15,9 +15,9 @@ export function middleware(request: NextRequest) {
     const locale = i18n.defaultLocale;
 
     // Redirect to the default locale
-    return NextResponse.redirect(
-      new URL(`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`, request.url)
-    );
+    // Ensure we don't double slash and handle the root correctly
+    const redirectPath = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 }
 

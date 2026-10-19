@@ -1,7 +1,8 @@
 import { type Locale } from '@/lib/i18n/config';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-export default function StudentGuidePage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function StudentGuidePage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const isAr = lang === 'ar';
 
   const t = {
