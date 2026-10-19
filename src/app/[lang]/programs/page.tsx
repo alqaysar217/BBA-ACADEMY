@@ -45,8 +45,8 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="bg-slate-50/30 min-h-screen pb-20">
-      {/* Page Header - Professional Redesign */}
-      <section className="bg-primary text-white py-20 sm:py-32 relative overflow-hidden">
+      {/* Page Header - Professional Redesign with Reduced Height */}
+      <section className="bg-primary text-white py-12 sm:py-20 relative overflow-hidden">
         {/* Subtle Grid Pattern Overlay */}
         <div className="absolute inset-0 opacity-[0.15]">
           <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
@@ -67,23 +67,18 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
           <div className="absolute top-1/3 left-0 w-full h-[1px] bg-white/5 rotate-3" />
         </div>
 
-        <div className="container px-4 md:px-8 relative z-10 text-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-            <div className="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/90">Academy Excellence</span>
-          </div>
-          
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-6 tracking-tight drop-shadow-xl">
+        <div className="container px-4 md:px-8 relative z-10 text-center space-y-6">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-4 tracking-tight drop-shadow-xl">
             {t.title}
           </h1>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed italic">
+          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed italic">
             {t.subtitle}
           </p>
         </div>
       </section>
 
       {/* Programs Cards Grid */}
-      <section className="container px-4 md:px-8 -mt-10 sm:-mt-16 relative z-20">
+      <section className="container px-4 md:px-8 -mt-6 sm:-mt-10 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
           {t.programs.map((prog) => {
             const IconComponent = prog.icon;
