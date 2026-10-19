@@ -46,7 +46,7 @@ export function Header({ lang }: { lang: Locale }) {
       <div className="container-tight flex h-20 items-center justify-between">
         <div className="flex items-center gap-12">
           <Link href={`/${lang}`} className="group flex items-center gap-3">
-            <div className="relative flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0 overflow-visible">
+            <div className="relative flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0">
               <Image 
                 src="/logo.png" 
                 alt="BBA Academy Logo" 
