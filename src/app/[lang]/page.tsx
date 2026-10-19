@@ -42,18 +42,32 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section with Custom Background Image */}
+      {/* Hero Section with Responsive Background Images */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-primary py-24 lg:py-32">
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
-          <Image 
-            src="/Academy background.png" 
-            alt="Academy background" 
-            fill 
-            className="object-cover opacity-40 grayscale-[20%]"
-            priority
-            unoptimized
-          />
+          {/* Desktop Image */}
+          <div className="hidden sm:block absolute inset-0">
+            <Image 
+              src="/Academy background.png" 
+              alt="Academy background" 
+              fill 
+              className="object-cover opacity-40 grayscale-[20%]"
+              priority
+              unoptimized
+            />
+          </div>
+          {/* Mobile Image */}
+          <div className="block sm:hidden absolute inset-0">
+            <Image 
+              src="/Academy background-phone.png" 
+              alt="Academy background mobile" 
+              fill 
+              className="object-cover opacity-40 grayscale-[20%]"
+              priority
+              unoptimized
+            />
+          </div>
           <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
         </div>
 
