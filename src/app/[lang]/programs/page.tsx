@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, use } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BookOpen, GraduationCap, Calendar, Clock, CheckCircle2, ArrowRight, ArrowLeft, Info, Check } from 'lucide-react';
+import { BookOpen, GraduationCap, Calendar, Clock, CheckCircle2, ArrowRight, ArrowLeft, Info, Check, Users, Target } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
@@ -26,8 +25,14 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
     enrollNow: isAr ? 'ابدأ التسجيل الآن' : 'Start Enrollment Now',
     apply: isAr ? 'سجل في البرنامج' : 'Apply for Program',
     details: isAr ? 'تفاصيل البرنامج' : 'Program Details',
-    outcomes: isAr ? 'مخرجات التعلم المتوقعة' : 'Expected Learning Outcomes',
-    requirements: isAr ? 'متطلبات الطلاب' : 'Student Requirements',
+    sections: {
+      learn: isAr ? 'ما يتعلمه الطلاب' : 'What Students Learn',
+      schedule: isAr ? 'الجدول الدراسي' : 'Study Schedule',
+      teachers: isAr ? 'المعلمون والمتابعة' : 'Teachers & Support',
+      features: isAr ? 'المميزات' : 'Key Features',
+      outcomes: isAr ? 'المخرجات المتوقعة' : 'Expected Outcomes',
+      requirements: isAr ? 'متطلبات الطلاب' : 'Student Requirements',
+    },
     programs: [
       {
         id: 'grades-3-5',
@@ -39,19 +44,26 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
         image: "https://picsum.photos/seed/grade35/800/600",
         color: 'bg-primary',
         fullDetails: {
-          intro: isAr ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأسس الأكاديمية وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية. يتبع الطلاب جدولاً منظماً يجمع بين المواد الأكاديمية الأمريكية والقرآن والعربية والدراسات الإسلامية.' : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academic foundations, builds language skills, and nurtures a strong Islamic identity. Students follow a structured schedule that combines American academic subjects with Quran, Arabic, and Islamic Studies.',
-          outcomes: [
-            isAr ? 'مهارات قوية في القراءة والكتابة باللغة العربية' : 'Stronger Arabic reading and writing skills',
-            isAr ? 'تلاوة وحفظ القرآن الكريم مع التجويد السليم' : 'Improved Quran recitation and memorization with proper Tajweed',
-            isAr ? 'فهم عميق للمفاهيم الإسلامية الأساسية والقيم' : 'A meaningful understanding of core Islamic concepts and values',
-            isAr ? 'جاهزية أكاديمية متوافقة مع المعايير الأمريكية' : 'Academic readiness aligned with American academic standards',
-            isAr ? 'هوية واثقة متجذرة في اللغة والثقافة والدين' : 'A confident identity rooted in language, culture, and faith'
+          intro: isAr 
+            ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأسس الأكاديمية وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية. يتبع الطلاب جدولاً منظماً يجمع بين المواد الأكاديمية الأمريكية والتعليم الديني.'
+            : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academic foundations, builds language skills, and nurtures a strong Islamic identity.',
+          learn: [
+            isAr ? 'المناهج الأكاديمية الأمريكية (اللغة الإنجليزية والرياضيات)' : 'American academic curriculum (English & Mathematics)',
+            isAr ? 'أساسيات القراءة والكتابة بالعربية' : 'Arabic reading and writing fundamentals',
+            isAr ? 'حفظ القرآن الكريم وتلاوته بالتجويد' : 'Quran memorization and recitation with Tajweed',
+            isAr ? 'الدراسات الإسلامية (القيم، العبادات، الأخلاق)' : 'Islamic Studies (Values, Worship, Character)'
           ],
+          schedule: isAr ? 'من الإثنين إلى الخميس. الفترة الصباحية للأكاديميين، تليها فترة القرآن والعربية.' : 'Monday–Thursday. Morning block for academics, followed by Quran and Arabic.',
+          teachers: isAr ? 'حصص مباشرة وتفاعلية يقودها معلمون متخصصون يضمنون التفاعل وبناء الثقة.' : 'Live, structured classes from home with interactive online lessons designed to build confidence.',
           features: [
             isAr ? 'روتين تعليمي أسبوعي منظم' : 'A structured weekly learning routine',
-            isAr ? 'تعليم مباشر عبر الإنترنت من المنزل' : 'Live online instruction from home',
-            isAr ? 'تطوير مهارات اللغة العربية' : 'Arabic language development',
-            isAr ? 'مناهج أمريكية معتمدة للغة الإنجليزية والرياضيات' : 'Accredited American curriculum for core subjects'
+            isAr ? 'مزيج بين التعليم الأكاديمي والإسلامي' : 'Combination of academic and Islamic education',
+            isAr ? 'تدريس مباشر عبر الإنترنت' : 'Live online instruction'
+          ],
+          outcomes: [
+            isAr ? 'إتقان تلاوة القرآن وحفظه' : 'Improved Quran recitation and memorization',
+            isAr ? 'جاهزية أكاديمية وفق المعايير الأمريكية' : 'Academic readiness aligned with American standards',
+            isAr ? 'هوية إسلامية واثقة' : 'A confident identity rooted in faith'
           ]
         }
       },
@@ -65,19 +77,26 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
         image: "https://picsum.photos/seed/grade612/800/600",
         color: 'bg-accent',
         fullDetails: {
-          intro: isAr ? 'تم تصميم برنامجنا للمرحلة المتوسطة والثانوية لدعم الطلاب أكاديمياً، وتعزيز مهاراتهم في اللغة الإنجليزية، وتوفير بيئة تعليمية منظمة تساعدهم على البقاء على المسار الصحيح. نستخدم منصة Edgenuity مع مراقبة أسبوعية للتقدم.' : 'Our Middle and High School program for Grades 6–12 is fully online and designed to support students academically, strengthen their English skills, and provide a structured learning environment using the Edgenuity platform with weekly monitoring.',
-          outcomes: [
-            isAr ? 'إكمال المقررات الدراسية عبر الإنترنت بانتظام' : 'More consistent completion of online coursework',
-            isAr ? 'مهارات قوية في التعلم المستقل والتنظيم' : 'Stronger independent learning and organizational skills',
-            isAr ? 'تحسين مهارات القراءة والكتابة من خلال الدعم المباشر' : 'Improved reading and writing through coursework and support',
-            isAr ? 'وعي أكبر بالمسؤوليات الأكاديمية والتقدم' : 'Greater awareness of academic responsibilities and progress',
-            isAr ? 'استمرار تطوير تلاوة القرآن والمعرفة الإسلامية' : 'Continued development of Quran recitation and Islamic knowledge'
+          intro: isAr 
+            ? 'برنامج متكامل يعتمد على منصة Edgenuity العالمية للغة الإنجليزية، مع دعم أكاديمي وتوجيه ديني لبناء شخصية متكاملة.'
+            : 'Our Middle and High School program is fully online, using Edgenuity for English curriculum with strong academy monitoring and support.',
+          learn: [
+            isAr ? 'كورسات اللغة الإنجليزية عبر Edgenuity' : 'English courses through Edgenuity platform',
+            isAr ? 'تلاوة القرآن وتصحيح التجويد' : 'Quran recitation with proper Tajweed',
+            isAr ? 'فقه مبسط وقيم للمراهقين' : 'Simple fiqh and values for teenagers',
+            isAr ? 'تطوير مهارات القراءة والكتابة' : 'Reading and writing skill development'
           ],
+          schedule: isAr ? 'تعلم ذاتي مرن مع الالتزام بإنهاء 5-7٪ من المنهج يومياً ومتابعة أسبوعية للدرجات.' : 'Flexible self-paced learning with a requirement to complete 5–7% of coursework each weekday.',
+          teachers: isAr ? 'فريق الأكاديمية يراقب التقدم أسبوعياً، ويتواصل مع أولياء الأمور، ويوفر دعماً فردياً عند الحاجة.' : 'Weekly progress monitoring, regular parent communication, and one-on-one academic support for lessons or assignments.',
           requirements: [
-            isAr ? 'كفاءة أساسية في اللغة الإنجليزية' : 'Basic English proficiency (Reading/Writing)',
-            isAr ? 'مهارات حاسوبية أساسية للتعلم عبر الإنترنت' : 'Basic computer skills for online platforms',
-            isAr ? 'القدرة على العمل بشكل مستقل مع التوجيه' : 'The ability to work independently with guidance',
-            isAr ? 'جهاز كمبيوتر محمول واتصال مستقر بالإنترنت' : 'A laptop or tablet and stable internet connection'
+            isAr ? 'كفاءة أساسية في اللغة الإنجليزية' : 'Basic English proficiency',
+            isAr ? 'قدرة على التعلم المستقل' : 'Independent learning skills',
+            isAr ? 'جهاز كمبيوتر وإنترنت مستقر' : 'Laptop and stable internet connection'
+          ],
+          outcomes: [
+            isAr ? 'إتمام المناهج الدراسية بنجاح' : 'Consistent completion of online coursework',
+            isAr ? 'تعزيز مهارات التنظيم والمسؤولية' : 'Stronger organizational and independent skills',
+            isAr ? 'وعي دقيق بالتقدم الأكاديمي' : 'Greater awareness of academic progress'
           ]
         }
       },
@@ -91,18 +110,26 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
         image: "https://picsum.photos/seed/weekend/800/600",
         color: 'bg-secondary',
         fullDetails: {
-          intro: isAr ? 'تم تصميم برنامج عطلة نهاية الأسبوع لمساعدة الأطفال المقيمين في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معرفتهم باللغة العربية والقرآن من خلال دروس تفاعلية مباشرة.' : 'Our Weekend Program is designed to help children living abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge through engaging live online lessons.',
-          outcomes: [
-            isAr ? 'تلاوة قرآنية دقيقة مع التجويد' : 'More accurate Quranic recitation and Tajweed',
-            isAr ? 'تحسين مهارات الكتابة والتواصل بالعربية' : 'Stronger Arabic writing and communication skills',
-            isAr ? 'فهم أعمق للعبادات والمعرفة الإسلامية' : 'Greater understanding of Islamic knowledge and practices',
-            isAr ? 'شخصية إسلامية واثقة واتصال قوي بالعقيدة' : 'A confident Islamic character and stronger connection to faith'
+          intro: isAr 
+            ? 'برنامج حيوي يهدف لربط أطفال المغتربين بلغتهم ودينهم من خلال دروس تفاعلية في نهاية الأسبوع.'
+            : 'A vibrant program designed to connect children abroad with their language and faith through engaging weekend lessons.',
+          learn: [
+            isAr ? 'تجويد وحفظ القرآن الكريم' : 'Quran recitation and Tajweed practice',
+            isAr ? 'قواعد اللغة العربية والمحادثة' : 'Arabic grammar and spoken fluency',
+            isAr ? 'القيم الإسلامية وبناء الشخصية' : 'Islamic values and character development',
+            isAr ? 'تطوير الهوية الإسلامية' : 'Developing a confident Islamic identity'
           ],
+          schedule: isAr ? 'يومي السبت والأحد. تتوفر فترات: 8-10ص، 10-12ظ، 12-2ظ (بتوقيت شرق أمريكا).' : 'Saturday and Sunday. Available slots: 8-10 AM, 10-12 PM, 12-2 PM (ET).',
+          teachers: isAr ? 'معلمون ذوو خبرة وكفاءة عالية في التعامل مع الأطفال وتوفير بيئة تعليمية مخصصة ومتابعة مستمرة.' : 'Highly qualified and experienced teachers providing personalized attention and supportive learning.',
           features: [
-            isAr ? 'حصص مباشرة تفاعلية عبر الإنترنت' : 'Live online weekend lessons from home',
-            isAr ? 'تعليم القواعد والكتابة والمحادثة بالعربية' : 'Arabic grammar, writing, and spoken practice',
-            isAr ? 'معلمون ذوو خبرة ودعم شخصي للطلاب' : 'Experienced teachers providing personalized attention',
-            isAr ? 'خيارات متعددة للأوقات (8-10، 10-12، 12-2 ظهراً ET)' : 'Session slots: 8-10 AM, 10-12 PM, 12-2 PM (ET)'
+            isAr ? 'حصص مباشرة وتفاعلية' : 'Live online interactive lessons',
+            isAr ? 'فصول دراسية صغيرة ومريحة' : 'Carefully managed small class sizes',
+            isAr ? 'تواصل مستمر مع أولياء الأمور' : 'Open communication and progress tracking'
+          ],
+          outcomes: [
+            isAr ? 'تلاوة صحيحة بلسان عربي مبين' : 'More accurate Quranic recitation',
+            isAr ? 'تطور ملحوظ في التحدث بالعربية' : 'Stronger Arabic communication skills',
+            isAr ? 'ارتباط وثيق بالقيم الإسلامية' : 'A deeper connection to faith and language'
           ]
         }
       }
@@ -239,46 +266,104 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
               </div>
 
-              <div className="p-8 sm:p-12 space-y-12">
+              <div className="p-8 sm:p-12 space-y-12 bg-white">
                 <div className="space-y-6">
-                  <p className="text-lg font-bold text-primary leading-relaxed italic border-r-4 border-secondary pr-6">
+                  <p className="text-lg font-bold text-primary leading-relaxed italic border-l-4 border-secondary pl-6">
                     {selectedProgData.fullDetails.intro}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-black text-primary flex items-center gap-3">
-                      <Check className="h-6 w-6 text-secondary" />
-                      {t.outcomes}
-                    </h3>
-                    <ul className="space-y-4">
-                      {selectedProgData.fullDetails.outcomes.map((item, i) => (
-                        <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                          <div className="h-2 w-2 rounded-full bg-secondary mt-2 shrink-0" />
-                          <span className="font-bold text-slate-700 text-sm">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-black text-primary flex items-center gap-3">
+                        <BookOpen className="h-6 w-6 text-secondary" />
+                        {t.sections.learn}
+                      </h3>
+                      <ul className="space-y-3">
+                        {selectedProgData.fullDetails.learn.map((item, i) => (
+                          <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <div className="h-2 w-2 rounded-full bg-secondary mt-2 shrink-0" />
+                            <span className="font-bold text-slate-700 text-sm">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-black text-primary flex items-center gap-3">
+                        <Calendar className="h-6 w-6 text-secondary" />
+                        {t.sections.schedule}
+                      </h3>
+                      <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 font-bold text-slate-700 leading-relaxed">
+                        {selectedProgData.fullDetails.schedule}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-black text-primary flex items-center gap-3">
-                      <Info className="h-6 w-6 text-secondary" />
-                      {selectedProgData.fullDetails.requirements ? t.requirements : (isAr ? 'مميزات البرنامج' : 'Key Features')}
-                    </h3>
-                    <ul className="space-y-4">
-                      {(selectedProgData.fullDetails.requirements || selectedProgData.fullDetails.features || []).map((item, i) => (
-                        <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                          <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-                          <span className="font-bold text-slate-700 text-sm">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-black text-primary flex items-center gap-3">
+                        <Users className="h-6 w-6 text-secondary" />
+                        {t.sections.teachers}
+                      </h3>
+                      <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 font-bold text-slate-700 leading-relaxed">
+                        {selectedProgData.fullDetails.teachers}
+                      </div>
+                    </div>
+
+                    {selectedProgData.fullDetails.features && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-black text-primary flex items-center gap-3">
+                          <CheckCircle2 className="h-6 w-6 text-secondary" />
+                          {t.sections.features}
+                        </h3>
+                        <ul className="space-y-3">
+                          {selectedProgData.fullDetails.features.map((item, i) => (
+                            <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                              <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
+                              <span className="font-bold text-slate-700 text-sm">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {selectedProgData.fullDetails.requirements && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-black text-primary flex items-center gap-3">
+                          <Info className="h-6 w-6 text-secondary" />
+                          {t.sections.requirements}
+                        </h3>
+                        <ul className="space-y-3">
+                          {selectedProgData.fullDetails.requirements.map((item, i) => (
+                            <li key={i} className="flex items-start gap-3 bg-destructive/5 p-4 rounded-xl border border-destructive/10">
+                              <div className="h-2 w-2 rounded-full bg-destructive mt-2 shrink-0" />
+                              <span className="font-bold text-destructive text-sm">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="pt-8 border-t border-slate-100 flex justify-end">
+                <div className="space-y-4 pt-8 border-t border-slate-100">
+                  <h3 className="text-xl font-black text-primary flex items-center gap-3">
+                    <Target className="h-6 w-6 text-secondary" />
+                    {t.sections.outcomes}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {selectedProgData.fullDetails.outcomes.map((item, i) => (
+                      <div key={i} className="bg-primary/5 p-5 rounded-2xl border border-primary/10 flex flex-col gap-2">
+                        <Check className="h-5 w-5 text-secondary" />
+                        <span className="font-black text-primary text-xs leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-8 flex justify-end">
                    <Button asChild size="lg" className="bg-secondary text-white font-black rounded-full h-14 px-10 shadow-xl shadow-secondary/20 transition-all hover:scale-105">
                      <Link href={`/${lang}/enroll`}>{t.apply}</Link>
                    </Button>

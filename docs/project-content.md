@@ -147,6 +147,8 @@ Because the program uses Edgenuity and requires independent online learning, stu
 - **Independent learning skills:** The ability to work independently with follow-up and guidance.
 - **Reliable technology:** Consistent access to a laptop or tablet and a stable internet connection.
 
+These requirements help students benefit from the online learning platform and the academy's support system.
+
 ### Key Program Features
 
 - Online English coursework through Edgenuity.
@@ -516,7 +518,7 @@ Homeschooling in New York follows a structured process designed to help families
 Below is an overview of the four primary requirements most homeschool families complete each school year. 
 •	Step 1 — Notice of Intent (LOI)
 The homeschooling journey begins with the Notice of Intent (LOI). This is a simple letter informing your local school district that you intend to homeschool your child for the upcoming school year. It officially notifies the district that your child will be educated through a home instruction program rather than attending public school. For families beginning homeschooling during the school year, the Notice of Intent is generally submitted within the required timeframe after establishing the homeschool program. 
-o	🟦 How BBA Helps: If your family is enrolled with Baneen and Banaat Academy, you won't have to navigate this process alone. Our team provides step-by-step guidance, helping you understand when the Notice of Intent should be submitted and answering any questions you may have throughout the process. 
+o	🟦 How BBA Helps: If your family is enrolled with Baneen and Baneen Academy, you won't have to navigate this process alone. Our team provides step-by-step guidance, helping you understand when the Notice of Intent should be submitted and answering any questions you may have throughout the process. 
 •	Step 2 — Individualized Home Instruction Plan (IHIP)
 After submitting the LOI, parents prepare an Individualized Home Instruction Plan. The IHIP outlines the educational plan for the school year, including the subjects that will be taught in accordance with New York's homeschool regulations. Rather than serving as a rigid curriculum, the IHIP provides the school district with a general overview of your student's planned instruction and demonstrates that the required subjects will be covered throughout the year. 
 o	🟦 How BBA Helps: We help families enrolled with BBA understand New York's educational requirements and provide guidance while preparing the Individualized Home Instruction Plan (IHIP), ensuring parents feel confident throughout the process. 
