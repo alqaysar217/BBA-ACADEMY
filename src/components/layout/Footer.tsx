@@ -146,25 +146,25 @@ export function Footer({ lang }: { lang: Locale }) {
               {content.hours}
             </h4>
             <div className="space-y-6">
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-secondary" />
-                  <span className="font-black text-sm uppercase tracking-tight">{content.weekdays}</span>
+                  <Clock className="h-4 w-4 text-secondary" />
+                  <span className="font-bold text-xs uppercase tracking-tight opacity-80">{content.weekdays}</span>
                 </div>
-                <div className="text-2xl font-black text-white">{content.weekdaysTime}</div>
+                <div className="text-lg font-black text-white">{content.weekdaysTime}</div>
               </div>
-              <div className="flex items-center gap-3 px-2">
-                <div className="h-2 w-2 rounded-full bg-red-500" />
-                <span className="text-sm font-bold text-white/60">{content.weekends}</span>
+              <div className="flex items-center gap-2 px-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                <span className="text-xs font-bold text-white/50">{content.weekends}</span>
               </div>
               
               {/* Quick WhatsApp Link in Footer */}
               <Link 
                 href="https://wa.me/13136555778" 
                 target="_blank" 
-                className="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white p-4 rounded-2xl transition-all font-black text-sm shadow-xl shadow-green-500/20 active:scale-95"
+                className="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition-all font-black text-xs shadow-xl shadow-green-500/20 active:scale-95"
               >
-                <MessageCircle className="h-5 w-5" />
+                <MessageCircle className="h-4 w-4" />
                 {isAr ? 'تواصل عبر واتساب' : 'WhatsApp Support'}
               </Link>
             </div>
