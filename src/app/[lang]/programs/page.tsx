@@ -1,13 +1,25 @@
+
+'use client';
+
+import { useState, use } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { BookOpen, GraduationCap, Calendar, Clock, CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { BookOpen, GraduationCap, Calendar, Clock, CheckCircle2, ArrowRight, ArrowLeft, Info, Check } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
-export default async function ProgramsPage({ params }: { params: Promise<{ lang: Locale }> }) {
-  const { lang } = await params;
+export default function ProgramsPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
   const isAr = lang === 'ar';
+  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
 
   const t = {
     title: isAr ? 'برامجنا التعليمية' : 'Educational Programs',
@@ -15,6 +27,8 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
     enrollNow: isAr ? 'ابدأ التسجيل الآن' : 'Start Enrollment Now',
     apply: isAr ? 'سجل في البرنامج' : 'Apply for Program',
     details: isAr ? 'تفاصيل البرنامج' : 'Program Details',
+    outcomes: isAr ? 'مخرجات البرنامج' : 'Program Outcomes',
+    requirements: isAr ? 'المتطلبات' : 'Requirements',
     programs: [
       {
         id: 'grades-3-5',
@@ -24,7 +38,21 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         schedule: isAr ? 'الإثنين - الخميس (صباحاً)' : 'Monday–Thursday (Morning)',
         subjects: isAr ? 'الإنجليزية، الرياضيات، القرآن، العربية والدراسات الإسلامية' : 'English, Math, Quran, Arabic & Islamic Studies',
         image: "https://picsum.photos/seed/grade35/800/600",
-        color: 'bg-primary'
+        color: 'bg-primary',
+        fullDetails: {
+          intro: isAr ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأكاديميين وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية.' : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academics, builds language skills, and nurtures a strong Islamic identity.',
+          outcomes: [
+            isAr ? 'مهارات قوية في القراءة والكتابة باللغة العربية' : 'Strong Arabic reading and writing skills',
+            isAr ? 'تلاوة وحفظ القرآن الكريم بالتجويد' : 'Accurate Quran recitation and memorization with Tajweed',
+            isAr ? 'فهم عميق للمفاهيم الإسلامية الأساسية' : 'Meaningful understanding of core Islamic concepts',
+            isAr ? 'جاهزية أكاديمية متوافقة مع المعايير الأمريكية' : 'Academic readiness aligned with U.S. standards'
+          ],
+          features: [
+            isAr ? 'حصص مباشرة من الإثنين إلى الخميس' : 'Live classes Monday to Thursday',
+            isAr ? 'مناهج أمريكية معتمدة للغة الإنجليزية والرياضيات' : 'Accredited American curricula for English & Math',
+            isAr ? 'دروس تفاعلية لبناء الثقة والاتقان' : 'Interactive online lessons that build confidence'
+          ]
+        }
       },
       {
         id: 'grades-6-12',
@@ -34,7 +62,22 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         schedule: isAr ? 'مرن مع متابعة أسبوعية' : 'Flexible with Weekly Mentor Progress',
         subjects: isAr ? 'الإنجليزية، المناهج الأساسية، الدراسات الإسلامية والقرآن' : 'English (Edgenuity), Core Academics, Islamic Studies & Qur’an',
         image: "https://picsum.photos/seed/grade612/800/600",
-        color: 'bg-accent'
+        color: 'bg-accent',
+        fullDetails: {
+          intro: isAr ? 'تم بناء برنامجنا للمرحلة المتوسطة والثانوية لدعم الطلاب أكاديمياً، وتعزيز مهاراتهم في اللغة الإنجليزية، وتوفير بيئة تعليمية منظمة تساعدهم على البقاء على المسار الصحيح.' : 'Our Middle & High School program is built to support students academically, strengthen their English skills, and provide a structured learning environment that helps them stay on track.',
+          outcomes: [
+            isAr ? 'تتبع التقدم الأسبوعي والمساءلة' : 'Weekly progress tracking and accountability',
+            isAr ? 'دعم أكاديمي 1-على-1 عند الحاجة' : '1-on-1 academic support when needed',
+            isAr ? 'التحضير للكلية والمسارات الوظيفية' : 'Preparation for college and career pathways',
+            isAr ? 'تعزيز الشخصية من خلال الدراسات الإسلامية' : 'Character building through Islamic studies'
+          ],
+          requirements: [
+            isAr ? 'كفاءة أساسية في اللغة الإنجليزية' : 'Basic English proficiency',
+            isAr ? 'مهارات حاسوبية أساسية' : 'Basic computer skills',
+            isAr ? 'القدرة على العمل بشكل مستقل' : 'Ability to work independently',
+            isAr ? 'اتصال مستقر بالإنترنت' : 'Consistent internet access'
+          ]
+        }
       },
       {
         id: 'weekend',
@@ -44,10 +87,26 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
         schedule: isAr ? 'السبت والأحد (فترات متعددة)' : 'Saturday & Sunday (Multiple Slots)',
         subjects: isAr ? 'التجويد، قواعد اللغة، العبادة والقيم الإسلامية' : 'Tajweed, Arabic Grammar, Worship & Islamic Values',
         image: "https://picsum.photos/seed/weekend/800/600",
-        color: 'bg-secondary'
+        color: 'bg-secondary',
+        fullDetails: {
+          intro: isAr ? 'تم تصميم البرنامج المخصص لنهاية الأسبوع لمساعدة الأطفال في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معرفتهم باللغة العربية والقرآن.' : 'The Weekend Program is designed to help children abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge.',
+          outcomes: [
+            isAr ? 'اتقان تلاوة القرآن بالتجويد' : 'Mastery of Quranic recitation with Tajweed',
+            isAr ? 'فصاحة في التحدث باللغة العربية' : 'Fluency and eloquence in Arabic speech',
+            isAr ? 'فهم ممارسات العبادة الإسلامية' : 'Understanding Islamic worship and practices',
+            isAr ? 'قيم إسلامية قوية لمواجهة التحديات' : 'Strong Islamic values to overcome challenges'
+          ],
+          features: [
+            isAr ? 'حصص مباشرة وتفاعلية من المنزل' : 'Live classes from the comfort of home',
+            isAr ? 'معلمون ذوو خبرة وداعمة' : 'Experienced and supportive teachers',
+            isAr ? 'بيئة تعليمية مخصصة وفصول صغيرة' : 'Personalized learning with small class sizes'
+          ]
+        }
       }
     ]
   };
+
+  const selectedProgData = t.programs.find(p => p.id === selectedProgram);
 
   return (
     <div className="bg-slate-50/30">
@@ -142,7 +201,11 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
                         {isAr ? <ArrowLeft className="mr-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
                       </Link>
                     </Button>
-                    <Button variant="ghost" className="rounded-full h-14 px-8 text-primary font-bold hover:bg-primary/5">
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setSelectedProgram(prog.id)}
+                      className="rounded-full h-14 px-8 text-primary font-bold hover:bg-primary/5"
+                    >
                       {t.details}
                     </Button>
                   </div>
@@ -152,6 +215,76 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
           ))}
         </div>
       </section>
+
+      {/* Program Details Dialog */}
+      <Dialog open={!!selectedProgram} onOpenChange={() => setSelectedProgram(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-[2rem] border-none p-0">
+          {selectedProgData && (
+            <div className="flex flex-col">
+              <div className={cn("p-8 sm:p-12 text-white relative overflow-hidden", selectedProgData.color)}>
+                <DialogHeader className="relative z-10 text-right sm:text-right">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center">
+                      <selectedProgData.icon className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="text-xs font-black uppercase tracking-widest opacity-80">{isAr ? 'تفاصيل البرنامج' : 'Program Details'}</div>
+                  </div>
+                  <DialogTitle className="text-3xl sm:text-5xl font-black text-white leading-tight">
+                    {selectedProgData.title}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+              </div>
+
+              <div className="p-8 sm:p-12 space-y-12">
+                <div className="space-y-6">
+                  <p className="text-xl font-bold text-primary leading-relaxed italic border-r-4 border-secondary pr-6">
+                    {selectedProgData.fullDetails.intro}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-black text-primary flex items-center gap-3">
+                      <Check className="h-6 w-6 text-secondary" />
+                      {t.outcomes}
+                    </h3>
+                    <ul className="space-y-4">
+                      {selectedProgData.fullDetails.outcomes.map((item, i) => (
+                        <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                          <div className="h-2 w-2 rounded-full bg-secondary mt-2 shrink-0" />
+                          <span className="font-bold text-slate-700">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-black text-primary flex items-center gap-3">
+                      <Info className="h-6 w-6 text-secondary" />
+                      {selectedProgData.fullDetails.requirements ? t.requirements : (isAr ? 'المميزات' : 'Features')}
+                    </h3>
+                    <ul className="space-y-4">
+                      {(selectedProgData.fullDetails.requirements || selectedProgData.fullDetails.features || []).map((item, i) => (
+                        <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                          <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
+                          <span className="font-bold text-slate-700">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-slate-100 flex justify-end">
+                   <Button asChild size="lg" className="bg-secondary text-white font-black rounded-full h-14 px-10 shadow-xl shadow-secondary/20 transition-all hover:scale-105">
+                     <Link href={`/${lang}/enroll`}>{t.apply}</Link>
+                   </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Bottom CTA */}
       <section className="section-padding bg-primary text-white text-center relative overflow-hidden">
