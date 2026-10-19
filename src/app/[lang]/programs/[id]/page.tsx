@@ -14,64 +14,64 @@ const getProgramData = (id: string, isAr: boolean) => {
         ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأسس الأكاديمية وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية. يتبع الطلاب جدولاً منظماً يجمع بين المواد الأكاديمية الأمريكية والتعليم الديني في بيئة تعلم تفاعلية.'
         : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academic foundations, builds language skills, and nurtures a strong Islamic identity. Students attend live classes Monday through Thursday, following a structured schedule that combines American academic subjects with Quran, Arabic, and Islamic Studies.',
       learn: isAr 
-        ? 'يدرس الطلاب المنهج الأكاديمي الأمريكي الذي يشمل اللغة الإنجليزية والرياضيات مع التركيز على أسس القراءة والكتابة. تليها فترة مخصصة للقرآن الكريم (تلاوة وحفظ بالتجويد)، واللغة العربية، والدراسات الإسلامية التي تغطي العبادات والقيم والأخلاق.'
-        : 'Students study the American academic curriculum including English and Mathematics in the morning block, focusing on strong foundations in reading, writing, and math. This is followed by a block for Quran (recitation and memorization with Tajweed), Arabic language, and Islamic Studies focusing on worship, values, and character.',
+        ? 'يدرس الطلاب المنهج الأكاديمي الأمريكي (اللغة الإنجليزية والرياضيات) مع التركيز على أسس القراءة والكتابة. تليها دروس اللغة العربية والقرآن الكريم (تلاوة وحفظ بالتجويد)، والدراسات الإسلامية التي تغطي العبادات والقيم والأخلاق.'
+        : 'Students study the American academic curriculum (English and Mathematics) focusing on reading, writing, and math foundations. This is followed by Arabic reading and writing, Quran recitation and memorization with Tajweed, and Islamic Studies on worship, values, and character.',
       schedule: isAr 
-        ? 'أيام الدراسة هي من الإثنين إلى الخميس. يبدأ اليوم بالفترة الصباحية للمواد الأكاديمية، تليها الفترة المخصصة للقرآن واللغة العربية والدراسات الإسلامية. يتم تقديم البرنامج بالكامل عبر الإنترنت من خلال فصول دراسية مباشرة ومنظمة.'
-        : 'Classes are held Monday–Thursday. The schedule includes a morning block for English and Mathematics, followed by a block for Arabic, Quran, and Islamic Studies. The program is fully online with live, structured classes from home.',
+        ? 'الأيام: من الإثنين إلى الخميس. الفترة الصباحية: الإنجليزية والرياضيات. الفترة التالية: العربية والقرآن والدراسات الإسلامية. الشكل: نظام تعليمي كامل عبر الإنترنت مع حصص مباشرة.'
+        : 'Days: Monday–Thursday. Morning Block: English and Mathematics. Following Block: Arabic, Quran, and Islamic Studies. Format: Fully online with live, structured classes from home.',
       teachers: isAr 
-        ? 'يتم تقديم الدروس من خلال معلمين متخصصين يقودون حصصاً تفاعلية تهدف لبناء ثقة الطالب. يقوم المعلمون بمتابعة دقيقة لكل طالب لضمان التفاعل المستمر وتقديم المساعدة الشخصية في المواد الأكاديمية والدينية، مع مراعاة الفروق الفردية.'
-        : 'The academy features specialized teachers who lead interactive online lessons designed to build confidence. Teachers provide personalized attention and maintain communication with parents and administration about attendance, progress, and additional support needs.',
+        ? 'يتم تقديم الدروس من خلال معلمين متخصصين يقودون حصصاً تفاعلية تهدف لبناء ثقة الطالب. يقوم المعلمون بمتابعة دقيقة لكل طالب لضمان التفاعل المستمر وتقديم المساعدة الشخصية، مع الحفاظ على تواصل دوري مع الإدارة والأهالي.'
+        : 'Interactive online lessons designed to build confidence. Teachers provide personalized attention and maintain communication with parents and administration about attendance, progress, and support needs.',
       features: isAr 
-        ? 'روتين تعليمي أسبوعي منظم، مزيج متكامل بين التعليم الأكاديمي والإسلامي، تدريس حي ومباشر عبر الإنترنت، تطوير مهارات اللغة العربية، وتحفيز الطلاب على حفظ القرآن الكريم بأسلوب تربوي محبب.'
-        : 'Structured weekly learning routine, combination of academic and Islamic education, live online instruction, Arabic language development, and Quran recitation and memorization practice with age-appropriate Islamic learning.',
+        ? 'روتين تعليمي أسبوعي منظم، مزيج متكامل بين التعليم الأكاديمي والإسلامي، تدريس حي ومباشر عبر الإنترنت، تطوير مهارات اللغة العربية، ممارسة حفظ وتلاوة القرآن، تعلم إسلامي يتناسب مع الفئة العمرية.'
+        : 'Structured weekly learning routine, Academic and Islamic education combination, Live online instruction, Arabic language development, Quran recitation and memorization practice, Age-appropriate Islamic learning.',
       outcomes: isAr 
-        ? 'تطوير مهارات القراءة والكتابة بالعربية، تحسين تلاوة وحفظ القرآن بالتجويد، فهم عميق للمفاهيم الإسلامية، الجاهزية الأكاديمية وفق المعايير الأمريكية، وبناء هوية إسلامية واثقة مرتبطة بالدين واللغة.'
-        : 'Stronger Arabic reading and writing skills, improved Quran recitation and Tajweed, meaningful understanding of core Islamic concepts, academic readiness aligned with American standards, and a confident identity rooted in faith.',
+        ? 'مهارات قوية في القراءة والكتابة بالعربية، تحسين تلاوة وحفظ القرآن بالتجويد، فهم عميق للمفاهيم الإسلامية، جاهزية أكاديمية وفق المعايير الأمريكية، هوية واثقة متجذرة في اللغة والدين.'
+        : 'Stronger Arabic reading and writing, Improved Quran recitation and Tajweed, Meaningful understanding of core Islamic concepts, Academic readiness aligned with American standards, Confident identity rooted in faith.',
       image: "https://picsum.photos/seed/grade35/1200/600"
     },
     'grades-6-12': {
       name: isAr ? 'المرحلة المتوسطة والثانوية (الصفوف 6-12)' : 'Grades 6–12 Remote Program',
       intro: isAr 
-        ? 'برنامج متكامل للمرحلتين المتوسطة والثانوية مصمم لدعم الطلاب أكاديمياً وتعزيز مهاراتهم في اللغة الإنجليزية من خلال بيئة تعليمية منظمة ومرنة تساعدهم على البقاء في المسار الصحيح نحو التخرج.'
-        : 'Our Middle and High School program for Grades 6–12 is fully online and designed to support students academically, strengthen their English skills, and provide a structured learning environment that helps them stay on track.',
+        ? 'برنامج متكامل للمرحلة المتوسطة والثانوية مصمم لدعم الطلاب أكاديمياً وتعزيز مهاراتهم في اللغة الإنجليزية من خلال بيئة تعليمية منظمة ومرنة تساعدهم على البقاء في المسار الصحيح. يستخدم الطلاب منصة Edgenuity لإكمال المنهج.'
+        : 'Our Middle and High School program for Grades 6–12 is fully online and designed to support students academically, strengthen their English skills, and provide a structured learning environment. Students use the Edgenuity platform to complete their English curriculum.',
       learn: isAr 
-        ? 'يستخدم الطلاب منصة Edgenuity لإكمال منهج اللغة الإنجليزية. بالإضافة إلى ذلك، يتضمن البرنامج دراسات إسلامية وقرآن كريم تشمل التجويد، القيم، الفقه المبسط للمراهقين، والقصص التي تشجع على بناء الشخصية القوية.'
-        : 'Students use the Edgenuity platform to complete their English curriculum online. The program also includes age-appropriate Islamic learning such as Quran recitation with Tajweed, Islamic manners, simple fiqh for teenagers, and character-building stories.',
+        ? 'منهج اللغة الإنجليزية عبر Edgenuity، بالإضافة إلى تعليم إسلامي عملي يشمل القرآن الكريم بالتجويد، آداب وقيم إسلامية، فقه مبسط للمراهقين، وقصص تربوية تشجع على بناء الشخصية.'
+        : 'English curriculum through Edgenuity, plus practical Islamic learning including Quran with Tajweed, Islamic manners, simple fiqh for teenagers, and character-building stories.',
       schedule: isAr 
-        ? 'برنامج مرن عبر الإنترنت مع نظام متابعة دقيق. يُتوقع من الطلاب إنهاء 5-7% من المنهج يومياً (من الإثنين للجمعة)، مع تتبع أسبوعي للتقدم والدرجات لضمان الجدية والالتزام.'
-        : 'Fully online lessons and support offering flexibility for families while maintaining a structured learning plan. All monitoring and support activities follow a consistent weekly progress tracking schedule.',
+        ? 'برنامج مرن عبر الإنترنت مع تتبع أسبوعي للتقدم. يقدم الفريق دعماً وتوجيهاً مستمراً لضمان بقاء الطالب في المسار الصحيح، مع إمكانية الوصول للمواد التعليمية في أي وقت مع الالتزام بجدول المتابعة.'
+        : 'Flexible online learning with weekly progress tracking. The team provides consistent support to keep students on track, with 24/7 access to materials while adhering to the monitoring schedule.',
       teachers: isAr 
-        ? 'يقوم الفريق بمراقبة التقدم أسبوعياً والتواصل مع الأهالي. يوفر المعلمون دعماً أكاديمياً فردياً (واحد لواحد) لمساعدة الطلاب في فهم الدروس، إكمال المهام، وتنظيم الوقت والتحضير للاختبارات والمشاريع.'
-        : 'The academy team monitors each student\'s progress and grades weekly, communicates updates to parents regularly, and provides one-on-one academic support for understanding lessons, completing assignments, and improving reading and writing skills.',
+        ? 'يقوم الفريق بمراقبة التقدم أسبوعياً والتواصل مع الأهالي. يوفر المعلمون دعماً أكاديمياً فردياً (واحد لواحد) لمساعدة الطلاب في فهم الدروس، إكمال المهام، تنظيم المهام الأسبوعية، والتحضير للاختبارات والمشاريع.'
+        : 'Weekly monitoring of progress and grades, regular parent communication, and one-on-one assistance with lessons, assignments, reading, writing, organization, and exam preparation.',
       features: isAr 
-        ? 'منهج إنجليزي عبر منصة متطورة، مراقبة أسبوعية دقيقة، تواصل دوري مع الأهالي، تدخل مبكر عند تعثر الطالب، دعم أكاديمي فردي، وإرشاد ديني يتناسب مع احتياجات الشباب.'
-        : 'Online English coursework through Edgenuity, weekly monitoring of progress and grades, regular parent communication, early intervention, one-on-one academic assistance, and age-appropriate Islamic learning.',
+        ? 'منهج إنجليزي عبر Edgenuity، تتبع أسبوعي للتقدم، تواصل دوري مع أولياء الأمور، تدخل مبكر عند تعثر الطالب، دعم أكاديمي فردي عند الحاجة، تعلم إسلامي يتناسب مع المرحلة العمرية، إرشاد لتشجيع الاستمرارية.'
+        : 'Online English via Edgenuity, Weekly monitoring, Regular parent communication, Early intervention, One-on-one assistance, Age-appropriate Islamic learning, Guidance for consistency and accountability.',
       outcomes: isAr 
-        ? 'إكمال المناهج بنجاح، تطوير مهارات التعلم المستقل والتنظيم، تحسين مهارات القراءة والكتابة الأكاديمية، زيادة الوعي بالمسؤوليات الدراسية، وتعميق المعرفة بالقيم الإسلامية والتجويد.'
-        : 'Consistent completion of online coursework, stronger independent learning and organizational skills, improved reading and writing, greater awareness of academic responsibilities, and deeper Islamic knowledge.',
+        ? 'إكمال الدورات عبر الإنترنت بانتظام، مهارات تعلم مستقل وتنظيم قوية، تحسين القراءة والكتابة الأكاديمية، وعي أكبر بالمسؤوليات الدراسية، تطوير مستمر لتلاوة القرآن والمعرفة الإسلامية، فهم أعمق للقيم الشخصية.'
+        : 'Consistent course completion, Stronger independent learning and organization, Improved reading and writing, Greater awareness of academic goals, Continued Quran and Islamic development, Deeper understanding of values.',
       image: "https://picsum.photos/seed/grade612/1200/600"
     },
     'weekend': {
       name: isAr ? 'برنامج عطلة نهاية الأسبوع' : 'Weekend Remote Program',
       intro: isAr 
-        ? 'يهدف هذا البرنامج إلى مساعدة الأطفال المقيمين في الخارج على تطوير هوية إسلامية واثقة ومتوازنة من خلال دروس حية وتفاعلية تقربهم من لغتهم العربية ودينهم الحنيف من المنزل.'
-        : 'Our Weekend Program is designed to help children living abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge through engaging live online lessons.',
+        ? 'مصمم لمساعدة الأطفال المقيمين في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معارفهم في اللغة العربية والقرآن الكريم من خلال دروس حية وجذابة عبر الإنترنت من المنزل.'
+        : 'Designed to help children living abroad develop a confident Islamic identity while strengthening Arabic and Quranic knowledge through engaging live online lessons from home.',
       learn: isAr 
-        ? 'يركز البرنامج على تلاوة القرآن الكريم بالتجويد، قواعد اللغة العربية، مهارات الكتابة والمحادثة، بالإضافة إلى الدراسات الإسلامية التي تربط العقيدة بالعبادات والقيم في الحياة اليومية.'
-        : 'Students learn Quran recitation and Tajweed, Arabic language (grammar, writing, and speaking), and Islamic Studies focusing on values, worship, and character development in everyday life.',
+        ? 'القرآن الكريم والتجويد، قواعد اللغة العربية، مهارات الكتابة، وممارسة المحادثة. بالإضافة إلى دراسات إسلامية تتناول العبادات، القيم، وتطوير الشخصية وربط العقيدة بالحياة اليومية.'
+        : 'Quran and Tajweed, Arabic grammar, Writing skills, and Speaking practice. Plus Islamic Studies covering worship, values, character development, and connecting faith to everyday life.',
       schedule: isAr 
-        ? 'تقام الدروس يومي السبت والأحد عبر الإنترنت. تتوفر ثلاث فترات زمنية ليختار منها أولياء الأمور: من 8-10 صباحاً، أو 10-12 ظهراً، أو 12-2 ظهراً (بتوقيت شرق أمريكا).'
-        : 'Classes are held Saturday and Sunday. Available time slots: 8:00 AM–10:00 AM, 10:00 AM–12:00 PM, or 12:00 PM–2:00 PM (Eastern Time). Parents choose one session.',
+        ? 'الأيام: السبت والأحد. الفترات المتاحة (بتوقيت شرق أمريكا): 8-10 صباحاً، 10-12 ظهراً، أو 12-2 ظهراً. يختار أولياء الأمور جلسة واحدة فقط.'
+        : 'Days: Saturday and Sunday. Available slots (Eastern Time): 8:00 AM–10:00 AM, 10:00 AM–12:00 PM, or 12:00 PM–2:00 PM. Parents choose one session.',
       teachers: isAr 
-        ? 'تضم الأكاديمية معلمين مؤهلين وذوي خبرة واسعة في تعليم العربية والقرآن للأطفال. يقدم المعلمون اهتماماً شخصياً ويحرصون على التواصل مع الإدارة والأهالي بشأن الحضور والتقدم الأكاديمي والسلوكي.'
-        : 'Teachers are highly qualified and experienced in teaching Arabic, Quran, and Islamic Studies to children. They provide personalized attention and maintain communication with parents and administration about student progress.',
+        ? 'معلمون مؤهلون وذوي خبرة واسعة في تعليم الأطفال المقيمين في الخارج. يقدم المعلمون اهتماماً شخصياً ويحرصون على التواصل مع الأهالي بشأن الحضور والتقدم والاحتياجات الإضافية للدعم.'
+        : 'Highly qualified and experienced teachers. They provide personalized attention and maintain open communication with parents about attendance, progress, and support needs.',
       features: isAr 
-        ? 'حصص حية وتفاعلية، تعليم مخصص لربط الطفل بهويته، فصول دراسية صغيرة لضمان الجودة، متابعة مستمرة لمستوى الطالب، وبيئة تعلم محفزة تدعم القيم الأخلاقية.'
-        : 'Live online weekend lessons, Quran and Tajweed instruction, Arabic grammar and writing development, spoken Arabic practice, personalized attention, and support for Islamic identity development.',
+        ? 'دروس حية في عطلة نهاية الأسبوع، تعليم القرآن بالتجويد، تطوير قواعد وكتابة العربية، ممارسة المحادثة، دراسات إسلامية عملية، اهتمام شخصي بكل طالب، متابعة مستمرة للتقدم، دعم الهوية الإسلامية.'
+        : 'Live weekend lessons, Quran and Tajweed instruction, Arabic grammar and writing, Spoken Arabic practice, Practical Islamic Studies, Personalized attention, Progress monitoring, Identity and character support.',
       outcomes: isAr 
-        ? 'دقة في تلاوة القرآن، طلاقة في التحدث بالعربية، فهم أعمق للعبادات الإسلامية، بناء شخصية مسلمة واثقة، وارتباط قوي باللغة العربية كجزء لا يتجزأ من الهوية.'
-        : 'More accurate Quranic recitation, stronger Arabic language skills, better communication, greater understanding of Islamic practices, and a confident Islamic character.',
+        ? 'تلاوة أكثر دقة للقرآن، إلمام أفضل بالتجويد، مهارات لغوية عربية قوية، تواصل وكتابة أفضل بالعربية، فهم أكبر للمعرفة والممارسات الإسلامية، شخصية إسلامية واثقة، ارتباط قوي بالدين واللغة.'
+        : 'More accurate Quranic recitation, Improved Tajweed familiarity, Stronger Arabic language skills, Better communication, Greater understanding of Islamic practices, Confident Islamic character, Stronger faith connection.',
       image: "https://picsum.photos/seed/weekend/1200/600"
     }
   };
@@ -86,26 +86,27 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
   if (!data) notFound();
 
   const sectionLabel = (en: string, ar: string) => isAr ? ar : en;
-
-  // Split logic that handles both English and Arabic commas
-  const splitList = (text: string) => text.split(/[،,]/).map(s => s.trim()).filter(Boolean);
+  const splitList = (text: string) => {
+    if (!text) return [];
+    return text.split(/[،,]/).map(s => s.trim()).filter(Boolean);
+  };
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Header */}
-      <div className="relative h-[35vh] sm:h-[45vh] min-h-[250px]">
+      {/* Hero Section */}
+      <div className="relative h-[30vh] sm:h-[40vh] min-h-[200px]">
         <Image src={data.image} alt={data.name} fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-primary/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px]" />
         <div className="absolute inset-0 flex items-center justify-center text-center p-6">
           <div className="container-tight">
-             <Link 
+            <Link 
               href={`/${lang}/programs`} 
-              className="inline-flex items-center gap-2 text-white/90 hover:text-white font-bold text-sm mb-6 transition-all"
+              className="inline-flex items-center gap-2 text-white/80 hover:text-white font-bold text-sm mb-4 transition-all"
             >
               {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               {sectionLabel('Back to Programs', 'العودة للبرامج')}
             </Link>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight drop-shadow-2xl">
+            <h1 className="text-2xl sm:text-5xl font-black text-white leading-tight drop-shadow-2xl">
               {data.name}
             </h1>
           </div>
@@ -114,84 +115,91 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
       <div className="container-tight py-12 sm:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-12">
+          {/* Main Content Area (5 Sections) */}
+          <div className="lg:col-span-2 space-y-16">
             
+            {/* 1. Name & Intro */}
             <section className="space-y-6">
-              <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-secondary/10 rounded-full text-secondary font-black text-xs uppercase tracking-widest">
-                <Star className="h-4 w-4" />
-                {sectionLabel('Program Overview', 'نبذة عن البرنامج')}
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded-full text-secondary font-black text-[10px] uppercase tracking-[0.2em]">
+                <Star className="h-3 w-3" />
+                {sectionLabel('Program Overview', 'الفقرة التعريفية')}
               </div>
-              <p className="text-xl text-slate-600 leading-relaxed font-medium italic border-l-4 border-secondary pl-6">
+              <p className="text-lg sm:text-xl text-slate-700 leading-relaxed font-bold italic border-l-4 border-secondary pl-6">
                 {data.intro}
               </p>
             </section>
 
-            <section className="space-y-6 p-8 sm:p-10 bg-slate-50 rounded-[2rem] border border-slate-100">
-              <h3 className="text-2xl font-black text-primary flex items-center gap-4">
+            {/* 2. What Students Learn */}
+            <section className="space-y-6">
+              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
                 <BookOpen className="h-6 w-6 text-secondary" />
                 {sectionLabel('What Students Learn', 'ما يتعلمه الطلاب')}
               </h3>
-              <p className="text-lg text-slate-600 leading-relaxed font-medium">
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-medium">
                 {data.learn}
               </p>
             </section>
 
+            {/* 3. Study Schedule */}
             <section className="space-y-6">
-              <h3 className="text-2xl font-black text-primary flex items-center gap-4">
+              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
                 <Calendar className="h-6 w-6 text-secondary" />
                 {sectionLabel('Study Schedule', 'الجدول الدراسي')}
               </h3>
-              <div className="bg-primary/5 p-8 rounded-2xl border border-primary/10 text-lg text-primary font-bold leading-relaxed">
+              <div className="bg-slate-50 p-6 sm:p-8 rounded-3xl border border-slate-100 text-base sm:text-lg text-primary font-bold leading-relaxed">
                 {data.schedule}
               </div>
             </section>
 
-            <section className="space-y-6 p-8 sm:p-10 bg-secondary/5 rounded-[2rem] border border-secondary/10">
-              <h3 className="text-2xl font-black text-primary flex items-center gap-4">
+            {/* 4. Teachers */}
+            <section className="space-y-6">
+              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
                 <Users className="h-6 w-6 text-secondary" />
-                {sectionLabel('Teachers & Monitoring', 'المعلمون والمتابعة')}
+                {sectionLabel('Experienced Teachers', 'المعلمون والمتابعة')}
               </h3>
-              <p className="text-lg text-slate-600 leading-relaxed font-medium">
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-medium">
                 {data.teachers}
               </p>
             </section>
           </div>
 
-          {/* Sidebar Area */}
+          {/* Sidebar Area (2 Sections) */}
           <div className="space-y-10">
+            {/* 5. Key Features */}
             <div className="bg-white p-8 rounded-[2rem] shadow-premium border border-slate-100 space-y-6">
-              <h3 className="text-xl font-black text-primary uppercase tracking-tight border-b pb-4">
-                {sectionLabel('Key Features', 'أبرز المميزات')}
+              <h3 className="text-lg font-black text-primary uppercase tracking-tight border-b pb-4">
+                {sectionLabel('Key Program Features', 'المميزات')}
               </h3>
               <ul className="space-y-4">
                 {splitList(data.features).map((feature, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                    <span className="font-bold text-slate-700 text-sm leading-relaxed">{feature}</span>
+                    <span className="font-bold text-slate-700 text-xs sm:text-sm leading-relaxed">{feature}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="bg-primary p-8 rounded-[2rem] text-white space-y-6">
-              <h3 className="text-xl font-black uppercase tracking-tight border-b border-white/10 pb-4">
-                {sectionLabel('Expected Outcomes', 'المخرجات المتوقعة')}
+            {/* 6. Expected Outcomes */}
+            <div className="bg-primary p-8 rounded-[2rem] text-white space-y-6 shadow-2xl shadow-primary/20">
+              <h3 className="text-lg font-black uppercase tracking-tight border-b border-white/10 pb-4">
+                {sectionLabel('Expected Learning Outcomes', 'المخرجات التعليمية المتوقعة')}
               </h3>
               <div className="space-y-4">
                 {splitList(data.outcomes).map((outcome, i) => (
                   <div key={i} className="flex items-center gap-4">
-                    <div className="h-2 w-2 rounded-full bg-secondary" />
-                    <span className="font-bold text-sm leading-relaxed opacity-90">{outcome}</span>
+                    <div className="h-1.5 w-1.5 rounded-full bg-secondary shrink-0" />
+                    <span className="font-bold text-xs sm:text-sm leading-relaxed opacity-90">{outcome}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pt-6">
+            {/* CTA Button */}
+            <div className="pt-4">
               <Link href={`/${lang}/enroll`}>
-                <Button className="w-full bg-secondary hover:bg-secondary/90 text-white font-black h-16 rounded-2xl shadow-xl shadow-secondary/20 transition-all scale-100 hover:scale-[1.02] active:scale-[0.98]">
-                  {sectionLabel('Enroll Your Child Now', 'سجل طفلك الآن')}
+                <Button className="w-full bg-secondary hover:bg-white hover:text-secondary text-white font-black h-16 rounded-2xl shadow-xl transition-all border-2 border-transparent hover:border-secondary">
+                  {sectionLabel('Enroll Now', 'سجل الآن')}
                   {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
               </Link>

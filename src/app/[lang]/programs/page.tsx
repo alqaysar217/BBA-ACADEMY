@@ -14,7 +14,6 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
     title: isAr ? 'برامجنا التعليمية' : 'Educational Programs',
     subtitle: isAr ? 'نقدم برامج متكاملة تهدف لبناء الشخصية والتميز الأكاديمي' : 'Providing integrated programs aimed at character building and academic excellence',
     viewDetails: isAr ? 'عرض تفاصيل البرنامج' : 'View Program Details',
-    enrollNow: isAr ? 'سجل الآن' : 'Enroll Now',
     programs: [
       {
         id: 'grades-3-5',
@@ -45,8 +44,8 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="bg-slate-50/30 min-h-screen pb-20">
-      {/* Page Header - Professional Redesign with Optimized Height */}
-      <section className="bg-primary text-white py-12 sm:py-20 relative overflow-hidden">
+      {/* Page Header - Professional Design with Reduced Height */}
+      <section className="bg-primary text-white py-12 sm:py-16 relative overflow-hidden">
         {/* Subtle Grid Pattern Overlay */}
         <div className="absolute inset-0 opacity-[0.15]">
           <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
@@ -61,53 +60,54 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
 
         {/* Floating Decorative Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-secondary/30 rounded-full blur-[140px] animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px]" />
+          <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-[140px]" />
+          <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-accent/10 rounded-full blur-[120px]" />
         </div>
 
-        <div className="container px-4 md:px-8 relative z-10 text-center space-y-6">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-4 tracking-tight drop-shadow-xl">
+        <div className="container px-4 md:px-8 relative z-10 text-center space-y-4">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight drop-shadow-xl">
             {t.title}
           </h1>
-          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed italic">
+          <p className="text-sm sm:text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed italic">
             {t.subtitle}
           </p>
         </div>
       </section>
 
       {/* Programs Cards Grid */}
-      <section className="container px-4 md:px-8 -mt-6 sm:-mt-10 relative z-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+      <section className="container px-4 md:px-8 -mt-6 sm:-mt-8 relative z-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
           {t.programs.map((prog) => {
             const IconComponent = prog.icon;
             return (
               <div key={prog.id} className="group flex flex-col bg-white rounded-[2rem] overflow-hidden shadow-xl border border-slate-100 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
-                <div className="relative h-56 sm:h-64 overflow-hidden">
+                <div className="relative h-48 sm:h-64 overflow-hidden">
                   <Image 
                     src={prog.image} 
                     alt={prog.title} 
                     fill 
                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                    data-ai-hint="educational program image"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/20 to-transparent" />
-                  <div className={cn("absolute top-6 left-6 h-14 w-14 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6", prog.color)}>
-                    <IconComponent className="h-7 w-7" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent" />
+                  <div className={cn("absolute top-4 left-4 h-12 w-12 sm:h-14 sm:w-14 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-transform duration-500 group-hover:scale-110", prog.color)}>
+                    <IconComponent className="h-6 w-6 sm:h-7 sm:w-7" />
                   </div>
                 </div>
                 
-                <div className="p-10 flex-1 flex flex-col space-y-4">
-                  <h3 className="text-base sm:text-2xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
+                <div className="p-8 sm:p-10 flex-1 flex flex-col space-y-4">
+                  <h3 className="text-sm sm:text-xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
                     {prog.title}
                   </h3>
-                  <p className="text-slate-500 font-medium leading-relaxed">
+                  <p className="text-slate-500 font-medium text-xs sm:text-base leading-relaxed">
                     {prog.desc}
                   </p>
                   
-                  <div className="pt-8 mt-auto">
+                  <div className="pt-6 mt-auto">
                     <Link href={`/${lang}/programs/${prog.id}`}>
-                      <Button variant="outline" className="w-full rounded-2xl h-14 border-primary/20 text-primary font-black hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-sm group-hover:shadow-md">
+                      <Button variant="outline" className="w-full rounded-xl sm:rounded-2xl h-12 sm:h-14 border-primary/20 text-primary font-black text-xs sm:text-sm hover:bg-primary hover:text-white transition-all duration-300">
                         {t.viewDetails}
-                        {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
+                        {isAr ? <ArrowLeft className="mr-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
                       </Button>
                     </Link>
                   </div>
