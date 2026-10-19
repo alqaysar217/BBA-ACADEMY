@@ -1,6 +1,7 @@
 import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
 import { Quote, History, Target, Users, ArrowRight, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function OurStoryPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
@@ -12,8 +13,8 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
     intro: {
       question: isAr ? 'لماذا يجب على العائلات الاختيار بين التميز الأكاديمي والقيم التي يريدون الحفاظ عليها؟' : 'Why should families have to choose between academic excellence and the values they want to preserve?',
       text: isAr 
-        ? 'كل رحلة عظيمة تبدأ بغرض بسيط. بدأت رحلتنا بسؤال ألهم رؤيتنا لسنوات: إنشاء مؤسسة تعليمية حيث يمكن للطلاب تلقي تعليم عالي الجودة مع البقاء على اتصال بعقيدتهم ولغتهم وثقافتهم وهويتهم.'
-        : 'Every great journey begins with a simple purpose. Ours began with a question that inspired a vision for years: to create an educational institution where students could receive a high-quality education while remaining connected to their faith, language, culture, and identity.',
+        ? 'بدأت رحلتنا بسؤال ألهم رؤيتنا لسنوات: إنشاء مؤسسة تعليمية حيث يمكن للطلاب تلقي تعليم عالي الجودة مع البقاء على اتصال بعقيدتهم ولغتهم وثقافتهم وهويتهم.'
+        : 'Ours began with a question that inspired a vision for years: to create an educational institution where students could receive a high-quality education while remaining connected to their faith, language, culture, and identity.',
       vision: isAr
         ? 'لم يكن الهدف أبداً مجرد فتح مدرسة أخرى. كان الهدف بناء مكان ينمو فيه الإنجاز الأكاديمي وتنمية الشخصية معاً، وحيث يتم دائماً تقدير العائلات كشركاء في رحلة أطفالهم التعليمية.'
         : 'The goal was never simply to open another school. It was to build a place where academic achievement and character development would grow together, and where families would always be valued as partners in their children\'s educational journey.'
@@ -49,9 +50,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         ? 'في أكاديمية بنين وبنات، التعليم يتعلق ببناء الشخصية، وإلهام الثقة، وتقوية العائلات، وإعداد الطلاب لنجاح طويل الأمد.'
         : 'At Baneen and Banaat Academy, education is about building character, inspiring confidence, strengthening families, and preparing students for lifelong success.'
     },
-    closing: isAr 
-      ? 'قصتنا لا تزال تُكتب. وسيشرفنا أن تصبح عائلتكم جزءاً منها.'
-      : 'Our story is still being written. And we would be honored for your family to become part of it.'
+    closing: "Our story is still being written. And we would be honored for your family to become part of it."
   };
 
   return (
@@ -61,7 +60,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Image First on Mobile */}
-            <div className="relative aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-8 border-white order-1 lg:order-2 max-w-md mx-auto">
+            <div className="relative aspect-square sm:aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-8 border-white order-1 lg:order-2 max-w-md mx-auto w-full">
               <Image 
                 src="/story.png" 
                 alt="BBA Story Beginning" 
@@ -103,19 +102,18 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
             <div className="h-1 w-12 bg-secondary mx-auto mt-4" />
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-10">
+          <div className="max-w-4xl mx-auto space-y-12">
             {t.milestones.map((milestone, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 rounded-xl p-8 lg:p-12 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                <div className="flex flex-col gap-6 relative z-10">
-                  <div className="space-y-2">
-                    <div className="text-2xl lg:text-3xl font-black text-secondary leading-none">{milestone.year}</div>
-                    <div className="h-1 w-12 bg-secondary" />
-                  </div>
-                  <div className="space-y-4">
-                    <p className="text-slate-600 leading-relaxed font-medium text-base lg:text-lg">
-                      {milestone.content}
-                    </p>
-                  </div>
+              <div key={idx} className="space-y-4">
+                {/* Year Title Alone on Top */}
+                <div className="text-2xl lg:text-3xl font-black text-secondary px-2">
+                  {milestone.year}
+                </div>
+                {/* Card with Text Content */}
+                <div className="bg-white border border-slate-200 rounded-xl p-8 lg:p-12 shadow-sm hover:shadow-md transition-shadow">
+                  <p className="text-slate-600 leading-relaxed font-medium text-base lg:text-lg">
+                    {milestone.content}
+                  </p>
                 </div>
               </div>
             ))}
@@ -172,13 +170,13 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
             {t.closing}
           </h2>
           <div className="pt-4">
-            <a 
+            <Link 
               href={`/${lang}/enroll`}
               className="inline-flex items-center gap-4 bg-secondary hover:bg-white hover:text-secondary text-white px-10 py-5 rounded-full font-black text-lg transition-all shadow-xl shadow-secondary/20"
             >
               {isAr ? 'كن جزءاً من قصتنا' : 'Become Part of Our Story'}
               {isAr ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
-            </a>
+            </Link>
           </div>
         </div>
       </section>
