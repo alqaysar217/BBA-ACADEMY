@@ -13,7 +13,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 
 export default function ProgramsPage({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -23,83 +22,87 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
 
   const t = {
     title: isAr ? 'برامجنا التعليمية' : 'Educational Programs',
-    subtitle: isAr ? 'نحن نؤمن بأن التعليم هو حجر الزاوية لبناء شخصية متكاملة. برامجنا مصممة لتلبية احتياجات الطلاب الأكاديمية والروحية واللغوية.' : 'We believe education is more than courses; it\'s about building a strong foundation while supporting families every step of the way.',
+    subtitle: isAr ? 'من القرآن والعربية إلى الأكاديميين باللغة الإنجليزية، توفر برامجنا تجربة تعليمية شاملة ومرنة وداعمة لكل طالب.' : 'From Quran and Arabic to English academics, our programs provide a holistic, flexible, and supportive learning experience for every student.',
     enrollNow: isAr ? 'ابدأ التسجيل الآن' : 'Start Enrollment Now',
     apply: isAr ? 'سجل في البرنامج' : 'Apply for Program',
     details: isAr ? 'تفاصيل البرنامج' : 'Program Details',
-    outcomes: isAr ? 'مخرجات البرنامج' : 'Program Outcomes',
-    requirements: isAr ? 'المتطلبات' : 'Requirements',
+    outcomes: isAr ? 'مخرجات التعلم المتوقعة' : 'Expected Learning Outcomes',
+    requirements: isAr ? 'متطلبات الطلاب' : 'Student Requirements',
     programs: [
       {
         id: 'grades-3-5',
         title: isAr ? 'برنامج المرحلة الابتدائية (3-5)' : 'Grade 3-5 Remote Program',
-        desc: isAr ? 'تجربة تعليمية متوازنة عبر الإنترنت تدمج المناهج الأمريكية المعتمدة مع اللغة العربية والقرآن الكريم.' : 'A balanced and engaging online learning experience following a structured schedule that blends accredited American subjects with Quran & Arabic.',
+        desc: isAr ? 'تجربة تعليمية متوازنة عبر الإنترنت تعزز الأسس الأكاديمية وتبني المهارات اللغوية وتغذي الهوية الإسلامية.' : 'A balanced and engaging online learning experience that strengthens academic foundations, builds language skills, and nurtures a strong Islamic identity.',
         icon: BookOpen,
-        schedule: isAr ? 'الإثنين - الخميس (صباحاً)' : 'Monday–Thursday (Morning)',
-        subjects: isAr ? 'الإنجليزية، الرياضيات، القرآن، العربية والدراسات الإسلامية' : 'English, Math, Quran, Arabic & Islamic Studies',
+        schedule: isAr ? 'الإثنين - الخميس' : 'Monday–Thursday',
+        subjects: isAr ? 'الإنجليزية، الرياضيات، القرآن، العربية والدراسات الإسلامية' : 'English, Mathematics, Quran, Arabic & Islamic Studies',
         image: "https://picsum.photos/seed/grade35/800/600",
         color: 'bg-primary',
         fullDetails: {
-          intro: isAr ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأكاديميين وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية.' : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academics, builds language skills, and nurtures a strong Islamic identity.',
+          intro: isAr ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأسس الأكاديمية وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية. يتبع الطلاب جدولاً منظماً يجمع بين المواد الأكاديمية الأمريكية والقرآن والعربية والدراسات الإسلامية.' : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academic foundations, builds language skills, and nurtures a strong Islamic identity. Students follow a structured schedule that combines American academic subjects with Quran, Arabic, and Islamic Studies.',
           outcomes: [
-            isAr ? 'مهارات قوية في القراءة والكتابة باللغة العربية' : 'Strong Arabic reading and writing skills',
-            isAr ? 'تلاوة وحفظ القرآن الكريم بالتجويد' : 'Accurate Quran recitation and memorization with Tajweed',
-            isAr ? 'فهم عميق للمفاهيم الإسلامية الأساسية' : 'Meaningful understanding of core Islamic concepts',
-            isAr ? 'جاهزية أكاديمية متوافقة مع المعايير الأمريكية' : 'Academic readiness aligned with U.S. standards'
+            isAr ? 'مهارات قوية في القراءة والكتابة باللغة العربية' : 'Stronger Arabic reading and writing skills',
+            isAr ? 'تلاوة وحفظ القرآن الكريم مع التجويد السليم' : 'Improved Quran recitation and memorization with proper Tajweed',
+            isAr ? 'فهم عميق للمفاهيم الإسلامية الأساسية والقيم' : 'A meaningful understanding of core Islamic concepts and values',
+            isAr ? 'جاهزية أكاديمية متوافقة مع المعايير الأمريكية' : 'Academic readiness aligned with American academic standards',
+            isAr ? 'هوية واثقة متجذرة في اللغة والثقافة والدين' : 'A confident identity rooted in language, culture, and faith'
           ],
           features: [
-            isAr ? 'حصص مباشرة من الإثنين إلى الخميس' : 'Live classes Monday to Thursday',
-            isAr ? 'مناهج أمريكية معتمدة للغة الإنجليزية والرياضيات' : 'Accredited American curricula for English & Math',
-            isAr ? 'دروس تفاعلية لبناء الثقة والاتقان' : 'Interactive online lessons that build confidence'
+            isAr ? 'روتين تعليمي أسبوعي منظم' : 'A structured weekly learning routine',
+            isAr ? 'تعليم مباشر عبر الإنترنت من المنزل' : 'Live online instruction from home',
+            isAr ? 'تطوير مهارات اللغة العربية' : 'Arabic language development',
+            isAr ? 'مناهج أمريكية معتمدة للغة الإنجليزية والرياضيات' : 'Accredited American curriculum for core subjects'
           ]
         }
       },
       {
         id: 'grades-6-12',
-        title: isAr ? 'المرحلة المتوسطة والثانوية (6-12)' : '6-12 Remote Program',
-        desc: isAr ? 'برنامج مرن وشامل يدعم الطلاب أكاديمياً عبر منصة Edgenuity مع توجيه شخصي ومتابعة مستمرة.' : 'Fully online and built to support students academically, strengthen English skills, and provide a structured environment using the Edgenuity platform.',
+        title: isAr ? 'المرحلة المتوسطة والثانوية (6-12)' : 'Grades 6–12 Remote Program',
+        desc: isAr ? 'برنامج مرن مصمم لدعم الطلاب أكاديمياً وتعزيز مهاراتهم في الإنجليزية عبر منصة Edgenuity مع إشراف ومتابعة دقيقة.' : 'A flexible program designed to support students academically, strengthen English skills, and provide a structured environment using Edgenuity.',
         icon: GraduationCap,
-        schedule: isAr ? 'مرن مع متابعة أسبوعية' : 'Flexible with Weekly Mentor Progress',
-        subjects: isAr ? 'الإنجليزية، المناهج الأساسية، الدراسات الإسلامية والقرآن' : 'English (Edgenuity), Core Academics, Islamic Studies & Qur’an',
+        schedule: isAr ? 'مرن مع متابعة وتقدم أسبوعي' : 'Flexible with Weekly Progress Tracking',
+        subjects: isAr ? 'الإنجليزية (Edgenuity)، الدراسات الإسلامية، القرآن الكريم' : 'English (Edgenuity), Islamic Studies, Quran',
         image: "https://picsum.photos/seed/grade612/800/600",
         color: 'bg-accent',
         fullDetails: {
-          intro: isAr ? 'تم بناء برنامجنا للمرحلة المتوسطة والثانوية لدعم الطلاب أكاديمياً، وتعزيز مهاراتهم في اللغة الإنجليزية، وتوفير بيئة تعليمية منظمة تساعدهم على البقاء على المسار الصحيح.' : 'Our Middle & High School program is built to support students academically, strengthen their English skills, and provide a structured learning environment that helps them stay on track.',
+          intro: isAr ? 'تم تصميم برنامجنا للمرحلة المتوسطة والثانوية لدعم الطلاب أكاديمياً، وتعزيز مهاراتهم في اللغة الإنجليزية، وتوفير بيئة تعليمية منظمة تساعدهم على البقاء على المسار الصحيح. نستخدم منصة Edgenuity مع مراقبة أسبوعية للتقدم.' : 'Our Middle and High School program for Grades 6–12 is fully online and designed to support students academically, strengthen their English skills, and provide a structured learning environment using the Edgenuity platform with weekly monitoring.',
           outcomes: [
-            isAr ? 'تتبع التقدم الأسبوعي والمساءلة' : 'Weekly progress tracking and accountability',
-            isAr ? 'دعم أكاديمي 1-على-1 عند الحاجة' : '1-on-1 academic support when needed',
-            isAr ? 'التحضير للكلية والمسارات الوظيفية' : 'Preparation for college and career pathways',
-            isAr ? 'تعزيز الشخصية من خلال الدراسات الإسلامية' : 'Character building through Islamic studies'
+            isAr ? 'إكمال المقررات الدراسية عبر الإنترنت بانتظام' : 'More consistent completion of online coursework',
+            isAr ? 'مهارات قوية في التعلم المستقل والتنظيم' : 'Stronger independent learning and organizational skills',
+            isAr ? 'تحسين مهارات القراءة والكتابة من خلال الدعم المباشر' : 'Improved reading and writing through coursework and support',
+            isAr ? 'وعي أكبر بالمسؤوليات الأكاديمية والتقدم' : 'Greater awareness of academic responsibilities and progress',
+            isAr ? 'استمرار تطوير تلاوة القرآن والمعرفة الإسلامية' : 'Continued development of Quran recitation and Islamic knowledge'
           ],
           requirements: [
-            isAr ? 'كفاءة أساسية في اللغة الإنجليزية' : 'Basic English proficiency',
-            isAr ? 'مهارات حاسوبية أساسية' : 'Basic computer skills',
-            isAr ? 'القدرة على العمل بشكل مستقل' : 'Ability to work independently',
-            isAr ? 'اتصال مستقر بالإنترنت' : 'Consistent internet access'
+            isAr ? 'كفاءة أساسية في اللغة الإنجليزية' : 'Basic English proficiency (Reading/Writing)',
+            isAr ? 'مهارات حاسوبية أساسية للتعلم عبر الإنترنت' : 'Basic computer skills for online platforms',
+            isAr ? 'القدرة على العمل بشكل مستقل مع التوجيه' : 'The ability to work independently with guidance',
+            isAr ? 'جهاز كمبيوتر محمول واتصال مستقر بالإنترنت' : 'A laptop or tablet and stable internet connection'
           ]
         }
       },
       {
         id: 'weekend',
         title: isAr ? 'برنامج عطلة نهاية الأسبوع' : 'Weekend Remote Program',
-        desc: isAr ? 'مصمم لتعزيز الهوية الإسلامية واللغة العربية للأطفال المقيمين في الخارج بطريقة تفاعلية وممتعة.' : 'Designed to help children develop a confident Islamic identity while strengthening Arabic knowledge through engaging online lessons.',
+        desc: isAr ? 'نساعد الأطفال المقيمين في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معرفتهم بالعربية والقرآن.' : 'Helping children abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge.',
         icon: Calendar,
         schedule: isAr ? 'السبت والأحد (فترات متعددة)' : 'Saturday & Sunday (Multiple Slots)',
-        subjects: isAr ? 'التجويد، قواعد اللغة، العبادة والقيم الإسلامية' : 'Tajweed, Arabic Grammar, Worship & Islamic Values',
+        subjects: isAr ? 'القرآن، التجويد، اللغة العربية، الدراسات الإسلامية' : 'Quran, Tajweed, Arabic Language, Islamic Studies',
         image: "https://picsum.photos/seed/weekend/800/600",
         color: 'bg-secondary',
         fullDetails: {
-          intro: isAr ? 'تم تصميم البرنامج المخصص لنهاية الأسبوع لمساعدة الأطفال في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معرفتهم باللغة العربية والقرآن.' : 'The Weekend Program is designed to help children abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge.',
+          intro: isAr ? 'تم تصميم برنامج عطلة نهاية الأسبوع لمساعدة الأطفال المقيمين في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معرفتهم باللغة العربية والقرآن من خلال دروس تفاعلية مباشرة.' : 'Our Weekend Program is designed to help children living abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge through engaging live online lessons.',
           outcomes: [
-            isAr ? 'اتقان تلاوة القرآن بالتجويد' : 'Mastery of Quranic recitation with Tajweed',
-            isAr ? 'فصاحة في التحدث باللغة العربية' : 'Fluency and eloquence in Arabic speech',
-            isAr ? 'فهم ممارسات العبادة الإسلامية' : 'Understanding Islamic worship and practices',
-            isAr ? 'قيم إسلامية قوية لمواجهة التحديات' : 'Strong Islamic values to overcome challenges'
+            isAr ? 'تلاوة قرآنية دقيقة مع التجويد' : 'More accurate Quranic recitation and Tajweed',
+            isAr ? 'تحسين مهارات الكتابة والتواصل بالعربية' : 'Stronger Arabic writing and communication skills',
+            isAr ? 'فهم أعمق للعبادات والمعرفة الإسلامية' : 'Greater understanding of Islamic knowledge and practices',
+            isAr ? 'شخصية إسلامية واثقة واتصال قوي بالعقيدة' : 'A confident Islamic character and stronger connection to faith'
           ],
           features: [
-            isAr ? 'حصص مباشرة وتفاعلية من المنزل' : 'Live classes from the comfort of home',
-            isAr ? 'معلمون ذوو خبرة وداعمة' : 'Experienced and supportive teachers',
-            isAr ? 'بيئة تعليمية مخصصة وفصول صغيرة' : 'Personalized learning with small class sizes'
+            isAr ? 'حصص مباشرة تفاعلية عبر الإنترنت' : 'Live online weekend lessons from home',
+            isAr ? 'تعليم القواعد والكتابة والمحادثة بالعربية' : 'Arabic grammar, writing, and spoken practice',
+            isAr ? 'معلمون ذوو خبرة ودعم شخصي للطلاب' : 'Experienced teachers providing personalized attention',
+            isAr ? 'خيارات متعددة للأوقات (8-10، 10-12، 12-2 ظهراً ET)' : 'Session slots: 8-10 AM, 10-12 PM, 12-2 PM (ET)'
           ]
         }
       }
@@ -111,13 +114,13 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
   return (
     <div className="bg-slate-50/30">
       {/* Header Section */}
-      <section className="bg-primary text-white py-24 lg:py-32 relative overflow-hidden">
+      <section className="bg-primary text-white py-20 lg:py-28 relative overflow-hidden">
         <div className="container-tight relative z-10">
           <div className="max-w-3xl space-y-8">
-            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none underline decoration-secondary decoration-8 underline-offset-[12px]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none">
               {t.title}
             </h1>
-            <p className="text-xl text-white/70 leading-relaxed font-medium">
+            <p className="text-lg sm:text-xl text-white/80 leading-relaxed font-medium">
               {t.subtitle}
             </p>
             <div className="pt-6">
@@ -149,7 +152,7 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
                     alt={prog.title} 
                     fill 
                     className="object-cover transition-transform duration-700 group-hover:scale-110" 
-                    data-ai-hint="classroom study"
+                    data-ai-hint="student online learning"
                   />
                   <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/10 transition-colors" />
                   <div className="absolute top-8 left-8">
@@ -222,30 +225,30 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
           {selectedProgData && (
             <div className="flex flex-col">
               <div className={cn("p-8 sm:p-12 text-white relative overflow-hidden", selectedProgData.color)}>
-                <DialogHeader className="relative z-10 text-right sm:text-right">
+                <div className="relative z-10">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center">
                       <selectedProgData.icon className="h-8 w-8 text-white" />
                     </div>
                     <div className="text-xs font-black uppercase tracking-widest opacity-80">{isAr ? 'تفاصيل البرنامج' : 'Program Details'}</div>
                   </div>
-                  <DialogTitle className="text-3xl sm:text-5xl font-black text-white leading-tight">
+                  <DialogTitle className="text-3xl sm:text-4xl font-black text-white leading-tight">
                     {selectedProgData.title}
                   </DialogTitle>
-                </DialogHeader>
+                </div>
                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
               </div>
 
               <div className="p-8 sm:p-12 space-y-12">
                 <div className="space-y-6">
-                  <p className="text-xl font-bold text-primary leading-relaxed italic border-r-4 border-secondary pr-6">
+                  <p className="text-lg font-bold text-primary leading-relaxed italic border-r-4 border-secondary pr-6">
                     {selectedProgData.fullDetails.intro}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                   <div className="space-y-6">
-                    <h3 className="text-2xl font-black text-primary flex items-center gap-3">
+                    <h3 className="text-xl font-black text-primary flex items-center gap-3">
                       <Check className="h-6 w-6 text-secondary" />
                       {t.outcomes}
                     </h3>
@@ -253,22 +256,22 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
                       {selectedProgData.fullDetails.outcomes.map((item, i) => (
                         <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
                           <div className="h-2 w-2 rounded-full bg-secondary mt-2 shrink-0" />
-                          <span className="font-bold text-slate-700">{item}</span>
+                          <span className="font-bold text-slate-700 text-sm">{item}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
                   <div className="space-y-6">
-                    <h3 className="text-2xl font-black text-primary flex items-center gap-3">
+                    <h3 className="text-xl font-black text-primary flex items-center gap-3">
                       <Info className="h-6 w-6 text-secondary" />
-                      {selectedProgData.fullDetails.requirements ? t.requirements : (isAr ? 'المميزات' : 'Features')}
+                      {selectedProgData.fullDetails.requirements ? t.requirements : (isAr ? 'مميزات البرنامج' : 'Key Features')}
                     </h3>
                     <ul className="space-y-4">
                       {(selectedProgData.fullDetails.requirements || selectedProgData.fullDetails.features || []).map((item, i) => (
                         <li key={i} className="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
                           <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-                          <span className="font-bold text-slate-700">{item}</span>
+                          <span className="font-bold text-slate-700 text-sm">{item}</span>
                         </li>
                       ))}
                     </ul>
@@ -289,14 +292,14 @@ export default function ProgramsPage({ params }: { params: Promise<{ lang: Local
       {/* Bottom CTA */}
       <section className="section-padding bg-primary text-white text-center relative overflow-hidden">
         <div className="container-tight relative z-10 space-y-8">
-          <h2 className="text-4xl font-black">{isAr ? 'مستعد لبدء الرحلة؟' : 'Ready to Start the Journey?'}</h2>
-          <p className="text-xl text-white/70 max-w-2xl mx-auto font-medium">
-            {isAr ? 'انضم إلى عائلتنا اليوم وامنح طفلك التعليم الذي يستحقه.' : 'Join our academy today and give your child the education they deserve.'}
+          <h2 className="text-3xl sm:text-4xl font-black">{isAr ? 'هل أنت مستعد لبدء الرحلة؟' : 'Ready to Start the Journey?'}</h2>
+          <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto font-medium">
+            {isAr ? 'انضم إلى أكاديميتنا اليوم وامنح طفلك التعليم الذي يستحقه.' : 'Join our academy today and give your child the education they deserve.'}
           </p>
           <div className="pt-4">
             <Link href={`/${lang}/enroll`}>
               <Button size="lg" className="bg-secondary hover:bg-white hover:text-secondary rounded-full h-16 px-12 font-black transition-all">
-                {isAr ? 'قدم الآن' : 'Enroll My Student'}
+                {isAr ? 'سجل طفلك الآن' : 'Enroll My Student Now'}
               </Button>
             </Link>
           </div>

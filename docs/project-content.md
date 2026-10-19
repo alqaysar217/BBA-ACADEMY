@@ -28,103 +28,264 @@ Every student’s educational journey is unique. We work closely with families t
 
 # 02 — EDUCATIONAL PROGRAMS PAGE
 
-Explore Our Educational Programs 
-From Quran and Arabic to English academics, our programs provide a holistic, flexible, and supportive learning experience for every student ✨📚 
-Our Programs, Your Child’s Future 
-[Enroll Now] 
-Grade 3-5 Remote Program
-[Apply Now] 
-Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academics, builds language skills, and nurtures a strong Islamic identity. Students attend live classes Monday to Thursday, following a structured schedule that blends accredited American subjects with Quran, Arabic, and Islamic Studies. 
-📚 What Students Learn
-•	English & Math (Morning Block):
-o	Accredited American academic curricula 
-o	Strong foundations in reading, writing, and mathematics 
-o	Interactive online lessons that build confidence and mastery 
-•	Quran, Arabic & Islamic Studies (Afterwards):
-o	Arabic reading and writing fundamentals 
-o	Quran recitation and memorization with proper Tajweed 
-o	Age-appropriate Islamic studies focusing on worship, values, and character 
-🗓️ Study Schedule
-•	Monday–Thursday 
-•	Morning: English + Math 
-•	Followed by: Arabic, Quran, and Islamic Studies 
-•	Fully Online — live, structured classes from home 
-🎯 Program Outcomes
-Students completing this program will gain: 
-•	Strong Arabic reading and writing skills 
-•	Accurate Quran recitation and memorization 
-•	Meaningful understanding of core Islamic concepts 
-•	Academic readiness aligned with U.S. standards 
-•	A confident identity rooted in language, culture, and faith 
-6-12 Remote Program
-Our Middle & High School program (Grades 6–12) is fully online and built to support students academically, strengthen their English skills, and provide a structured learning environment that helps them stay on track. 
-📚 English Courses Through Edgenuity
-We use the Edgenuity platform for students to complete their English curriculum online. Our team: 
-•	Monitors each student’s progress and grades weekly 
-•	Communicates updates to parents regularly 
-•	Ensures students stay on track and complete their coursework on time 
-•	Intervenes early if a student is falling behind 
-🧑‍🏫 1-on-1 Academic Support
-Students who need extra help can receive 1-on-1 support with: 
-•	Understanding lessons 
-•	Completing assignments 
-•	Improving reading & writing skills 
-•	Organizing weekly tasks 
-•	Preparing for quizzes or projects 
-📈 Progress Tracking & Accountability
-We make sure students don’t disappear or fall behind by: 
-•	Tracking weekly progress 
-•	Following up through email, WhatsApp, or phone if needed 
-•	Guiding students step-by-step to stay consistent 
-•	Working with parents when necessary to keep students motivated 
-📖 Islamic Studies & Qur’an
-Age-appropriate and practical Islamic learning, including: 
-•	Qur’an recitation with proper tajweed 
-•	Practice and memorization support 
-•	Islamic manners and values 
-•	Simple fiqh guidelines for teens 
-•	Stories & discussions that build strong character 
-🎧 Flexible, Remote Learning
-All lessons and support are fully online, making it convenient for families while still giving students a structured learning plan. 
-🧩 Who Can Join (Requirements)
-Because the program is fully online and uses Edgenuity, students must have: 
-•	Basic English proficiency (able to read, write, and understand instructions) 
-•	Basic computer skills 
-•	Ability to work independently with follow-up 
-•	Consistent access to a laptop/tablet and internet 
-This ensures the student can actually benefit from the platform and from our support system. 
-Weekend Remote Program
-🌟 Nurturing a Balanced Islamic Identity
-The Weekend Program is designed to help children abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge. Through engaging online lessons, students learn from the comfort of home while building strong language skills, faith, and character. 
-📚 What Students Learn
-•	✅ Correct Quranic recitation with Tajweed 
-•	✅ Mastery of Arabic grammar and writing skills 
-•	✅ Understanding Islamic worship and practices 
-•	✅ Fluency and eloquence in Arabic speech 
-•	✅ Strong Islamic values to overcome challenges abroad 
-🗓️ Class Schedule
-•	Days: Saturday & Sunday 
-•	Format: Fully Online – Live classes from home 
-•	Time Slots (Parents chooses one session): 
-o	8:00 AM – 10:00 AM 
-o	10:00 AM – 12:00 PM 
-o	12:00 PM – 2:00 PM 
-👩‍🏫 Experienced & Supportive Teachers
-Our teachers are highly qualified and experienced in teaching Arabic, Quran, and Islamic studies to children. They provide personalized attention to every student and maintain consistent communication with parents and administration about attendance, progress, and any support needed. 
-📊 Student Progress & Parent Communication
-•	Regular progress tracking and assessments 
-•	Consistent updates on attendance and performance 
-•	Open communication with teachers and administration 
-👥 Personalized Learning Environment
-Class sizes are carefully managed, and we bring in as many teachers as needed to ensure each student receives the attention and support they deserve. 
-🎯 Program Outcomes
-•	Accurate Quranic recitation 
-•	Strong Arabic and Islamic knowledge 
-•	Confident Islamic character 
-•	Connection to faith and language 
-💻 Simple Requirements
-•	A device (laptop or tablet) 
-•	Stable internet connection 
+## Explore Our Educational Programs
+
+From Quran and Arabic to English academics, our programs provide a holistic, flexible, and supportive learning experience for every student.
+
+Our programs are designed to support academic growth, strengthen language skills, nurture Islamic identity, and help students develop confidence in their learning journey.
+
+## Grade 3–5 Remote Program
+
+### Program Overview
+
+Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academic foundations, builds language skills, and nurtures a strong Islamic identity.
+
+Students attend live classes Monday through Thursday, following a structured schedule that combines American academic subjects with Quran, Arabic, and Islamic Studies.
+
+### What Students Learn
+
+#### English and Mathematics — Morning Block
+
+- American academic curriculum, as described by the academy.
+- Strong foundations in reading, writing, and mathematics.
+- Interactive online lessons designed to build confidence and academic skills.
+
+#### Quran, Arabic, and Islamic Studies — Following the Morning Block
+
+- Arabic reading and writing fundamentals.
+- Quran recitation and memorization with proper Tajweed.
+- Age-appropriate Islamic Studies focusing on worship, values, and character.
+
+### Study Schedule
+
+- **Days:** Monday–Thursday.
+- **Morning:** English and Mathematics.
+- **Following Block:** Arabic, Quran, and Islamic Studies.
+- **Format:** Fully online, with live, structured classes from home.
+
+### Key Program Features
+
+- A structured weekly learning routine.
+- A combination of academic and Islamic education.
+- Live online instruction.
+- Arabic language development.
+- Quran recitation and memorization practice.
+- Age-appropriate Islamic learning.
+
+### Expected Learning Outcomes
+
+Students who complete the program are expected to develop:
+
+- Stronger Arabic reading and writing skills.
+- Improved Quran recitation and memorization, with attention to proper Tajweed.
+- A meaningful understanding of core Islamic concepts.
+- Academic readiness aligned with the American academic standards described by the academy.
+- A confident identity rooted in language, culture, and faith.
+
+### Who Is This Program For?
+
+Students in Grades 3–5 whose families are seeking a structured online learning experience that combines academic subjects with Arabic, Quran, and Islamic Studies.
+
+---
+
+## Grades 6–12 Remote Program
+
+### Program Overview
+
+Our Middle and High School program for Grades 6–12 is fully online and designed to support students academically, strengthen their English skills, and provide a structured learning environment that helps them stay on track.
+
+Students use the Edgenuity platform to complete their English curriculum online. The academy's team monitors progress, communicates with parents, and provides additional support when needed.
+
+### English Courses Through Edgenuity
+
+Our team:
+
+- Monitors each student's progress and grades weekly.
+- Communicates updates to parents regularly.
+- Helps students stay on track and complete coursework on time.
+- Intervenes early when a student begins falling behind.
+
+### One-on-One Academic Support
+
+Students who need additional assistance can receive one-on-one support with:
+
+- Understanding lessons.
+- Completing assignments.
+- Improving reading and writing skills.
+- Organizing weekly tasks.
+- Preparing for quizzes or projects.
+
+### Progress Tracking and Accountability
+
+We work to help students remain engaged and make consistent progress through:
+
+- Weekly progress tracking.
+- Follow-up through email, WhatsApp, or phone when needed.
+- Step-by-step guidance to encourage consistency.
+- Collaboration with parents when necessary to support student motivation.
+
+### Islamic Studies and Quran
+
+The program includes age-appropriate and practical Islamic learning, such as:
+
+- Quran recitation with proper Tajweed.
+- Quran practice and memorization support.
+- Islamic manners and values.
+- Simple fiqh guidance for teenagers.
+- Stories and discussions that encourage strong character.
+
+### Flexible Online Learning
+
+All lessons and support are delivered online, offering flexibility for families while maintaining a structured learning plan.
+
+### Student Requirements
+
+Because the program uses Edgenuity and requires independent online learning, students must have:
+
+- **Basic English proficiency:** The ability to read, write, and understand instructions in English.
+- **Basic computer skills:** The ability to use a computer or tablet for online learning.
+- **Independent learning skills:** The ability to work independently with follow-up and guidance.
+- **Reliable technology:** Consistent access to a laptop or tablet and a stable internet connection.
+
+These requirements help students benefit from the online learning platform and the academy's support system.
+
+### Key Program Features
+
+- Online English coursework through Edgenuity.
+- Weekly monitoring of progress and grades.
+- Regular parent communication.
+- Early intervention when students fall behind.
+- One-on-one academic assistance when needed.
+- Support with assignments, reading, writing, and organization.
+- Age-appropriate Islamic learning.
+- Guidance designed to encourage consistency and accountability.
+
+### Expected Learning Outcomes
+
+With consistent participation and support, students can work toward:
+
+- More consistent completion of online coursework.
+- Stronger independent learning and organizational skills.
+- Improved reading and writing through coursework and additional support.
+- Greater awareness of academic responsibilities and progress.
+- Continued development of Quran recitation and Islamic knowledge.
+- A deeper understanding of Islamic values and character.
+
+### Who Is This Program For?
+
+Students in Grades 6–12 who can participate in online learning, have basic English and computer skills, and can work independently with appropriate monitoring and support.
+
+---
+
+## Weekend Remote Program
+
+### Nurturing a Balanced Islamic Identity
+
+Our Weekend Program is designed to help children living abroad develop a confident Islamic identity while strengthening their Arabic and Quranic knowledge.
+
+Through engaging live online lessons, students learn from the comfort of home while developing language skills, strengthening their connection to faith, and building character.
+
+### What Students Learn
+
+#### Quran Recitation and Tajweed
+
+- Correct Quranic recitation.
+- Practice with proper Tajweed.
+- Opportunities to develop Quran memorization skills.
+
+#### Arabic Language
+
+- Arabic grammar.
+- Arabic writing skills.
+- Spoken Arabic practice.
+- Development of fluency and expressive communication.
+
+#### Islamic Studies and Character
+
+- Understanding Islamic worship and practices.
+- Islamic values and character development.
+- Strengthening the connection between faith and everyday life.
+- Developing a confident Islamic identity while living abroad.
+
+### Class Schedule
+
+- **Days:** Saturday and Sunday.
+- **Format:** Fully online, with live classes from home.
+- **Session Selection:** Parents choose one available session.
+
+Available time slots:
+
+- 8:00 AM–10:00 AM.
+- 10:00 AM–12:00 PM.
+- 12:00 PM–2:00 PM.
+
+The academy should confirm the applicable time zone before these times are published as final scheduling information.
+
+### Experienced and Supportive Teachers
+
+The academy describes its teachers as highly qualified and experienced in teaching Arabic, Quran, and Islamic Studies to children.
+
+Teachers provide personalized attention and maintain communication with parents and the administration about attendance, progress, and additional support needs.
+
+### Student Progress and Parent Communication
+
+- Regular progress tracking and assessments.
+- Consistent updates on attendance and performance.
+- Open communication with teachers and administration.
+- Follow-up when additional support is needed.
+
+### Personalized Learning Environment
+
+Class sizes are carefully managed, and additional teachers are brought in as needed to help students receive the attention and support they deserve.
+
+### Key Program Features
+
+- Live online weekend lessons.
+- Quran recitation and Tajweed instruction.
+- Arabic grammar and writing development.
+- Spoken Arabic practice.
+- Islamic Studies and practical learning about worship.
+- Personalized attention.
+- Student progress monitoring.
+- Parent communication.
+- Support for Islamic identity and character development.
+
+### Expected Learning Outcomes
+
+With consistent participation and practice, students can work toward:
+
+- More accurate Quranic recitation.
+- Improved familiarity with Tajweed.
+- Stronger Arabic language skills.
+- Better Arabic writing and communication.
+- Greater understanding of Islamic knowledge and practices.
+- A confident Islamic character.
+- A stronger connection to faith and language.
+
+### Technology Requirements
+
+Students need:
+
+- A laptop or tablet.
+- A stable internet connection.
+
+### Who Is This Program For?
+
+Children living abroad whose families want them to strengthen their Arabic, Quranic learning, and Islamic understanding through live online weekend classes.
+
+---
+
+## Program Page Design and Content Requirements
+
+- Present each program as a distinct section with a clear title, overview, subjects, schedule, features, requirements where applicable, and expected learning outcomes.
+- Use a consistent blue-centered visual identity that matches the official Baneen and Banaat Academy logo.
+- Maintain professional spacing, readable typography, and a clear visual hierarchy.
+- Use responsive layouts for desktop, tablet, and mobile.
+- Preserve the differences between the three programs.
+- Keep program information accurate and do not invent tuition prices, class schedules, accreditation claims, guarantees, or requirements.
+- Do not add external enrollment links or unrelated links to this content section.
+- Do not duplicate the same program descriptions in multiple places unless the website structure specifically requires a shorter summary for program cards.
+- Keep the English source content as the reference for the English website and provide a faithful Arabic translation for the Arabic version. 
 
 ---
 
