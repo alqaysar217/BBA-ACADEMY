@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { cn } from '@/lib/utils';
 
 const navigation = [
@@ -45,11 +45,12 @@ export function Header({ lang }: { lang: Locale }) {
       <div className="container-tight flex h-20 items-center justify-between">
         <div className="flex items-center gap-12">
           <Link href={`/${lang}`} className="group flex items-center gap-3">
-            <div className="relative h-12 w-12 transition-transform group-hover:scale-105">
+            <div className="flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0">
               <Image 
                 src="/logo.png" 
                 alt="BBA Academy Logo" 
-                fill 
+                width={48}
+                height={48}
                 className="object-contain"
                 priority
               />
@@ -109,12 +110,13 @@ export function Header({ lang }: { lang: Locale }) {
             </SheetTrigger>
             <SheetContent side={lang === 'ar' ? 'right' : 'left'} className="w-[300px] border-none bg-primary text-white">
               <div className="flex flex-col gap-8 mt-12 px-2">
-                <div className="relative h-16 w-16 mb-4">
+                <div className="flex h-16 w-16 items-center justify-center mb-4 bg-white rounded-xl p-2">
                   <Image 
                     src="/logo.png" 
                     alt="BBA Academy Logo" 
-                    fill 
-                    className="object-contain brightness-0 invert"
+                    width={56}
+                    height={56}
+                    className="object-contain"
                   />
                 </div>
                 {navigation.map((item) => (

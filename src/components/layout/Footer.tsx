@@ -22,12 +22,13 @@ export function Footer({ lang }: { lang: Locale }) {
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-4">
           <div className="space-y-8">
             <Link href={`/${lang}`} className="flex items-center gap-3">
-              <div className="relative h-12 w-12 bg-white rounded-lg p-1">
+              <div className="flex h-12 w-12 items-center justify-center bg-white rounded-lg p-1 shrink-0">
                 <Image 
                   src="/logo.png" 
                   alt="BBA Academy Logo" 
-                  fill 
-                  className="object-contain p-1"
+                  width={40}
+                  height={40}
+                  className="object-contain"
                 />
               </div>
               <div className="flex flex-col">
