@@ -3,23 +3,45 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
+    --background: 48 100% 98%; /* Ivory Ivory */
+    --foreground: 217 33% 17%; /* Navy text */
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 33% 17%;
+    --primary: 217 33% 17%; /* Deep Navy */
+    --primary-foreground: 48 100% 98%;
+    --secondary: 41 51% 56%; /* Muted Gold */
+    --secondary-foreground: 217 33% 17%;
+    --muted: 217 33% 94%;
+    --muted-foreground: 217 33% 40%;
+    --accent: 41 51% 56%; /* Muted Gold */
+    --accent-foreground: 217 33% 17%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 90%;
+    --input: 217 33% 90%;
+    --ring: 217 33% 17%;
+    --radius: 0.5rem;
   }
 }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.font-arabic {
+  font-family: var(--font-noto-sans-arabic), sans-serif;
+}
+
+.premium-card {
+  @apply bg-white border border-border/50 shadow-sm transition-all hover:shadow-md hover:border-accent/30;
 }

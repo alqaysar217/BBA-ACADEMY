@@ -1,0 +1,42 @@
+import { ReactNode } from 'react';
+import { i18n, type Locale } from '@/lib/i18n/config';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Noto_Sans_Arabic, Inter } from 'next/font/google';
+import { cn } from '@/lib/utils';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { initializeFirebase } from '@/firebase';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const notoArabic = Noto_Sans_Arabic({ subsets: ['arabic'], variable: '--font-noto-sans-arabic' });
+
+export async function generateStaticParams() {
+  return i18n.locales.map((locale) => ({ lang: locale }));
+}
+
+export default function RootLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: { lang: Locale };
+}) {
+  const isRtl = params.lang === 'ar';
+  const { firebaseApp, firestore, auth } = initializeFirebase();
+
+  return (
+    <html lang={params.lang} dir={isRtl ? 'rtl' : 'ltr'} className={cn(inter.variable, notoArabic.variable)}>
+      <body className={cn("min-h-screen font-sans antialiased", isRtl && "font-arabic")}>
+        <FirebaseClientProvider firebaseApp={firebaseApp} firestore={firestore} auth={auth}>
+          <FirebaseErrorListener />
+          <div className="relative flex min-h-screen flex-col">
+            <Header lang={params.lang} />
+            <main className="flex-1">{children}</main>
+            <Footer lang={params.lang} />
+          </div>
+        </FirebaseClientProvider>
+      </body>
+    </html>
+  );
+}

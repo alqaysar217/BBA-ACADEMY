@@ -1,8 +1,60 @@
 
 {
-  "entities": {},
-  "auth": {
-    "providers": ["google.com"]
+  "entities": {
+    "Enrollment": {
+      "title": "Student Enrollment",
+      "description": "Stores multi-step enrollment applications for the academy.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The ID of the parent user." },
+        "status": { "type": "string", "enum": ["draft", "submitted", "reviewed"], "description": "Current status of the application." },
+        "step": { "type": "number", "description": "Last completed step." },
+        "parent1Name": { "type": "string" },
+        "parent1Phone": { "type": "string" },
+        "parent1Email": { "type": "string" },
+        "relationship1": { "type": "string" },
+        "parent2Name": { "type": "string" },
+        "parent2Phone": { "type": "string" },
+        "parent2Email": { "type": "string" },
+        "relationship2": { "type": "string" },
+        "address": {
+          "type": "object",
+          "properties": {
+            "line1": { "type": "string" },
+            "line2": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" }
+          }
+        },
+        "siblingCount": { "type": "number" },
+        "studentStatus": { "type": "string", "enum": ["New Student", "Returning Student"] },
+        "studentName": { "type": "string" },
+        "dob": { "type": "string", "format": "date" },
+        "gender": { "type": "string", "enum": ["Male", "Female"] },
+        "lastGrade": { "type": "string" },
+        "programFormat": { "type": "string" },
+        "programOption": { "type": "string" },
+        "paymentTier": { "type": "string" },
+        "files": {
+          "type": "object",
+          "properties": {
+            "reportCard": { "type": "string" },
+            "studentId": { "type": "string" },
+            "parentId": { "type": "string" }
+          }
+        }
+      },
+      "required": ["userId", "parent1Name", "studentName"]
+    }
   },
-  "firestore": {}
+  "auth": {
+    "providers": ["google.com", "password"]
+  },
+  "firestore": {
+    "/enrollments/{enrollmentId}": {
+      "schema": "Enrollment",
+      "description": "Collection of enrollment applications."
+    }
+  }
 }
