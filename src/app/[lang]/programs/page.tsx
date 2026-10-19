@@ -55,7 +55,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
       <section className="bg-primary text-white py-24 lg:py-32 relative overflow-hidden">
         <div className="container-tight relative z-10">
           <div className="max-w-3xl space-y-8">
-            <h1 className="text-5xl font-black tracking-tight sm:text-7xl leading-none underline decoration-secondary decoration-8 underline-offset-[12px]">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none underline decoration-secondary decoration-8 underline-offset-[12px]">
               {t.title}
             </h1>
             <p className="text-xl text-white/70 leading-relaxed font-medium">
