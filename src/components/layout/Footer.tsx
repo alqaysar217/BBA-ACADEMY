@@ -12,7 +12,6 @@ import {
   Instagram, 
   Youtube, 
   Facebook, 
-  ChevronRight,
   Home,
   BookOpen,
   Info,
@@ -23,11 +22,10 @@ import {
   GraduationCap
 } from 'lucide-react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 
 export function Footer({ lang }: { lang: Locale }) {
   const isAr = lang === 'ar';
-  const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const [currentYear, setCurrentYear] = useState<number>(2025);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -205,7 +203,7 @@ export function Footer({ lang }: { lang: Locale }) {
         {/* Footer Bottom */}
         <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] font-black text-white/30 tracking-[0.2em] uppercase text-center md:text-start">
-            © {currentYear ?? '2025'} Baneen & Banaat Academy. {content.copyright}
+            © <span suppressHydrationWarning>{currentYear}</span> Baneen & Banaat Academy. {content.copyright}
           </p>
           <div className="flex items-center gap-8 text-[10px] font-black text-white/40 tracking-widest uppercase">
             <Link href="#" className="hover:text-secondary transition-colors">Privacy Policy</Link>

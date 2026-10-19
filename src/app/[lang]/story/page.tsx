@@ -1,6 +1,6 @@
 import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
-import { Quote, History, Target, Users, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Target, Users, ArrowRight, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function OurStoryPage({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -136,7 +136,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
       <section className="py-20 lg:py-24">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div className="relative aspect-[16/10] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl">
               <Image 
                 src="/Digital Expansion.png" 
                 alt="Academy Core Principle" 
