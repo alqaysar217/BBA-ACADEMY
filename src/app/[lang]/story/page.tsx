@@ -66,7 +66,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
 
             {/* Hero Card with Image and Phrase */}
             <div className="bg-white border border-slate-200 rounded-[2rem] p-4 lg:p-6 shadow-2xl overflow-hidden">
-              <div className="relative aspect-video lg:aspect-[16/10] rounded-2xl overflow-hidden mb-8">
+              <div className="relative aspect-square rounded-2xl overflow-hidden mb-8">
                 <Image 
                   src="/story.png" 
                   alt="BBA Story" 
