@@ -1,3 +1,4 @@
+'use client';
 
 import Link from 'next/link';
 import { type Locale } from '@/lib/i18n/config';
@@ -26,6 +27,7 @@ export function Footer({ lang }: { lang: Locale }) {
     { icon: Instagram, href: 'https://www.instagram.com/baneen_banaat_academy/', label: 'Instagram' },
     { icon: Youtube, href: 'https://www.youtube.com/@mybba_edu', label: 'YouTube' },
     { icon: Facebook, href: 'https://www.facebook.com/mybba.edu.us', label: 'Facebook' },
+    { icon: MessageCircle, href: 'https://wa.me/13136555778', label: 'WhatsApp' },
   ];
 
   const quickLinks = [
@@ -151,7 +153,7 @@ export function Footer({ lang }: { lang: Locale }) {
                   <Clock className="h-4 w-4 text-secondary" />
                   <span className="font-bold text-xs uppercase tracking-tight opacity-80">{content.weekdays}</span>
                 </div>
-                <div className="text-lg font-black text-white">{content.weekdaysTime}</div>
+                <div className="text-sm font-black text-white">{content.weekdaysTime}</div>
               </div>
               <div className="flex items-center gap-2 px-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
