@@ -8,7 +8,7 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
 
   const t = {
     title: isAr ? 'قصتنا' : 'Our Story',
-    heroQuote: isAr ? 'كل شيء يبدأ بفكرة...' : 'It all starts with an idea...',
+    heroQuote: isAr ? 'كل رحلة رائعة تبدأ بهدف بسيط.' : 'Every great journey begins with a simple purpose.',
     intro: {
       question: isAr ? 'لماذا يجب على العائلات الاختيار بين التميز الأكاديمي والقيم التي يريدون الحفاظ عليها؟' : 'Why should families have to choose between academic excellence and the values they want to preserve?',
       text: isAr 
@@ -60,10 +60,24 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
       <section className="py-16 lg:py-24 border-b border-slate-100">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Image First on Mobile */}
+            <div className="relative aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-8 border-white order-1 lg:order-2 max-w-md mx-auto">
+              <Image 
+                src="/story.png" 
+                alt="BBA Story Beginning" 
+                fill 
+                className="object-cover"
+                priority
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+            </div>
+
+            {/* Text Content */}
             <div className="space-y-8 order-2 lg:order-1">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded text-secondary font-black text-[10px] uppercase tracking-widest">
-                  <Quote className="h-3 w-3" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded text-secondary font-black text-xs uppercase tracking-widest">
+                  <Quote className="h-4 w-4" />
                   {t.heroQuote}
                 </div>
                 <h1 className="text-2xl lg:text-4xl font-black text-primary leading-tight tracking-tight">
@@ -76,17 +90,6 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
                 </p>
                 <p>{t.intro.vision}</p>
               </div>
-            </div>
-            <div className="relative aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-8 border-white order-1 lg:order-2 max-w-md mx-auto">
-              <Image 
-                src="/story.png" 
-                alt="BBA Story Beginning" 
-                fill 
-                className="object-cover"
-                priority
-                unoptimized
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
             </div>
           </div>
         </div>
@@ -103,9 +106,6 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
           <div className="max-w-4xl mx-auto space-y-10">
             {t.milestones.map((milestone, idx) => (
               <div key={idx} className="bg-white border border-slate-200 rounded-xl p-8 lg:p-12 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity hidden sm:block pointer-events-none">
-                   <History className="h-32 w-32 text-primary" />
-                </div>
                 <div className="flex flex-col gap-6 relative z-10">
                   <div className="space-y-2">
                     <div className="text-2xl lg:text-3xl font-black text-secondary leading-none">{milestone.year}</div>
