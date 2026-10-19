@@ -1,3 +1,4 @@
+
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -41,42 +42,51 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white hero-gradient section-padding border-b">
+      {/* Hero Section with Background Image */}
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-primary py-24 lg:py-32">
+        {/* Background Image Container */}
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="https://picsum.photos/seed/bbahero/1920/1080" 
+            alt="Academy background" 
+            fill 
+            className="object-cover opacity-40 grayscale-[20%]"
+            priority
+            data-ai-hint="modern classroom"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
+        </div>
+
         <div className="container-tight relative z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-10">
-            <div className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-4 py-2 text-sm font-bold text-secondary uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 rounded-full bg-secondary/20 border border-secondary/30 px-5 py-2 text-sm font-bold text-white uppercase tracking-wider backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary text-white"></span>
               </span>
               {t.hero.welcome}
             </div>
-            <h1 className="text-5xl font-black tracking-tight text-primary sm:text-7xl leading-[1.1]">
+            <h1 className="text-5xl font-black tracking-tight text-white sm:text-7xl leading-[1.1]">
               {t.hero.title}
             </h1>
-            <p className="text-xl text-slate-600 leading-relaxed max-w-3xl">
+            <p className="text-xl text-white/80 leading-relaxed max-w-3xl font-medium">
               {t.hero.desc}
             </p>
             <div className="flex flex-wrap justify-center gap-6 pt-4">
               <Link href={`/${lang}/enroll`}>
-                <Button size="lg" className="h-16 px-12 text-lg bg-primary hover:bg-accent shadow-xl shadow-primary/20 rounded-full transition-all hover:scale-105 active:scale-95">
+                <Button size="lg" className="h-16 px-12 text-lg bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl shadow-secondary/20 rounded-full transition-all hover:scale-105 active:scale-95 font-black">
                   {t.hero.apply}
                   {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
               </Link>
               <Link href={`/${lang}/programs`}>
-                <Button size="lg" variant="outline" className="h-16 px-12 text-lg border-2 border-primary/10 text-primary hover:bg-primary/5 rounded-full transition-all">
+                <Button size="lg" variant="outline" className="h-16 px-12 text-lg border-2 border-white/20 text-white hover:bg-white hover:text-primary rounded-full transition-all backdrop-blur-sm font-bold">
                   {t.hero.explore}
                 </Button>
               </Link>
             </div>
           </div>
         </div>
-        
-        {/* Abstract Background Elements */}
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       </section>
 
       {/* Why BBA Section */}
@@ -127,7 +137,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                 </Button>
               </Link>
             </div>
-            <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 ring-8 ring-white">
+            <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 ring-8 ring-white/50">
               <Image 
                 src="https://picsum.photos/seed/bba1/1000/800" 
                 alt="Students learning" 

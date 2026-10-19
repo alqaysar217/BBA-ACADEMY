@@ -1,0 +1,11 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Academy students studying in a modern online learning environment",
+      "imageUrl": "https://picsum.photos/seed/bbahero/1920/1080",
+      "imageHint": "modern classroom"
+    }
+  ]
+}
