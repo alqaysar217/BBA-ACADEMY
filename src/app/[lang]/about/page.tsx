@@ -217,21 +217,21 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* At a Glance Section */}
-      <section className="section-padding bg-primary text-white">
+      <section className="section-padding bg-slate-50 border-t border-slate-100">
         <div className="container-tight">
           <div className="text-center mb-12">
-            <h2 className="text-2xl font-black uppercase tracking-tight">{t.sections.glance.title}</h2>
+            <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.glance.title}</h2>
             <div className="h-1 w-12 bg-secondary mx-auto mt-2" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {t.sections.glance.items.map((stat, idx) => (
-              <div key={idx} className="bg-white/5 p-8 rounded border border-white/10 text-center space-y-4 hover:bg-white/10 transition-colors">
+              <div key={idx} className="bg-white p-8 rounded-xl border border-slate-200 text-center space-y-4 shadow-sm hover:shadow-md transition-all">
                 <div className="mx-auto h-12 w-12 text-secondary flex items-center justify-center">
                   <stat.icon className="h-8 w-8" />
                 </div>
                 <div>
                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</div>
-                  <div className="text-lg font-black text-white">{stat.value}</div>
+                  <div className="text-lg font-black text-primary">{stat.value}</div>
                 </div>
               </div>
             ))}
