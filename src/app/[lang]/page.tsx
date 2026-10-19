@@ -52,7 +52,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               src="/Academy background.png" 
               alt="Academy background" 
               fill 
-              className="object-cover opacity-40 grayscale-[20%]"
+              className="object-cover opacity-60 grayscale-[10%]"
               priority
               unoptimized
             />
@@ -63,12 +63,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               src="/Academy background-phone.png" 
               alt="Academy background mobile" 
               fill 
-              className="object-cover opacity-40 grayscale-[20%]"
+              className="object-cover opacity-60 grayscale-[10%]"
               priority
               unoptimized
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
+          {/* Overlay - Reduced opacity for more clarity */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/30 to-primary/60" />
         </div>
 
         <div className="container-tight relative z-10">
@@ -80,10 +81,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               </span>
               {t.hero.welcome}
             </div>
-            <h1 className="text-5xl font-black tracking-tight text-white sm:text-7xl leading-[1.1]">
+            <h1 className="text-5xl font-black tracking-tight text-white sm:text-7xl leading-[1.1] drop-shadow-lg">
               {t.hero.title}
             </h1>
-            <p className="text-xl text-white/80 leading-relaxed max-w-3xl font-medium">
+            <p className="text-xl text-white leading-relaxed max-w-3xl font-bold drop-shadow-md">
               {t.hero.desc}
             </p>
             <div className="flex flex-wrap justify-center gap-6 pt-4">
@@ -94,7 +95,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                 </Button>
               </Link>
               <Link href={`/${lang}/programs`}>
-                <Button size="lg" variant="outline" className="h-16 px-12 text-lg border-2 border-white/20 text-white hover:bg-white hover:text-primary rounded-full transition-all backdrop-blur-sm font-bold">
+                <Button size="lg" variant="outline" className="h-16 px-12 text-lg border-2 border-white/40 text-white hover:bg-white hover:text-primary rounded-full transition-all backdrop-blur-md font-bold">
                   {t.hero.explore}
                 </Button>
               </Link>
