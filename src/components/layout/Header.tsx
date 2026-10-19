@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
-import { Menu, Globe, ChevronDown, BookOpen } from 'lucide-react';
+import { Menu, Globe, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,8 +45,14 @@ export function Header({ lang }: { lang: Locale }) {
       <div className="container-tight flex h-20 items-center justify-between">
         <div className="flex items-center gap-12">
           <Link href={`/${lang}`} className="group flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-lg transition-transform group-hover:scale-110">
-              <BookOpen className="h-6 w-6" />
+            <div className="relative h-12 w-12 transition-transform group-hover:scale-105">
+              <Image 
+                src="/logo.png" 
+                alt="BBA Academy Logo" 
+                fill 
+                className="object-contain"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight text-primary leading-none">BBA</span>
@@ -102,6 +109,14 @@ export function Header({ lang }: { lang: Locale }) {
             </SheetTrigger>
             <SheetContent side={lang === 'ar' ? 'right' : 'left'} className="w-[300px] border-none bg-primary text-white">
               <div className="flex flex-col gap-8 mt-12 px-2">
+                <div className="relative h-16 w-16 mb-4">
+                  <Image 
+                    src="/logo.png" 
+                    alt="BBA Academy Logo" 
+                    fill 
+                    className="object-contain brightness-0 invert"
+                  />
+                </div>
                 {navigation.map((item) => (
                   <Link
                     key={item.href}

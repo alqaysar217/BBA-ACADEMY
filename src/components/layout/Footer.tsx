@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { type Locale } from '@/lib/i18n/config';
-import { Mail, Phone, MessageCircle, MapPin, BookOpen } from 'lucide-react';
+import { Mail, Phone, MessageCircle, MapPin } from 'lucide-react';
+import Image from 'next/image';
 
 export function Footer({ lang }: { lang: Locale }) {
   const isAr = lang === 'ar';
@@ -21,8 +22,13 @@ export function Footer({ lang }: { lang: Locale }) {
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-4">
           <div className="space-y-8">
             <Link href={`/${lang}`} className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-white shadow-lg">
-                <BookOpen className="h-6 w-6" />
+              <div className="relative h-12 w-12 bg-white rounded-lg p-1">
+                <Image 
+                  src="/logo.png" 
+                  alt="BBA Academy Logo" 
+                  fill 
+                  className="object-contain p-1"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tight leading-none">BBA</span>
