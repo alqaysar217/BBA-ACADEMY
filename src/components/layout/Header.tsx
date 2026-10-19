@@ -80,18 +80,22 @@ export function Header({ lang }: { lang: Locale }) {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
-            {navigation.filter(i => i.href !== '').map((item) => (
-              <Link
-                key={item.href}
-                href={`/${lang}${item.href}`}
-                className={cn(
-                  "text-sm font-semibold transition-colors hover:text-secondary",
-                  pathname?.includes(item.href) ? "text-secondary" : "text-primary/70"
-                )}
-              >
-                {item.name[lang]}
-              </Link>
-            ))}
+            {navigation.filter(i => i.href !== '').map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={`/${lang}${item.href}`}
+                  className={cn(
+                    "text-sm font-semibold transition-colors hover:text-secondary flex items-center gap-2",
+                    pathname?.includes(item.href) ? "text-secondary" : "text-primary/70"
+                  )}
+                >
+                  <Icon className="h-4 w-4 text-secondary/60 group-hover:text-secondary" />
+                  {item.name[lang]}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
