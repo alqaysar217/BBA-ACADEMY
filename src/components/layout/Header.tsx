@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
-import { Menu, ArrowLeftRight } from 'lucide-react';
+import { Menu, Languages } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from 'react';
@@ -76,15 +76,16 @@ export function Header({ lang }: { lang: Locale }) {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Language Toggle Button */}
+          {/* Compact Language Toggle */}
           <Link
             href={redirectedPathname(otherLang)}
             title={lang === 'en' ? 'تبديل للعربية' : 'Switch to English'}
-            className="group flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 hover:border-secondary hover:bg-white transition-all shadow-sm"
+            className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100/50 hover:bg-secondary/10 border border-transparent hover:border-secondary/20 transition-all text-primary/80"
           >
-            <span className={cn("text-lg transition-opacity", lang === 'en' ? "opacity-100" : "opacity-30")}>🇺🇸</span>
-            <ArrowLeftRight className="h-3 w-3 text-slate-300 group-hover:text-secondary transition-colors" />
-            <span className={cn("text-lg transition-opacity", lang === 'ar' ? "opacity-100" : "opacity-30")}>🇸🇦</span>
+            <Languages className="h-4 w-4 text-secondary group-hover:rotate-12 transition-transform" />
+            <span className="text-xs font-black uppercase tracking-tighter">
+              {lang === 'en' ? 'AR' : 'EN'}
+            </span>
           </Link>
 
           <Link href={`/${lang}/enroll`} className="hidden sm:block">
