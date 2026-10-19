@@ -42,17 +42,17 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section with Background Image */}
+      {/* Hero Section with Custom Background Image */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-primary py-24 lg:py-32">
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
           <Image 
-            src="https://picsum.photos/seed/bbahero/1920/1080" 
+            src="/Academy background.png" 
             alt="Academy background" 
             fill 
             className="object-cover opacity-40 grayscale-[20%]"
             priority
-            data-ai-hint="modern classroom"
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
         </div>
