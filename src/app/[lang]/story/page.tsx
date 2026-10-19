@@ -58,37 +58,40 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
       {/* Hero Section */}
       <section className="py-16 lg:py-24 border-b border-slate-100">
         <div className="container-tight">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Image First on Mobile */}
-            <div className="relative aspect-square sm:aspect-[4/5] lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-8 border-white order-1 lg:order-2 max-w-md mx-auto w-full">
-              <Image 
-                src="/story.png" 
-                alt="BBA Story Beginning" 
-                fill 
-                className="object-cover"
-                priority
-                unoptimized
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+          <div className="max-w-4xl mx-auto space-y-12 text-center">
+            {/* Page Title */}
+            <h1 className="text-3xl lg:text-5xl font-black text-primary tracking-tight">
+              {t.title}
+            </h1>
+
+            {/* Hero Card with Image and Phrase */}
+            <div className="bg-white border border-slate-200 rounded-[2rem] p-4 lg:p-6 shadow-2xl overflow-hidden">
+              <div className="relative aspect-video lg:aspect-[21/9] rounded-2xl overflow-hidden mb-8">
+                <Image 
+                  src="/story.png" 
+                  alt="BBA Story" 
+                  fill 
+                  className="object-cover"
+                  priority
+                  unoptimized
+                />
+              </div>
+              <div className="pb-6 px-4">
+                <p className="text-xl lg:text-2xl font-black text-secondary italic">
+                  {t.heroQuote}
+                </p>
+              </div>
             </div>
 
-            {/* Text Content */}
-            <div className="space-y-8 order-2 lg:order-1">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded text-secondary font-black text-xs uppercase tracking-widest">
-                  <Quote className="h-4 w-4" />
-                  {t.heroQuote}
-                </div>
-                <h1 className="text-2xl lg:text-4xl font-black text-primary leading-tight tracking-tight">
-                  {t.intro.question}
-                </h1>
-              </div>
-              <div className="space-y-6 text-slate-600 leading-relaxed font-medium text-lg">
-                <p className="text-primary font-black text-xl leading-snug border-l-4 border-secondary pl-6">
-                  {t.intro.text}
-                </p>
-                <p>{t.intro.vision}</p>
-              </div>
+            {/* Intro Questions and Text */}
+            <div className="space-y-8 text-slate-600 leading-relaxed font-medium text-lg text-start mt-16">
+              <h2 className="text-2xl lg:text-3xl font-black text-primary leading-tight">
+                {t.intro.question}
+              </h2>
+              <p className="text-primary font-black text-xl leading-snug border-l-4 border-secondary pl-6">
+                {t.intro.text}
+              </p>
+              <p>{t.intro.vision}</p>
             </div>
           </div>
         </div>
@@ -98,7 +101,9 @@ export default async function OurStoryPage({ params }: { params: Promise<{ lang:
       <section className="py-20 lg:py-24 bg-slate-50/50">
         <div className="container-tight">
           <div className="mb-16 text-center">
-            <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">{t.milestonesTitle}</h2>
+            <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">
+              {t.milestonesTitle}
+            </h2>
             <div className="h-1 w-12 bg-secondary mx-auto mt-4" />
           </div>
 
