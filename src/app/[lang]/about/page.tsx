@@ -79,10 +79,6 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-secondary">
-                  <Star className="h-5 w-5 fill-secondary" />
-                  <span className="text-xs font-black uppercase tracking-[0.2em]">{t.subtitle}</span>
-                </div>
                 <h1 className="text-4xl lg:text-5xl font-black text-primary tracking-tight leading-tight">
                   {t.title}
                 </h1>
