@@ -8,7 +8,6 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
 
   const t = {
     title: isAr ? 'حول أكاديمية بنين وبنات' : 'About BBA Academy',
-    subtitle: isAr ? 'BBA أكثر من مجرد مدرسة' : 'BBA is More Than a School',
     tagline: isAr ? 'شريك عائلتك التعليمي' : 'It\'s Your Family\'s Educational Partner',
     intro: isAr 
       ? 'في أكاديمية بنين وبنات (BBA)، نؤمن بأن التعليم هو أكثر من مجرد إكمال الدورات أو كسب الساعات المعتمدة. إنه يتعلق بمساعدة الطلاب على بناء أساس قوي لمستقبلهم مع دعم العائلات في كل خطوة على الطريق.'
@@ -73,7 +72,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white">
-      {/* Page Title & Intro - Integrated and Compact */}
+      {/* Page Title & Intro */}
       <section className="py-16 lg:py-24 border-b border-slate-100">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -98,11 +97,11 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
             
             <div className="relative aspect-square lg:aspect-[4/5] rounded-xl overflow-hidden shadow-2xl border-4 border-white">
               <Image 
-                src="https://picsum.photos/seed/bba-foundation/1200/1500" 
+                src="/About.png" 
                 alt="Academy Foundation" 
                 fill 
                 className="object-cover"
-                data-ai-hint="academic excellence"
+                unoptimized
               />
             </div>
           </div>
@@ -110,7 +109,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Beliefs Section */}
-      <section className="section-padding bg-slate-50/50">
+      <section className="py-20 bg-slate-50/50">
         <div className="container-tight">
           <div className="mb-12">
             <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.beliefs.title}</h2>
@@ -130,7 +129,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Approach Section */}
-      <section className="section-padding">
+      <section className="py-20">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <div className="space-y-8">
@@ -170,7 +169,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="section-padding bg-slate-50/50">
+      <section className="py-20 bg-slate-50/50">
         <div className="container-tight">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white border border-slate-200 p-10 rounded-lg space-y-6 shadow-sm">
@@ -193,7 +192,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Commitment Section */}
-      <section className="section-padding">
+      <section className="py-20">
         <div className="container-tight text-center max-w-4xl mx-auto space-y-12">
           <div className="space-y-2">
             <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.commitment.title}</h2>
@@ -217,7 +216,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* At a Glance Section */}
-      <section className="section-padding bg-slate-50 border-t border-slate-100">
+      <section className="py-20 bg-slate-50 border-t border-slate-100">
         <div className="container-tight">
           <div className="text-center mb-12">
             <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.glance.title}</h2>
