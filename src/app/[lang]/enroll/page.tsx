@@ -997,7 +997,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     className={cn(
                       "h-16 rounded-2xl font-black text-lg transition-all gap-3 shadow-xl active:scale-95",
                       currentStep > 1 ? "flex-[2]" : "w-full",
-                      currentStep < 4 ? "bg-primary text-white hover:bg-accent shadow-primary/20" : "bg-secondary text-white hover:bg-secondary/90 shadow-secondary/20"
+                      "bg-secondary text-white hover:bg-secondary/90 shadow-secondary/20"
                     )}
                   >
                     <span className="flex-1 text-center">
@@ -1020,7 +1020,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 <button 
                   onClick={saveDraft}
                   disabled={isSavingDraft || isSubmitting}
-                  className="text-slate-400 hover:text-secondary font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-colors disabled:opacity-50"
+                  className="text-secondary hover:underline font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-colors disabled:opacity-50"
                 >
                   {isSavingDraft ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                   {isAr ? 'حفظ كمسودة للعودة لاحقاً' : 'Save draft and resume later'}
