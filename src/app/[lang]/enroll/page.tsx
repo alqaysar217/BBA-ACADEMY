@@ -33,7 +33,10 @@ import {
   Type,
   Briefcase,
   UserPlus,
-  UserCheck
+  UserCheck,
+  ArrowRight,
+  ArrowLeft,
+  Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
@@ -330,34 +333,31 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      <section className="bg-primary pt-8 pb-12 relative overflow-hidden">
+      <section className="bg-primary pt-6 pb-10 relative overflow-hidden">
         <div className="absolute inset-0">
-           <svg className="absolute inset-0 h-full w-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
+           {/* Sophisticated Layered Background */}
+           <svg className="absolute inset-0 h-full w-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
              <defs>
-               <pattern id="enroll-pattern" width="80" height="80" patternUnits="userSpaceOnUse">
-                 <path d="M 80 0 L 0 0 0 80" fill="none" stroke="white" strokeWidth="0.5" />
-                 <circle cx="40" cy="40" r="1.5" fill="white" />
-                 <path d="M 0 40 L 80 40" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
-                 <path d="M 40 0 L 40 80" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
-                 <path d="M 0 0 L 80 80 M 80 0 L 0 80" fill="none" stroke="white" strokeWidth="0.1" />
+               <pattern id="enroll-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                 <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
+                 <circle cx="20" cy="20" r="0.5" fill="white" />
                </pattern>
              </defs>
-             <rect width="100%" height="100%" fill="url(#enroll-pattern)" />
+             <rect width="100%" height="100%" fill="url(#enroll-grid)" />
            </svg>
-           <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-secondary/15 blur-[110px] rounded-full animate-pulse" />
-           <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/20 blur-[130px] rounded-full" />
-           <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/40" />
-           <div className="absolute top-0 left-0 w-full h-px bg-white/10" />
+           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/20 blur-[120px] rounded-full animate-pulse" />
+           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/15 blur-[140px] rounded-full" />
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-b from-primary/10 via-transparent to-primary/30" />
         </div>
 
-        <div className="container-tight relative z-10 text-center space-y-3">
+        <div className="container-tight relative z-10 text-center space-y-4">
           <div className="space-y-2">
-            <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+            <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
             </h1>
-            <div className="h-0.5 w-16 bg-secondary mx-auto rounded-full shadow-[0_0_12px_rgba(var(--secondary),0.5)]" />
+            <div className="h-1 w-20 bg-secondary mx-auto rounded-full shadow-[0_0_15px_rgba(var(--secondary),0.6)]" />
           </div>
-          <p className="text-white/60 font-bold max-w-lg mx-auto text-[10px] md:text-sm italic leading-relaxed">
+          <p className="text-white/70 font-bold max-w-lg mx-auto text-xs md:text-base italic leading-relaxed">
             {isAr 
               ? 'يرجى تعبئة كافة البيانات المطلوبة لضمان معالجة طلبكم بدقة واحترافية.' 
               : 'Please complete all required information to ensure accurate and professional processing of your application.'}
@@ -365,21 +365,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      <div className="container-tight -mt-6 relative z-20">
+      <div className="container-tight -mt-6 relative z-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto space-y-6">
           
           <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-4 md:p-6">
             <div className="relative flex justify-between items-center px-4" dir={isAr ? 'rtl' : 'ltr'}>
-              <div className="absolute top-6 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
+              <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
               {steps.map((step) => (
                 <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
                   <div className={cn(
-                    "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center border-2 transition-all duration-500",
+                    "w-10 h-10 md:w-14 md:h-14 rounded-2xl flex items-center justify-center border-2 transition-all duration-500",
                     currentStep === step.id ? "bg-secondary border-secondary text-white scale-110 shadow-lg shadow-secondary/20" : 
                     currentStep > step.id ? "bg-primary border-primary text-white" : 
                     "bg-white border-slate-200 text-slate-400"
                   )}>
-                    {currentStep > step.id ? <Check className="h-5 w-5 md:h-6 md:w-6" /> : <span className="font-black text-xs md:text-sm">{step.id}</span>}
+                    {currentStep > step.id ? <Check className="h-5 w-5 md:h-7 md:w-7" /> : <span className="font-black text-sm md:text-lg">{step.id}</span>}
                   </div>
                 </div>
               ))}
@@ -387,11 +387,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </Card>
 
           <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white">
-            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6 md:p-10">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-5 md:p-8">
               <div className="flex justify-between items-center">
                 <div className="space-y-1 overflow-hidden">
                   <div className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{isAr ? 'الخطوة الحالية' : 'Current Step'}</div>
-                  <CardTitle className="text-lg md:text-2xl font-black text-primary uppercase truncate leading-tight">
+                  <CardTitle className="text-lg md:text-xl font-black text-primary uppercase truncate leading-tight">
                     {steps[currentStep-1].name[lang]}
                   </CardTitle>
                 </div>
@@ -965,54 +965,60 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               )}
 
-              <div className="mt-16 flex flex-col gap-6 pt-10 border-t border-slate-100">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <Button 
-                    variant="ghost" 
-                    onClick={handleBack} 
-                    disabled={currentStep === 1 || isSubmitting}
-                    className="w-full sm:w-auto h-14 px-8 rounded-xl font-black text-slate-400 hover:text-primary transition-all gap-2"
-                  >
-                    {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-                    {isAr ? 'السابق' : 'Previous Step'}
-                  </Button>
+              <div className="mt-16 flex flex-col gap-8 pt-10 border-t border-slate-100">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+                  {/* Previous Button - Only shown if not in Step 1 */}
+                  <div className="w-full sm:w-auto min-h-[56px]">
+                    {currentStep > 1 && (
+                      <Button 
+                        variant="ghost" 
+                        onClick={handleBack} 
+                        disabled={isSubmitting}
+                        className="w-full sm:w-auto h-14 px-10 rounded-xl font-black text-slate-500 hover:text-primary hover:bg-slate-100 transition-all gap-3 active:scale-95"
+                      >
+                        {isAr ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
+                        {isAr ? 'السابق' : 'Previous Step'}
+                      </Button>
+                    )}
+                  </div>
 
+                  {/* Save Draft Button - Always prominent */}
                   <Button 
                     variant="outline" 
                     onClick={saveDraft}
                     disabled={isSavingDraft}
-                    className="w-full sm:w-auto h-14 px-8 rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-slate-100 gap-2"
+                    className="w-full sm:w-auto h-14 px-10 rounded-xl border-slate-200 text-slate-600 font-black hover:bg-slate-50 hover:border-slate-300 gap-3 active:scale-95 shadow-sm"
                   >
-                    {isSavingDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {isSavingDraft ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5 text-secondary" />}
                     {isAr ? 'حفظ كمسودة' : 'Save Draft'}
                   </Button>
                 </div>
 
+                {/* Main Action Button (Continue or Submit) */}
                 {currentStep < 4 ? (
                   <Button 
                     onClick={handleNext} 
-                    className="w-full h-16 px-12 rounded-xl bg-primary hover:bg-accent text-white font-black shadow-xl shadow-primary/20 transition-all gap-2"
+                    className="w-full h-18 py-8 rounded-2xl bg-primary hover:bg-accent text-white font-black text-lg shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.98] gap-4"
                   >
-                    {isAr ? 'متابعة الخطوة التالية' : 'Continue to Next Step'}
-                    {isAr ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                    <span className="flex-1 text-center">
+                      {isAr ? 'متابعة للخطوة التالية' : 'Continue to Next Step'}
+                    </span>
+                    <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      {isAr ? <ArrowLeft className="h-6 w-6" /> : <ArrowRight className="h-6 w-6" />}
+                    </div>
                   </Button>
                 ) : (
                   <Button 
                     onClick={handleSubmit} 
                     disabled={isSubmitting}
-                    className="w-full h-16 px-16 rounded-xl bg-secondary hover:bg-secondary/90 text-white font-black shadow-2xl shadow-secondary/30 transition-all scale-105 active:scale-95 gap-3"
+                    className="w-full h-18 py-8 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-black text-lg shadow-2xl shadow-secondary/30 transition-all hover:scale-[1.02] active:scale-[0.98] gap-4"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        {isAr ? 'جاري الإرسال...' : 'Submitting...'}
-                      </>
-                    ) : (
-                      <>
-                        <Check className="h-5 w-5" />
-                        {isAr ? 'تأكيد وإرسال الطلب النهائي' : 'Submit Final Application'}
-                      </>
-                    )}
+                    <span className="flex-1 text-center">
+                      {isSubmitting ? (isAr ? 'جاري إرسال طلبكم...' : 'Submitting Application...') : (isAr ? 'تأكيد وإرسال الطلب النهائي' : 'Confirm & Submit Final Application')}
+                    </span>
+                    <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
+                      {isSubmitting ? <Loader2 className="h-6 w-6 animate-spin" /> : <Send className="h-6 w-6" />}
+                    </div>
                   </Button>
                 )}
               </div>
