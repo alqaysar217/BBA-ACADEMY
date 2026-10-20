@@ -315,7 +315,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
       {/* Reduced Header Height - More compact and professional */}
-      <section className="bg-primary pt-12 pb-24 relative overflow-hidden">
+      <section className="bg-primary pt-12 pb-16 relative overflow-hidden">
         <div className="absolute inset-0">
            {/* Complex Geometric Pattern Overlay */}
            <svg className="absolute inset-0 h-full w-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
@@ -352,7 +352,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      <div className="container-tight -mt-16 relative z-20">
+      <div className="container-tight -mt-8 relative z-20">
         <div className="max-w-4xl mx-auto space-y-8">
           
           <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-6 md:p-8">
@@ -368,12 +368,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   )}>
                     {currentStep > step.id ? <Check className="h-6 w-6" /> : <span className="font-black text-sm">{step.id}</span>}
                   </div>
-                  <span className={cn(
-                    "hidden md:block text-[10px] font-black uppercase tracking-widest absolute -bottom-8 whitespace-nowrap",
-                    currentStep >= step.id ? "text-primary" : "text-slate-400"
-                  )}>
-                    {step.name[lang]}
-                  </span>
                 </div>
               ))}
             </div>
