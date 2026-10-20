@@ -314,8 +314,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      {/* Redesigned Premium Header Background - Reduced height and complex pattern */}
-      <section className="bg-primary pt-20 pb-28 relative overflow-hidden">
+      {/* Reduced Header Height - More compact and professional */}
+      <section className="bg-primary pt-12 pb-24 relative overflow-hidden">
         <div className="absolute inset-0">
            {/* Complex Geometric Pattern Overlay */}
            <svg className="absolute inset-0 h-full w-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
@@ -339,7 +339,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
         <div className="container-tight relative z-10 text-center space-y-4">
           <div className="space-y-3">
-            <h1 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+            <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
             </h1>
             <div className="h-1 w-20 bg-secondary mx-auto rounded-full shadow-[0_0_12px_rgba(var(--secondary),0.5)]" />
