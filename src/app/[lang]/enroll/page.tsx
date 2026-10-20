@@ -9,7 +9,31 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, ChevronRight, ChevronLeft, Upload, Save, User, GraduationCap, FileText, Plus, AlertCircle, Loader2, ChevronDown, UserCircle2, MapPin } from 'lucide-react';
+import { 
+  Check, 
+  ChevronRight, 
+  ChevronLeft, 
+  Upload, 
+  Save, 
+  User, 
+  GraduationCap, 
+  FileText, 
+  Plus, 
+  AlertCircle, 
+  Loader2, 
+  ChevronDown, 
+  UserCircle2, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Users, 
+  Building, 
+  Hash, 
+  Calendar as CalendarIcon, 
+  ShieldCheck,
+  Type,
+  Briefcase
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -23,6 +47,14 @@ const steps = [
   { id: 2, name: { en: 'Student Information', ar: 'بيانات الطلاب' } },
   { id: 3, name: { en: 'Program & Tuition', ar: 'البرنامج والرسوم' } },
   { id: 4, name: { en: 'Documents & Submission', ar: 'المستندات والارسال' } },
+];
+
+const usStates = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", 
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", 
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 ];
 
 const relationships = [
@@ -61,7 +93,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
-  // Accordion States
   const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
   const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
 
@@ -139,6 +170,15 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     setFormData((prev: any) => ({ ...prev, students: newStudents }));
   };
 
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = ('' + value).replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return '(' + match[1] + ') ' + match[2] + '-' + match[3];
+    }
+    return value;
+  };
+
   const handleSiblingCountChange = (count: string) => {
     const n = parseInt(count);
     let newStudents = [...formData.students];
@@ -166,7 +206,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
     
     setFormData((prev: any) => ({ ...prev, siblingCount: count, students: newStudents }));
-    setOpenStudentIdx(0); // Reset accordion to first student
+    setOpenStudentIdx(0);
   };
 
   const handleNext = () => {
@@ -271,7 +311,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      {/* Premium Header */}
       <section className="bg-primary pt-24 pb-32 relative overflow-hidden">
         <div className="absolute inset-0">
            <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 blur-[100px] rounded-full" />
@@ -279,7 +318,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
         <div className="container-tight relative z-10 text-center space-y-4">
           <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-lg">
-            {isAr ? 'نموذج تسجيل الأكاديمية' : 'Academy Enrollment'}
+            {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
           </h1>
           <p className="text-white/70 font-bold max-w-2xl mx-auto text-sm md:text-lg">
             {isAr 
@@ -292,7 +331,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       <div className="container-tight -mt-16 relative z-20">
         <div className="max-w-4xl mx-auto space-y-8">
           
-          {/* Progress Indicator */}
           <Card className="bg-white/90 backdrop-blur-md border-none shadow-xl rounded-2xl p-6 md:p-8">
             <div className="relative flex justify-between items-center px-2">
               <div className="absolute top-6 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
@@ -324,21 +362,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   <div className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{isAr ? 'الخطوة الحالية' : 'Current Step'}</div>
                   <CardTitle className="text-2xl md:text-3xl font-black text-primary uppercase">{steps[currentStep-1].name[lang]}</CardTitle>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={saveDraft}
-                  disabled={isSavingDraft}
-                  className="rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-slate-100 gap-2"
-                >
-                  {isSavingDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  <span className="hidden sm:inline">{isAr ? 'حفظ كمسودة' : 'Save Draft'}</span>
-                </Button>
               </div>
             </CardHeader>
 
             <CardContent className="p-8 md:p-12">
-              {/* STEP 1: Parents (Accordion) & Address */}
               {currentStep === 1 && (
                 <div className="space-y-12">
                   <div className="space-y-4">
@@ -346,7 +373,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       {isAr ? 'بيانات أولياء الأمور (مطلوبة)' : 'Parent Details (Required)'}
                     </h3>
                     
-                    {/* Parent 1 Section */}
                     <div className={cn(
                       "rounded-2xl border transition-all duration-300",
                       openParent === 'p1' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
@@ -364,19 +390,31 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       {openParent === 'p1' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
-                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="e.g. John Doe" />
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <User className="h-3 w-3 text-secondary" />
+                              {isAr ? 'الاسم الكامل *' : 'Full Name *'}
+                            </Label>
+                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="John Doe" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
-                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <Phone className="h-3 w-3 text-secondary" />
+                              {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
+                            </Label>
+                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
-                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" type="email" />
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <Mail className="h-3 w-3 text-secondary" />
+                              {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
+                            </Label>
+                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" type="email" placeholder="example@mail.com" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <Users className="h-3 w-3 text-secondary" />
+                              {isAr ? 'صلة القرابة *' : 'Relationship *'}
+                            </Label>
                             <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)}>
                               <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
@@ -392,7 +430,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       )}
                     </div>
 
-                    {/* Parent 2 Section */}
                     <div className={cn(
                       "rounded-2xl border transition-all duration-300",
                       openParent === 'p2' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
@@ -402,7 +439,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", openParent === 'p2' ? "bg-secondary text-white" : "bg-slate-100 text-slate-400")}>
                             <UserCircle2 className="h-5 w-5" />
                           </div>
-                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني' : 'Parent 2'}</span>
+                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني (إلزامي)' : 'Parent 2 (Required)'}</span>
                         </div>
                         {openParent !== 'p2' && <ChevronDown className="h-4 w-4 text-slate-400" />}
                       </div>
@@ -410,19 +447,31 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       {openParent === 'p2' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <User className="h-3 w-3 text-secondary" />
+                              {isAr ? 'الاسم الكامل *' : 'Full Name *'}
+                            </Label>
                             <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
-                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <Phone className="h-3 w-3 text-secondary" />
+                              {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
+                            </Label>
+                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <Mail className="h-3 w-3 text-secondary" />
+                              {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
+                            </Label>
                             <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" type="email" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                              <Users className="h-3 w-3 text-secondary" />
+                              {isAr ? 'صلة القرابة *' : 'Relationship *'}
+                            </Label>
                             <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)}>
                               <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
@@ -446,24 +495,48 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2 space-y-2">
-                        <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}</Label>
-                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="Street address" />
+                        <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                          <Type className="h-3 w-3 text-secondary" />
+                          {isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}
+                        </Label>
+                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="123 Academy St." />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'العنوان (السطر 2)' : 'Address Line 2'}</Label>
-                        <Input value={formData.address.line2} onChange={(e) => updateAddress('line2', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="Apt, Suite, etc." />
+                        <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                          <Hash className="h-3 w-3 text-secondary" />
+                          {isAr ? 'العنوان (السطر 2)' : 'Address Line 2'}
+                        </Label>
+                        <Input value={formData.address.line2} onChange={(e) => updateAddress('line2', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="Apt 4B" />
                       </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-1 space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'المدينة *' : 'City *'}</Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                            <Building className="h-3 w-3 text-secondary" />
+                            {isAr ? 'المدينة *' : 'City *'}
+                          </Label>
                           <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
                         </div>
-                        <div className="col-span-1 space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الولاية *' : 'State *'}</Label>
-                          <Input value={formData.address.state} onChange={(e) => updateAddress('state', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="MI" />
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                            <MapPin className="h-3 w-3 text-secondary" />
+                            {isAr ? 'الولاية *' : 'State *'}
+                          </Label>
+                          <Select value={formData.address.state} onValueChange={(v) => updateAddress('state', v)}>
+                            <SelectTrigger className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold">
+                              <SelectValue placeholder={isAr ? 'الولاية' : 'State'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {usStates.map(state => (
+                                <SelectItem key={state} value={state}>{state}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <div className="col-span-1 space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الرمز البريدي *' : 'ZIP Code *'}</Label>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                            <Hash className="h-3 w-3 text-secondary" />
+                            {isAr ? 'الرمز البريدي *' : 'ZIP Code *'}
+                          </Label>
                           <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
                         </div>
                       </div>
@@ -472,25 +545,26 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               )}
 
-              {/* STEP 2: Students & Siblings (Accordion) */}
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 space-y-6">
+                  <div className="bg-slate-50 p-6 md:p-10 rounded-[2rem] border border-slate-100 space-y-8">
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'كم عدد الطلاب الذين ستقوم بتسجيلهم؟' : 'How many students (siblings) will you register?'}</Label>
                     </div>
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="flex justify-center gap-4"
+                      className="flex flex-wrap justify-center gap-4 md:gap-6"
                     >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex flex-col items-center justify-center w-24 h-24 rounded-2xl border-2 cursor-pointer transition-all gap-2",
-                          formData.siblingCount === n ? "bg-primary border-primary text-white shadow-xl scale-105" : "bg-white border-slate-100 text-slate-400 hover:border-secondary/40"
+                          "flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 cursor-pointer transition-all gap-2 bg-white",
+                          formData.siblingCount === n ? "border-secondary ring-4 ring-secondary/10 scale-105 shadow-xl" : "border-slate-100 text-slate-400 hover:border-secondary/40"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
-                          <span className="text-2xl font-black">{n}</span>
+                          <div className={cn("h-8 w-8 rounded-full flex items-center justify-center mb-1 transition-colors", formData.siblingCount === n ? "bg-secondary text-white" : "bg-slate-100")}>
+                             <span className="text-lg font-black">{n}</span>
+                          </div>
                           <span className="text-[10px] font-bold uppercase">{isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}</span>
                         </Label>
                       ))}
@@ -500,31 +574,34 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   <div className="space-y-4">
                     {formData.students.map((student: any, idx: number) => (
                       <div key={idx} className={cn(
-                        "rounded-2xl border transition-all duration-300",
-                        openStudentIdx === idx ? "border-primary bg-primary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
+                        "rounded-2xl border transition-all duration-300 overflow-hidden",
+                        openStudentIdx === idx ? "border-primary shadow-lg" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200"
                       )} onClick={() => setOpenStudentIdx(idx)}>
-                        <div className="flex justify-between items-center mb-4">
+                        <div className={cn("flex justify-between items-center p-5", openStudentIdx === idx ? "bg-primary text-white" : "bg-white")}>
                           <div className="flex items-center gap-3">
-                            <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center font-black", openStudentIdx === idx ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>
+                            <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center font-black", openStudentIdx === idx ? "bg-white text-primary" : "bg-slate-100 text-slate-400")}>
                               {idx + 1}
                             </div>
-                            <span className="font-black text-primary">
-                              {isAr ? `بيانات الطالب ${idx + 1}` : `Student ${idx + 1} Details`}
+                            <span className="font-black uppercase tracking-tight">
+                              {isAr ? `بيانات الطالب ${idx + 1}` : `Student ${idx + 1} Information`}
                               {student.firstName && ` - ${student.firstName}`}
                             </span>
                           </div>
-                          {openStudentIdx !== idx && <ChevronDown className="h-4 w-4 text-slate-400" />}
+                          {openStudentIdx !== idx ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 rotate-90" />}
                         </div>
 
                         {openStudentIdx === idx && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500" onClick={(e) => e.stopPropagation()}>
+                          <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-top-4 duration-500" onClick={(e) => e.stopPropagation()}>
                             <div className="md:col-span-3 space-y-4">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'حالة الطالب *' : 'Student Status *'}</Label>
-                              <div className="flex gap-4">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <ShieldCheck className="h-3 w-3 text-secondary" />
+                                {isAr ? 'حالة الطالب *' : 'Student Status *'}
+                              </Label>
+                              <div className="flex flex-wrap gap-4">
                                 {['New Student', 'Returning Student'].map(status => (
                                   <div key={status} onClick={() => updateStudent(idx, 'status', status)} className={cn(
-                                    "flex-1 p-3 rounded-xl border-2 text-center cursor-pointer font-bold text-sm transition-all",
-                                    student.status === status ? "bg-secondary border-secondary text-white" : "bg-white border-slate-100 text-slate-400 hover:border-secondary/20"
+                                    "flex-1 min-w-[140px] p-4 rounded-xl border-2 text-center cursor-pointer font-bold text-sm transition-all",
+                                    student.status === status ? "bg-secondary border-secondary text-white shadow-md" : "bg-slate-50 border-slate-100 text-slate-400 hover:border-secondary/20"
                                   )}>
                                     {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
                                   </div>
@@ -533,24 +610,39 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </div>
 
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأول *' : 'First Name *'}</Label>
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <User className="h-3 w-3 text-secondary" />
+                                {isAr ? 'الاسم الأول *' : 'First Name *'}
+                              </Label>
                               <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
                             </div>
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأوسط' : 'Middle Name'}</Label>
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Type className="h-3 w-3 text-secondary" />
+                                {isAr ? 'الاسم الأوسط' : 'Middle Name'}
+                              </Label>
                               <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
                             </div>
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأخير *' : 'Last Name *'}</Label>
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <User className="h-3 w-3 text-secondary" />
+                                {isAr ? 'الاسم الأخير *' : 'Last Name *'}
+                              </Label>
                               <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
                             </div>
 
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}</Label>
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <CalendarIcon className="h-3 w-3 text-secondary" />
+                                {isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}
+                              </Label>
                               <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
                             </div>
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الجنس *' : 'Gender *'}</Label>
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <UserCircle2 className="h-3 w-3 text-secondary" />
+                                {isAr ? 'الجنس *' : 'Gender *'}
+                              </Label>
                               <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
                                 <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                   <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
@@ -562,7 +654,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </Select>
                             </div>
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}</Label>
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <GraduationCap className="h-3 w-3 text-secondary" />
+                                {isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}
+                              </Label>
                               <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
                                 <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                   <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
@@ -576,12 +671,18 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </div>
 
                             <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}</Label>
-                              <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Phone className="h-3 w-3 text-secondary" />
+                                {isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}
+                              </Label>
+                              <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
                             </div>
                             <div className="md:col-span-2 space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}</Label>
-                              <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Mail className="h-3 w-3 text-secondary" />
+                                {isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}
+                              </Label>
+                              <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="student@example.com" />
                             </div>
                           </div>
                         )}
@@ -591,7 +692,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               )}
 
-              {/* STEP 3: Program & Tuition */}
               {currentStep === 3 && (
                 <div className="space-y-12">
                   <div className="space-y-6">
@@ -665,7 +765,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           <>
                             <Label htmlFor="pay-3-5-1" className={cn(
                               "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
-                              formData.paymentTier === 'initial-3-5' ? "border-secondary bg-secondary/5" : "border-slate-100 hover:border-secondary/20"
+                              formData.paymentTier === 'initial-3-5' ? "border-secondary bg-secondary/5 shadow-md" : "border-slate-100 hover:border-secondary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="initial-3-5" id="pay-3-5-1" checked={formData.paymentTier === 'initial-3-5'} onClick={() => updateField('paymentTier', 'initial-3-5')} />
@@ -679,7 +779,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </Label>
                             <Label htmlFor="pay-3-5-2" className={cn(
                               "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
-                              formData.paymentTier === 'full-3-5' ? "border-secondary bg-secondary/5" : "border-slate-100 hover:border-secondary/20"
+                              formData.paymentTier === 'full-3-5' ? "border-secondary bg-secondary/5 shadow-md" : "border-slate-100 hover:border-secondary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="full-3-5" id="pay-3-5-2" checked={formData.paymentTier === 'full-3-5'} onClick={() => updateField('paymentTier', 'full-3-5')} />
@@ -698,7 +798,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           <>
                             <Label htmlFor="pay-6-12-eng" className={cn(
                               "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
-                              formData.paymentTier === 'initial-6-12-eng' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/20"
+                              formData.paymentTier === 'initial-6-12-eng' ? "border-primary bg-primary/5 shadow-md" : "border-slate-100 hover:border-primary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="initial-6-12-eng" id="pay-6-12-eng" checked={formData.paymentTier === 'initial-6-12-eng'} onClick={() => { updateField('paymentTier', 'initial-6-12-eng'); updateField('languageOption', 'english-only'); }} />
@@ -712,7 +812,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </Label>
                             <Label htmlFor="pay-6-12-both" className={cn(
                               "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
-                              formData.paymentTier === 'initial-6-12-both' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/20"
+                              formData.paymentTier === 'initial-6-12-both' ? "border-primary bg-primary/5 shadow-md" : "border-slate-100 hover:border-primary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="initial-6-12-both" id="pay-6-12-both" checked={formData.paymentTier === 'initial-6-12-both'} onClick={() => { updateField('paymentTier', 'initial-6-12-both'); updateField('languageOption', 'english-arabic'); }} />
@@ -741,7 +841,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               )}
 
-              {/* STEP 4: Documents & Submission */}
               {currentStep === 4 && (
                 <div className="space-y-12">
                   <div className="space-y-6">
@@ -799,31 +898,42 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               )}
 
-              {/* Navigation Actions */}
-              <div className="mt-16 flex flex-col sm:flex-row justify-between items-center gap-6 pt-10 border-t border-slate-100">
-                <Button 
-                  variant="ghost" 
-                  onClick={handleBack} 
-                  disabled={currentStep === 1 || isSubmitting}
-                  className="w-full sm:w-auto h-14 px-8 rounded-xl font-black text-slate-400 hover:text-primary transition-all gap-2"
-                >
-                  {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-                  {isAr ? 'السابق' : 'Previous Step'}
-                </Button>
+              <div className="mt-16 flex flex-col gap-6 pt-10 border-t border-slate-100">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleBack} 
+                    disabled={currentStep === 1 || isSubmitting}
+                    className="w-full sm:w-auto h-14 px-8 rounded-xl font-black text-slate-400 hover:text-primary transition-all gap-2"
+                  >
+                    {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+                    {isAr ? 'السابق' : 'Previous Step'}
+                  </Button>
+
+                  <Button 
+                    variant="outline" 
+                    onClick={saveDraft}
+                    disabled={isSavingDraft}
+                    className="w-full sm:w-auto h-14 px-8 rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-slate-100 gap-2"
+                  >
+                    {isSavingDraft ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {isAr ? 'حفظ كمسودة' : 'Save Draft'}
+                  </Button>
+                </div>
 
                 {currentStep < 4 ? (
                   <Button 
                     onClick={handleNext} 
-                    className="w-full sm:w-auto h-16 px-12 rounded-xl bg-primary hover:bg-accent text-white font-black shadow-xl shadow-primary/20 transition-all gap-2"
+                    className="w-full h-16 px-12 rounded-xl bg-primary hover:bg-accent text-white font-black shadow-xl shadow-primary/20 transition-all gap-2"
                   >
-                    {isAr ? 'متابعة' : 'Continue'}
+                    {isAr ? 'متابعة الخطوة التالية' : 'Continue to Next Step'}
                     {isAr ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
                   </Button>
                 ) : (
                   <Button 
                     onClick={handleSubmit} 
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto h-16 px-16 rounded-full bg-secondary hover:bg-secondary/90 text-white font-black shadow-2xl shadow-secondary/30 transition-all scale-105 active:scale-95 gap-3"
+                    className="w-full h-16 px-16 rounded-full bg-secondary hover:bg-secondary/90 text-white font-black shadow-2xl shadow-secondary/30 transition-all scale-105 active:scale-95 gap-3"
                   >
                     {isSubmitting ? (
                       <>
@@ -833,7 +943,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     ) : (
                       <>
                         <Check className="h-5 w-5" />
-                        {isAr ? 'تأكيد وإرسال الطلب' : 'Submit Application'}
+                        {isAr ? 'تأكيد وإرسال الطلب النهائي' : 'Submit Final Application'}
                       </>
                     )}
                   </Button>
@@ -844,25 +954,5 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
       </div>
     </div>
-  );
-}
-
-function ShieldCheck(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
   );
 }
