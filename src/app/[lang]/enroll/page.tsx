@@ -60,8 +60,8 @@ const usStates = [
 ];
 
 const relationships = [
-  { value: 'father', label: { en: 'Father', ar: 'الأب' } },
   { value: 'mother', label: { en: 'Mother', ar: 'الأم' } },
+  { value: 'father', label: { en: 'Father', ar: 'الأب' } },
   { value: 'brother', label: { en: 'Brother', ar: 'الأخ' } },
   { value: 'sister', label: { en: 'Sister', ar: 'الأخت' } },
   { value: 'guardian', label: { en: 'Legal Guardian', ar: 'وصي قانوني' } },
@@ -336,8 +336,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         <div className="max-w-4xl mx-auto space-y-8">
           
           <Card className="bg-white/90 backdrop-blur-md border-none shadow-xl rounded-2xl p-6 md:p-8">
-            <div className="relative flex justify-between items-center px-2">
-              <div className="absolute top-6 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
+            <div className="relative flex justify-between items-center px-2" dir={isAr ? 'rtl' : 'ltr'}>
+              <div className="absolute top-6 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
               {steps.map((step) => (
                 <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
                   <div className={cn(
@@ -374,7 +374,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 <div className="space-y-12">
                   <div className="space-y-4">
                     <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm mb-6">
-                      {isAr ? 'بيانات أولياء الأمور (مطلوبة)' : 'Parent Details (Required)'}
+                      {isAr ? 'بيانات أولياء الأمور (إلزامية)' : 'Parent Details (Required)'}
                     </h3>
                     
                     <div className={cn(
@@ -419,7 +419,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <Users className="h-3 w-3 text-secondary" />
                               {isAr ? 'صلة القرابة *' : 'Relationship *'}
                             </Label>
-                            <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)}>
+                            <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)} dir={isAr ? 'rtl' : 'ltr'}>
                               <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
                               </SelectTrigger>
@@ -443,7 +443,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", openParent === 'p2' ? "bg-secondary text-white" : "bg-slate-100 text-slate-400")}>
                             <UserCircle2 className="h-5 w-5" />
                           </div>
-                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني (إلزامي)' : 'Parent 2 (Required)'}</span>
+                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني' : 'Parent 2'}</span>
                         </div>
                         {openParent !== 'p2' && <ChevronDown className="h-4 w-4 text-slate-400" />}
                       </div>
@@ -476,7 +476,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <Users className="h-3 w-3 text-secondary" />
                               {isAr ? 'صلة القرابة *' : 'Relationship *'}
                             </Label>
-                            <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)}>
+                            <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)} dir={isAr ? 'rtl' : 'ltr'}>
                               <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
                               </SelectTrigger>
@@ -525,7 +525,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <MapPin className="h-3 w-3 text-secondary" />
                             {isAr ? 'الولاية *' : 'State *'}
                           </Label>
-                          <Select value={formData.address.state} onValueChange={(v) => updateAddress('state', v)}>
+                          <Select value={formData.address.state} onValueChange={(v) => updateAddress('state', v)} dir={isAr ? 'rtl' : 'ltr'}>
                             <SelectTrigger className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold">
                               <SelectValue placeholder={isAr ? 'الولاية' : 'State'} />
                             </SelectTrigger>
@@ -558,11 +558,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="grid grid-cols-3 gap-3 bg-slate-200/50 p-1.5 rounded-xl"
+                      className="flex w-full gap-2 bg-slate-200/50 p-1 rounded-xl"
+                      dir={isAr ? 'rtl' : 'ltr'}
                     >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex items-center justify-center py-4 rounded-lg cursor-pointer transition-all gap-2 min-w-0",
+                          "flex flex-1 items-center justify-center py-4 rounded-lg cursor-pointer transition-all gap-2 min-w-0",
                           formData.siblingCount === n ? "bg-white text-secondary shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:bg-white/50"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
@@ -589,7 +590,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               {student.firstName && ` - ${student.firstName}`}
                             </span>
                           </div>
-                          {openStudentIdx !== idx ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 rotate-90" />}
+                          {openStudentIdx !== idx ? (isAr ? <ChevronLeft className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />) : <ChevronDown className="h-4 w-4" />}
                         </div>
 
                         {openStudentIdx === idx && (
@@ -602,21 +603,22 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <RadioGroup 
                                 value={student.status} 
                                 onValueChange={(v) => updateStudent(idx, 'status', v)}
-                                className="grid grid-cols-1 gap-3"
+                                className="grid grid-cols-2 gap-3"
+                                dir={isAr ? 'rtl' : 'ltr'}
                               >
                                 {['New Student', 'Returning Student'].map(status => (
                                   <Label 
                                     key={status} 
                                     htmlFor={`status-${idx}-${status}`}
                                     className={cn(
-                                      "relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
+                                      "relative flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all text-center",
                                       student.status === status 
                                         ? "bg-secondary/5 border-secondary shadow-sm" 
                                         : "bg-white border-slate-100 hover:border-slate-200"
                                     )}
                                   >
                                     <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
-                                    <span className="font-black text-sm text-primary flex-1">
+                                    <span className="font-black text-xs sm:text-sm text-primary">
                                       {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
                                     </span>
                                   </Label>
@@ -659,7 +661,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   <UserCircle2 className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الجنس *' : 'Gender *'}
                                 </Label>
-                                <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
+                                <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)} dir={isAr ? 'rtl' : 'ltr'}>
                                   <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                     <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
                                   </SelectTrigger>
@@ -674,7 +676,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   <GraduationCap className="h-3 w-3 text-secondary" />
                                   {isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}
                                 </Label>
-                                <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
+                                <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)} dir={isAr ? 'rtl' : 'ltr'}>
                                   <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                     <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
                                   </SelectTrigger>
@@ -734,12 +736,17 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                        <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'اختر البرنامج المناسب' : 'Select Your Program'}</Label>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <RadioGroup 
+                      value={formData.programOption}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      onValueChange={(v) => { updateField('programOption', v); updateField('paymentTier', ''); }}
+                      dir={isAr ? 'rtl' : 'ltr'}
+                    >
                       <Label htmlFor="opt-3-5" className={cn(
                         "p-8 rounded-xl border-2 cursor-pointer transition-all space-y-4",
                         formData.programOption === 'grades-3-5' ? "bg-secondary/5 border-secondary shadow-xl" : "bg-white border-slate-100 hover:border-secondary/20"
                       )}>
-                        <RadioGroupItem value="grades-3-5" id="opt-3-5" className="sr-only" checked={formData.programOption === 'grades-3-5'} onClick={() => { updateField('programOption', 'grades-3-5'); updateField('paymentTier', ''); }} />
+                        <RadioGroupItem value="grades-3-5" id="opt-3-5" className="sr-only" />
                         <div className="flex justify-between items-start">
                            <div className="h-12 w-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
                               <span className="font-black text-lg">3-5</span>
@@ -756,7 +763,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         "p-8 rounded-xl border-2 cursor-pointer transition-all space-y-4",
                         formData.programOption === 'grades-6-12' ? "bg-primary/5 border-primary shadow-xl" : "bg-white border-slate-100 hover:border-primary/20"
                       )}>
-                        <RadioGroupItem value="grades-6-12" id="opt-6-12" className="sr-only" checked={formData.programOption === 'grades-6-12'} onClick={() => { updateField('programOption', 'grades-6-12'); updateField('paymentTier', ''); }} />
+                        <RadioGroupItem value="grades-6-12" id="opt-6-12" className="sr-only" />
                         <div className="flex justify-between items-start">
                            <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                               <span className="font-black text-lg">6-12</span>
@@ -768,7 +775,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           <p className="text-xs text-slate-500 font-bold">{isAr ? 'المرحلة المتوسطة والثانوية' : 'Middle and high school academics'}</p>
                         </div>
                       </Label>
-                    </div>
+                    </RadioGroup>
                   </div>
 
                   {formData.programOption && (
@@ -777,7 +784,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                          <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'خيارات الرسوم والدفع' : 'Payment & Tuition Options'}</Label>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-4">
+                      <RadioGroup 
+                        value={formData.paymentTier} 
+                        onValueChange={(v) => updateField('paymentTier', v)}
+                        className="grid grid-cols-1 gap-4"
+                        dir={isAr ? 'rtl' : 'ltr'}
+                      >
                         {formData.programOption === 'grades-3-5' && (
                           <>
                             <Label htmlFor="pay-3-5-1" className={cn(
@@ -785,7 +797,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               formData.paymentTier === 'initial-3-5' ? "border-secondary bg-secondary/5 shadow-md" : "border-slate-100 hover:border-secondary/20"
                             )}>
                               <div className="flex items-center gap-4">
-                                <RadioGroupItem value="initial-3-5" id="pay-3-5-1" checked={formData.paymentTier === 'initial-3-5'} onClick={() => updateField('paymentTier', 'initial-3-5')} />
+                                <RadioGroupItem value="initial-3-5" id="pay-3-5-1" />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Registration Fee + Initial Payment'}</div>
                                 </div>
@@ -799,7 +811,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               formData.paymentTier === 'full-3-5' ? "border-secondary bg-secondary/5 shadow-md" : "border-slate-100 hover:border-secondary/20"
                             )}>
                               <div className="flex items-center gap-4">
-                                <RadioGroupItem value="full-3-5" id="pay-3-5-2" checked={formData.paymentTier === 'full-3-5'} onClick={() => updateField('paymentTier', 'full-3-5')} />
+                                <RadioGroupItem value="full-3-5" id="pay-3-5-2" />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'كامل الرسوم الدراسية (خصم 10%)' : 'Full Tuition (Save 10%)'}</div>
                                 </div>
@@ -818,7 +830,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               formData.paymentTier === 'initial-6-12-eng' ? "border-primary bg-primary/5 shadow-md" : "border-slate-100 hover:border-primary/20"
                             )}>
                               <div className="flex items-center gap-4">
-                                <RadioGroupItem value="initial-6-12-eng" id="pay-6-12-eng" checked={formData.paymentTier === 'initial-6-12-eng'} onClick={() => { updateField('paymentTier', 'initial-6-12-eng'); updateField('languageOption', 'english-only'); }} />
+                                <RadioGroupItem value="initial-6-12-eng" id="pay-6-12-eng" onClick={() => updateField('languageOption', 'english-only')} />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'برنامج اللغة الإنجليزية فقط' : 'English Only Program'}</div>
                                 </div>
@@ -832,7 +844,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               formData.paymentTier === 'initial-6-12-both' ? "border-primary bg-primary/5 shadow-md" : "border-slate-100 hover:border-primary/20"
                             )}>
                               <div className="flex items-center gap-4">
-                                <RadioGroupItem value="initial-6-12-both" id="pay-6-12-both" checked={formData.paymentTier === 'initial-6-12-both'} onClick={() => { updateField('paymentTier', 'initial-6-12-both'); updateField('languageOption', 'english-arabic'); }} />
+                                <RadioGroupItem value="initial-6-12-both" id="pay-6-12-both" onClick={() => updateField('languageOption', 'english-arabic')} />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'برنامج الإنجليزية + العربية' : 'English + Arabic Program'}</div>
                                 </div>
@@ -843,9 +855,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </Label>
                           </>
                         )}
-                      </div>
+                      </RadioGroup>
 
-                      <div className="bg-amber-50 p-6 rounded-xl border border-amber-100 flex items-start gap-4">
+                      <div className="bg-amber-50 p-6 rounded-xl border border-amber-100 flex items-start gap-4" dir={isAr ? 'rtl' : 'ltr'}>
                         <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-1" />
                         <p className="text-xs font-bold text-amber-800 leading-relaxed">
                           {isAr 
@@ -888,7 +900,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       ))}
                     </div>
 
-                    <div className="bg-slate-100 p-6 rounded-xl border border-slate-200 flex items-center gap-4">
+                    <div className="bg-slate-100 p-6 rounded-xl border border-slate-200 flex items-center gap-4" dir={isAr ? 'rtl' : 'ltr'}>
                        <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center text-slate-400">
                           <Upload className="h-5 w-5" />
                        </div>
@@ -903,7 +915,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                        <Check className="h-24 w-24" />
                     </div>
-                    <div className="space-y-2 relative z-10">
+                    <div className="space-y-2 relative z-10" dir={isAr ? 'rtl' : 'ltr'}>
                       <h4 className="text-xl font-black uppercase tracking-tight">{isAr ? 'تأكيد الإرسال' : 'Final Submission'}</h4>
                       <p className="text-sm font-bold text-white/70 leading-relaxed max-w-xl">
                         {isAr 
