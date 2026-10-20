@@ -556,16 +556,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="flex flex-wrap justify-center gap-2 bg-slate-200/50 p-1.5 rounded-2xl"
+                      className="grid grid-cols-3 gap-3 bg-slate-200/50 p-1.5 rounded-2xl"
                     >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex-1 flex items-center justify-center py-4 rounded-xl cursor-pointer transition-all gap-3 min-w-[80px]",
+                          "flex items-center justify-center py-4 rounded-xl cursor-pointer transition-all gap-2 min-w-0",
                           formData.siblingCount === n ? "bg-white text-secondary shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:bg-white/50"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
                           <span className="text-lg font-black">{n}</span>
-                          <span className="text-[10px] font-bold uppercase">{isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}</span>
+                          <span className="text-[10px] font-bold uppercase truncate">{isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}</span>
                         </Label>
                       ))}
                     </RadioGroup>
@@ -597,24 +597,38 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <ShieldCheck className="h-3 w-3 text-secondary" />
                                 {isAr ? 'حالة الطالب في الأكاديمية' : 'Student Status at Academy'}
                               </Label>
-                              <div className="bg-slate-100/50 p-1.5 rounded-2xl flex gap-1.5 border border-slate-100">
-                                {['New Student', 'Returning Student'].map(status => {
-                                  const isSelected = student.status === status;
-                                  return (
-                                    <div 
-                                      key={status} 
-                                      onClick={() => updateStudent(idx, 'status', status)} 
-                                      className={cn(
-                                        "flex-1 flex items-center justify-center gap-3 py-3.5 rounded-xl cursor-pointer font-black text-xs transition-all",
-                                        isSelected ? "bg-secondary text-white shadow-md shadow-secondary/20" : "text-slate-400 hover:text-primary hover:bg-white/50"
-                                      )}
-                                    >
-                                      {status === 'New Student' ? <UserPlus className="h-4 w-4 shrink-0" /> : <UserCheck className="h-4 w-4 shrink-0" />}
-                                      <span className="whitespace-nowrap">{isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}</span>
+                              <RadioGroup 
+                                value={student.status} 
+                                onValueChange={(v) => updateStudent(idx, 'status', v)}
+                                className="grid grid-cols-1 gap-3"
+                              >
+                                {['New Student', 'Returning Student'].map(status => (
+                                  <Label 
+                                    key={status} 
+                                    htmlFor={`status-${idx}-${status}`}
+                                    className={cn(
+                                      "relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
+                                      student.status === status 
+                                        ? "bg-secondary/5 border-secondary shadow-sm" 
+                                        : "bg-white border-slate-100 hover:border-slate-200"
+                                    )}
+                                  >
+                                    <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
+                                    <div className="flex items-center gap-3 flex-1">
+                                      <div className={cn(
+                                        "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
+                                        student.status === status ? "bg-secondary text-white" : "bg-slate-100 text-slate-400"
+                                      )}>
+                                        {status === 'New Student' ? <UserPlus className="h-5 w-5" /> : <UserCheck className="h-5 w-5" />}
+                                      </div>
+                                      <span className="font-black text-sm text-primary">
+                                        {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
+                                      </span>
                                     </div>
-                                  );
-                                })}
-                              </div>
+                                    {student.status === status && <Check className="h-5 w-5 text-secondary shrink-0" />}
+                                  </Label>
+                                ))}
+                              </RadioGroup>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
