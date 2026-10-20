@@ -314,27 +314,44 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      <section className="bg-primary pt-24 pb-32 relative overflow-hidden">
+      {/* Premium Header Background */}
+      <section className="bg-primary pt-28 pb-40 relative overflow-hidden">
         <div className="absolute inset-0">
-           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 blur-[100px] rounded-full" />
-           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 blur-[80px] rounded-full" />
+           {/* Geometric Pattern */}
+           <svg className="absolute inset-0 h-full w-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
+             <defs>
+               <pattern id="enroll-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                 <circle cx="2" cy="2" r="1" fill="white" />
+               </pattern>
+             </defs>
+             <rect width="100%" height="100%" fill="url(#enroll-grid)" />
+           </svg>
+           
+           {/* Glow Effects */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/20 blur-[120px] rounded-full animate-pulse" />
+           <div className="absolute -top-20 -right-20 w-96 h-96 bg-white/5 blur-[100px] rounded-full" />
+           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary/10 blur-[80px] rounded-full" />
         </div>
-        <div className="container-tight relative z-10 text-center space-y-4">
-          <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-lg">
-            {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
-          </h1>
-          <p className="text-white/70 font-bold max-w-2xl mx-auto text-sm md:text-lg">
+
+        <div className="container-tight relative z-10 text-center space-y-6">
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+              {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
+            </h1>
+            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full shadow-[0_0_15px_rgba(var(--secondary),0.4)]" />
+          </div>
+          <p className="text-white/70 font-bold max-w-2xl mx-auto text-sm md:text-xl italic leading-relaxed">
             {isAr 
-              ? 'يرجى تعبئة كافة البيانات المطلوبة لضمان معالجة طلبكم بدقة.' 
-              : 'Please complete all required information to ensure accurate processing of your application.'}
+              ? 'يرجى تعبئة كافة البيانات المطلوبة لضمان معالجة طلبكم بدقة واحترافية.' 
+              : 'Please complete all required information to ensure accurate and professional processing of your application.'}
           </p>
         </div>
       </section>
 
-      <div className="container-tight -mt-16 relative z-20">
+      <div className="container-tight -mt-24 relative z-20">
         <div className="max-w-4xl mx-auto space-y-8">
           
-          <Card className="bg-white/90 backdrop-blur-md border-none shadow-xl rounded-2xl p-6 md:p-8">
+          <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-6 md:p-8">
             <div className="relative flex justify-between items-center px-2" dir={isAr ? 'rtl' : 'ltr'}>
               <div className="absolute top-6 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
               {steps.map((step) => (
@@ -359,7 +376,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </Card>
 
           <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white">
-            <CardHeader className="bg-slate-50 border-b border-slate-100 p-8 md:p-12">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-8 md:p-12">
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
                   <div className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{isAr ? 'الخطوة الحالية' : 'Current Step'}</div>
@@ -557,16 +574,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="flex w-full gap-2 bg-slate-200/50 p-1.5 rounded-2xl"
+                      className="flex w-full gap-2 bg-slate-200/50 p-1 rounded-xl"
                       dir={isAr ? 'rtl' : 'ltr'}
                     >
                       {['1', '2', '3'].map((n) => {
                         const isSelected = formData.siblingCount === n;
                         return (
                           <Label key={n} htmlFor={`count-${n}`} className={cn(
-                            "flex items-center justify-center py-4 rounded-xl cursor-pointer transition-all duration-500 gap-2 min-w-0 overflow-hidden",
+                            "flex items-center justify-center py-4 rounded-lg cursor-pointer transition-all duration-500 gap-2 min-w-0 overflow-hidden",
                             isSelected 
-                              ? "flex-[2] bg-white text-secondary shadow-md ring-1 ring-slate-200" 
+                              ? "flex-[2.5] bg-white text-secondary shadow-md ring-1 ring-slate-200" 
                               : "flex-1 text-slate-500 hover:bg-white/50"
                           )}>
                             <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
@@ -619,19 +636,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                     key={status} 
                                     htmlFor={`status-${idx}-${status}`}
                                     className={cn(
-                                      "relative flex items-center justify-between p-5 rounded-xl border-2 cursor-pointer transition-all",
+                                      "relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
                                       student.status === status 
-                                        ? "bg-secondary/5 border-secondary shadow-md" 
+                                        ? "bg-secondary/5 border-secondary shadow-sm" 
                                         : "bg-white border-slate-100 hover:border-slate-200"
                                     )}
                                   >
-                                    <div className="flex items-center gap-4">
-                                      <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
-                                      <span className="font-black text-sm text-primary">
-                                        {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
-                                      </span>
-                                    </div>
-                                    {student.status === status && <Check className="h-5 w-5 text-secondary animate-in zoom-in" />}
+                                    <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
+                                    <span className="font-black text-sm text-primary">
+                                      {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
+                                    </span>
                                   </Label>
                                 ))}
                               </RadioGroup>
