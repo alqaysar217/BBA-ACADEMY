@@ -51,11 +51,23 @@ const steps = [
 ];
 
 const usStates = [
-  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", 
-  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", 
-  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", 
-  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", 
-  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+  { en: "Alabama", ar: "ألاباما" }, { en: "Alaska", ar: "ألاسكا" }, { en: "Arizona", ar: "أريزونا" },
+  { en: "Arkansas", ar: "أركنساس" }, { en: "California", ar: "كاليفورنيا" }, { en: "Colorado", ar: "كولورادو" },
+  { en: "Connecticut", ar: "كونيتيكت" }, { en: "Delaware", ar: "ديلاوير" }, { en: "Florida", ar: "فلوريدا" },
+  { en: "Georgia", ar: "جورجيا" }, { en: "Hawaii", ar: "هاواي" }, { en: "Idaho", ar: "أيداهو" },
+  { en: "Illinois", ar: "إلينوي" }, { en: "Indiana", ar: "إنديانا" }, { en: "Iowa", ar: "أيوا" },
+  { en: "Kansas", ar: "كانساس" }, { en: "Kentucky", ar: "كنتاكي" }, { en: "Louisiana", ar: "لويزيانا" },
+  { en: "Maine", ar: "مين" }, { en: "Maryland", ar: "ماريلاند" }, { en: "Massachusetts", ar: "ماساتشوستس" },
+  { en: "Michigan", ar: "ميشيغان" }, { en: "Minnesota", ar: "مينيسوتا" }, { en: "Mississippi", ar: "ميسيسيبي" },
+  { en: "Missouri", ar: "ميزوري" }, { en: "Montana", ar: "مونتانا" }, { en: "Nebraska", ar: "نبراسكا" },
+  { en: "Nevada", ar: "نيفادا" }, { en: "New Hampshire", ar: "نيو هامبشاير" }, { en: "New Jersey", ar: "نيو جيرسي" },
+  { en: "New Mexico", ar: "نيو مكسيكو" }, { en: "New York", ar: "نيويورك" }, { en: "North Carolina", ar: "نورث كارولاينا" },
+  { en: "North Dakota", ar: "نورث داكوتا" }, { en: "Ohio", ar: "أوهايو" }, { en: "Oklahoma", ar: "أوكلاهوما" },
+  { en: "Oregon", ar: "أوريغون" }, { en: "Pennsylvania", ar: "بنسيلفانيا" }, { en: "Rhode Island", ar: "رود آيلاند" },
+  { en: "South Carolina", ar: "سوث كارولاينا" }, { en: "South Dakota", ar: "سوث داكوتا" }, { en: "Tennessee", ar: "تينيسي" },
+  { en: "Texas", ar: "تكساس" }, { en: "Utah", ar: "يوتا" }, { en: "Vermont", ar: "فيرمونت" },
+  { en: "Virginia", ar: "فيرجينيا" }, { en: "Washington", ar: "واشنطن" }, { en: "West Virginia", ar: "فرجينيا الغربية" },
+  { en: "Wisconsin", ar: "ويسكونسن" }, { en: "Wyoming", ar: "وايومنغ" }
 ];
 
 const relationships = [
@@ -172,12 +184,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   };
 
   const formatPhoneNumber = (value: string) => {
-    const cleaned = ('' + value).replace(/\D/g, '');
+    const cleaned = ('' + value).replace(/\D/g, '').slice(0, 10);
     const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
     if (match) {
       return '(' + match[1] + ') ' + match[2] + '-' + match[3];
     }
-    return value;
+    return cleaned;
+  };
+
+  const formatZipCode = (value: string) => {
+    return value.replace(/\D/g, '').slice(0, 5);
   };
 
   const handleSiblingCountChange = (count: string) => {
@@ -314,10 +330,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      {/* Reduced Header Height - More compact and professional */}
       <section className="bg-primary pt-8 pb-12 relative overflow-hidden">
         <div className="absolute inset-0">
-           {/* Complex Geometric Pattern Overlay */}
            <svg className="absolute inset-0 h-full w-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
              <defs>
                <pattern id="enroll-pattern" width="80" height="80" patternUnits="userSpaceOnUse">
@@ -330,8 +344,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
              </defs>
              <rect width="100%" height="100%" fill="url(#enroll-pattern)" />
            </svg>
-           
-           {/* Multi-layered Glow and Texture Effects */}
            <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-secondary/15 blur-[110px] rounded-full animate-pulse" />
            <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/20 blur-[130px] rounded-full" />
            <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/40" />
@@ -422,7 +434,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <Phone className="h-3 w-3 text-secondary" />
                               {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
                             </Label>
-                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
+                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" inputMode="numeric" />
                           </div>
                           <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
@@ -479,7 +491,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <Phone className="h-3 w-3 text-secondary" />
                               {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
                             </Label>
-                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
+                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" inputMode="numeric" />
                           </div>
                           <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
@@ -548,7 +560,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </SelectTrigger>
                             <SelectContent>
                               {usStates.map(state => (
-                                <SelectItem key={state} value={state}>{state}</SelectItem>
+                                <SelectItem key={state.en} value={state.en}>{lang === 'ar' ? state.ar : state.en}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -558,7 +570,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <Hash className="h-3 w-3 text-secondary" />
                             {isAr ? 'الرمز البريدي *' : 'ZIP Code *'}
                           </Label>
-                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', formatZipCode(e.target.value))} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" maxLength={5} inputMode="numeric" />
                         </div>
                       </div>
                     </div>
@@ -719,7 +731,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   <Phone className="h-3 w-3 text-secondary" />
                                   {isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}
                                 </Label>
-                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
+                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" inputMode="numeric" />
                               </div>
                               <div className="md:col-span-2 space-y-2">
                                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
