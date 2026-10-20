@@ -36,7 +36,10 @@ import {
   UserCheck,
   ArrowRight,
   ArrowLeft,
-  Send
+  Send,
+  BookOpen,
+  Calendar,
+  Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
@@ -45,6 +48,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 const steps = [
   { id: 1, name: { en: 'Parent Information', ar: 'بيانات ولي الأمر' } },
@@ -152,6 +156,33 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       parentIds: [],
     }
   });
+
+  const availablePrograms = [
+    {
+      id: 'grades-3-5',
+      title: isAr ? 'الصفوف 3-5' : 'Grades 3–5',
+      desc: isAr ? 'تأسيس للمرحلة الابتدائية، قرآن، عربية ومواد أكاديمية.' : 'Elementary foundation building with Quran, Arabic and academics.',
+      image: '/program-1.png',
+      icon: BookOpen,
+      color: 'secondary'
+    },
+    {
+      id: 'grades-6-12',
+      title: isAr ? 'الصفوف 6-12' : 'Grades 6–12',
+      desc: isAr ? 'المرحلة المتوسطة والثانوية، تعليم مرن وتتبع أكاديمي.' : 'Middle and high school academics with flexible online learning.',
+      image: '/program-2.png',
+      icon: GraduationCap,
+      color: 'primary'
+    },
+    {
+      id: 'weekend',
+      title: isAr ? 'برنامج عطلة نهاية الأسبوع' : 'Weekend Program',
+      desc: isAr ? 'تعزيز اللغة العربية والقرآن للهوية الإسلامية في الخارج.' : 'Strengthening Arabic and Quran for Islamic identity abroad.',
+      image: '/program-3.png',
+      icon: Calendar,
+      color: 'accent'
+    }
+  ];
 
   useEffect(() => {
     const savedDraft = localStorage.getItem('bba_enrollment_draft');
@@ -782,43 +813,48 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                     <RadioGroup 
                       value={formData.programOption}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                       onValueChange={(v) => { updateField('programOption', v); updateField('paymentTier', ''); }}
                       dir={isAr ? 'rtl' : 'ltr'}
                     >
-                      <Label htmlFor="opt-3-5" className={cn(
-                        "p-8 rounded-xl border-2 cursor-pointer transition-all space-y-4",
-                        formData.programOption === 'grades-3-5' ? "bg-secondary/5 border-secondary shadow-xl" : "bg-white border-slate-100 hover:border-secondary/20"
-                      )}>
-                        <RadioGroupItem value="grades-3-5" id="opt-3-5" className="sr-only" />
-                        <div className="flex justify-between items-start">
-                           <div className="h-12 w-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
-                              <span className="font-black text-lg">3-5</span>
-                           </div>
-                           {formData.programOption === 'grades-3-5' && <Check className="h-6 w-6 text-secondary" />}
-                        </div>
-                        <div className="space-y-1">
-                          <div className="text-xl font-black text-primary">{isAr ? 'الصفوف 3-5' : 'Grades 3–5'}</div>
-                          <p className="text-xs text-slate-500 font-bold">{isAr ? 'تأسيس للمرحلة الابتدائية' : 'Elementary foundation building'}</p>
-                        </div>
-                      </Label>
+                      {availablePrograms.map((prog) => (
+                        <Label key={prog.id} htmlFor={`opt-${prog.id}`} className={cn(
+                          "relative group rounded-[1.5rem] overflow-hidden border-2 cursor-pointer transition-all duration-500 h-64",
+                          formData.programOption === prog.id ? `border-${prog.color} shadow-2xl scale-[1.02] z-10` : "border-slate-100 hover:border-slate-300"
+                        )}>
+                          <RadioGroupItem value={prog.id} id={`opt-${prog.id}`} className="sr-only" />
+                          
+                          {/* Program Image Background */}
+                          <div className="absolute inset-0 z-0">
+                            <Image src={prog.image} alt={prog.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" unoptimized />
+                            <div className={cn(
+                              "absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-opacity",
+                              formData.programOption === prog.id ? "opacity-90" : "opacity-80"
+                            )} />
+                          </div>
 
-                      <Label htmlFor="opt-6-12" className={cn(
-                        "p-8 rounded-xl border-2 cursor-pointer transition-all space-y-4",
-                        formData.programOption === 'grades-6-12' ? "bg-primary/5 border-primary shadow-xl" : "bg-white border-slate-100 hover:border-primary/20"
-                      )}>
-                        <RadioGroupItem value="grades-6-12" id="opt-6-12" className="sr-only" />
-                        <div className="flex justify-between items-start">
-                           <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                              <span className="font-black text-lg">6-12</span>
-                           </div>
-                           {formData.programOption === 'grades-6-12' && <Check className="h-6 w-6 text-primary" />}
-                        </div>
-                        <div className="space-y-1">
-                          <div className="text-xl font-black text-primary">{isAr ? 'الصفوف 6-12' : 'Grades 6–12'}</div>
-                          <p className="text-xs text-slate-500 font-bold">{isAr ? 'المرحلة المتوسطة والثانوية' : 'Middle and high school academics'}</p>
-                        </div>
-                      </Label>
+                          {/* Program Content */}
+                          <div className="absolute inset-0 z-10 p-6 flex flex-col justify-end text-white space-y-2">
+                            <div className="flex justify-between items-start">
+                               <div className={cn(
+                                 "h-10 w-10 rounded-xl flex items-center justify-center shadow-lg",
+                                 `bg-${prog.color} text-white`
+                               )}>
+                                  <prog.icon className="h-5 w-5" />
+                               </div>
+                               {formData.programOption === prog.id && (
+                                 <div className={cn("h-6 w-6 rounded-full flex items-center justify-center text-white", `bg-${prog.color}`)}>
+                                   <Check className="h-4 w-4" />
+                                 </div>
+                               )}
+                            </div>
+                            <div className="space-y-1">
+                              <div className="text-xl font-black">{prog.title}</div>
+                              <p className="text-[10px] text-white/70 font-bold leading-relaxed line-clamp-2">{prog.desc}</p>
+                            </div>
+                          </div>
+                        </Label>
+                      ))}
                     </RadioGroup>
                   </div>
 
@@ -899,16 +935,34 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </Label>
                           </>
                         )}
+
+                        {formData.programOption === 'weekend' && (
+                          <div className="p-10 bg-accent/5 border-2 border-dashed border-accent/20 rounded-xl text-center space-y-4">
+                             <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center mx-auto text-accent shadow-sm">
+                               <Calendar className="h-8 w-8" />
+                             </div>
+                             <div className="space-y-2">
+                               <div className="font-black text-primary text-xl">{isAr ? 'سيتم تأكيد الرسوم لاحقاً' : 'Tuition to be confirmed'}</div>
+                               <p className="text-sm text-slate-500 font-bold max-w-sm mx-auto">
+                                 {isAr 
+                                   ? 'رسوم برنامج عطلة نهاية الأسبوع يتم تحديدها بناءً على عدد الحصص والمستوى المختار. سيقوم فريقنا بالتواصل معكم لتأكيد التكاليف.' 
+                                   : 'Weekend program tuition is determined based on selected sessions and levels. Our team will contact you to confirm the final costs.'}
+                               </p>
+                             </div>
+                          </div>
+                        )}
                       </RadioGroup>
 
-                      <div className="bg-amber-50 p-6 rounded-xl border border-amber-100 flex items-start gap-4" dir={isAr ? 'rtl' : 'ltr'}>
-                        <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-1" />
-                        <p className="text-xs font-bold text-amber-800 leading-relaxed">
-                          {isAr 
-                            ? 'يرجى تأكيد اختيار البرنامج وخيار اللغة الصحيح قبل المتابعة. الرسوم المعروضة هي لطالب واحد، وسيتم تأكيد الرسوم النهائية للعائلات من قبل الأكاديمية.' 
-                            : 'Please confirm that you have selected the correct program and language option before continuing. Displayed tuition is for one student. Final tuition for families will be confirmed by BBA.'}
-                        </p>
-                      </div>
+                      {formData.programOption !== 'weekend' && (
+                        <div className="bg-amber-50 p-6 rounded-xl border border-amber-100 flex items-start gap-4" dir={isAr ? 'rtl' : 'ltr'}>
+                          <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-1" />
+                          <p className="text-xs font-bold text-amber-800 leading-relaxed">
+                            {isAr 
+                              ? 'يرجى تأكيد اختيار البرنامج وخيار اللغة الصحيح قبل المتابعة. الرسوم المعروضة هي لطالب واحد، وسيتم تأكيد الرسوم النهائية للعائلات من قبل الأكاديمية.' 
+                              : 'Please confirm that you have selected the correct program and language option before continuing. Displayed tuition is for one student. Final tuition for families will be confirmed by BBA.'}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
