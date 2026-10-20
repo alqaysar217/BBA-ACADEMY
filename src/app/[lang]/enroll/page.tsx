@@ -442,7 +442,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
               </div>
             </CardHeader>
 
-            <CardContent className="p-6 md:p-10">
+            <CardContent className="p-4 md:p-10">
               {currentStep === 1 && (
                 <div className="space-y-10">
                   <div className="space-y-4">
@@ -679,7 +679,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </div>
 
                         {openStudentIdx === idx && (
-                          <div className="p-8 space-y-10 animate-in slide-in-from-top-4 duration-500" onClick={(e) => e.stopPropagation()}>
+                          <div className="p-4 md:p-8 space-y-10 animate-in slide-in-from-top-4 duration-500" onClick={(e) => e.stopPropagation()}>
                             <div className="space-y-4">
                               <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
                                 <ShieldCheck className="h-3 w-3 text-secondary" />
@@ -799,10 +799,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
               {currentStep === 3 && (
                 <div className="space-y-12">
                   <div className="text-center space-y-3">
-                    <h3 className="text-2xl font-black text-primary uppercase tracking-tight">
+                    <h3 className="text-2xl font-black text-primary uppercase tracking-tight px-4">
                       {isAr ? 'ما هو برنامج BBA الذي ترغب في التسجيل فيه؟' : 'Which BBA Online Program Would You Like to Enroll In?'}
                     </h3>
-                    <p className="text-sm text-slate-500 font-bold max-w-lg mx-auto">
+                    <p className="text-xs md:text-sm text-slate-500 font-bold max-w-lg mx-auto">
                       {isAr ? 'جميع برامجنا تقدم بالكامل عبر الإنترنت (عن بعد).' : 'All available programs are online by default.'}
                     </p>
                   </div>
@@ -821,7 +821,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   >
                     {availablePrograms.map((prog) => (
                       <Label key={prog.id} htmlFor={`opt-${prog.id}`} className={cn(
-                        "relative group rounded-[1.5rem] overflow-hidden border-2 cursor-pointer transition-all duration-500 h-64",
+                        "relative group rounded-[1.5rem] overflow-hidden border-2 cursor-pointer transition-all duration-500 h-56 md:h-64",
                         formData.programOption === prog.id ? `border-${prog.color} shadow-2xl scale-[1.02] z-10` : "border-slate-100 hover:border-slate-300"
                       )}>
                         <RadioGroupItem value={prog.id} id={`opt-${prog.id}`} className="sr-only" />
@@ -832,20 +832,20 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             formData.programOption === prog.id ? "opacity-95" : "opacity-80"
                           )} />
                         </div>
-                        <div className="absolute inset-0 z-10 p-6 flex flex-col justify-end text-white space-y-2">
+                        <div className="absolute inset-0 z-10 p-5 md:p-6 flex flex-col justify-end text-white space-y-2">
                           <div className="flex justify-between items-start">
-                             <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shadow-lg", `bg-${prog.color} text-white`)}>
-                                <prog.icon className="h-5 w-5" />
+                             <div className={cn("h-8 w-8 md:h-10 md:w-10 rounded-xl flex items-center justify-center shadow-lg", `bg-${prog.color} text-white`)}>
+                                <prog.icon className="h-4 w-4 md:h-5 md:w-5" />
                              </div>
                              {formData.programOption === prog.id && (
-                               <div className={cn("h-6 w-6 rounded-full flex items-center justify-center text-white", `bg-${prog.color}`)}>
-                                 <Check className="h-4 w-4" />
+                               <div className={cn("h-5 w-5 md:h-6 md:w-6 rounded-full flex items-center justify-center text-white", `bg-${prog.color}`)}>
+                                 <Check className="h-3 w-3 md:h-4 md:w-4" />
                                </div>
                              )}
                           </div>
                           <div className="space-y-1">
-                            <div className="text-xl font-black">{prog.title}</div>
-                            <p className="text-[10px] text-white/70 font-bold leading-relaxed line-clamp-2">{prog.desc}</p>
+                            <div className="text-lg md:text-xl font-black leading-tight">{prog.title}</div>
+                            <p className="text-[9px] md:text-[10px] text-white/70 font-bold leading-relaxed line-clamp-2">{prog.desc}</p>
                           </div>
                         </div>
                       </Label>
@@ -856,64 +856,64 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   {formData.programOption === 'grades-3-5' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                       <Card className="border-2 border-secondary/20 bg-secondary/5 rounded-[2rem] overflow-hidden">
-                        <CardHeader className="bg-secondary text-white p-8">
+                        <CardHeader className="bg-secondary text-white p-6 md:p-8">
                           <div className="flex items-center gap-4">
-                            <BookOpen className="h-8 w-8" />
-                            <div>
-                              <CardTitle className="text-2xl font-black uppercase tracking-tight">{isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program'}</CardTitle>
-                              <div className="text-sm font-bold opacity-80">{isAr ? 'خطة التعلم عبر الإنترنت - لجميع الطلاب' : 'Online Learning Plan - Audience: All Students'}</div>
+                            <BookOpen className="h-6 w-6 md:h-8 md:w-8" />
+                            <div className="min-w-0">
+                              <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight truncate">{isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program'}</CardTitle>
+                              <div className="text-[10px] md:text-sm font-bold opacity-80">{isAr ? 'خطة التعلم عبر الإنترنت - لجميع الطلاب' : 'Online Learning Plan - Audience: All Students'}</div>
                             </div>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-8 space-y-8">
+                        <CardContent className="p-5 md:p-8 space-y-8">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                              <div className="space-y-4">
-                                <h4 className="font-black text-primary uppercase text-sm border-b-2 border-secondary/20 pb-2">{isAr ? 'التسجيل والرسوم' : 'Registration and Tuition'}</h4>
+                                <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-secondary/20 pb-2">{isAr ? 'التسجيل والرسوم' : 'Registration and Tuition'}</h4>
                                 <div className="space-y-3">
                                    <div className="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
-                                      <span className="font-bold text-slate-600">{isAr ? 'التسجيل + الكتب' : 'Registration + Books'}</span>
-                                      <span className="font-black text-secondary">$150.00</span>
+                                      <span className="font-bold text-slate-600 text-xs md:text-sm">{isAr ? 'التسجيل + الكتب' : 'Registration + Books'}</span>
+                                      <span className="font-black text-secondary text-sm md:text-base">$150.00</span>
                                    </div>
                                    <div className="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
-                                      <span className="font-bold text-slate-600">{isAr ? 'الرسوم السنوية' : 'Annual Tuition'}</span>
-                                      <span className="font-black text-secondary">$3,000.00</span>
+                                      <span className="font-bold text-slate-600 text-xs md:text-sm">{isAr ? 'الرسوم السنوية' : 'Annual Tuition'}</span>
+                                      <span className="font-black text-secondary text-sm md:text-base">$3,000.00</span>
                                    </div>
                                 </div>
                              </div>
-                             <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200 space-y-3">
+                             <div className="bg-amber-50 p-5 md:p-6 rounded-2xl border border-amber-200 space-y-3">
                                 <div className="flex items-center gap-2 text-amber-800">
-                                   <Star className="h-5 w-5 fill-amber-500 text-amber-500" />
-                                   <span className="font-black uppercase text-sm">{isAr ? 'عرض خاص' : 'Special Offer'}</span>
+                                   <Star className="h-4 w-4 md:h-5 md:w-5 fill-amber-500 text-amber-500" />
+                                   <span className="font-black uppercase text-xs md:text-sm">{isAr ? 'عرض خاص' : 'Special Offer'}</span>
                                 </div>
-                                <p className="text-sm font-bold text-amber-900">
+                                <p className="text-xs md:text-sm font-bold text-amber-900 leading-relaxed">
                                    {isAr ? 'وفر 300 دولار عند دفع الرسوم الدراسية الكاملة مقدماً!' : 'Save $300 when paying full tuition upfront!'}
                                 </p>
-                                <p className="text-[10px] text-amber-700 italic">
+                                <p className="text-[9px] md:text-[10px] text-amber-700 italic">
                                    {isAr ? '* خصم 10% يطبق على الرسوم السنوية فقط (من 3000$ إلى 2700$). ' : '* 10% discount applies to annual tuition only ($3,000 → $2,700).'}
                                 </p>
                              </div>
                           </div>
 
                           <div className="space-y-6">
-                             <h4 className="text-center font-black text-primary uppercase tracking-widest text-sm">{isAr ? 'اختر خطة الدفع المناسبة' : 'Select a Payment Option'}</h4>
+                             <h4 className="text-center font-black text-primary uppercase tracking-widest text-xs md:text-sm">{isAr ? 'اختر خطة الدفع المناسبة' : 'Select a Payment Option'}</h4>
                              <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Label htmlFor="pay-3-5-a" className={cn(
-                                   "relative flex flex-col p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                   formData.paymentTier === 'initial-3-5' ? "border-secondary shadow-xl scale-[1.02]" : "border-slate-100 hover:border-secondary/30"
+                                   "relative flex flex-col p-5 md:p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                                   formData.paymentTier === 'initial-3-5' ? "border-secondary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-secondary/30"
                                 )}>
                                    <RadioGroupItem value="initial-3-5" id="pay-3-5-a" className="absolute top-4 right-4" />
                                    <div className="flex flex-col h-full space-y-4">
                                       <div>
-                                         <div className="font-black text-primary text-lg">{isAr ? 'خطة الدفعتين' : '2 Payment Plan'}</div>
-                                         <div className="text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
+                                         <div className="font-black text-primary text-base md:text-lg">{isAr ? 'خطة الدفعتين' : '2 Payment Plan'}</div>
+                                         <div className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
                                       </div>
-                                      <div className="text-3xl font-black text-secondary">$1,650</div>
+                                      <div className="text-2xl md:text-3xl font-black text-secondary">$1,650</div>
                                       <div className="mt-auto pt-4 border-t border-slate-50 space-y-2">
-                                         <div className="flex justify-between text-[11px] font-bold text-slate-500">
+                                         <div className="flex justify-between text-[10px] md:text-[11px] font-bold text-slate-500">
                                             <span>{isAr ? 'بحلول 15 أغسطس' : 'By Aug 15'}</span>
                                             <span className="text-primary">$1,500</span>
                                          </div>
-                                         <div className="flex justify-between text-[11px] font-bold text-slate-500">
+                                         <div className="flex justify-between text-[10px] md:text-[11px] font-bold text-slate-500">
                                             <span>{isAr ? 'في يناير' : 'In January'}</span>
                                             <span className="text-primary">$1,500</span>
                                          </div>
@@ -922,22 +922,22 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 </Label>
 
                                 <Label htmlFor="pay-3-5-b" className={cn(
-                                   "relative flex flex-col p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                   formData.paymentTier === 'full-3-5' ? "border-secondary shadow-xl scale-[1.02]" : "border-slate-100 hover:border-secondary/30"
+                                   "relative flex flex-col p-5 md:p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                                   formData.paymentTier === 'full-3-5' ? "border-secondary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-secondary/30"
                                 )}>
                                    <RadioGroupItem value="full-3-5" id="pay-3-5-b" className="absolute top-4 right-4" />
                                    <div className="flex flex-col h-full space-y-4">
                                       <div>
-                                         <div className="font-black text-primary text-lg">{isAr ? 'دفع كامل الرسوم' : 'Pay All at Once'}</div>
-                                         <div className="text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'وفر 10% على التعليم' : 'Save 10% on Tuition'}</div>
+                                         <div className="font-black text-primary text-base md:text-lg">{isAr ? 'دفع كامل الرسوم' : 'Pay All at Once'}</div>
+                                         <div className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'وفر 10% على التعليم' : 'Save 10% on Tuition'}</div>
                                       </div>
-                                      <div className="text-3xl font-black text-secondary">$2,850</div>
+                                      <div className="text-2xl md:text-3xl font-black text-secondary">$2,850</div>
                                       <div className="mt-auto pt-4 border-t border-slate-50 space-y-2">
-                                         <div className="flex justify-between text-[11px] font-bold text-slate-500">
+                                         <div className="flex justify-between text-[10px] md:text-[11px] font-bold text-slate-500">
                                             <span>{isAr ? 'رسوم التعليم (بعد الخصم)' : 'Annual Tuition (Disc)'}</span>
                                             <span className="text-primary">$2,700</span>
                                          </div>
-                                         <div className="flex justify-between text-[11px] font-bold text-slate-500">
+                                         <div className="flex justify-between text-[10px] md:text-[11px] font-bold text-slate-500">
                                             <span>{isAr ? 'التسجيل + الكتب' : 'Registration + Books'}</span>
                                             <span className="text-primary">$150</span>
                                          </div>
@@ -953,25 +953,25 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                   {formData.programOption === 'grades-6-12' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
-                      <div className="text-center space-y-4">
-                        <h4 className="font-black text-primary uppercase tracking-widest text-sm">{isAr ? 'اختر مسار البرنامج' : 'Select Program Variant'}</h4>
+                      <div className="text-center space-y-4 px-4">
+                        <h4 className="font-black text-primary uppercase tracking-widest text-xs md:text-sm">{isAr ? 'اختر مسار البرنامج' : 'Select Program Variant'}</h4>
                         <RadioGroup 
                            value={formData.languageOption} 
                            onValueChange={(v) => { updateField('languageOption', v); updateField('paymentTier', ''); }} 
-                           className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                           className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto"
                            dir={isAr ? 'rtl' : 'ltr'}
                         >
                            {[
-                              { id: 'english-only', label: isAr ? 'إنجليزي فقط' : 'English Only' },
-                              { id: 'english-arabic', label: isAr ? 'إنجليزي + عربي' : 'English + Arabic' },
-                              { id: 'english-esl', label: isAr ? 'إنجليزي + دعم ESL' : 'English + ESL Support' }
+                              { id: 'english-arabic', label: isAr ? 'إنجليزي + عربي' : 'English + Arabic', icon: Languages },
+                              { id: 'english-esl', label: isAr ? 'إنجليزي + دعم ESL' : 'English + ESL Support', icon: GraduationCap }
                            ].map(opt => (
                               <Label key={opt.id} htmlFor={`var-${opt.id}`} className={cn(
-                                 "p-4 rounded-xl border-2 text-center font-black cursor-pointer transition-all",
-                                 formData.languageOption === opt.id ? "bg-primary text-white border-primary shadow-lg" : "bg-white border-slate-100 hover:border-primary/20 text-primary"
+                                 "flex flex-col items-center justify-center p-6 rounded-2xl border-2 text-center transition-all cursor-pointer",
+                                 formData.languageOption === opt.id ? "bg-primary text-white border-primary shadow-xl" : "bg-white border-slate-100 hover:border-primary/20 text-primary"
                               )}>
                                  <RadioGroupItem value={opt.id} id={`var-${opt.id}`} className="sr-only" />
-                                 {opt.label}
+                                 <opt.icon className={cn("h-6 w-6 mb-3", formData.languageOption === opt.id ? "text-secondary" : "text-primary/40")} />
+                                 <span className="font-black text-sm md:text-base uppercase tracking-tight">{opt.label}</span>
                               </Label>
                            ))}
                         </RadioGroup>
@@ -979,49 +979,43 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                       {formData.languageOption && (
                         <Card className="border-2 border-primary/20 bg-primary/5 rounded-[2rem] overflow-hidden">
-                           <CardHeader className="bg-primary text-white p-8">
+                           <CardHeader className="bg-primary text-white p-6 md:p-8">
                               <div className="flex items-center gap-4">
-                                 <GraduationCap className="h-8 w-8" />
-                                 <div>
-                                    <CardTitle className="text-2xl font-black uppercase tracking-tight">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>
-                                    <div className="text-sm font-bold opacity-80">{isAr ? 'المرحلة المتوسطة والثانوية - لطلاب واحد' : 'Middle & High School Academics - For 1 Sibling'}</div>
+                                 <GraduationCap className="h-6 w-6 md:h-8 md:w-8" />
+                                 <div className="min-w-0">
+                                    <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight truncate">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>
+                                    <div className="text-[10px] md:text-sm font-bold opacity-80">{isAr ? 'المرحلة المتوسطة والثانوية' : 'Middle & High School Academics'}</div>
                                  </div>
                               </div>
                            </CardHeader>
-                           <CardContent className="p-8 space-y-8">
+                           <CardContent className="p-4 md:p-8 space-y-8">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                  <div className="space-y-4">
-                                    <h4 className="font-black text-primary uppercase text-sm border-b-2 border-primary/20 pb-2">{isAr ? 'جدول الدفع' : 'Payment Schedule'}</h4>
+                                    <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-primary/20 pb-2">{isAr ? 'جدول الدفع' : 'Payment Schedule'}</h4>
                                     <div className="space-y-2">
-                                       <div className="flex justify-between text-xs font-bold text-slate-500 px-2 uppercase">
-                                          <span>{isAr ? 'النوع' : 'Payment Type'}</span>
-                                          <span>{isAr ? 'المبلغ' : 'Amount'}</span>
-                                       </div>
-                                       <div className="p-4 bg-white rounded-xl shadow-sm space-y-2">
-                                          <div className="flex justify-between items-center">
+                                       <div className="p-4 bg-white rounded-xl shadow-sm space-y-3">
+                                          <div className="flex justify-between items-center text-xs md:text-sm">
                                              <span className="font-bold text-slate-600">{isAr ? 'رسوم التسجيل' : 'Registration Fee'}</span>
                                              <span className="font-black text-primary">$150.00</span>
                                           </div>
-                                          <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                                          <div className="flex justify-between items-center pt-2 border-t border-slate-50 text-xs md:text-sm">
                                              <div className="flex flex-col">
                                                 <span className="font-bold text-slate-600">{isAr ? 'الدفعة الأولى' : 'First Payment'}</span>
-                                                <span className="text-[9px] text-slate-400 font-bold uppercase">{isAr ? '15 أغسطس' : 'August 15'}</span>
+                                                <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">{isAr ? '15 أغسطس' : 'August 15'}</span>
                                              </div>
                                              <span className="font-black text-primary">$1,500.00</span>
                                           </div>
-                                          {formData.languageOption !== 'english-only' && (
-                                             <div className="flex justify-between items-center pt-2 border-t border-slate-50">
-                                                <div className="flex flex-col">
-                                                   <span className="font-bold text-slate-600">{isAr ? 'الدفعة الثانية' : 'Second Payment'}</span>
-                                                   <span className="text-[9px] text-slate-400 font-bold uppercase">{isAr ? 'نوفمبر' : 'November'}</span>
-                                                </div>
-                                                <span className="font-black text-primary">$1,000.00</span>
+                                          <div className="flex justify-between items-center pt-2 border-t border-slate-50 text-xs md:text-sm">
+                                             <div className="flex flex-col">
+                                                <span className="font-bold text-slate-600">{isAr ? 'الدفعة الثانية' : 'Second Payment'}</span>
+                                                <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">{isAr ? 'نوفمبر' : 'November'}</span>
                                              </div>
-                                          )}
-                                          <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                                             <span className="font-black text-primary">$1,000.00</span>
+                                          </div>
+                                          <div className="flex justify-between items-center pt-2 border-t border-slate-50 text-xs md:text-sm">
                                              <div className="flex flex-col">
                                                 <span className="font-bold text-slate-600">{isAr ? 'الدفعة النهائية' : 'Final Payment'}</span>
-                                                <span className="text-[9px] text-slate-400 font-bold uppercase">{isAr ? (formData.languageOption === 'english-only' ? 'يناير' : 'فبراير') : (formData.languageOption === 'english-only' ? 'January' : 'February')}</span>
+                                                <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">{isAr ? 'فبراير' : 'February'}</span>
                                              </div>
                                              <span className="font-black text-primary">$1,000.00</span>
                                           </div>
@@ -1029,26 +1023,26 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                     </div>
                                  </div>
                                  <div className="space-y-6">
-                                    <div className="p-6 bg-white rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                                       <h4 className="font-black text-primary uppercase text-sm border-b-2 border-slate-50 pb-2">{isAr ? 'تفاصيل الرسوم' : 'Tuition Details'}</h4>
+                                    <div className="p-5 md:p-6 bg-white rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                                       <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-slate-50 pb-2">{isAr ? 'تفاصيل الرسوم' : 'Tuition Details'}</h4>
                                        <div className="space-y-3">
                                           <div className="flex justify-between items-center">
-                                             <span className="text-sm font-bold text-slate-500">{isAr ? 'إجمالي التعليم قبل الخصم' : 'Total Tuition Before Discount'}</span>
-                                             <span className="font-black text-primary">{formData.languageOption === 'english-only' ? '$2,500.00' : '$3,500.00'}</span>
+                                             <span className="text-[10px] md:text-sm font-bold text-slate-500">{isAr ? 'إجمالي التعليم قبل الخصم' : 'Total Tuition Before Discount'}</span>
+                                             <span className="font-black text-primary text-sm md:text-base">$3,500.00</span>
                                           </div>
                                           <div className="flex justify-between items-center text-secondary">
-                                             <span className="text-sm font-bold">{isAr ? 'خصم الأشقاء (10%)' : 'Sibling Discount (10%)'}</span>
-                                             <span className="font-black">-{formData.languageOption === 'english-only' ? '$250.00' : '$350.00'}</span>
+                                             <span className="text-[10px] md:text-sm font-bold">{isAr ? 'خصم الأشقاء (10%)' : 'Sibling Discount (10%)'}</span>
+                                             <span className="font-black text-sm md:text-base">-$350.00</span>
                                           </div>
                                           <div className="flex justify-between items-center pt-3 border-t-2 border-slate-50">
-                                             <span className="font-black text-primary">{isAr ? 'الرسوم بعد الخصم' : 'Discounted Tuition'}</span>
-                                             <span className="text-xl font-black text-primary">{formData.languageOption === 'english-only' ? '$2,250.00' : '$3,150.00'}</span>
+                                             <span className="font-black text-primary text-xs md:text-sm">{isAr ? 'الرسوم بعد الخصم' : 'Discounted Tuition'}</span>
+                                             <span className="text-lg md:text-xl font-black text-primary">$3,150.00</span>
                                           </div>
                                        </div>
                                     </div>
                                     <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-start gap-3">
                                        <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                                       <p className="text-[10px] font-bold text-amber-800 leading-relaxed">
+                                       <p className="text-[9px] md:text-[10px] font-bold text-amber-800 leading-relaxed italic">
                                           {isAr ? 'خصومات الأشقاء تخضع لتأكيد BBA. يرجى التأكد من اختيار الخيار الصحيح قبل المتابعة.' : 'Sibling discounts are subject to BBA confirmation. Please ensure you select the correct option before proceeding.'}
                                        </p>
                                     </div>
@@ -1056,19 +1050,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </div>
 
                               <div className="pt-8 border-t border-primary/10">
-                                 <h4 className="text-center font-black text-primary uppercase tracking-widest text-xs mb-6">{isAr ? 'خطة الدفع المطلوبة للبدء' : 'Required Payment to Start'}</h4>
+                                 <h4 className="text-center font-black text-primary uppercase tracking-widest text-[9px] md:text-xs mb-6">{isAr ? 'خطة الدفع المطلوبة للبدء' : 'Required Payment to Start'}</h4>
                                  <div className="max-w-md mx-auto">
                                     <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)}>
                                        <Label htmlFor="pay-6-12" className={cn(
-                                          "flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                          formData.paymentTier === 'initial-6-12' ? "border-primary shadow-xl scale-[1.02]" : "border-slate-100 hover:border-primary/30"
+                                          "flex items-center justify-between p-5 md:p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                                          formData.paymentTier === 'initial-6-12' ? "border-primary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-primary/30"
                                        )}>
                                           <RadioGroupItem value="initial-6-12" id="pay-6-12" />
-                                          <div className="flex flex-col text-center flex-1">
-                                             <div className="font-black text-primary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
-                                             <div className="text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'لطالب واحد' : 'For 1 Student'}</div>
+                                          <div className="flex flex-col text-center flex-1 px-4">
+                                             <div className="font-black text-primary text-sm md:text-base leading-tight">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
+                                             <div className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'لطالب واحد' : 'For 1 Student'}</div>
                                           </div>
-                                          <div className="text-2xl font-black text-primary">$1,650</div>
+                                          <div className="text-xl md:text-2xl font-black text-primary">$1,650</div>
                                        </Label>
                                     </RadioGroup>
                                  </div>
@@ -1082,26 +1076,26 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   {formData.programOption === 'weekend' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                        <Card className="border-2 border-accent/20 bg-accent/5 rounded-[2rem] overflow-hidden">
-                          <CardHeader className="bg-accent text-white p-8">
+                          <CardHeader className="bg-accent text-white p-6 md:p-8">
                              <div className="flex items-center gap-4">
-                                <Calendar className="h-8 w-8" />
-                                <div>
-                                   <CardTitle className="text-2xl font-black uppercase tracking-tight">{isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)'}</CardTitle>
-                                   <div className="text-sm font-bold opacity-80">{isAr ? 'إثراء السبت والأحد - تعليم عبر الإنترنت' : 'Saturday/Sunday Enrichment - Online Learning'}</div>
+                                <Calendar className="h-6 w-6 md:h-8 md:w-8" />
+                                <div className="min-w-0">
+                                   <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight truncate">{isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)'}</CardTitle>
+                                   <div className="text-[10px] md:text-sm font-bold opacity-80">{isAr ? 'إثراء السبت والأحد' : 'Saturday/Sunday Enrichment'}</div>
                                 </div>
                              </div>
                           </CardHeader>
-                          <CardContent className="p-8 space-y-10">
+                          <CardContent className="p-4 md:p-8 space-y-10">
                              {/* Time Slots */}
                              <div className="space-y-4">
-                                <h4 className="font-black text-primary uppercase text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
+                                <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
                                    <Clock className="h-4 w-4" />
                                    {isAr ? 'الفترات الزمنية المتاحة (بتوقيت نيويورك)' : 'Available Time Slots (New York Time)'}
                                 </h4>
                                 <RadioGroup value={formData.weekendSlot} onValueChange={(v) => updateField('weekendSlot', v)} className="grid grid-cols-1 md:grid-cols-3 gap-4" dir="ltr">
                                    {['8:00 AM – 10:00 AM', '10:00 AM – 12:00 PM', '12:00 PM – 2:00 PM'].map(slot => (
                                       <Label key={slot} htmlFor={`slot-${slot}`} className={cn(
-                                         "p-4 rounded-xl border-2 text-center font-black cursor-pointer transition-all",
+                                         "p-4 rounded-xl border-2 text-center font-black cursor-pointer transition-all text-xs md:text-sm",
                                          formData.weekendSlot === slot ? "bg-accent text-white border-accent shadow-lg" : "bg-white border-slate-100 hover:border-accent/20 text-accent"
                                       )}>
                                          <RadioGroupItem value={slot} id={`slot-${slot}`} className="sr-only" />
@@ -1113,7 +1107,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                              {/* Terms & Dates */}
                              <div className="space-y-4">
-                                <h4 className="font-black text-primary uppercase text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
+                                <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
                                    <CalendarIcon className="h-4 w-4" />
                                    {isAr ? 'فصول البرنامج وتواريخها' : 'Program Semesters & Dates'}
                                 </h4>
@@ -1124,32 +1118,26 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                       { id: 'term-3', label: isAr ? 'الفصل 3 (أبريل - يونيو)' : 'Term 3 (April – June)', dates: 'April 11, 2026 – June 28, 2026' }
                                    ].map(term => (
                                       <Label key={term.id} htmlFor={`term-${term.id}`} className={cn(
-                                         "relative p-5 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                         formData.weekendTerm === term.id ? "border-accent shadow-xl scale-[1.02]" : "border-slate-100 hover:border-accent/20"
+                                         "relative p-4 md:p-5 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                                         formData.weekendTerm === term.id ? "border-accent shadow-xl scale-[1.01]" : "border-slate-100 hover:border-accent/20"
                                       )}>
                                          <RadioGroupItem value={term.id} id={`term-${term.id}`} className="sr-only" />
                                          <div className="space-y-2">
-                                            <div className={cn("font-black text-sm", formData.weekendTerm === term.id ? "text-accent" : "text-primary")}>{term.label}</div>
-                                            <div className="text-[9px] font-bold text-slate-400 uppercase leading-relaxed">{term.dates}</div>
+                                            <div className={cn("font-black text-xs md:text-sm leading-tight", formData.weekendTerm === term.id ? "text-accent" : "text-primary")}>{term.label}</div>
+                                            <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase leading-relaxed">{term.dates}</div>
                                          </div>
                                       </Label>
                                    ))}
                                 </RadioGroup>
-                                <div className="p-4 bg-slate-100 rounded-xl border border-slate-200 flex items-start gap-3">
-                                   <Info className="h-4 w-4 text-slate-500 shrink-0 mt-0.5" />
-                                   <p className="text-[10px] font-bold text-slate-600 leading-relaxed italic">
-                                      {isAr ? '* تواريخ الفصل الثاني المعروضة هي للإشارة فقط، سيتم تأكيد المواعيد النهائية (ديسمبر - فبراير مقابل ديسمبر - أبريل) لاحقاً.' : '* Term 2 dates are for reference; final schedule (Dec–Feb vs Dec–April) will be confirmed by BBA.'}
-                                   </p>
-                                </div>
                              </div>
 
                              {/* Sibling Tuition Table */}
                              <div className="space-y-6">
-                                <h4 className="font-black text-primary uppercase text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
+                                <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
                                    <Users className="h-4 w-4" />
                                    {isAr ? 'رسوم البرنامج لكل فصل (3 أشهر)' : 'Program Tuition — Per Term (3 Months)'}
                                 </h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                    {[
                                       { count: '1', label: isAr ? 'طالب واحد' : '1 Student', monthly: '75', total: '225' },
                                       { count: '2', label: isAr ? 'شقيقان' : '2 Siblings', monthly: '70', total: '420' },
@@ -1162,12 +1150,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                             "p-4 rounded-xl border-2 text-center space-y-2 transition-all",
                                             isMatched ? "bg-accent border-accent text-white shadow-lg scale-105" : "bg-white border-slate-100 opacity-60"
                                          )}>
-                                            <div className="text-[10px] font-black uppercase tracking-tight opacity-80">{tier.label}</div>
-                                            <div className="text-xl font-black">${tier.total}</div>
-                                            <div className="text-[9px] font-bold uppercase">{isAr ? 'للفصل' : 'Per Term'}</div>
-                                            <div className="pt-2 border-t border-current/20 text-[9px] italic">
-                                               ${tier.monthly} {isAr ? '/ شهر لكل طالب' : '/ mo per student'}
-                                            </div>
+                                            <div className="text-[9px] md:text-[10px] font-black uppercase tracking-tight opacity-80">{tier.label}</div>
+                                            <div className="text-lg md:text-xl font-black">${tier.total}</div>
+                                            <div className="text-[8px] font-bold uppercase">{isAr ? 'للفصل' : 'Per Term'}</div>
                                          </div>
                                       );
                                    })}
@@ -1176,14 +1161,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                              {formData.weekendTerm && formData.weekendSlot && (
                                 <div className="pt-8 border-t border-accent/10">
-                                   <div className="bg-accent text-white p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
+                                   <div className="bg-accent text-white p-5 md:p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-6">
                                       <div className="space-y-1 text-center md:text-start">
-                                         <div className="text-xs font-black uppercase tracking-widest opacity-70">{isAr ? 'المبلغ المستحق الآن' : 'Total Due per Term'}</div>
-                                         <div className="text-3xl font-black">${getWeekendTuition(formData.siblingCount).term}.00</div>
+                                         <div className="text-[10px] md:text-xs font-black uppercase tracking-widest opacity-70">{isAr ? 'المبلغ المستحق الآن' : 'Total Due per Term'}</div>
+                                         <div className="text-2xl md:text-3xl font-black">${getWeekendTuition(formData.siblingCount).term}.00</div>
                                       </div>
                                       <div className="space-y-1 text-center md:text-end opacity-90">
-                                         <div className="text-[10px] font-black uppercase">{isAr ? 'لعدد' : 'For'} {formData.siblingCount || '1'} {isAr ? 'طلاب' : 'Student(s)'}</div>
-                                         <div className="text-xs font-bold">{formData.weekendSlot}</div>
+                                         <div className="text-[9px] md:text-[10px] font-black uppercase">{isAr ? 'لعدد' : 'For'} {formData.siblingCount || '1'} {isAr ? 'طلاب' : 'Student(s)'}</div>
+                                         <div className="text-[10px] md:text-xs font-bold">{formData.weekendSlot}</div>
                                       </div>
                                    </div>
                                 </div>
@@ -1195,47 +1180,47 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                   {/* Summary & Final Note */}
                   {formData.paymentTier && (
-                    <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl space-y-6 animate-in fade-in duration-700">
+                    <div className="bg-slate-900 text-white p-6 md:p-8 rounded-[2rem] shadow-2xl space-y-6 animate-in fade-in duration-700 mx-1">
                        <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-                          <CheckCircle2 className="h-6 w-6 text-secondary" />
-                          <h4 className="font-black uppercase tracking-tight">{isAr ? 'ملخص البرنامج المختار' : 'Selection Summary'}</h4>
+                          <CheckCircle2 className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
+                          <h4 className="text-sm md:text-base font-black uppercase tracking-tight">{isAr ? 'ملخص البرنامج المختار' : 'Selection Summary'}</h4>
                        </div>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                           <div className="space-y-4">
                              <div>
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'البرنامج' : 'Program'}</div>
-                                <div className="font-bold text-lg">{availablePrograms.find(p => p.id === formData.programOption)?.title}</div>
+                                <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'البرنامج' : 'Program'}</div>
+                                <div className="font-bold text-base md:text-lg leading-tight">{availablePrograms.find(p => p.id === formData.programOption)?.title}</div>
                              </div>
                              {formData.languageOption && (
                                 <div>
-                                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'المسار' : 'Variant'}</div>
-                                   <div className="font-bold uppercase">{formData.languageOption.replace('-', ' + ')}</div>
+                                   <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'المسار' : 'Variant'}</div>
+                                   <div className="font-bold uppercase text-xs md:text-sm">{formData.languageOption.replace('-', ' + ')}</div>
                                 </div>
                              )}
                              {formData.weekendSlot && (
                                 <div>
-                                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'الفترة' : 'Time Slot'}</div>
-                                   <div className="font-bold">{formData.weekendSlot} (NY Time)</div>
+                                   <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'الفترة' : 'Time Slot'}</div>
+                                   <div className="font-bold text-xs md:text-sm">{formData.weekendSlot} (NY Time)</div>
                                 </div>
                              )}
                           </div>
                           <div className="space-y-4">
                              <div>
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'عدد الطلاب' : 'Registered Students'}</div>
-                                <div className="font-bold text-lg">{formData.siblingCount || '1'} {isAr ? 'طالب' : 'Student(s)'}</div>
+                                <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'عدد الطلاب' : 'Registered Students'}</div>
+                                <div className="font-bold text-base md:text-lg">{formData.siblingCount || '1'} {isAr ? 'طالب' : 'Student(s)'}</div>
                              </div>
                              <div>
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'خطة الدفع المختارة' : 'Payment Choice'}</div>
-                                <div className="font-black text-secondary text-xl">
+                                <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'خطة الدفع المختارة' : 'Payment Choice'}</div>
+                                <div className="font-black text-secondary text-lg md:text-xl">
                                    {formData.programOption === 'weekend' ? `$${getWeekendTuition(formData.siblingCount).term}.00` : 
                                     formData.paymentTier === 'initial-3-5' || formData.paymentTier === 'initial-6-12' ? '$1,650.00' : '$2,850.00'}
                                 </div>
                              </div>
                           </div>
                        </div>
-                       <div className="pt-6 border-t border-white/10 flex items-start gap-4">
-                          <Info className="h-5 w-5 text-secondary shrink-0 mt-1" />
-                          <p className="text-xs font-bold text-slate-300 leading-relaxed italic">
+                       <div className="pt-6 border-t border-white/10 flex items-start gap-3">
+                          <Info className="h-4 w-4 md:h-5 md:w-5 text-secondary shrink-0 mt-1" />
+                          <p className="text-[10px] md:text-xs font-bold text-slate-300 leading-relaxed italic">
                              {isAr 
                                ? 'سيقوم فريق الأكاديمية بمراجعة طلبكم والتواصل معكم عبر بيانات الاتصال المزودة. الرسوم النهائية وأي خصومات أشقاء سيتم تأكيدها من قبل الأكاديمية عند الضرورة.' 
                                : 'BBA will review your enrollment information and contact you using the parent contact details provided. Final family tuition and any applicable sibling discounts will be confirmed by the academy where necessary.'}
@@ -1250,53 +1235,53 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 <div className="space-y-12">
                   <div className="space-y-6">
                     <div className="text-center space-y-2">
-                       <h3 className="text-2xl font-black text-primary uppercase flex items-center justify-center gap-3">
-                         <FileText className="h-6 w-6 text-secondary" />
+                       <h3 className="text-xl md:text-2xl font-black text-primary uppercase flex items-center justify-center gap-3">
+                         <FileText className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
                          {isAr ? 'المستندات المطلوبة' : 'Required Documents'}
                        </h3>
-                       <p className="text-sm text-slate-500 font-bold max-w-md mx-auto leading-relaxed">
+                       <p className="text-xs md:text-sm text-slate-500 font-bold max-w-md mx-auto leading-relaxed px-4">
                          {isAr 
                            ? 'يرجى رفع آخر شهادة مدرسية، هوية الطلاب، وهوية الأبوين لإكمال الطلب.' 
                            : 'Please upload the student\'s last report card, student IDs, and parents\' IDs to complete your application.'}
                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 px-2">
                       {[
                         { id: 'reportCard', label: { en: 'Report Cards', ar: 'الشهادات المدرسية' }, icon: FileText },
                         { id: 'studentId', label: { en: 'Student IDs', ar: 'هويات الطلاب' }, icon: User },
                         { id: 'parentId', label: { en: 'Parent IDs', ar: 'هويات أولياء الأمور' }, icon: ShieldCheck },
                       ].map((doc) => (
-                        <div key={doc.id} className="p-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center text-center space-y-4 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
-                           <div className="h-14 w-14 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:shadow-md transition-all">
-                             <doc.icon className="h-6 w-6" />
+                        <div key={doc.id} className="p-6 md:p-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center text-center space-y-4 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
+                           <div className="h-12 w-12 md:h-14 md:w-14 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:shadow-md transition-all">
+                             <doc.icon className="h-5 w-5 md:h-6 md:w-6" />
                            </div>
                            <div className="space-y-1">
-                              <div className="text-xs font-black text-primary uppercase tracking-tight">{doc.label[lang]}</div>
-                              <p className="text-[10px] text-slate-400 font-bold">{isAr ? 'انقر للرفع' : 'Click to upload'}</p>
+                              <div className="text-[10px] md:text-xs font-black text-primary uppercase tracking-tight">{doc.label[lang]}</div>
+                              <p className="text-[8px] md:text-[10px] text-slate-400 font-bold">{isAr ? 'انقر للرفع' : 'Click to upload'}</p>
                            </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="bg-slate-100 p-6 rounded-xl border border-slate-200 flex items-center gap-4" dir={isAr ? 'rtl' : 'ltr'}>
-                       <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center text-slate-400">
-                          <Upload className="h-5 w-5" />
+                    <div className="bg-slate-100 p-5 md:p-6 rounded-xl border border-slate-200 flex items-center gap-4 mx-2" dir={isAr ? 'rtl' : 'ltr'}>
+                       <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-white flex items-center justify-center text-slate-400">
+                          <Upload className="h-4 w-4 md:h-5 md:w-5" />
                        </div>
                        <div className="flex-1">
-                          <div className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">{isAr ? 'إجمالي الملفات' : 'Total Files'}</div>
-                          <div className="text-xs font-bold text-primary italic">{isAr ? 'يمكنك رفع حتى 12 ملفاً (PDF, JPG, PNG)' : 'Support up to 12 files (PDF, JPG, PNG)'}</div>
+                          <div className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">{isAr ? 'إجمالي الملفات' : 'Total Files'}</div>
+                          <div className="text-[10px] md:text-xs font-bold text-primary italic">{isAr ? 'يمكنك رفع حتى 12 ملفاً (PDF, JPG, PNG)' : 'Support up to 12 files (PDF, JPG, PNG)'}</div>
                        </div>
                     </div>
                   </div>
 
-                  <div className="p-8 bg-primary text-white rounded-xl shadow-2xl relative overflow-hidden space-y-6">
+                  <div className="p-6 md:p-8 bg-primary text-white rounded-xl shadow-2xl relative overflow-hidden space-y-6 mx-2">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
-                       <Check className="h-24 w-24" />
+                       <Check className="h-16 w-16 md:h-24 md:w-24" />
                     </div>
                     <div className="space-y-2 relative z-10" dir={isAr ? 'rtl' : 'ltr'}>
-                      <h4 className="text-xl font-black uppercase tracking-tight">{isAr ? 'تأكيد الإرسال' : 'Final Submission'}</h4>
-                      <p className="text-sm font-bold text-white/70 leading-relaxed max-w-xl">
+                      <h4 className="text-lg md:text-xl font-black uppercase tracking-tight">{isAr ? 'تأكيد الإرسال' : 'Final Submission'}</h4>
+                      <p className="text-xs md:text-sm font-bold text-white/70 leading-relaxed max-w-xl">
                         {isAr 
                           ? 'بمجرد إرسال طلبكم، سيقوم فريق الأكاديمية بمراجعة البيانات والمستندات والتواصل معكم للبدء في الخطوات التالية.' 
                           : 'After you submit your application, BBA will review the information and contact you to proceed with the next steps.'}
@@ -1306,16 +1291,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               )}
 
-              <div className="mt-16 pt-10 border-t border-slate-100 flex flex-col items-center gap-8">
-                <div className="flex w-full flex-row gap-3">
+              <div className="mt-12 md:mt-16 pt-8 md:pt-10 border-t border-slate-100 flex flex-col items-center gap-8">
+                <div className="flex w-full flex-row gap-3 px-2">
                   {currentStep > 1 && (
                     <Button 
                       variant="outline" 
                       onClick={handleBack} 
                       disabled={isSubmitting}
-                      className="flex-1 h-16 rounded-2xl border-2 border-slate-100 text-slate-500 font-black hover:bg-slate-50 gap-2 transition-all active:scale-95"
+                      className="flex-1 h-14 md:h-16 rounded-2xl border-2 border-slate-100 text-slate-500 font-black hover:bg-slate-50 gap-2 transition-all active:scale-95 text-xs md:text-sm"
                     >
-                      {isAr ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
+                      {isAr ? <ArrowRight className="h-4 w-4 md:h-5 md:w-5" /> : <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />}
                       {isAr ? 'السابق' : 'Back'}
                     </Button>
                   )}
@@ -1324,7 +1309,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     onClick={currentStep < 4 ? handleNext : handleSubmit} 
                     disabled={isSubmitting || (currentStep === 3 && !formData.paymentTier)}
                     className={cn(
-                      "h-16 rounded-2xl font-black text-lg transition-all gap-3 shadow-xl active:scale-95",
+                      "h-14 md:h-16 rounded-2xl font-black text-sm md:text-lg transition-all gap-3 shadow-xl active:scale-95",
                       currentStep > 1 ? "flex-[2]" : "w-full",
                       "bg-secondary text-white hover:bg-secondary/90 shadow-secondary/20"
                     )}
@@ -1335,11 +1320,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         : (isSubmitting ? (isAr ? 'جاري الإرسال...' : 'Submitting...') : (isAr ? 'تأكيد وإرسال' : 'Confirm & Submit'))
                       }
                     </span>
-                    <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
                       {currentStep < 4 ? (
-                        isAr ? <ArrowLeft className="h-6 w-6" /> : <ArrowRight className="h-6 w-6" />
+                        isAr ? <ArrowLeft className="h-5 w-5 md:h-6 md:w-6" /> : <ArrowRight className="h-5 w-5 md:h-6 md:w-6" />
                       ) : (
-                        isSubmitting ? <Loader2 className="h-6 w-6 animate-spin" /> : <Send className="h-6 w-6" />
+                        isSubmitting ? <Loader2 className="h-5 w-5 md:h-6 md:w-6 animate-spin" /> : <Send className="h-5 w-5 md:h-6 md:w-6" />
                       )}
                     </div>
                   </Button>
@@ -1348,7 +1333,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 <button 
                   onClick={saveDraft}
                   disabled={isSavingDraft || isSubmitting}
-                  className="text-secondary hover:underline font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-colors disabled:opacity-50"
+                  className="text-secondary hover:underline font-black text-[10px] md:text-[11px] uppercase tracking-widest flex items-center gap-2 transition-colors disabled:opacity-50"
                 >
                   {isSavingDraft ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                   {isAr ? 'حفظ كمسودة للعودة لاحقاً' : 'Save draft and resume later'}
@@ -1361,3 +1346,4 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     </div>
   );
 }
+
