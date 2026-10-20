@@ -117,7 +117,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     siblingCount: '1',
     students: [
       {
-        status: 'New Student',
+        status: '', // Unset by default
         firstName: '',
         middleName: '',
         lastName: '',
@@ -188,7 +188,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (n > newStudents.length) {
       for (let i = newStudents.length; i < n; i++) {
         newStudents.push({
-          status: 'New Student',
+          status: '', // Unset by default
           firstName: '',
           middleName: '',
           lastName: '',
@@ -304,9 +304,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
               : 'Thank you for joining Baneen and Banaat Academy. Our team will review your application and contact you using the details provided.'}
           </p>
         </div>
-        <Button asChild size="lg" className="bg-primary rounded-full px-10 h-14 font-bold shadow-xl">
-          <Link href={`/${lang}`}>{isAr ? 'العودة للرئيسية' : 'Back to Home'}</Link>
-        </Button>
+        <div className="pt-4">
+          <Button asChild size="lg" className="bg-primary rounded-xl px-10 h-14 font-bold shadow-xl">
+            <Link href={`/${lang}`}>{isAr ? 'العودة للرئيسية' : 'Back to Home'}</Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -549,18 +551,18 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50 p-6 md:p-10 rounded-3xl border border-slate-100 space-y-6">
+                  <div className="bg-slate-50 p-6 md:p-10 rounded-2xl border border-slate-100 space-y-6">
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'كم عدد الطلاب الذين ستقوم بتسجيلهم؟' : 'How many students (siblings) will you register?'}</Label>
                     </div>
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="grid grid-cols-3 gap-3 bg-slate-200/50 p-1.5 rounded-2xl"
+                      className="grid grid-cols-3 gap-3 bg-slate-200/50 p-1.5 rounded-xl"
                     >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex items-center justify-center py-4 rounded-xl cursor-pointer transition-all gap-2 min-w-0",
+                          "flex items-center justify-center py-4 rounded-lg cursor-pointer transition-all gap-2 min-w-0",
                           formData.siblingCount === n ? "bg-white text-secondary shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:bg-white/50"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
@@ -574,7 +576,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   <div className="space-y-4">
                     {formData.students.map((student: any, idx: number) => (
                       <div key={idx} className={cn(
-                        "rounded-2xl border transition-all duration-300 overflow-hidden",
+                        "rounded-xl border transition-all duration-300 overflow-hidden",
                         openStudentIdx === idx ? "border-primary shadow-lg" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200"
                       )} onClick={() => setOpenStudentIdx(idx)}>
                         <div className={cn("flex justify-between items-center p-5", openStudentIdx === idx ? "bg-primary text-white" : "bg-white")}>
@@ -614,18 +616,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                     )}
                                   >
                                     <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
-                                    <div className="flex items-center gap-3 flex-1">
-                                      <div className={cn(
-                                        "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
-                                        student.status === status ? "bg-secondary text-white" : "bg-slate-100 text-slate-400"
-                                      )}>
-                                        {status === 'New Student' ? <UserPlus className="h-5 w-5" /> : <UserCheck className="h-5 w-5" />}
-                                      </div>
-                                      <span className="font-black text-sm text-primary">
-                                        {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
-                                      </span>
-                                    </div>
-                                    {student.status === status && <Check className="h-5 w-5 text-secondary shrink-0" />}
+                                    <span className="font-black text-sm text-primary flex-1">
+                                      {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
+                                    </span>
                                   </Label>
                                 ))}
                               </RadioGroup>
@@ -722,7 +715,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm">
                       {isAr ? 'نظام التعليم المختار' : 'Program Format'}
                     </h3>
-                    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                    <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                        <div className="flex items-center gap-4">
                          <div className="h-12 w-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-secondary">
                            <GraduationCap className="h-6 w-6" />
@@ -743,7 +736,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Label htmlFor="opt-3-5" className={cn(
-                        "p-8 rounded-2xl border-2 cursor-pointer transition-all space-y-4",
+                        "p-8 rounded-xl border-2 cursor-pointer transition-all space-y-4",
                         formData.programOption === 'grades-3-5' ? "bg-secondary/5 border-secondary shadow-xl" : "bg-white border-slate-100 hover:border-secondary/20"
                       )}>
                         <RadioGroupItem value="grades-3-5" id="opt-3-5" className="sr-only" checked={formData.programOption === 'grades-3-5'} onClick={() => { updateField('programOption', 'grades-3-5'); updateField('paymentTier', ''); }} />
@@ -760,7 +753,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </Label>
 
                       <Label htmlFor="opt-6-12" className={cn(
-                        "p-8 rounded-2xl border-2 cursor-pointer transition-all space-y-4",
+                        "p-8 rounded-xl border-2 cursor-pointer transition-all space-y-4",
                         formData.programOption === 'grades-6-12' ? "bg-primary/5 border-primary shadow-xl" : "bg-white border-slate-100 hover:border-primary/20"
                       )}>
                         <RadioGroupItem value="grades-6-12" id="opt-6-12" className="sr-only" checked={formData.programOption === 'grades-6-12'} onClick={() => { updateField('programOption', 'grades-6-12'); updateField('paymentTier', ''); }} />
@@ -883,7 +876,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         { id: 'studentId', label: { en: 'Student IDs', ar: 'هويات الطلاب' }, icon: User },
                         { id: 'parentId', label: { en: 'Parent IDs', ar: 'هويات أولياء الأمور' }, icon: ShieldCheck },
                       ].map((doc) => (
-                        <div key={doc.id} className="p-8 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center text-center space-y-4 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
+                        <div key={doc.id} className="p-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center text-center space-y-4 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
                            <div className="h-14 w-14 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:shadow-md transition-all">
                              <doc.icon className="h-6 w-6" />
                            </div>
@@ -906,7 +899,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
                   </div>
 
-                  <div className="p-8 bg-primary text-white rounded-2xl shadow-2xl relative overflow-hidden space-y-6">
+                  <div className="p-8 bg-primary text-white rounded-xl shadow-2xl relative overflow-hidden space-y-6">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                        <Check className="h-24 w-24" />
                     </div>
@@ -957,7 +950,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   <Button 
                     onClick={handleSubmit} 
                     disabled={isSubmitting}
-                    className="w-full h-16 px-16 rounded-full bg-secondary hover:bg-secondary/90 text-white font-black shadow-2xl shadow-secondary/30 transition-all scale-105 active:scale-95 gap-3"
+                    className="w-full h-16 px-16 rounded-xl bg-secondary hover:bg-secondary/90 text-white font-black shadow-2xl shadow-secondary/30 transition-all scale-105 active:scale-95 gap-3"
                   >
                     {isSubmitting ? (
                       <>
