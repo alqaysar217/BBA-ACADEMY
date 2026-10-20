@@ -314,33 +314,37 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      {/* Premium Header Background */}
-      <section className="bg-primary pt-28 pb-40 relative overflow-hidden">
+      {/* Redesigned Premium Header Background - Reduced height and complex pattern */}
+      <section className="bg-primary pt-20 pb-28 relative overflow-hidden">
         <div className="absolute inset-0">
-           {/* Geometric Pattern */}
-           <svg className="absolute inset-0 h-full w-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
+           {/* Complex Geometric Pattern Overlay */}
+           <svg className="absolute inset-0 h-full w-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
              <defs>
-               <pattern id="enroll-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                 <circle cx="2" cy="2" r="1" fill="white" />
+               <pattern id="enroll-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+                 <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="0.5" />
+                 <circle cx="30" cy="30" r="1.5" fill="white" />
+                 <path d="M 0 30 L 60 30" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
+                 <path d="M 30 0 L 30 60" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
                </pattern>
              </defs>
-             <rect width="100%" height="100%" fill="url(#enroll-grid)" />
+             <rect width="100%" height="100%" fill="url(#enroll-pattern)" />
            </svg>
            
-           {/* Glow Effects */}
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/20 blur-[120px] rounded-full animate-pulse" />
-           <div className="absolute -top-20 -right-20 w-96 h-96 bg-white/5 blur-[100px] rounded-full" />
-           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary/10 blur-[80px] rounded-full" />
+           {/* Multi-layered Glow and Texture Effects */}
+           <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-secondary/15 blur-[110px] rounded-full animate-pulse" />
+           <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-accent/20 blur-[130px] rounded-full" />
+           <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/40" />
+           <div className="absolute top-0 left-0 w-full h-px bg-white/10" />
         </div>
 
-        <div className="container-tight relative z-10 text-center space-y-6">
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+        <div className="container-tight relative z-10 text-center space-y-4">
+          <div className="space-y-3">
+            <h1 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
             </h1>
-            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full shadow-[0_0_15px_rgba(var(--secondary),0.4)]" />
+            <div className="h-1 w-20 bg-secondary mx-auto rounded-full shadow-[0_0_12px_rgba(var(--secondary),0.5)]" />
           </div>
-          <p className="text-white/70 font-bold max-w-2xl mx-auto text-sm md:text-xl italic leading-relaxed">
+          <p className="text-white/70 font-bold max-w-xl mx-auto text-xs md:text-lg italic leading-relaxed">
             {isAr 
               ? 'يرجى تعبئة كافة البيانات المطلوبة لضمان معالجة طلبكم بدقة واحترافية.' 
               : 'Please complete all required information to ensure accurate and professional processing of your application.'}
@@ -348,7 +352,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      <div className="container-tight -mt-24 relative z-20">
+      <div className="container-tight -mt-16 relative z-20">
         <div className="max-w-4xl mx-auto space-y-8">
           
           <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-6 md:p-8">
