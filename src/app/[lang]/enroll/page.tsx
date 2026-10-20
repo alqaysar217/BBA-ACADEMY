@@ -137,8 +137,18 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       state: '',
       zip: '',
     },
-    siblingCount: '', 
-    students: [],
+    siblingCount: '1', 
+    students: [{
+      status: '', 
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      dob: '',
+      gender: '',
+      phone: '',
+      email: '',
+      lastGrade: '',
+    }],
     programFormat: 'online', 
     programOption: '', 
     paymentTier: '',
@@ -368,7 +378,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      <section className="bg-primary pt-10 pb-12 relative overflow-hidden">
+      <section className="bg-primary pt-8 pb-10 relative overflow-hidden">
         <div className="absolute inset-0">
            <svg className="absolute inset-0 h-full w-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
              <defs>
@@ -384,14 +394,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
            <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-primary/40" />
         </div>
 
-        <div className="container-tight relative z-10 text-center space-y-4 px-4">
-          <div className="space-y-2">
-            <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+        <div className="container-tight relative z-10 text-center space-y-3 px-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
             </h1>
-            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full shadow-[0_0_20px_rgba(var(--secondary),0.6)]" />
+            <div className="h-1.5 w-20 bg-secondary mx-auto rounded-full shadow-[0_0_20px_rgba(var(--secondary),0.6)]" />
           </div>
-          <p className="text-white/60 font-bold max-w-lg mx-auto text-xs md:text-base italic leading-relaxed">
+          <p className="text-white/60 font-bold max-w-lg mx-auto text-[10px] md:text-sm italic leading-relaxed">
             {isAr 
               ? 'يرجى تعبئة كافة البيانات المطلوبة لضمان معالجة طلبكم بدقة واحترافية.' 
               : 'Please complete all required information to ensure accurate and professional processing of your application.'}
@@ -399,8 +409,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      <div className="container-tight -mt-8 relative z-20 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <div className="container-tight -mt-6 relative z-20 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto space-y-5">
           
           <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-4 md:p-6">
             <div className="relative flex justify-between items-center px-4" dir={isAr ? 'rtl' : 'ltr'}>
@@ -1048,17 +1058,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <div className="pt-8 border-t border-primary/10">
                                  <h4 className="text-center font-black text-primary uppercase tracking-widest text-xs mb-6">{isAr ? 'خطة الدفع المطلوبة للبدء' : 'Required Payment to Start'}</h4>
                                  <div className="max-w-md mx-auto">
-                                    <Label htmlFor="pay-6-12" className={cn(
-                                       "flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                       formData.paymentTier === 'initial-6-12' ? "border-primary shadow-xl scale-[1.02]" : "border-slate-100 hover:border-primary/30"
-                                    )}>
-                                       <RadioGroupItem value="initial-6-12" id="pay-6-12" />
-                                       <div className="flex flex-col text-center flex-1">
-                                          <div className="font-black text-primary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
-                                          <div className="text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'لطالب واحد' : 'For 1 Student'}</div>
-                                       </div>
-                                       <div className="text-2xl font-black text-primary">$1,650</div>
-                                    </Label>
+                                    <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)}>
+                                       <Label htmlFor="pay-6-12" className={cn(
+                                          "flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                                          formData.paymentTier === 'initial-6-12' ? "border-primary shadow-xl scale-[1.02]" : "border-slate-100 hover:border-primary/30"
+                                       )}>
+                                          <RadioGroupItem value="initial-6-12" id="pay-6-12" />
+                                          <div className="flex flex-col text-center flex-1">
+                                             <div className="font-black text-primary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
+                                             <div className="text-[10px] text-slate-400 font-bold uppercase">{isAr ? 'لطالب واحد' : 'For 1 Student'}</div>
+                                          </div>
+                                          <div className="text-2xl font-black text-primary">$1,650</div>
+                                       </Label>
+                                    </RadioGroup>
                                  </div>
                               </div>
                            </CardContent>
