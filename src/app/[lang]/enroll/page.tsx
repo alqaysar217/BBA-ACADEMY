@@ -117,7 +117,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     siblingCount: '1',
     students: [
       {
-        status: '', // Unset by default
+        status: '', // Initialized as empty
         firstName: '',
         middleName: '',
         lastName: '',
@@ -188,7 +188,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (n > newStudents.length) {
       for (let i = newStudents.length; i < n; i++) {
         newStudents.push({
-          status: '', // Unset by default
+          status: '', // Initialized as empty
           firstName: '',
           middleName: '',
           lastName: '',
@@ -603,7 +603,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <RadioGroup 
                                 value={student.status} 
                                 onValueChange={(v) => updateStudent(idx, 'status', v)}
-                                className="grid grid-cols-2 gap-3"
+                                className="grid grid-cols-1 gap-3"
                                 dir={isAr ? 'rtl' : 'ltr'}
                               >
                                 {['New Student', 'Returning Student'].map(status => (
@@ -611,7 +611,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                     key={status} 
                                     htmlFor={`status-${idx}-${status}`}
                                     className={cn(
-                                      "relative flex items-center justify-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all text-center",
+                                      "relative flex items-center justify-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
                                       student.status === status 
                                         ? "bg-secondary/5 border-secondary shadow-sm" 
                                         : "bg-white border-slate-100 hover:border-slate-200"
