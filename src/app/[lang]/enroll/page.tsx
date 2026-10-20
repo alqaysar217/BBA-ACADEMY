@@ -1288,15 +1288,32 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     {/* Requirements Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-2">
                       {[
-                        { t: isAr ? 'هوية أولياء الأمور' : 'Parent IDs', i: ShieldCheck },
-                        { t: isAr ? 'هويات الطلاب' : 'Student IDs', i: UserCircle2 },
-                        { t: isAr ? 'تقرير الدرجات' : 'Report Cards', i: FileText }
+                        { 
+                          t: isAr ? 'هوية أولياء الأمور' : 'Parent IDs', 
+                          d: isAr ? 'نسخة واضحة من بطاقة الهوية أو جواز السفر للأب والأم.' : 'Clear copy of ID or passport for both parents.',
+                          i: ShieldCheck 
+                        },
+                        { 
+                          t: isAr ? 'هويات الطلاب' : 'Student IDs', 
+                          d: isAr ? 'شهادة الميلاد أو أي وثيقة تعريفية رسمية لكل طالب.' : 'Birth certificate or official ID for each student.',
+                          i: UserCircle2 
+                        },
+                        { 
+                          t: isAr ? 'تقرير الدرجات' : 'Report Cards', 
+                          d: isAr ? 'آخر تقرير درجات أكاديمي من المدرسة السابقة.' : 'Latest academic report card from the previous school.',
+                          i: FileText 
+                        }
                       ].map((item, idx) => (
-                        <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-white text-secondary flex items-center justify-center shadow-sm shrink-0">
-                            <item.i className="h-5 w-5" />
+                        <div key={idx} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-white text-secondary flex items-center justify-center shadow-sm shrink-0">
+                              <item.i className="h-5 w-5" />
+                            </div>
+                            <span className="text-xs md:text-sm font-black text-primary uppercase tracking-tight">{item.t}</span>
                           </div>
-                          <span className="text-[10px] md:text-xs font-black text-primary uppercase tracking-tight">{item.t}</span>
+                          <p className="text-[10px] md:text-[11px] text-slate-500 font-medium leading-relaxed italic">
+                            {item.d}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -1370,19 +1387,22 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </div>
                     )}
 
-                    <div className="bg-slate-100 p-6 rounded-2xl border border-slate-200 flex items-center gap-4 mx-2" dir={isAr ? 'rtl' : 'ltr'}>
-                       <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-slate-400">
-                          <CloudOff className="h-5 w-5" />
-                       </div>
-                       <div className="flex-1">
-                          <div className="text-[9px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">{isAr ? 'نظام الحماية من فقدان البيانات' : 'Offline Protection System'}</div>
-                          <div className="text-[11px] font-bold text-primary italic leading-relaxed">
-                            {isAr 
-                              ? 'يتم تشفير الملفات وحفظها في متصفحك تلقائياً. حتى لو فقدت الاتصال، بياناتك في أمان.' 
-                              : 'Files are encrypted and auto-saved to your browser. Your data is safe even if connection is lost.'}
-                          </div>
-                       </div>
-                    </div>
+                    {/* Offline Protection Notice - Only visible when offline */}
+                    {!isOnline && (
+                      <div className="bg-slate-100 p-6 rounded-2xl border border-slate-200 flex items-center gap-4 mx-2 animate-in fade-in slide-in-from-top-2 duration-300" dir={isAr ? 'rtl' : 'ltr'}>
+                        <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm">
+                            <CloudOff className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                            <div className="text-[9px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">{isAr ? 'نظام الحماية من فقدان البيانات' : 'Offline Protection System'}</div>
+                            <div className="text-[11px] font-bold text-primary italic leading-relaxed">
+                              {isAr 
+                                ? 'يتم تشفير الملفات وحفظها في متصفحك تلقائياً. حتى لو فقدت الاتصال، بياناتك في أمان.' 
+                                : 'Files are encrypted and auto-saved to your browser. Your data is safe even if connection is lost.'}
+                            </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-8 bg-primary text-white rounded-[2rem] shadow-2xl relative overflow-hidden space-y-6 mx-2">
