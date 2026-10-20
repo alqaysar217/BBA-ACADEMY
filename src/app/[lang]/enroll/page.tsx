@@ -315,16 +315,17 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
       {/* Reduced Header Height - More compact and professional */}
-      <section className="bg-primary pt-12 pb-16 relative overflow-hidden">
+      <section className="bg-primary pt-8 pb-12 relative overflow-hidden">
         <div className="absolute inset-0">
            {/* Complex Geometric Pattern Overlay */}
            <svg className="absolute inset-0 h-full w-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
              <defs>
-               <pattern id="enroll-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
-                 <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="0.5" />
-                 <circle cx="30" cy="30" r="1.5" fill="white" />
-                 <path d="M 0 30 L 60 30" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
-                 <path d="M 30 0 L 30 60" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
+               <pattern id="enroll-pattern" width="80" height="80" patternUnits="userSpaceOnUse">
+                 <path d="M 80 0 L 0 0 0 80" fill="none" stroke="white" strokeWidth="0.5" />
+                 <circle cx="40" cy="40" r="1.5" fill="white" />
+                 <path d="M 0 40 L 80 40" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
+                 <path d="M 40 0 L 40 80" fill="none" stroke="white" strokeWidth="0.2" strokeDasharray="4 4" />
+                 <path d="M 0 0 L 80 80 M 80 0 L 0 80" fill="none" stroke="white" strokeWidth="0.1" />
                </pattern>
              </defs>
              <rect width="100%" height="100%" fill="url(#enroll-pattern)" />
@@ -337,14 +338,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
            <div className="absolute top-0 left-0 w-full h-px bg-white/10" />
         </div>
 
-        <div className="container-tight relative z-10 text-center space-y-4">
-          <div className="space-y-3">
-            <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+        <div className="container-tight relative z-10 text-center space-y-3">
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
             </h1>
-            <div className="h-1 w-20 bg-secondary mx-auto rounded-full shadow-[0_0_12px_rgba(var(--secondary),0.5)]" />
+            <div className="h-0.5 w-16 bg-secondary mx-auto rounded-full shadow-[0_0_12px_rgba(var(--secondary),0.5)]" />
           </div>
-          <p className="text-white/70 font-bold max-w-xl mx-auto text-xs md:text-lg italic leading-relaxed">
+          <p className="text-white/60 font-bold max-w-lg mx-auto text-[10px] md:text-sm italic leading-relaxed">
             {isAr 
               ? 'يرجى تعبئة كافة البيانات المطلوبة لضمان معالجة طلبكم بدقة واحترافية.' 
               : 'Please complete all required information to ensure accurate and professional processing of your application.'}
@@ -352,21 +353,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      <div className="container-tight -mt-8 relative z-20">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <div className="container-tight -mt-6 relative z-20">
+        <div className="max-w-4xl mx-auto space-y-6">
           
-          <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-6 md:p-8">
-            <div className="relative flex justify-between items-center px-2" dir={isAr ? 'rtl' : 'ltr'}>
+          <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-4 md:p-6">
+            <div className="relative flex justify-between items-center px-4" dir={isAr ? 'rtl' : 'ltr'}>
               <div className="absolute top-6 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
               {steps.map((step) => (
                 <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
                   <div className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center border-2 transition-all duration-500",
+                    "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center border-2 transition-all duration-500",
                     currentStep === step.id ? "bg-secondary border-secondary text-white scale-110 shadow-lg shadow-secondary/20" : 
                     currentStep > step.id ? "bg-primary border-primary text-white" : 
                     "bg-white border-slate-200 text-slate-400"
                   )}>
-                    {currentStep > step.id ? <Check className="h-6 w-6" /> : <span className="font-black text-sm">{step.id}</span>}
+                    {currentStep > step.id ? <Check className="h-5 w-5 md:h-6 md:w-6" /> : <span className="font-black text-xs md:text-sm">{step.id}</span>}
                   </div>
                 </div>
               ))}
@@ -374,18 +375,20 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </Card>
 
           <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white">
-            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-8 md:p-12">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6 md:p-10">
               <div className="flex justify-between items-center">
-                <div className="space-y-1">
+                <div className="space-y-1 overflow-hidden">
                   <div className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{isAr ? 'الخطوة الحالية' : 'Current Step'}</div>
-                  <CardTitle className="text-2xl md:text-3xl font-black text-primary uppercase">{steps[currentStep-1].name[lang]}</CardTitle>
+                  <CardTitle className="text-lg md:text-2xl font-black text-primary uppercase truncate leading-tight">
+                    {steps[currentStep-1].name[lang]}
+                  </CardTitle>
                 </div>
               </div>
             </CardHeader>
 
-            <CardContent className="p-8 md:p-12">
+            <CardContent className="p-6 md:p-10">
               {currentStep === 1 && (
-                <div className="space-y-12">
+                <div className="space-y-10">
                   <div className="space-y-4">
                     <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm mb-6">
                       {isAr ? 'بيانات أولياء الأمور (إلزامية)' : 'Parent Details (Required)'}
