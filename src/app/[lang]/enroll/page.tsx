@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, use } from 'react';
@@ -117,7 +116,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     siblingCount: '1',
     students: [
       {
-        status: '', // Initialized as empty
+        status: '', 
         firstName: '',
         middleName: '',
         lastName: '',
@@ -188,7 +187,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (n > newStudents.length) {
       for (let i = newStudents.length; i < n; i++) {
         newStudents.push({
-          status: '', // Initialized as empty
+          status: '', 
           firstName: '',
           middleName: '',
           lastName: '',
@@ -551,26 +550,35 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50 p-6 md:p-10 rounded-2xl border border-slate-100 space-y-6">
+                  <div className="bg-slate-50 p-4 md:p-8 rounded-2xl border border-slate-100 space-y-6">
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'كم عدد الطلاب الذين ستقوم بتسجيلهم؟' : 'How many students (siblings) will you register?'}</Label>
                     </div>
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="flex w-full gap-2 bg-slate-200/50 p-1 rounded-xl"
+                      className="flex w-full gap-2 bg-slate-200/50 p-1.5 rounded-2xl"
                       dir={isAr ? 'rtl' : 'ltr'}
                     >
-                      {['1', '2', '3'].map((n) => (
-                        <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex flex-1 items-center justify-center py-4 rounded-lg cursor-pointer transition-all gap-2 min-w-0",
-                          formData.siblingCount === n ? "bg-white text-secondary shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:bg-white/50"
-                        )}>
-                          <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
-                          <span className="text-lg font-black">{n}</span>
-                          <span className="text-[10px] font-bold uppercase truncate">{isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}</span>
-                        </Label>
-                      ))}
+                      {['1', '2', '3'].map((n) => {
+                        const isSelected = formData.siblingCount === n;
+                        return (
+                          <Label key={n} htmlFor={`count-${n}`} className={cn(
+                            "flex items-center justify-center py-4 rounded-xl cursor-pointer transition-all duration-500 gap-2 min-w-0 overflow-hidden",
+                            isSelected 
+                              ? "flex-[2] bg-white text-secondary shadow-md ring-1 ring-slate-200" 
+                              : "flex-1 text-slate-500 hover:bg-white/50"
+                          )}>
+                            <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
+                            <span className={cn("text-xl font-black transition-transform", isSelected && "scale-110")}>{n}</span>
+                            {isSelected && (
+                              <span className="text-[10px] font-black uppercase truncate animate-in fade-in slide-in-from-bottom-1 duration-500">
+                                {isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}
+                              </span>
+                            )}
+                          </Label>
+                        );
+                      })}
                     </RadioGroup>
                   </div>
 
@@ -611,16 +619,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                     key={status} 
                                     htmlFor={`status-${idx}-${status}`}
                                     className={cn(
-                                      "relative flex items-center justify-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
+                                      "relative flex items-center justify-between p-5 rounded-xl border-2 cursor-pointer transition-all",
                                       student.status === status 
-                                        ? "bg-secondary/5 border-secondary shadow-sm" 
+                                        ? "bg-secondary/5 border-secondary shadow-md" 
                                         : "bg-white border-slate-100 hover:border-slate-200"
                                     )}
                                   >
-                                    <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
-                                    <span className="font-black text-xs sm:text-sm text-primary">
-                                      {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
-                                    </span>
+                                    <div className="flex items-center gap-4">
+                                      <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
+                                      <span className="font-black text-sm text-primary">
+                                        {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
+                                      </span>
+                                    </div>
+                                    {student.status === status && <Check className="h-5 w-5 text-secondary animate-in zoom-in" />}
                                   </Label>
                                 ))}
                               </RadioGroup>
