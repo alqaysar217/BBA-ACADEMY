@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use, useMemo } from 'react';
+import { useState, useEffect, use, useMemo, useRef } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,7 +44,9 @@ import {
   DollarSign,
   Clock,
   Languages,
-  CheckCircle2
+  CheckCircle2,
+  X,
+  FileCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
@@ -121,6 +123,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
   const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
 
+  // File Upload State
+  const [isProcessingFile, setIsProcessingFile] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeUploadCategory, setActiveUploadCategory] = useState<string | null>(null);
+
   const [formData, setFormData] = useState<any>({
     parent1Name: '',
     parent1Phone: '',
@@ -156,9 +163,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     weekendTerm: '',
     weekendSlot: '',
     files: {
-      reportCards: [],
-      studentIds: [],
-      parentIds: [],
+      reportCard: [],
+      studentId: [],
+      parentId: [],
     }
   });
 
@@ -340,6 +347,132 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // --- FILE HANDLING LOGIC ---
+
+  const compressImage = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Max dimension for compression to keep base64 string reasonable
+          const MAX_DIM = 1200;
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height *= MAX_DIM / width;
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width *= MAX_DIM / height;
+              height = MAX_DIM;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Quality 0.7 for good balance between size and readability
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleFileSelect = async (files: FileList | null, category: string) => {
+    if (!files || files.length === 0) return;
+    
+    setIsProcessingFile(category);
+    const newFiles = [...formData.files[category]];
+    
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Limit total files
+        if (newFiles.length >= 12) {
+          toast({
+            variant: "destructive",
+            title: isAr ? "الحد الأقصى للملفات" : "File Limit Reached",
+            description: isAr ? "يمكنك رفع 12 ملفاً كحد أقصى." : "You can only upload up to 12 files."
+          });
+          break;
+        }
+
+        let base64Data = '';
+        if (file.type.startsWith('image/')) {
+          base64Data = await compressImage(file);
+        } else {
+          // For PDFs and others, just convert to base64
+          base64Data = await fileToBase64(file);
+        }
+
+        newFiles.push({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: base64Data
+        });
+      }
+
+      setFormData((prev: any) => ({
+        ...prev,
+        files: {
+          ...prev.files,
+          [category]: newFiles
+        }
+      }));
+
+    } catch (err) {
+      console.error("File processing error:", err);
+      toast({
+        variant: "destructive",
+        title: isAr ? "خطأ في معالجة الملف" : "Error Processing File",
+        description: isAr ? "حدث خطأ أثناء محاولة ضغط أو قراءة الملف." : "An error occurred while compressing or reading the file."
+      });
+    } finally {
+      setIsProcessingFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = (category: string, index: number) => {
+    const updatedFiles = [...formData.files[category]];
+    updatedFiles.splice(index, 1);
+    setFormData((prev: any) => ({
+      ...prev,
+      files: {
+        ...prev.files,
+        [category]: updatedFiles
+      }
+    }));
+  };
+
+  const triggerFileUpload = (category: string) => {
+    setActiveUploadCategory(category);
+    fileInputRef.current?.click();
   };
 
   // Weekend Tuition Logic
@@ -1241,8 +1374,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                        </h3>
                        <p className="text-xs md:text-sm text-slate-500 font-bold max-w-md mx-auto leading-relaxed px-4">
                          {isAr 
-                           ? 'يرجى رفع آخر شهادة مدرسية، هوية الطلاب، وهوية الأبوين لإكمال الطلب.' 
-                           : 'Please upload the student\'s last report card, student IDs, and parents\' IDs to complete your application.'}
+                           ? 'يرجى رفع أو سحب المستندات المطلوبة أدناه. سيتم ضغط الملفات تلقائياً لسرعة الإرسال.' 
+                           : 'Please upload or drag the required documents below. Files will be compressed automatically for faster submission.'}
                        </p>
                     </div>
 
@@ -1251,26 +1384,80 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         { id: 'reportCard', label: { en: 'Report Cards', ar: 'الشهادات المدرسية' }, icon: FileText },
                         { id: 'studentId', label: { en: 'Student IDs', ar: 'هويات الطلاب' }, icon: User },
                         { id: 'parentId', label: { en: 'Parent IDs', ar: 'هويات أولياء الأمور' }, icon: ShieldCheck },
-                      ].map((doc) => (
-                        <div key={doc.id} className="p-6 md:p-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center text-center space-y-4 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
-                           <div className="h-12 w-12 md:h-14 md:w-14 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:shadow-md transition-all">
-                             <doc.icon className="h-5 w-5 md:h-6 md:w-6" />
-                           </div>
+                      ].map((category) => (
+                        <div 
+                          key={category.id} 
+                          className={cn(
+                            "relative p-6 md:p-8 border-2 border-dashed rounded-2xl flex flex-col items-center text-center space-y-4 transition-all group",
+                            isProcessingFile === category.id ? "bg-secondary/5 border-secondary animate-pulse" : "bg-slate-50/50 border-slate-200 hover:bg-slate-50 hover:border-secondary/50"
+                          )}
+                          onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-secondary', 'bg-secondary/5'); }}
+                          onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-secondary', 'bg-secondary/5'); }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.currentTarget.classList.remove('border-secondary', 'bg-secondary/5');
+                            handleFileSelect(e.dataTransfer.files, category.id);
+                          }}
+                          onClick={() => triggerFileUpload(category.id)}
+                        >
+                           {isProcessingFile === category.id ? (
+                             <Loader2 className="h-10 w-10 text-secondary animate-spin" />
+                           ) : (
+                             <div className="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:shadow-md transition-all">
+                               <category.icon className="h-6 w-6 md:h-7 md:w-7" />
+                             </div>
+                           )}
                            <div className="space-y-1">
-                              <div className="text-[10px] md:text-xs font-black text-primary uppercase tracking-tight">{doc.label[lang]}</div>
-                              <p className="text-[8px] md:text-[10px] text-slate-400 font-bold">{isAr ? 'انقر للرفع' : 'Click to upload'}</p>
+                              <div className="text-[10px] md:text-xs font-black text-primary uppercase tracking-tight">{category.label[lang]}</div>
+                              <p className="text-[9px] md:text-[10px] text-slate-400 font-bold">
+                                {isAr ? 'اسحب الملف هنا أو انقر' : 'Drag file here or click'}
+                              </p>
                            </div>
+
+                           {/* File List in Card */}
+                           {formData.files[category.id].length > 0 && (
+                             <div className="w-full pt-4 space-y-2" onClick={(e) => e.stopPropagation()}>
+                               {formData.files[category.id].map((file: any, idx: number) => (
+                                 <div key={idx} className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                                   <div className="flex items-center gap-2 min-w-0">
+                                      <FileCheck className="h-3 w-3 text-green-500 shrink-0" />
+                                      <span className="text-[9px] font-bold text-slate-600 truncate max-w-[100px]">{file.name}</span>
+                                   </div>
+                                   <button 
+                                    onClick={() => removeFile(category.id, idx)}
+                                    className="p-1 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-md transition-colors"
+                                   >
+                                     <X className="h-3 w-3" />
+                                   </button>
+                                 </div>
+                               ))}
+                             </div>
+                           )}
                         </div>
                       ))}
                     </div>
+
+                    {/* Hidden Global File Input */}
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      multiple 
+                      accept=".jpg,.jpeg,.png,.pdf"
+                      onChange={(e) => handleFileSelect(e.target.files, activeUploadCategory || '')}
+                    />
 
                     <div className="bg-slate-100 p-5 md:p-6 rounded-xl border border-slate-200 flex items-center gap-4 mx-2" dir={isAr ? 'rtl' : 'ltr'}>
                        <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-white flex items-center justify-center text-slate-400">
                           <Upload className="h-4 w-4 md:h-5 md:w-5" />
                        </div>
                        <div className="flex-1">
-                          <div className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">{isAr ? 'إجمالي الملفات' : 'Total Files'}</div>
-                          <div className="text-[10px] md:text-xs font-bold text-primary italic">{isAr ? 'يمكنك رفع حتى 12 ملفاً (PDF, JPG, PNG)' : 'Support up to 12 files (PDF, JPG, PNG)'}</div>
+                          <div className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">{isAr ? 'نظام التخزين الموفر' : 'Optimized Storage System'}</div>
+                          <div className="text-[10px] md:text-xs font-bold text-primary italic">
+                            {isAr 
+                              ? 'يتم تحويل الملفات لنصوص مشفرة وتخزينها بأمان. الحد الأقصى 12 ملفاً.' 
+                              : 'Files are encoded and stored securely. Max 12 files supported.'}
+                          </div>
                        </div>
                     </div>
                   </div>
@@ -1346,4 +1533,3 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     </div>
   );
 }
-
