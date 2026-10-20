@@ -32,7 +32,9 @@ import {
   Calendar as CalendarIcon, 
   ShieldCheck,
   Type,
-  Briefcase
+  Briefcase,
+  UserPlus,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
@@ -547,18 +549,18 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50 p-6 md:p-10 rounded-[2rem] border border-slate-100 space-y-8">
+                  <div className="bg-slate-50 p-6 md:p-10 rounded-3xl border border-slate-100 space-y-8">
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'كم عدد الطلاب الذين ستقوم بتسجيلهم؟' : 'How many students (siblings) will you register?'}</Label>
                     </div>
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="flex flex-wrap justify-center gap-4 md:gap-6"
+                      className="grid grid-cols-3 gap-3 md:gap-6"
                     >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 cursor-pointer transition-all gap-2 bg-white",
+                          "flex flex-col items-center justify-center h-24 sm:h-28 rounded-2xl border-2 cursor-pointer transition-all gap-2 bg-white",
                           formData.siblingCount === n ? "border-secondary ring-4 ring-secondary/10 scale-105 shadow-xl" : "border-slate-100 text-slate-400 hover:border-secondary/40"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
@@ -597,12 +599,13 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <ShieldCheck className="h-3 w-3 text-secondary" />
                                 {isAr ? 'حالة الطالب *' : 'Student Status *'}
                               </Label>
-                              <div className="flex flex-wrap gap-4">
+                              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                 {['New Student', 'Returning Student'].map(status => (
                                   <div key={status} onClick={() => updateStudent(idx, 'status', status)} className={cn(
-                                    "flex-1 min-w-[140px] p-4 rounded-xl border-2 text-center cursor-pointer font-bold text-sm transition-all",
+                                    "flex items-center justify-center gap-2 p-4 rounded-xl border-2 text-center cursor-pointer font-bold text-sm transition-all",
                                     student.status === status ? "bg-secondary border-secondary text-white shadow-md" : "bg-slate-50 border-slate-100 text-slate-400 hover:border-secondary/20"
                                   )}>
+                                    {status === 'New Student' ? <UserPlus className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                                     {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
                                   </div>
                                 ))}
