@@ -43,7 +43,8 @@ import {
   Info,
   DollarSign,
   Clock,
-  Languages
+  Languages,
+  CheckCircle2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
