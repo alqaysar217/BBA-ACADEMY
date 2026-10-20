@@ -549,24 +549,22 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50 p-6 md:p-10 rounded-3xl border border-slate-100 space-y-8">
+                  <div className="bg-slate-50 p-6 md:p-10 rounded-3xl border border-slate-100 space-y-6">
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'كم عدد الطلاب الذين ستقوم بتسجيلهم؟' : 'How many students (siblings) will you register?'}</Label>
                     </div>
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="grid grid-cols-3 gap-3 md:gap-6"
+                      className="flex flex-wrap justify-center gap-2 bg-slate-200/50 p-1.5 rounded-2xl"
                     >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex flex-col items-center justify-center h-24 sm:h-28 rounded-2xl border-2 cursor-pointer transition-all gap-2 bg-white",
-                          formData.siblingCount === n ? "border-secondary ring-4 ring-secondary/10 scale-105 shadow-xl" : "border-slate-100 text-slate-400 hover:border-secondary/40"
+                          "flex-1 flex items-center justify-center py-4 rounded-xl cursor-pointer transition-all gap-3 min-w-[80px]",
+                          formData.siblingCount === n ? "bg-white text-secondary shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:bg-white/50"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
-                          <div className={cn("h-8 w-8 rounded-full flex items-center justify-center mb-1 transition-colors", formData.siblingCount === n ? "bg-secondary text-white" : "bg-slate-100")}>
-                             <span className="text-lg font-black">{n}</span>
-                          </div>
+                          <span className="text-lg font-black">{n}</span>
                           <span className="text-[10px] font-bold uppercase">{isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}</span>
                         </Label>
                       ))}
@@ -593,99 +591,108 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </div>
 
                         {openStudentIdx === idx && (
-                          <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-top-4 duration-500" onClick={(e) => e.stopPropagation()}>
-                            <div className="md:col-span-3 space-y-4">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                          <div className="p-8 space-y-10 animate-in slide-in-from-top-4 duration-500" onClick={(e) => e.stopPropagation()}>
+                            <div className="space-y-4">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
                                 <ShieldCheck className="h-3 w-3 text-secondary" />
-                                {isAr ? 'حالة الطالب *' : 'Student Status *'}
+                                {isAr ? 'حالة الطالب في الأكاديمية' : 'Student Status at Academy'}
                               </Label>
-                              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                                {['New Student', 'Returning Student'].map(status => (
-                                  <div key={status} onClick={() => updateStudent(idx, 'status', status)} className={cn(
-                                    "flex items-center justify-center gap-2 p-4 rounded-xl border-2 text-center cursor-pointer font-bold text-sm transition-all",
-                                    student.status === status ? "bg-secondary border-secondary text-white shadow-md" : "bg-slate-50 border-slate-100 text-slate-400 hover:border-secondary/20"
-                                  )}>
-                                    {status === 'New Student' ? <UserPlus className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                                    {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
-                                  </div>
-                                ))}
+                              <div className="bg-slate-100/50 p-1.5 rounded-2xl flex gap-1.5 border border-slate-100">
+                                {['New Student', 'Returning Student'].map(status => {
+                                  const isSelected = student.status === status;
+                                  return (
+                                    <div 
+                                      key={status} 
+                                      onClick={() => updateStudent(idx, 'status', status)} 
+                                      className={cn(
+                                        "flex-1 flex items-center justify-center gap-3 py-3.5 rounded-xl cursor-pointer font-black text-xs transition-all",
+                                        isSelected ? "bg-secondary text-white shadow-md shadow-secondary/20" : "text-slate-400 hover:text-primary hover:bg-white/50"
+                                      )}
+                                    >
+                                      {status === 'New Student' ? <UserPlus className="h-4 w-4 shrink-0" /> : <UserCheck className="h-4 w-4 shrink-0" />}
+                                      <span className="whitespace-nowrap">{isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}</span>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
 
-                            <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <User className="h-3 w-3 text-secondary" />
-                                {isAr ? 'الاسم الأول *' : 'First Name *'}
-                              </Label>
-                              <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <Type className="h-3 w-3 text-secondary" />
-                                {isAr ? 'الاسم الأوسط' : 'Middle Name'}
-                              </Label>
-                              <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <User className="h-3 w-3 text-secondary" />
-                                {isAr ? 'الاسم الأخير *' : 'Last Name *'}
-                              </Label>
-                              <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
-                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <User className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الاسم الأول *' : 'First Name *'}
+                                </Label>
+                                <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <Type className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الاسم الأوسط' : 'Middle Name'}
+                                </Label>
+                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <User className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الاسم الأخير *' : 'Last Name *'}
+                                </Label>
+                                <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                              </div>
 
-                            <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <CalendarIcon className="h-3 w-3 text-secondary" />
-                                {isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}
-                              </Label>
-                              <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <UserCircle2 className="h-3 w-3 text-secondary" />
-                                {isAr ? 'الجنس *' : 'Gender *'}
-                              </Label>
-                              <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
-                                <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
-                                  <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem>
-                                  <SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <GraduationCap className="h-3 w-3 text-secondary" />
-                                {isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}
-                              </Label>
-                              <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
-                                <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
-                                  <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {gradeLevels.map(g => (
-                                    <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <CalendarIcon className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}
+                                </Label>
+                                <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <UserCircle2 className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الجنس *' : 'Gender *'}
+                                </Label>
+                                <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
+                                  <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                                    <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem>
+                                    <SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <GraduationCap className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}
+                                </Label>
+                                <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
+                                  <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                                    <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {gradeLevels.map(g => (
+                                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
 
-                            <div className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <Phone className="h-3 w-3 text-secondary" />
-                                {isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}
-                              </Label>
-                              <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
-                            </div>
-                            <div className="md:col-span-2 space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <Mail className="h-3 w-3 text-secondary" />
-                                {isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}
-                              </Label>
-                              <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="student@example.com" />
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <Phone className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}
+                                </Label>
+                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" />
+                              </div>
+                              <div className="md:col-span-2 space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                  <Mail className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}
+                                </Label>
+                                <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="student@example.com" />
+                              </div>
                             </div>
                           </div>
                         )}
