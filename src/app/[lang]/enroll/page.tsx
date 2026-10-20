@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, ChevronRight, ChevronLeft, Upload, Save, User, GraduationCap, CreditCard, FileText, Plus, Trash2, AlertCircle, Loader2 } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Upload, Save, User, GraduationCap, FileText, Plus, AlertCircle, Loader2, ChevronDown, UserCircle2, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import Link from 'next/link';
@@ -26,8 +26,10 @@ const steps = [
 ];
 
 const relationships = [
-  { value: 'mother', label: { en: 'Mother', ar: 'الأم' } },
   { value: 'father', label: { en: 'Father', ar: 'الأب' } },
+  { value: 'mother', label: { en: 'Mother', ar: 'الأم' } },
+  { value: 'brother', label: { en: 'Brother', ar: 'الأخ' } },
+  { value: 'sister', label: { en: 'Sister', ar: 'الأخت' } },
   { value: 'guardian', label: { en: 'Legal Guardian', ar: 'وصي قانوني' } },
   { value: 'other', label: { en: 'Other', ar: 'غير ذلك' } },
 ];
@@ -58,7 +60,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showParent2, setShowParent2] = useState(false);
+  
+  // Accordion States
+  const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
+  const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
 
   const [formData, setFormData] = useState<any>({
     parent1Name: '',
@@ -91,9 +96,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       }
     ],
     programFormat: 'online',
-    programOption: '', // 'grades-3-5' or 'grades-6-12'
+    programOption: '', 
     paymentTier: '',
-    languageOption: '', // 'english-only' or 'english-arabic'
+    languageOption: '',
     files: {
       reportCards: [],
       studentIds: [],
@@ -101,7 +106,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
   });
 
-  // Load draft from localStorage or Firestore
   useEffect(() => {
     const savedDraft = localStorage.getItem('bba_enrollment_draft');
     if (savedDraft) {
@@ -114,7 +118,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
   }, []);
 
-  // Save to localStorage on change
   useEffect(() => {
     localStorage.setItem('bba_enrollment_draft', JSON.stringify(formData));
   }, [formData]);
@@ -155,7 +158,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         });
       }
     } else if (n < newStudents.length) {
-      if (confirm(isAr ? 'هل أنت متأكد؟ سيتم حذف بيانات الطالب الإضافي.' : 'Are you sure? Extra student data will be removed.')) {
+      if (confirm(isAr ? 'سيتم حذف بيانات الطلاب الإضافيين، هل تود الاستمرار؟' : 'Extra student data will be removed, do you want to continue?')) {
         newStudents = newStudents.slice(0, n);
       } else {
         return;
@@ -163,10 +166,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
     
     setFormData((prev: any) => ({ ...prev, siblingCount: count, students: newStudents }));
+    setOpenStudentIdx(0); // Reset accordion to first student
   };
 
   const handleNext = () => {
-    // Basic validation could be added here
     if (currentStep < 4) setCurrentStep(currentStep + 1);
     window.scrollTo(0, 0);
   };
@@ -189,7 +192,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     };
 
     try {
-      // If we have a stored docId, update it, otherwise create new
       const draftId = localStorage.getItem('bba_draft_id');
       if (draftId) {
         await setDoc(doc(firestore, 'enrollments', draftId), draftData, { merge: true });
@@ -281,8 +283,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </h1>
           <p className="text-white/70 font-bold max-w-2xl mx-auto text-sm md:text-lg">
             {isAr 
-              ? 'ابدأ رحلة طفلك التعليمية معنا اليوم. نموذج التسجيل مصمم ليكون سهلاً ومنظماً.' 
-              : 'Start your child\'s educational journey with us today. Our registration process is simple and organized.'}
+              ? 'يرجى تعبئة كافة البيانات المطلوبة لضمان معالجة طلبكم بدقة.' 
+              : 'Please complete all required information to ensure accurate processing of your application.'}
           </p>
         </div>
       </section>
@@ -290,14 +292,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       <div className="container-tight -mt-16 relative z-20">
         <div className="max-w-4xl mx-auto space-y-8">
           
-          {/* Enhanced Progress Indicator */}
-          <Card className="bg-white/80 backdrop-blur-md border-none shadow-xl rounded-3xl p-6 md:p-8">
+          {/* Progress Indicator */}
+          <Card className="bg-white/90 backdrop-blur-md border-none shadow-xl rounded-2xl p-6 md:p-8">
             <div className="relative flex justify-between items-center px-2">
               <div className="absolute top-6 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
               {steps.map((step) => (
                 <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
                   <div className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-500",
+                    "w-12 h-12 rounded-xl flex items-center justify-center border-2 transition-all duration-500",
                     currentStep === step.id ? "bg-secondary border-secondary text-white scale-110 shadow-lg shadow-secondary/20" : 
                     currentStep > step.id ? "bg-primary border-primary text-white" : 
                     "bg-white border-slate-200 text-slate-400"
@@ -313,14 +315,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               ))}
             </div>
-            <div className="mt-12 md:mt-4 text-center md:hidden">
-               <span className="text-xs font-black text-primary uppercase tracking-widest">
-                 {isAr ? 'الخطوة' : 'Step'} {currentStep}: {steps[currentStep-1].name[lang]}
-               </span>
-            </div>
           </Card>
 
-          <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+          <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white">
             <CardHeader className="bg-slate-50 border-b border-slate-100 p-8 md:p-12">
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
@@ -341,73 +338,47 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
             </CardHeader>
 
             <CardContent className="p-8 md:p-12">
-              {/* STEP 1: Parent & Address */}
+              {/* STEP 1: Parents (Accordion) & Address */}
               {currentStep === 1 && (
                 <div className="space-y-12">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                      <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm">
-                        {isAr ? 'ولي الأمر الأول (أساسي)' : 'Parent 1 (Primary)'}
-                      </h3>
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الكامل' : 'Full Name'}</Label>
-                          <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" placeholder="e.g. John Doe" />
+                  <div className="space-y-4">
+                    <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm mb-6">
+                      {isAr ? 'بيانات أولياء الأمور (مطلوبة)' : 'Parent Details (Required)'}
+                    </h3>
+                    
+                    {/* Parent 1 Section */}
+                    <div className={cn(
+                      "rounded-2xl border transition-all duration-300",
+                      openParent === 'p1' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
+                    )} onClick={() => setOpenParent('p1')}>
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", openParent === 'p1' ? "bg-secondary text-white" : "bg-slate-100 text-slate-400")}>
+                            <UserCircle2 className="h-5 w-5" />
+                          </div>
+                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الأول' : 'Parent 1'}</span>
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم الهاتف' : 'Phone Number'}</Label>
-                          <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</Label>
-                          <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" type="email" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'صلة القرابة' : 'Relationship'}</Label>
-                          <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)}>
-                            <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
-                              <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {relationships.map(r => (
-                                <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        {openParent !== 'p1' && <ChevronDown className="h-4 w-4 text-slate-400" />}
                       </div>
-                    </div>
 
-                    <div className="space-y-6">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-black text-primary border-l-4 border-slate-200 pl-4 uppercase tracking-widest text-sm">
-                          {isAr ? 'ولي الأمر الثاني (اختياري)' : 'Parent 2 (Optional)'}
-                        </h3>
-                        {!showParent2 && (
-                          <Button variant="ghost" size="sm" onClick={() => setShowParent2(true)} className="text-secondary font-black text-[10px] uppercase gap-1">
-                            <Plus className="h-3 w-3" /> {isAr ? 'إضافة' : 'Add'}
-                          </Button>
-                        )}
-                      </div>
-                      
-                      {showParent2 ? (
-                        <div className="space-y-4 animate-in slide-in-from-top-4 duration-300">
+                      {openParent === 'p1' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الكامل' : 'Full Name'}</Label>
-                            <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
+                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="e.g. John Doe" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم الهاتف' : 'Phone Number'}</Label>
-                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
+                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</Label>
-                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" type="email" />
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
+                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" type="email" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'صلة القرابة' : 'Relationship'}</Label>
-                            <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)}>
-                              <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
+                            <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)}>
+                              <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
                               </SelectTrigger>
                               <SelectContent>
@@ -417,43 +388,83 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </SelectContent>
                             </Select>
                           </div>
-                          <Button variant="ghost" size="sm" onClick={() => { setShowParent2(false); updateField('parent2Name', ''); }} className="text-red-400 font-bold text-xs gap-1">
-                            <Trash2 className="h-3 w-3" /> {isAr ? 'إزالة' : 'Remove'}
-                          </Button>
                         </div>
-                      ) : (
-                        <div className="h-full flex items-center justify-center border-2 border-dashed border-slate-100 rounded-[2rem] p-12 text-slate-300">
-                          <p className="text-xs font-bold italic">{isAr ? 'لم يتم إضافة ولي أمر ثانٍ' : 'No second parent added'}</p>
+                      )}
+                    </div>
+
+                    {/* Parent 2 Section */}
+                    <div className={cn(
+                      "rounded-2xl border transition-all duration-300",
+                      openParent === 'p2' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
+                    )} onClick={() => setOpenParent('p2')}>
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", openParent === 'p2' ? "bg-secondary text-white" : "bg-slate-100 text-slate-400")}>
+                            <UserCircle2 className="h-5 w-5" />
+                          </div>
+                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني' : 'Parent 2'}</span>
+                        </div>
+                        {openParent !== 'p2' && <ChevronDown className="h-4 w-4 text-slate-400" />}
+                      </div>
+
+                      {openParent === 'p2' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500" onClick={(e) => e.stopPropagation()}>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
+                            <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
+                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
+                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" type="email" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
+                            <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)}>
+                              <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                                <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {relationships.map(r => (
+                                  <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-6 pt-8 border-t border-slate-100">
-                    <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm">
-                      {isAr ? 'عنوان السكن' : 'Home Address'}
+                    <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-secondary" />
+                      {isAr ? 'عنوان السكن في الولايات المتحدة (مطلوب)' : 'USA Home Address (Required)'}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2 space-y-2">
-                        <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'العنوان (السطر 1)' : 'Address Line 1'}</Label>
-                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" placeholder="Street address, P.O. box" />
+                        <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}</Label>
+                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="Street address" />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'العنوان (السطر 2)' : 'Address Line 2'}</Label>
-                        <Input value={formData.address.line2} onChange={(e) => updateAddress('line2', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" placeholder="Apartment, suite, unit, etc." />
+                        <Input value={formData.address.line2} onChange={(e) => updateAddress('line2', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="Apt, Suite, etc." />
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div className="col-span-1 space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'المدينة' : 'City'}</Label>
-                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
+                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'المدينة *' : 'City *'}</Label>
+                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
                         </div>
                         <div className="col-span-1 space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الولاية' : 'State'}</Label>
-                          <Input value={formData.address.state} onChange={(e) => updateAddress('state', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" placeholder="e.g. MI" />
+                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الولاية *' : 'State *'}</Label>
+                          <Input value={formData.address.state} onChange={(e) => updateAddress('state', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="MI" />
                         </div>
                         <div className="col-span-1 space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الرمز البريدي' : 'ZIP Code'}</Label>
-                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
+                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الرمز البريدي *' : 'ZIP Code *'}</Label>
+                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
                         </div>
                       </div>
                     </div>
@@ -461,13 +472,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 </div>
               )}
 
-              {/* STEP 2: Students & Siblings */}
+              {/* STEP 2: Students & Siblings (Accordion) */}
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 space-y-6">
+                  <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 space-y-6">
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'كم عدد الطلاب الذين ستقوم بتسجيلهم؟' : 'How many students (siblings) will you register?'}</Label>
-                      <p className="text-xs text-slate-400 font-bold">{isAr ? 'يمكنك تسجيل حتى 3 أشقاء في نموذج واحد' : 'You can register up to 3 siblings in one form'}</p>
                     </div>
                     <RadioGroup 
                       value={formData.siblingCount} 
@@ -476,7 +486,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex flex-col items-center justify-center w-24 h-24 rounded-3xl border-2 cursor-pointer transition-all gap-2",
+                          "flex flex-col items-center justify-center w-24 h-24 rounded-2xl border-2 cursor-pointer transition-all gap-2",
                           formData.siblingCount === n ? "bg-primary border-primary text-white shadow-xl scale-105" : "bg-white border-slate-100 text-slate-400 hover:border-secondary/40"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
@@ -487,90 +497,94 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </RadioGroup>
                   </div>
 
-                  <div className="space-y-12">
+                  <div className="space-y-4">
                     {formData.students.map((student: any, idx: number) => (
-                      <div key={idx} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center font-black">
-                            {idx + 1}
+                      <div key={idx} className={cn(
+                        "rounded-2xl border transition-all duration-300",
+                        openStudentIdx === idx ? "border-primary bg-primary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
+                      )} onClick={() => setOpenStudentIdx(idx)}>
+                        <div className="flex justify-between items-center mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center font-black", openStudentIdx === idx ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>
+                              {idx + 1}
+                            </div>
+                            <span className="font-black text-primary">
+                              {isAr ? `بيانات الطالب ${idx + 1}` : `Student ${idx + 1} Details`}
+                              {student.firstName && ` - ${student.firstName}`}
+                            </span>
                           </div>
-                          <h3 className="text-xl font-black text-primary uppercase tracking-tight">
-                            {isAr ? `بيانات الطالب ${idx + 1}` : `Student ${idx + 1} Details`}
-                          </h3>
-                          <div className="h-px bg-slate-100 flex-1" />
+                          {openStudentIdx !== idx && <ChevronDown className="h-4 w-4 text-slate-400" />}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="md:col-span-3 space-y-4">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'حالة الطالب' : 'Student Status'}</Label>
-                            <RadioGroup 
-                              value={student.status} 
-                              onValueChange={(v) => updateStudent(idx, 'status', v)}
-                              className="flex gap-6"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="New Student" id={`status-new-${idx}`} />
-                                <Label htmlFor={`status-new-${idx}`} className="font-bold text-sm cursor-pointer">{isAr ? 'طالب جديد' : 'New Student'}</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="Returning Student" id={`status-ret-${idx}`} />
-                                <Label htmlFor={`status-ret-${idx}`} className="font-bold text-sm cursor-pointer">{isAr ? 'طالب عائد' : 'Returning Student'}</Label>
-                              </div>
-                            </RadioGroup>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأول' : 'First Name'}</Label>
-                            <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأوسط' : 'Middle Name'}</Label>
-                            <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأخير' : 'Last Name'}</Label>
-                            <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'تاريخ الميلاد' : 'Date of Birth'}</Label>
-                            <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الجنس' : 'Gender'}</Label>
-                            <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
-                              <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
-                                <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem>
-                                <SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'آخر مرحلة دراسية' : 'Last Grade'}</Label>
-                            <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
-                              <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
-                                <SelectValue placeholder={isAr ? 'اختر المرحلة' : 'Select Grade'} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {gradeLevels.map(g => (
-                                  <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                        {openStudentIdx === idx && (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-500" onClick={(e) => e.stopPropagation()}>
+                            <div className="md:col-span-3 space-y-4">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'حالة الطالب *' : 'Student Status *'}</Label>
+                              <div className="flex gap-4">
+                                {['New Student', 'Returning Student'].map(status => (
+                                  <div key={status} onClick={() => updateStudent(idx, 'status', status)} className={cn(
+                                    "flex-1 p-3 rounded-xl border-2 text-center cursor-pointer font-bold text-sm transition-all",
+                                    student.status === status ? "bg-secondary border-secondary text-white" : "bg-white border-slate-100 text-slate-400 hover:border-secondary/20"
+                                  )}>
+                                    {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
+                                  </div>
                                 ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                              </div>
+                            </div>
 
-                          <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم هاتف الطالب' : 'Student Phone'}</Label>
-                            <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأول *' : 'First Name *'}</Label>
+                              <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأوسط' : 'Middle Name'}</Label>
+                              <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الاسم الأخير *' : 'Last Name *'}</Label>
+                              <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}</Label>
+                              <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الجنس *' : 'Gender *'}</Label>
+                              <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
+                                <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                                  <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem>
+                                  <SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}</Label>
+                              <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
+                                <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                                  <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {gradeLevels.map(g => (
+                                    <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}</Label>
+                              <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            </div>
+                            <div className="md:col-span-2 space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}</Label>
+                              <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                            </div>
                           </div>
-                          <div className="md:col-span-2 space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'البريد الإلكتروني للطالب' : 'Student Email'}</Label>
-                            <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold" />
-                          </div>
-                        </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -601,17 +615,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   <div className="space-y-8">
                     <div className="text-center space-y-2">
                        <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'اختر البرنامج المناسب' : 'Select Your Program'}</Label>
-                       <p className="text-xs text-slate-400 font-bold">{isAr ? 'يتم تحديد الخيارات المالية بناءً على البرنامج المختار' : 'Tuition options are updated based on your selection'}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Label htmlFor="opt-3-5" className={cn(
-                        "p-8 rounded-[2.5rem] border-2 cursor-pointer transition-all space-y-4",
+                        "p-8 rounded-2xl border-2 cursor-pointer transition-all space-y-4",
                         formData.programOption === 'grades-3-5' ? "bg-secondary/5 border-secondary shadow-xl" : "bg-white border-slate-100 hover:border-secondary/20"
                       )}>
                         <RadioGroupItem value="grades-3-5" id="opt-3-5" className="sr-only" checked={formData.programOption === 'grades-3-5'} onClick={() => { updateField('programOption', 'grades-3-5'); updateField('paymentTier', ''); }} />
                         <div className="flex justify-between items-start">
-                           <div className="h-12 w-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center">
+                           <div className="h-12 w-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
                               <span className="font-black text-lg">3-5</span>
                            </div>
                            {formData.programOption === 'grades-3-5' && <Check className="h-6 w-6 text-secondary" />}
@@ -623,12 +636,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </Label>
 
                       <Label htmlFor="opt-6-12" className={cn(
-                        "p-8 rounded-[2.5rem] border-2 cursor-pointer transition-all space-y-4",
+                        "p-8 rounded-2xl border-2 cursor-pointer transition-all space-y-4",
                         formData.programOption === 'grades-6-12' ? "bg-primary/5 border-primary shadow-xl" : "bg-white border-slate-100 hover:border-primary/20"
                       )}>
                         <RadioGroupItem value="grades-6-12" id="opt-6-12" className="sr-only" checked={formData.programOption === 'grades-6-12'} onClick={() => { updateField('programOption', 'grades-6-12'); updateField('paymentTier', ''); }} />
                         <div className="flex justify-between items-start">
-                           <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                           <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                               <span className="font-black text-lg">6-12</span>
                            </div>
                            {formData.programOption === 'grades-6-12' && <Check className="h-6 w-6 text-primary" />}
@@ -645,132 +658,83 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <div className="space-y-8 animate-in slide-in-from-top-6 duration-500">
                       <div className="text-center space-y-2">
                          <Label className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'خيارات الرسوم والدفع' : 'Payment & Tuition Options'}</Label>
-                         <p className="text-xs text-slate-400 font-bold">{isAr ? 'الرسوم المعروضة هي لطالب واحد فقط' : 'Displayed tuition is for one student only'}</p>
                       </div>
 
                       <div className="grid grid-cols-1 gap-4">
-                        {/* Grades 3-5 Payment Options */}
                         {formData.programOption === 'grades-3-5' && (
                           <>
                             <Label htmlFor="pay-3-5-1" className={cn(
-                              "flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                              "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
                               formData.paymentTier === 'initial-3-5' ? "border-secondary bg-secondary/5" : "border-slate-100 hover:border-secondary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="initial-3-5" id="pay-3-5-1" checked={formData.paymentTier === 'initial-3-5'} onClick={() => updateField('paymentTier', 'initial-3-5')} />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Registration Fee + Initial Payment'}</div>
-                                  <div className="text-[10px] text-slate-500 font-bold">{isAr ? 'دفع مبلغ مقدم لضمان المقعد' : 'Initial payment to secure student seat'}</div>
                                 </div>
                               </div>
                               <div className="text-right">
                                 <div className="text-2xl font-black text-secondary">$1,650</div>
-                                <div className="text-[8px] font-black uppercase text-slate-400 tracking-widest">USD / Student</div>
                               </div>
                             </Label>
                             <Label htmlFor="pay-3-5-2" className={cn(
-                              "flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                              "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
                               formData.paymentTier === 'full-3-5' ? "border-secondary bg-secondary/5" : "border-slate-100 hover:border-secondary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="full-3-5" id="pay-3-5-2" checked={formData.paymentTier === 'full-3-5'} onClick={() => updateField('paymentTier', 'full-3-5')} />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'كامل الرسوم الدراسية (خصم 10%)' : 'Full Tuition (Save 10%)'}</div>
-                                  <div className="text-[10px] text-slate-500 font-bold">{isAr ? 'دفع كامل الرسوم مرة واحدة' : 'Pay all at once for maximum savings'}</div>
                                 </div>
                               </div>
                               <div className="text-right">
                                 <div className="text-2xl font-black text-secondary">$2,850</div>
-                                <div className="text-[8px] font-black uppercase text-slate-400 tracking-widest">USD / Student</div>
                               </div>
                             </Label>
                           </>
                         )}
 
-                        {/* Grades 6-12 Payment Options */}
                         {formData.programOption === 'grades-6-12' && (
                           <>
                             <Label htmlFor="pay-6-12-eng" className={cn(
-                              "flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                              "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
                               formData.paymentTier === 'initial-6-12-eng' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="initial-6-12-eng" id="pay-6-12-eng" checked={formData.paymentTier === 'initial-6-12-eng'} onClick={() => { updateField('paymentTier', 'initial-6-12-eng'); updateField('languageOption', 'english-only'); }} />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'برنامج اللغة الإنجليزية فقط' : 'English Only Program'}</div>
-                                  <div className="text-[10px] text-slate-500 font-bold">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Registration Fee + Initial Payment'}</div>
                                 </div>
                               </div>
                               <div className="text-right">
                                 <div className="text-2xl font-black text-primary">$1,650</div>
-                                <div className="text-[8px] font-black uppercase text-slate-400 tracking-widest">USD / Student</div>
                               </div>
                             </Label>
                             <Label htmlFor="pay-6-12-both" className={cn(
-                              "flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
+                              "flex items-center justify-between p-6 rounded-xl border-2 cursor-pointer transition-all bg-white",
                               formData.paymentTier === 'initial-6-12-both' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-primary/20"
                             )}>
                               <div className="flex items-center gap-4">
                                 <RadioGroupItem value="initial-6-12-both" id="pay-6-12-both" checked={formData.paymentTier === 'initial-6-12-both'} onClick={() => { updateField('paymentTier', 'initial-6-12-both'); updateField('languageOption', 'english-arabic'); }} />
                                 <div className="space-y-1">
                                   <div className="font-black text-primary">{isAr ? 'برنامج الإنجليزية + العربية' : 'English + Arabic Program'}</div>
-                                  <div className="text-[10px] text-slate-500 font-bold">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Registration Fee + Initial Payment'}</div>
                                 </div>
                               </div>
                               <div className="text-right">
                                 <div className="text-2xl font-black text-primary">$1,650</div>
-                                <div className="text-[8px] font-black uppercase text-slate-400 tracking-widest">USD / Student</div>
                               </div>
                             </Label>
                           </>
                         )}
                       </div>
 
-                      <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 flex items-start gap-4">
+                      <div className="bg-amber-50 p-6 rounded-xl border border-amber-100 flex items-start gap-4">
                         <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-1" />
                         <p className="text-xs font-bold text-amber-800 leading-relaxed">
                           {isAr 
-                            ? 'يرجى تأكيد اختيار البرنامج وخيار اللغة الصحيح قبل المتابعة. الرسوم المعروضة هي لطالب واحد، وسيتم تأكيد الرسوم النهائية للعائلات التي تسجل أكثر من طالب من قبل إدارة الأكاديمية.' 
-                            : 'Please confirm that you have selected the correct program and language option before continuing. Displayed tuition is for one student. Final tuition for families registering multiple students will be confirmed by BBA.'}
+                            ? 'يرجى تأكيد اختيار البرنامج وخيار اللغة الصحيح قبل المتابعة. الرسوم المعروضة هي لطالب واحد، وسيتم تأكيد الرسوم النهائية للعائلات من قبل الأكاديمية.' 
+                            : 'Please confirm that you have selected the correct program and language option before continuing. Displayed tuition is for one student. Final tuition for families will be confirmed by BBA.'}
                         </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Pricing Summary */}
-                  {formData.paymentTier && (
-                    <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-2xl space-y-6">
-                      <h4 className="font-black uppercase tracking-[0.2em] text-xs text-white/40">{isAr ? 'ملخص التسجيل المبدئي' : 'Initial Enrollment Summary'}</h4>
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center text-sm font-bold">
-                          <span className="text-white/60">{isAr ? 'عدد الطلاب' : 'Registered Students'}</span>
-                          <span>{formData.siblingCount} {isAr ? 'طلاب' : 'Students'}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm font-bold">
-                          <span className="text-white/60">{isAr ? 'البرنامج المختار' : 'Selected Program'}</span>
-                          <span>{formData.programOption === 'grades-3-5' ? 'Grades 3-5' : 'Grades 6-12'}</span>
-                        </div>
-                        {formData.languageOption && (
-                          <div className="flex justify-between items-center text-sm font-bold">
-                            <span className="text-white/60">{isAr ? 'خيار اللغة' : 'Language Option'}</span>
-                            <span className="capitalize">{formData.languageOption.replace('-', ' ')}</span>
-                          </div>
-                        )}
-                        <div className="pt-4 border-t border-white/10 flex justify-between items-end">
-                           <div>
-                              <div className="text-[10px] font-black uppercase text-white/40 tracking-widest mb-1">{isAr ? 'السعر لطالب واحد' : 'Price per Student'}</div>
-                              <div className="text-3xl font-black text-secondary">
-                                ${formData.programOption === 'grades-3-5' 
-                                  ? (formData.paymentTier === 'full-3-5' ? '2,850' : '1,650')
-                                  : '1,650'}
-                              </div>
-                           </div>
-                           <div className="text-right max-w-[200px]">
-                              <p className="text-[10px] font-bold text-white/50 leading-snug">
-                                {isAr ? 'سيتم تأكيد الرسوم النهائية للعائلة من قبل الأكاديمية' : 'Final family tuition to be confirmed by BBA'}
-                              </p>
-                           </div>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -785,19 +749,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                        <h3 className="text-2xl font-black text-primary uppercase">{isAr ? 'المستندات المطلوبة' : 'Required Documents'}</h3>
                        <p className="text-sm text-slate-500 font-bold max-w-md mx-auto leading-relaxed">
                          {isAr 
-                           ? 'يرجى رفع آخر شهادة مدرسية، هوية الطالب، وهوية ولي الأمر لإكمال الطلب.' 
-                           : 'Please upload the student\'s last report card, student\'s ID, and parent\'s ID to complete your application.'}
+                           ? 'يرجى رفع آخر شهادة مدرسية، هوية الطلاب، وهوية الأبوين لإكمال الطلب.' 
+                           : 'Please upload the student\'s last report card, student IDs, and parents\' IDs to complete your application.'}
                        </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {[
-                        { id: 'reportCard', label: { en: 'Report Card', ar: 'الشهادة المدرسية' }, icon: FileText },
-                        { id: 'studentId', label: { en: 'Student ID', ar: 'هوية الطالب' }, icon: User },
-                        { id: 'parentId', label: { en: 'Parent ID', ar: 'هوية ولي الأمر' }, icon: ShieldCheck },
+                        { id: 'reportCard', label: { en: 'Report Cards', ar: 'الشهادات المدرسية' }, icon: FileText },
+                        { id: 'studentId', label: { en: 'Student IDs', ar: 'هويات الطلاب' }, icon: User },
+                        { id: 'parentId', label: { en: 'Parent IDs', ar: 'هويات أولياء الأمور' }, icon: ShieldCheck },
                       ].map((doc) => (
-                        <div key={doc.id} className="p-8 border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center text-center space-y-4 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
-                           <div className="h-14 w-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:shadow-md transition-all">
+                        <div key={doc.id} className="p-8 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center text-center space-y-4 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group">
+                           <div className="h-14 w-14 rounded-xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:shadow-md transition-all">
                              <doc.icon className="h-6 w-6" />
                            </div>
                            <div className="space-y-1">
@@ -808,8 +772,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       ))}
                     </div>
 
-                    <div className="bg-slate-100 p-6 rounded-2xl border border-slate-200 flex items-center gap-4">
-                       <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-slate-400">
+                    <div className="bg-slate-100 p-6 rounded-xl border border-slate-200 flex items-center gap-4">
+                       <div className="h-10 w-10 rounded-lg bg-white flex items-center justify-center text-slate-400">
                           <Upload className="h-5 w-5" />
                        </div>
                        <div className="flex-1">
@@ -819,7 +783,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
                   </div>
 
-                  <div className="p-8 bg-primary text-white rounded-[2.5rem] shadow-2xl relative overflow-hidden space-y-6">
+                  <div className="p-8 bg-primary text-white rounded-2xl shadow-2xl relative overflow-hidden space-y-6">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                        <Check className="h-24 w-24" />
                     </div>
@@ -827,13 +791,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       <h4 className="text-xl font-black uppercase tracking-tight">{isAr ? 'تأكيد الإرسال' : 'Final Submission'}</h4>
                       <p className="text-sm font-bold text-white/70 leading-relaxed max-w-xl">
                         {isAr 
-                          ? 'بمجرد إرسال طلبكم، سيقوم فريق الأكاديمية بمراجعة كافة البيانات والمستندات، وسنقوم بالتواصل معكم عبر بيانات الاتصال المزودة في هذا النموذج للبدء في الخطوات التالية.' 
-                          : 'After you submit your application, BBA will review the information you provide and contact you using the parent contact details entered in this form to proceed with the next steps.'}
+                          ? 'بمجرد إرسال طلبكم، سيقوم فريق الأكاديمية بمراجعة البيانات والمستندات والتواصل معكم للبدء في الخطوات التالية.' 
+                          : 'After you submit your application, BBA will review the information and contact you to proceed with the next steps.'}
                       </p>
-                    </div>
-                    <div className="flex items-center gap-3 py-4 px-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                       <div className="h-2 w-2 rounded-full bg-secondary animate-pulse" />
-                       <span className="text-[10px] font-black uppercase tracking-widest opacity-80">{isAr ? 'بانتظار تأكيدكم النهائي' : 'Waiting for your final confirmation'}</span>
                     </div>
                   </div>
                 </div>
@@ -845,7 +805,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   variant="ghost" 
                   onClick={handleBack} 
                   disabled={currentStep === 1 || isSubmitting}
-                  className="w-full sm:w-auto h-14 px-8 rounded-2xl font-black text-slate-400 hover:text-primary transition-all gap-2"
+                  className="w-full sm:w-auto h-14 px-8 rounded-xl font-black text-slate-400 hover:text-primary transition-all gap-2"
                 >
                   {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
                   {isAr ? 'السابق' : 'Previous Step'}
@@ -854,7 +814,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                 {currentStep < 4 ? (
                   <Button 
                     onClick={handleNext} 
-                    className="w-full sm:w-auto h-16 px-12 rounded-2xl bg-primary hover:bg-accent text-white font-black shadow-xl shadow-primary/20 transition-all gap-2"
+                    className="w-full sm:w-auto h-16 px-12 rounded-xl bg-primary hover:bg-accent text-white font-black shadow-xl shadow-primary/20 transition-all gap-2"
                   >
                     {isAr ? 'متابعة' : 'Continue'}
                     {isAr ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
@@ -881,22 +841,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
               </div>
             </CardContent>
           </Card>
-
-          <div className="text-center space-y-4">
-             <div className="flex justify-center items-center gap-3 text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em]">
-                <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                <span>{isAr ? 'تشفير البيانات مفعل' : 'Data Encryption Active'}</span>
-                <span className="hidden sm:inline opacity-30">|</span>
-                <span className="hidden sm:inline">{isAr ? 'يتم حفظ تقدمك تلقائياً' : 'Auto-Save Enabled'}</span>
-             </div>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Temporary ShieldCheck icon replacement if not in lucide
 function ShieldCheck(props: any) {
   return (
     <svg
