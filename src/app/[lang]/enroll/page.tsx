@@ -128,7 +128,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeUploadCategory, setActiveUploadCategory] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<any>({
+  const initialFormData = {
     parent1Name: '',
     parent1Phone: '',
     parent1Email: '',
@@ -167,7 +167,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       studentId: [],
       parentId: [],
     }
-  });
+  };
+
+  const [formData, setFormData] = useState<any>(initialFormData);
 
   const availablePrograms = [
     {
@@ -201,7 +203,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        setFormData(parsed);
+        // Ensure files object exists even if loading an old draft
+        const mergedData = {
+          ...initialFormData,
+          ...parsed,
+          files: {
+            ...initialFormData.files,
+            ...(parsed.files || {})
+          }
+        };
+        setFormData(mergedData);
       } catch (e) {
         console.error("Failed to parse draft", e);
       }
@@ -363,7 +374,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           let width = img.width;
           let height = img.height;
 
-          // Max dimension for compression to keep base64 string reasonable
           const MAX_DIM = 1200;
           if (width > height) {
             if (width > MAX_DIM) {
@@ -382,7 +392,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          // Quality 0.7 for good balance between size and readability
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
           resolve(compressedBase64);
         };
@@ -402,17 +411,17 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   };
 
   const handleFileSelect = async (files: FileList | null, category: string) => {
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0 || !category) return;
     
     setIsProcessingFile(category);
-    const newFiles = [...formData.files[category]];
+    const existingFiles = formData.files?.[category] || [];
+    const newFilesList = [...existingFiles];
     
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Limit total files
-        if (newFiles.length >= 12) {
+        if (newFilesList.length >= 12) {
           toast({
             variant: "destructive",
             title: isAr ? "الحد الأقصى للملفات" : "File Limit Reached",
@@ -425,11 +434,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         if (file.type.startsWith('image/')) {
           base64Data = await compressImage(file);
         } else {
-          // For PDFs and others, just convert to base64
           base64Data = await fileToBase64(file);
         }
 
-        newFiles.push({
+        newFilesList.push({
           name: file.name,
           type: file.type,
           size: file.size,
@@ -440,8 +448,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       setFormData((prev: any) => ({
         ...prev,
         files: {
-          ...prev.files,
-          [category]: newFiles
+          ...(prev.files || {}),
+          [category]: newFilesList
         }
       }));
 
@@ -459,12 +467,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   };
 
   const removeFile = (category: string, index: number) => {
-    const updatedFiles = [...formData.files[category]];
+    const updatedFiles = [...(formData.files?.[category] || [])];
     updatedFiles.splice(index, 1);
     setFormData((prev: any) => ({
       ...prev,
       files: {
-        ...prev.files,
+        ...(prev.files || {}),
         [category]: updatedFiles
       }
     }));
@@ -481,7 +489,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (n === 1) return { monthly: 75, term: 225 };
     if (n === 2) return { monthly: 70, term: 420 };
     if (n === 3) return { monthly: 65, term: 585 };
-    return { monthly: 60, term: 720 }; // 4 siblings tier
+    return { monthly: 60, term: 720 }; 
   };
 
   if (isSubmitted) {
@@ -564,11 +572,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </Card>
 
           <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white">
-            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-4 md:p-6">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-4 md:p-5">
               <div className="flex justify-between items-center">
                 <div className="space-y-0.5 overflow-hidden">
                   <div className="text-secondary font-black uppercase tracking-[0.2em] text-[8px] md:text-[10px]">{isAr ? 'الخطوة الحالية' : 'Current Step'}</div>
-                  <CardTitle className="text-base md:text-xl font-black text-primary uppercase truncate leading-tight">
+                  <CardTitle className="text-sm md:text-xl font-black text-primary uppercase truncate leading-tight">
                     {steps[currentStep-1].name[lang]}
                   </CardTitle>
                 </div>
@@ -985,7 +993,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     ))}
                   </RadioGroup>
 
-                  {/* Detailed Information & Options Reveal */}
                   {formData.programOption === 'grades-3-5' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                       <Card className="border-2 border-secondary/20 bg-secondary/5 rounded-[2rem] overflow-hidden">
@@ -1219,7 +1226,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                              </div>
                           </CardHeader>
                           <CardContent className="p-4 md:p-8 space-y-10">
-                             {/* Time Slots */}
                              <div className="space-y-4">
                                 <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
                                    <Clock className="h-4 w-4" />
@@ -1238,7 +1244,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 </RadioGroup>
                              </div>
 
-                             {/* Terms & Dates */}
                              <div className="space-y-4">
                                 <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
                                    <CalendarIcon className="h-4 w-4" />
@@ -1264,7 +1269,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 </RadioGroup>
                              </div>
 
-                             {/* Sibling Tuition Table */}
                              <div className="space-y-6">
                                 <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
                                    <Users className="h-4 w-4" />
@@ -1311,7 +1315,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
                   )}
 
-                  {/* Summary & Final Note */}
                   {formData.paymentTier && (
                     <div className="bg-slate-900 text-white p-6 md:p-8 rounded-[2rem] shadow-2xl space-y-6 animate-in fade-in duration-700 mx-1">
                        <div className="flex items-center gap-3 border-b border-white/10 pb-4">
@@ -1414,8 +1417,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </p>
                            </div>
 
-                           {/* File List in Card */}
-                           {formData.files[category.id].length > 0 && (
+                           {formData.files?.[category.id]?.length > 0 && (
                              <div className="w-full pt-4 space-y-2" onClick={(e) => e.stopPropagation()}>
                                {formData.files[category.id].map((file: any, idx: number) => (
                                  <div key={idx} className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
@@ -1437,7 +1439,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       ))}
                     </div>
 
-                    {/* Hidden Global File Input */}
                     <input 
                       type="file" 
                       ref={fileInputRef} 
