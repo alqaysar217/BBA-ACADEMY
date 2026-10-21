@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -16,7 +15,8 @@ import {
   PhoneCall,
   Home,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  UserCheck
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -27,9 +27,9 @@ const navigation = [
   { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home },
   { name: { en: 'Programs', ar: 'البرامج' }, href: '/programs', icon: BookOpen },
   { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
+  { name: { en: 'Founder', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
   { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
   { name: { en: 'Planning', ar: 'التخطيط' }, href: '/planning', icon: Map },
-  { name: { en: 'Resources', ar: 'الموارد' }, href: '/ny-resources', icon: Library },
   { name: { en: 'Contact', ar: 'اتصل بنا' }, href: '/contact', icon: PhoneCall },
 ];
 
@@ -80,7 +80,7 @@ export function Header({ lang }: { lang: Locale }) {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6">
             {navigation.filter(i => i.href !== '').map((item) => {
               const Icon = item.icon;
               const active = isLinkActive(item.href);
@@ -89,11 +89,11 @@ export function Header({ lang }: { lang: Locale }) {
                   key={item.href}
                   href={`/${lang}${item.href}`}
                   className={cn(
-                    "text-sm font-semibold transition-colors hover:text-secondary flex items-center gap-2",
+                    "text-xs font-bold transition-colors hover:text-secondary flex items-center gap-2",
                     active ? "text-secondary" : "text-primary/70"
                   )}
                 >
-                  <Icon className={cn("h-4 w-4", active ? "text-secondary" : "text-secondary/60")} />
+                  <Icon className={cn("h-3.5 w-3.5", active ? "text-secondary" : "text-secondary/60")} />
                   {item.name[lang]}
                 </Link>
               );

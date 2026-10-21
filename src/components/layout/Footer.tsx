@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -21,7 +20,8 @@ import {
   Library,
   PhoneCall,
   GraduationCap,
-  Lock
+  Lock,
+  UserCheck
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -57,12 +57,12 @@ export function Footer({ lang }: { lang: Locale }) {
 
   const quickLinks = [
     { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home },
+    { name: { en: 'Founder Message', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
     { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs', icon: BookOpen },
     { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
     { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
     { name: { en: 'Planning', ar: 'التخطيط والتخرج' }, href: '/planning', icon: Map },
     { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide', icon: GraduationCap },
-    { name: { en: 'NY Resources', ar: 'موارد نيويورك' }, href: '/ny-resources', icon: Library },
     { name: { en: 'Contact Us', ar: 'اتصل بنا' }, href: '/contact', icon: PhoneCall },
   ];
 
