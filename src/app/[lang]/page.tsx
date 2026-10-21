@@ -93,7 +93,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       {/* SECTION 1 — HERO */}
-      <section className="relative min-h-[90vh] flex flex-col overflow-hidden bg-primary py-12 lg:py-20">
+      <section className="relative min-h-[95vh] flex flex-col overflow-hidden bg-primary py-12 lg:py-20">
         <div className="absolute inset-0 z-0">
           <div className="hidden sm:block absolute inset-0">
             <Image src="/Academy background.png" alt="Academy background" fill className="object-cover" priority unoptimized />
@@ -107,20 +107,20 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         <div className="container-tight relative z-10 flex flex-col flex-1 w-full px-4 h-full">
           <div className="flex-1" />
           
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-4 sm:space-y-6">
             <div className="relative inline-flex items-center gap-4 py-2 px-8">
               <div className="absolute inset-0 bg-white/10 border-l-4 border-secondary -skew-x-12 backdrop-blur-md rounded-lg" />
               <span className="relative text-[10px] sm:text-xs font-black tracking-[0.3em] text-white uppercase drop-shadow-md">{t.hero.welcome}</span>
             </div>
             
-            <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl lg:text-6xl leading-tight uppercase drop-shadow-2xl">
+            <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl lg:text-5xl leading-tight uppercase drop-shadow-2xl">
               {t.hero.title}
             </h1>
           </div>
           
           <div className="flex-1" />
 
-          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto px-6 max-w-4xl mx-auto mb-10 lg:mb-16">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto px-6 max-w-4xl mx-auto mb-10 md:mb-16">
             <Button asChild size="lg" className="h-16 sm:h-20 lg:h-16 px-12 sm:px-16 lg:px-12 text-xl sm:text-2xl lg:text-xl bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl rounded-full transition-all font-black border-4 border-transparent hover:border-secondary">
               <Link href={`/${lang}/enroll`}>{t.hero.apply}</Link>
             </Button>
@@ -144,7 +144,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
             <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic leading-tight max-w-2xl mx-auto">{t.why.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
             <p className="text-slate-500 max-w-3xl mx-auto font-bold text-sm md:text-lg leading-relaxed opacity-80">{t.why.intro}</p>
@@ -153,11 +153,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
             {t.why.items.map((item, idx) => (
               <div key={idx} className="bg-white p-8 rounded-2xl shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
-                <div className="h-14 sm:h-16 lg:h-20 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
-                  <item.icon className="h-7 w-7 lg:h-10 lg:w-10" />
+                <div className="h-14 sm:h-16 lg:h-16 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
+                  <item.icon className="h-7 w-7 lg:h-8 lg:w-8" />
                 </div>
                 <div className="space-y-3">
-                  <h3 className="font-black text-base lg:text-xl text-primary uppercase leading-tight">{item.title}</h3>
+                  <h3 className="font-black text-base lg:text-lg text-primary uppercase leading-tight">{item.title}</h3>
                   <p className="text-slate-500 font-medium text-[11px] lg:text-sm leading-relaxed">{item.desc}</p>
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
             <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic max-w-2xl mx-auto">{t.programs.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
@@ -212,12 +212,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
              </div>
              <div className="space-y-10 order-1 lg:order-2">
                 <div className="space-y-6 text-center lg:text-start">
-                   <h2 className="text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
+                   <h2 className="text-2xl md:text-3xl lg:text-3xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
                    <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic leading-tight">{t.about.subtitle}</p>
                    <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                 </div>
                 <div className="space-y-8 text-white/80 font-medium text-sm lg:text-lg leading-relaxed">
-                   <p className="font-black text-white text-base lg:text-xl border-l-8 border-secondary pl-6 sm:pl-8 py-2 bg-white/5 rounded-r-xl italic">
+                   <p className="font-black text-white text-sm sm:text-xl border-l-8 border-secondary pl-6 sm:pl-8 py-2 bg-white/5 rounded-r-xl italic">
                      {t.about.text1}
                    </p>
                    <p className="opacity-90">{t.about.text2}</p>
@@ -236,7 +236,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-slate-50 relative overflow-hidden">
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
             <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic max-w-2xl mx-auto">{t.planning.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
@@ -273,7 +273,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-primary uppercase tracking-tight leading-tight">{isAr ? 'آراء أولياء الأمور' : 'What Parents Say'}</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{isAr ? 'آراء أولياء الأمور' : 'What Parents Say'}</h2>
             <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic max-w-2xl mx-auto">{isAr ? 'تجارب حقيقية من عائلات BBA' : 'Real Experiences from BBA Families'}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
@@ -309,7 +309,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
             <div className="space-y-8 text-center lg:text-start">
               <div className="space-y-4">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-primary uppercase tracking-tight leading-tight">{t.faqs.title}</h2>
+                <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.faqs.title}</h2>
                 <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic leading-tight">{t.faqs.subtitle}</p>
                 <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
               </div>
@@ -337,7 +337,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row items-center group">
             <div className="p-10 lg:p-16 flex-1 space-y-10 text-center lg:text-start">
               <div className="space-y-4">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
+                <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
                 <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic">{t.cta.subtitle}</p>
               </div>
               <p className="text-slate-500 font-bold text-sm lg:text-lg leading-relaxed max-w-2xl">{t.cta.text}</p>
