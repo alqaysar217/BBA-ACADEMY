@@ -163,7 +163,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="flex flex-col overflow-hidden">
-      {/* SECTION 1 — HERO (Preserved Design) */}
+      {/* SECTION 1 — HERO */}
       <section className="relative min-h-[70vh] sm:min-h-[90vh] flex items-center overflow-hidden bg-primary py-12 sm:py-24">
         <div className="absolute inset-0 z-0">
           <div className="hidden sm:block absolute inset-0">
@@ -201,15 +201,15 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
             </div>
 
             <div className="space-y-2 sm:space-y-4">
-              <h1 className="text-3xl font-black tracking-tight text-white sm:text-6xl lg:text-8xl leading-tight sm:leading-[1] drop-shadow-2xl uppercase">
+              <h1 className="text-2xl font-black tracking-tight text-white sm:text-6xl lg:text-8xl leading-tight sm:leading-[1.1] drop-shadow-2xl uppercase">
                 {t.hero.title}
               </h1>
-              <h2 className="text-xl font-black text-secondary sm:text-4xl lg:text-5xl drop-shadow-lg italic">
+              <h2 className="text-lg font-black text-secondary sm:text-4xl lg:text-5xl drop-shadow-lg italic">
                 {t.hero.subtitle}
               </h2>
             </div>
 
-            <p className="text-base sm:text-2xl text-white/90 leading-relaxed max-w-3xl font-bold drop-shadow-lg px-4">
+            <p className="text-sm sm:text-2xl text-white/90 leading-relaxed max-w-3xl font-bold drop-shadow-lg px-4">
               {t.hero.desc}
             </p>
 
@@ -225,7 +225,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* SECTION 2 — WHY FAMILIES CHOOSE BBA (Light Theme) */}
+      {/* SECTION 2 — WHY FAMILIES CHOOSE BBA (Refined Centered Cards) */}
       <section className="section-padding bg-slate-50 relative overflow-hidden">
         <div className="container-tight relative z-10">
           <div className="text-center mb-12 sm:mb-20 space-y-4">
@@ -236,19 +236,19 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 px-4">
             {t.why.items.map((item, idx) => (
-              <div key={idx} className="bg-white p-8 sm:p-10 rounded-[2rem] border border-slate-100 space-y-6 hover:bg-white hover:shadow-2xl transition-all group border-b-8 border-b-transparent hover:border-b-secondary">
-                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl sm:rounded-3xl bg-slate-50 shadow-inner flex items-center justify-center text-secondary group-hover:scale-110 transition-transform duration-500">
-                  <item.icon className="h-8 w-8 sm:h-10 sm:w-10" />
+              <div key={idx} className="bg-white p-6 sm:p-10 rounded-[2rem] border border-slate-100 flex flex-col items-center text-center space-y-4 sm:space-y-6 hover:bg-white hover:shadow-2xl transition-all group border-b-8 border-b-transparent hover:border-b-secondary">
+                <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-2xl sm:rounded-3xl bg-slate-50 shadow-inner flex items-center justify-center text-secondary group-hover:scale-110 transition-transform duration-500">
+                  <item.icon className="h-7 w-7 sm:h-10 sm:w-10" />
                 </div>
-                <h3 className="font-black text-lg sm:text-xl text-primary leading-tight uppercase">{item.title}</h3>
-                <p className="text-slate-500 font-medium text-xs sm:text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="font-black text-base sm:text-xl text-primary leading-tight uppercase">{item.title}</h3>
+                <p className="text-slate-500 font-medium text-[10px] sm:text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* SECTION 3 — EXPLORE OUR ONLINE PROGRAMS (Visual Cards) */}
+      {/* SECTION 3 — EXPLORE OUR ONLINE PROGRAMS (Visual Cards matching inner design) */}
       <section className="section-padding bg-white">
         <div className="container-tight px-4">
           <div className="text-center mb-12 sm:mb-16 space-y-4">
@@ -263,11 +263,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   <Image src={prog.image} alt={prog.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent" />
                 </div>
-                <div className="p-8 sm:p-10 flex-1 flex flex-col space-y-4">
+                <div className="p-6 sm:p-10 flex-1 flex flex-col space-y-4">
                   <h3 className="text-base sm:text-lg font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
                     {prog.title}
                   </h3>
-                  <p className="text-slate-500 font-medium text-xs sm:text-base leading-relaxed">
+                  <p className="text-slate-500 font-medium text-[11px] sm:text-base leading-relaxed">
                     {prog.desc}
                   </p>
                   <div className="pt-6 mt-auto">
@@ -289,11 +289,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* SECTION 4 — ABOUT BBA (Editorial) */}
+      {/* SECTION 4 — ABOUT BBA */}
       <section className="section-padding bg-slate-50 relative overflow-hidden">
         <div className="container-tight px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-             <div className="relative aspect-[4/3] rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-white group order-2 lg:order-1">
+             <div className="relative aspect-[4/3] rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl ring-4 sm:ring-8 ring-white group order-2 lg:order-1">
                 <Image src="https://picsum.photos/seed/bba-about/1000/800" alt="Academy Learning" fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
              </div>
              <div className="space-y-8 order-1 lg:order-2">
@@ -314,7 +314,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* SECTION 5 — EDUCATIONAL PLANNING & FUTURE PATHWAYS (Contrast) */}
+      {/* SECTION 5 — EDUCATIONAL PLANNING & FUTURE PATHWAYS */}
       <section className="section-padding bg-primary text-white relative overflow-hidden">
          <div className="absolute inset-0 opacity-[0.05]">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -335,13 +335,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                {t.planning.items.map((item, idx) => (
-                 <div key={idx} className="bg-white rounded-[2rem] p-8 sm:p-10 border border-white/10 hover:bg-slate-50 transition-all group flex flex-col h-full hover:-translate-y-2 shadow-2xl">
-                    <div className="h-14 w-14 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-xl mb-6 group-hover:rotate-12 transition-transform">
-                       <Compass className="h-7 w-7" />
+                 <div key={idx} className="bg-white rounded-[2rem] p-6 sm:p-10 border border-white/10 hover:bg-slate-50 transition-all group flex flex-col h-full hover:-translate-y-2 shadow-2xl">
+                    <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-xl mb-6 group-hover:rotate-12 transition-transform">
+                       <Compass className="h-6 w-6 sm:h-7 sm:w-7" />
                     </div>
-                    <h3 className="font-black text-lg sm:text-xl mb-4 uppercase tracking-tight text-primary transition-colors">{item.title}</h3>
-                    <p className="text-slate-500 font-medium text-xs sm:text-sm leading-relaxed mb-8 flex-1">{item.desc}</p>
-                    <Button asChild variant="link" className="text-secondary font-black uppercase tracking-widest p-0 justify-start hover:text-primary transition-colors text-xs">
+                    <h3 className="font-black text-base sm:text-xl mb-4 uppercase tracking-tight text-primary transition-colors">{item.title}</h3>
+                    <p className="text-slate-500 font-medium text-[11px] sm:text-sm leading-relaxed mb-8 flex-1">{item.desc}</p>
+                    <Button asChild variant="link" className="text-secondary font-black uppercase tracking-widest p-0 justify-start hover:text-primary transition-colors text-[10px] sm:text-xs">
                        <Link href={`/${lang}/planning#${item.id}`}>
                           {t.planning.details}
                           {isAr ? <ArrowLeft className="mr-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
@@ -353,7 +353,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
          </div>
       </section>
 
-      {/* SECTION 6 — WHAT PARENTS SAY (Cards) */}
+      {/* SECTION 6 — WHAT PARENTS SAY */}
       <section className="section-padding bg-white">
          <div className="container-tight px-4">
             <div className="text-center mb-12 sm:mb-16 space-y-4">
@@ -363,36 +363,36 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {t.testimonials.items.map((test, idx) => (
-                <div key={idx} className="bg-slate-50 p-8 sm:p-10 rounded-[2.5rem] border border-slate-100 relative space-y-6 group hover:bg-white hover:shadow-2xl transition-all duration-500">
+                <div key={idx} className="bg-slate-50 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 relative space-y-6 group hover:bg-white hover:shadow-2xl transition-all duration-500">
                   <div className="flex gap-1 text-amber-400">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+                    {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 sm:h-4 sm:w-4 fill-current" />)}
                   </div>
                   <p className="text-slate-600 font-bold italic leading-relaxed text-sm sm:text-lg">"{test.text}"</p>
                   <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black shadow-inner">
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black shadow-inner">
                       {test.name[0]}
                     </div>
                     <div>
-                      <div className="font-black text-primary text-sm sm:text-base">{test.name}</div>
-                      <div className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">{test.role}</div>
+                      <div className="font-black text-primary text-xs sm:text-base">{test.name}</div>
+                      <div className="text-[9px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">{test.role}</div>
                     </div>
                   </div>
-                  <Quote className="absolute top-8 right-8 h-12 w-12 text-primary/5 group-hover:text-secondary/10 transition-colors" />
+                  <Quote className="absolute top-6 right-6 h-8 w-8 sm:h-12 sm:w-12 text-primary/5 group-hover:text-secondary/10 transition-colors" />
                 </div>
               ))}
             </div>
          </div>
       </section>
 
-      {/* SECTION 7 — FREQUENTLY ASKED QUESTIONS (Compact) */}
+      {/* SECTION 7 — FREQUENTLY ASKED QUESTIONS */}
       <section className="section-padding bg-slate-50 border-y border-slate-100">
          <div className="container-tight px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-               <div className="space-y-6 sm:space-y-8">
+               <div className="space-y-6 sm:space-y-8 text-center lg:text-start">
                   <div className="space-y-4">
                      <h2 className="text-2xl sm:text-5xl font-black text-primary uppercase tracking-tight">{t.faq.title}</h2>
                      <p className="text-lg sm:text-2xl font-black text-secondary italic">{t.faq.subtitle}</p>
-                     <div className="h-1.5 w-24 bg-secondary rounded-full" />
+                     <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                   </div>
                   <Button asChild size="lg" className="h-14 px-10 rounded-2xl bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-lg">
                      <Link href={`/${lang}/guide#courses-faqs`}>{isAr ? 'عرض جميع الأسئلة' : 'View All FAQs'}</Link>
@@ -402,11 +402,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-premium border border-slate-100">
                   <Accordion type="single" collapsible className="w-full space-y-4">
                     {t.faq.items.map((item, idx) => (
-                      <AccordionItem key={idx} value={`faq-${idx}`} className="border-2 rounded-2xl px-6 bg-slate-50/50 hover:bg-white transition-all">
-                        <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-sm sm:text-lg py-6">
+                      <AccordionItem key={idx} value={`faq-${idx}`} className="border-2 rounded-2xl px-4 sm:px-6 bg-slate-50/50 hover:bg-white transition-all">
+                        <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-xs sm:text-lg py-6">
                            {item.q}
                         </AccordionTrigger>
-                        <AccordionContent className="text-slate-500 font-bold leading-relaxed pb-6 pt-2 border-t border-slate-100 text-xs sm:text-base">
+                        <AccordionContent className="text-slate-500 font-bold leading-relaxed pb-6 pt-2 border-t border-slate-100 text-[11px] sm:text-base">
                            {item.a}
                         </AccordionContent>
                       </AccordionItem>
@@ -417,7 +417,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
          </div>
       </section>
 
-      {/* SECTION 8 — FINAL ENROLLMENT CALL TO ACTION (Premium) */}
+      {/* SECTION 8 — FINAL ENROLLMENT CALL TO ACTION */}
       <section className="section-padding bg-primary relative overflow-hidden">
          <div className="absolute inset-0 z-0">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-secondary/20 blur-[150px] rounded-full" />
@@ -425,7 +425,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
          
          <div className="container-tight relative z-10 px-4">
             <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] sm:rounded-[4rem] shadow-2xl overflow-hidden flex flex-col md:flex-row items-stretch border border-white/20">
-               <div className="p-8 sm:p-16 flex-1 space-y-8">
+               <div className="p-8 sm:p-16 flex-1 space-y-8 text-center md:text-start">
                   <div className="space-y-4">
                     <h2 className="text-2xl sm:text-5xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
                     <p className="text-lg sm:text-2xl font-black text-secondary italic leading-tight">{t.cta.subtitle}</p>
