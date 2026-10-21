@@ -58,6 +58,7 @@ export function Footer({ lang }: { lang: Locale }) {
   const quickLinks = [
     { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home },
     { name: { en: 'Founder Message', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
+    { name: { en: 'NY Resources', ar: 'موارد نيويورك' }, href: '/ny-resources', icon: MapPin },
     { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs', icon: BookOpen },
     { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
     { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },

@@ -16,7 +16,8 @@ import {
   Home,
   ChevronRight,
   ChevronLeft,
-  UserCheck
+  UserCheck,
+  MapPin
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -28,6 +29,7 @@ const navigation = [
   { name: { en: 'Programs', ar: 'البرامج' }, href: '/programs', icon: BookOpen },
   { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
   { name: { en: 'Founder', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
+  { name: { en: 'NY Resources', ar: 'موارد نيويورك' }, href: '/ny-resources', icon: MapPin },
   { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
   { name: { en: 'Planning', ar: 'التخطيط' }, href: '/planning', icon: Map },
   { name: { en: 'Contact', ar: 'اتصل بنا' }, href: '/contact', icon: PhoneCall },
