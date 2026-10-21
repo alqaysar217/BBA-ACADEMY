@@ -93,9 +93,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   };
 
   const testimonials = [
-    { name: isAr ? 'نورة' : 'Noura', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values." },
+    { name: isAr ? 'سارة' : 'Sarah', role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values." },
     { name: isAr ? 'أحمد' : 'Ahmed', role: isAr ? 'ولي أمر - ميشيغان' : 'Parent - Michigan', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel in ways I didn’t expect.' },
-    { name: isAr ? 'سارة' : 'Sarah', role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
+    { name: isAr ? 'نورة' : 'Noura', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
   ];
 
   return (
@@ -261,7 +261,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                     className="object-cover transition-transform duration-700 group-hover:scale-110" 
                     unoptimized 
                    />
-                   <div className="absolute inset-0 bg-primary/20" />
+                   <div className="absolute inset-0 bg-primary/40 backdrop-blur-[3px]" />
                 </div>
                 
                 <div className="p-6 flex flex-col flex-1 space-y-4 text-center">
