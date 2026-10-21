@@ -67,11 +67,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       subtitle: isAr ? 'مساعدة الطلاب على الاستعداد لما هو قادم' : 'Helping Students Prepare for What Comes Next',
       intro: isAr ? 'تتطلب الرحلة التعليمية الناجحة أكثر من مجرد إكمال الفصول الدراسية. يمكن أن يساعد التخطيط المدروس والسجلات المنظمة والتوجيه المستمر العائلات على اتخاذ قرارات مدروسة.' : 'A successful educational journey requires more than completing classes. Thoughtful planning, organized records, and ongoing guidance can help families make informed decisions.',
       items: [
-        { id: 'graduation', title: isAr ? 'تخطيط التخرج' : 'Graduation Planning', icon: GraduationCap, desc: isAr ? 'فهم أهمية التخطيط المسبق وتتبع التقدم الأكاديمي.' : 'Understand the importance of planning ahead and tracking academic progress.' },
-        { id: 'course', title: isAr ? 'تخطيط الدورات' : 'Course Planning', icon: BookOpen, desc: isAr ? 'اتخاذ قرارات مدروسة بشأن الدورات الدراسية والأهداف التعليمية.' : 'Make informed decisions about coursework and educational goals.' },
-        { id: 'guidance', title: isAr ? 'التوجيه الشخصي' : 'Personal Guidance', icon: Target, desc: isAr ? 'تلقي توجيه تعليمي يأخذ في الاعتبار الاحتياجات الفردية لكل طالب.' : "Receive educational guidance that considers each student's individual needs." },
-        { id: 'records', title: isAr ? 'السجلات الأكاديمية' : 'Academic Records', icon: FileText, desc: isAr ? 'تعرف على سبب أهمية الاحتفاظ بكشوف الدرجات والسجلات التعليمية.' : 'Learn why maintaining organized transcripts and educational records matters.' },
-        { id: 'college', title: isAr ? 'التحضير للمستقبل' : 'College & Future Prep', icon: Zap, desc: isAr ? 'استكشاف أهمية التخطيط المبكر للقبول في الجامعات.' : 'Explore the importance of early planning for college admissions.' }
+        { id: 'graduation', title: isAr ? 'تخطيط التخرج' : 'Graduation Planning', image: '/planning-1.png', desc: isAr ? 'فهم أهمية التخطيط المسبق وتتبع التقدم الأكاديمي.' : 'Understand the importance of planning ahead and tracking academic progress.' },
+        { id: 'course', title: isAr ? 'تخطيط الدورات' : 'Course Planning', image: '/planning-2.png', desc: isAr ? 'اتخاذ قرارات مدروسة بشأن الدورات الدراسية والأهداف التعليمية.' : 'Make informed decisions about coursework and educational goals.' },
+        { id: 'guidance', title: isAr ? 'التوجيه الشخصي' : 'Personal Guidance', image: '/planning-3.png', desc: isAr ? 'تلقي توجيه تعليمي يأخذ في الاعتبار الاحتياجات الفردية لكل طالب.' : "Receive educational guidance that considers each student's individual needs." },
+        { id: 'records', title: isAr ? 'السجلات الأكاديمية' : 'Academic Records', image: '/planning-4.png', desc: isAr ? 'تعرف على سبب أهمية الاحتفاظ بكشوف الدرجات والسجلات التعليمية.' : 'Learn why maintaining organized transcripts and educational records matters.' },
+        { id: 'college', title: isAr ? 'التحضير للمستقبل' : 'College & Future Prep', image: '/planning-5.png', desc: isAr ? 'استكشاف أهمية التخطيط المبكر للقبول في الجامعات.' : 'Explore the importance of early planning for college admissions.' }
       ]
     },
     faqs: {
@@ -93,9 +93,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   };
 
   const testimonials = [
-    { name: isAr ? 'سارة' : 'Sarah', role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values." },
+    { name: isAr ? 'نورة' : 'Noura', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values." },
     { name: isAr ? 'أحمد' : 'Ahmed', role: isAr ? 'ولي أمر - ميشيغان' : 'Parent - Michigan', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel in ways I didn’t expect.' },
-    { name: isAr ? 'نورة' : 'Noura', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
+    { name: isAr ? 'سارة' : 'Sarah', role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
   ];
 
   return (
@@ -252,26 +252,29 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
             {t.planning.items.map((item, idx) => (
-              <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center relative overflow-hidden hover:-translate-y-2">
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <pattern id={`grid-plan-${idx}`} width="15" height="15" patternUnits="userSpaceOnUse">
-                      <path d="M 15 0 L 0 0 0 15" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                    </pattern>
-                    <rect width="100%" height="100%" fill={`url(#grid-plan-${idx})`} />
-                  </svg>
+              <div key={idx} className="bg-white rounded-2xl overflow-hidden border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium relative hover:-translate-y-2">
+                <div className="relative h-40 w-full overflow-hidden shrink-0">
+                   <Image 
+                    src={item.image} 
+                    alt={item.title} 
+                    fill 
+                    className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                    unoptimized 
+                   />
+                   <div className="absolute inset-0 bg-primary/20" />
                 </div>
                 
-                <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg mb-6 shrink-0 transition-all duration-700 group-hover:rotate-12 relative z-10">
-                  <item.icon className="h-6 w-6 lg:h-8 lg:w-8" />
+                <div className="p-6 flex flex-col flex-1 space-y-4 text-center">
+                  <h3 className="font-black text-sm lg:text-base uppercase tracking-tight text-primary leading-tight">{item.title}</h3>
+                  <p className="text-slate-500 font-medium text-[10px] lg:text-xs leading-relaxed flex-1 opacity-80">
+                    {item.desc}
+                  </p>
+                  <Button asChild variant="outline" className="w-full h-10 rounded-xl border-primary/10 text-primary font-black uppercase tracking-widest text-[8px] transition-all hover:bg-primary hover:text-white">
+                    <Link href={`/${lang}/planning#${item.id}`}>
+                      {isAr ? 'عرض التفاصيل' : 'View Details'}
+                    </Link>
+                  </Button>
                 </div>
-                <h3 className="font-black text-sm lg:text-base mb-3 uppercase tracking-tight text-primary relative z-10">{item.title}</h3>
-                <p className="text-slate-500 font-medium text-[10px] lg:text-xs leading-relaxed mb-6 flex-1 opacity-80 relative z-10">{item.desc}</p>
-                <Button asChild className="w-full h-10 lg:h-9 rounded-xl bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[8px] transition-all relative z-10">
-                  <Link href={`/${lang}/planning#${item.id}`}>
-                    {isAr ? 'عرض التفاصيل' : 'View Details'}
-                  </Link>
-                </Button>
               </div>
             ))}
           </div>
@@ -291,7 +294,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
             {testimonials.map((test, idx) => (
               <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative space-y-4 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
+                  <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
                     <User className="h-6 w-6" />
                   </div>
                   <div className="min-w-0 text-start space-y-0.5">
