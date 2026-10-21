@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useAuth } from '@/firebase';
@@ -15,12 +14,13 @@ import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
 export default function AdminLoginPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const auth = useAuth();
   const router = useRouter();
-  const isAr = (params as any).lang === 'ar';
+  const isAr = lang === 'ar';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +33,7 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
         title: isAr ? "تم تسجيل الدخول" : "Logged In Successfully",
         description: isAr ? "مرحباً بك في لوحة الإدارة." : "Welcome to the Admin Panel.",
       });
-      router.push(`/${(params as any).lang}/admin`);
+      router.push(`/${lang}/admin`);
     } catch (err: any) {
       toast({
         variant: "destructive",
@@ -49,7 +49,7 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <Link href={`/${(params as any).lang}`} className="inline-flex items-center gap-2 text-slate-400 hover:text-primary font-bold text-sm transition-colors">
+          <Link href={`/${lang}`} className="inline-flex items-center gap-2 text-slate-400 hover:text-primary font-bold text-sm transition-colors">
             {isAr ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
             {isAr ? "العودة للموقع" : "Back to Website"}
           </Link>

@@ -1,45 +1,35 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy, where, Timestamp } from 'firebase/firestore';
 import { 
   Users, 
-  GraduationCap, 
-  CheckCircle2, 
-  Clock, 
   Search, 
-  Filter, 
   Eye, 
   ChevronRight, 
   LogOut,
   LayoutDashboard,
   FileText,
+  Clock,
   Calendar,
-  MoreVertical,
-  Download
+  Mail
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 export default function AdminDashboard({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
   const { user, loading: authLoading } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
-  const isAr = (params as any).lang === 'ar';
+  const isAr = lang === 'ar';
 
   const enrollmentsQuery = query(
     collection(firestore!, 'enrollments'),
@@ -52,9 +42,9 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push(`/${(params as any).lang}/admin/login`);
+      router.push(`/${lang}/admin/login`);
     }
-  }, [user, authLoading, router, params]);
+  }, [user, authLoading, router, lang]);
 
   if (authLoading || dataLoading) {
     return (
@@ -98,7 +88,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                 <p className="text-xs font-black">{user?.email}</p>
                 <p className="text-[9px] text-white/50 font-bold uppercase">Administrator</p>
              </div>
-             <Button variant="ghost" size="icon" onClick={() => router.push(`/${(params as any).lang}`)} className="text-white hover:bg-white/10">
+             <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}`)} className="text-white hover:bg-white/10">
                 <LogOut className="h-5 w-5" />
              </Button>
            </div>
@@ -189,7 +179,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                           </div>
                           <Button 
                             className="bg-primary hover:bg-secondary text-white rounded-xl h-12 px-6 gap-2 font-black transition-all group-hover:scale-105"
-                            onClick={() => router.push(`/${(params as any).lang}/admin/enrollments/${app.id}`)}
+                            onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}
                           >
                              {isAr ? 'عرض التفاصيل' : 'Review Details'}
                              <ChevronRight className="h-4 w-4" />
