@@ -40,7 +40,9 @@ import {
   History,
   User,
   Lightbulb,
-  DollarSign
+  DollarSign,
+  Laptop,
+  FileSignature
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -75,6 +77,27 @@ const getFaqs = (isAr: boolean) => [
       ? 'نقدم ثلاثة برامج رئيسية: برنامج الصفوف 3-5 (تأسيس ابتدائي)، برنامج الصفوف 6-12 (أكاديميات المتوسطة والثانوية)، وبرنامج عطلة نهاية الأسبوع (لتعزيز الهوية واللغة).'
       : 'We offer three main programs: Grades 3–5 (Elementary foundation), Grades 6–12 (Middle and High School), and the Weekend Program (Identity and Language enrichment).',
     icon: GraduationCap
+  },
+  {
+    q: isAr ? 'ما هي المتطلبات التقنية للدراسة؟' : 'What are the technical requirements?',
+    a: isAr 
+      ? 'يحتاج الطالب إلى جهاز كمبيوتر (لابتوب) أو جهاز لوحي (تابلت) بحد أدنى، بالإضافة إلى اتصال مستقر بالإنترنت لضمان الوصول للمنصة التعليمية وحضور الحصص المباشرة دون انقطاع.'
+      : 'The student needs at least a laptop or tablet, plus a stable internet connection to ensure access to the learning platform and attend live sessions without interruption.',
+    icon: Laptop
+  },
+  {
+    q: isAr ? 'أين أجد نموذج التسجيل وكيف أبدأ؟' : 'Where is the enrollment form and how to start?',
+    a: isAr 
+      ? 'يمكنك بدء عملية التسجيل عبر الضغط على زر "سجل الآن" الموجود في أعلى الصفحة أو في القائمة، حيث سيوجهك لنموذج تسجيل مكون من 4 خطوات بسيطة تبدأ ببيانات ولي الأمر.'
+      : 'You can start the enrollment process by clicking the "Apply Now" button at the top or in the menu. It will lead you to a 4-step form starting with parent information.',
+    icon: FileSignature
+  },
+  {
+    q: isAr ? 'أين أجد تفاصيل الرسوم الدراسية؟' : 'Where can I find tuition and fee details?',
+    a: isAr 
+      ? 'تفاصيل الرسوم موضحة بالكامل في صفحة البرامج التعليمية، كما تظهر لك بشكل مفصل ودقيق في الخطوة الثالثة من نموذج التسجيل بناءً على البرنامج الذي تختاره وعدد الطلاب.'
+      : 'Tuition details are fully explained on the Educational Programs page. They also appear in detail during Step 3 of the enrollment form based on your chosen program and number of students.',
+    icon: DollarSign
   },
   {
     q: isAr ? 'ما هي المواد التي يدرسها الطلاب في البرنامج الصباحي (3-5)؟' : 'What subjects do students learn in the Grades 3-5 program?',
@@ -155,12 +178,12 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
         
         <div className="container-tight relative z-10 text-center space-y-6 px-4">
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-5xl lg:text-4xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+            <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'دليل طالب وأولياء أمور BBA' : 'BBA Student & Parent Guide'}
             </h1>
             <div className="h-1 w-24 bg-secondary mx-auto rounded-full" />
           </div>
-          <p className="text-xs sm:text-xl text-white/80 font-bold max-w-3xl mx-auto leading-relaxed italic border-x-2 border-secondary/20 px-8">
+          <p className="text-xs sm:text-lg text-white/80 font-bold max-w-3xl mx-auto leading-relaxed italic border-x-2 border-secondary/20 px-8">
             {isAr 
               ? 'إليك كافة الإجابات التي تحتاجها حول تاريخنا، برامجنا، وطرق التواصل والنجاح معنا.' 
               : 'Find all the answers you need about our history, programs, communication, and success with us.'}
@@ -221,36 +244,18 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                               {faq.a}
                            </p>
                         </div>
+                        {faq.icon === FileSignature && (
+                          <div className="mt-6 flex justify-center">
+                            <Button asChild className="bg-secondary hover:bg-primary text-white font-black rounded-xl h-12 px-8">
+                              <Link href={`/${lang}/enroll`}>{isAr ? 'ابدأ التسجيل الآن' : 'Start Enrollment Now'}</Link>
+                            </Button>
+                          </div>
+                        )}
                      </div>
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          </div>
-
-          {/* Orientation Video Special Section */}
-          <div className="bg-slate-50 p-8 sm:p-12 rounded-2xl border border-slate-200 shadow-inner space-y-8">
-             <div className="text-center space-y-2">
-                <h3 className="text-xl sm:text-2xl font-black text-primary uppercase">{isAr ? 'فيديو تعريفي بمنصة Edgenuity' : 'Edgenuity Orientation Video'}</h3>
-                <p className="text-xs sm:text-sm text-slate-500 font-bold">{isAr ? 'تعلم كيفية التنقل في دروسك وتتبع تقدمك' : 'Learn how to navigate your lessons and track progress'}</p>
-             </div>
-             <div className="aspect-video bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/wTuSRO3BJ8k?start=9"
-                  title="Edgenuity Orientation"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-             </div>
-             <div className="flex justify-center">
-                <Button asChild size="lg" className="bg-secondary hover:bg-primary text-white font-black h-14 px-10 rounded-xl shadow-xl transition-all active:scale-95">
-                  <Link href="https://student.edgenuity.com/login" target="_blank" className="flex items-center gap-3">
-                    {isAr ? 'دخول منصة الطالب' : 'Student Login'}
-                    <ExternalLink className="h-4 w-4" />
-                  </Link>
-                </Button>
-             </div>
           </div>
 
           {/* Encouragement Footer */}
@@ -262,7 +267,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                    </div>
                 </div>
                 <div className="space-y-4">
-                  <h2 className="text-2xl sm:text-4xl font-black leading-tight tracking-tight">{isAr ? 'نحن معك في كل خطوة' : 'With You Every Step'}</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight">{isAr ? 'نحن معك في كل خطوة' : 'With You Every Step'}</h2>
                   <p className="text-sm sm:text-lg opacity-80 font-bold leading-relaxed italic max-w-lg mx-auto">
                      {isAr ? 'إذا كان لديك أي سؤال لم يتم ذكره أعلاه، فلا تتردد في التواصل معنا مباشرة.' : 'If you have any question not listed above, please feel free to reach out to us directly.'}
                   </p>
