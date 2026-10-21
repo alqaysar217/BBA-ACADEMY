@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { use } from 'react';
@@ -126,9 +127,9 @@ export default function TestimonialsPage({ params }: { params: Promise<{ lang: L
                    <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center font-black text-lg shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
                       {test.initial}
                    </div>
-                   <div className="min-w-0 text-start">
-                      <div className="font-black text-primary text-sm sm:text-base truncate">{test.name}</div>
-                      <div className="text-[10px] font-bold text-secondary uppercase truncate">{test.location} — {test.student}</div>
+                   <div className="min-w-0 text-start space-y-0.5">
+                      <div className="font-black text-primary text-sm sm:text-base truncate">{test.student}</div>
+                      <div className="text-[10px] font-bold text-secondary uppercase truncate">{test.name} — {test.location}</div>
                    </div>
                 </div>
 
@@ -168,3 +169,4 @@ export default function TestimonialsPage({ params }: { params: Promise<{ lang: L
     </div>
   );
 }
+
