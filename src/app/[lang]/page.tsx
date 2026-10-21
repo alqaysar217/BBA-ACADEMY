@@ -16,7 +16,8 @@ import {
   Zap,
   ChevronRight,
   ChevronLeft,
-  Clock
+  Clock,
+  User
 } from 'lucide-react';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -58,7 +59,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       title: isAr ? 'حول أكاديمية بنين وبنات' : 'About Baneen and Banaat Academy',
       subtitle: isAr ? 'تعليم متجذر في التميز والقيم' : 'Education Rooted in Excellence and Values',
       text1: isAr ? 'تأسست أكاديمية بنين وبنات في عام 2019، وهي مجتمع تعليمي عبر الإنترنت يدعم الطلاب والعائلات في جميع أنحاء الولايات المتحدة.' : 'Founded in 2019, Baneen and Banaat Academy is an online educational community supporting students and families across the United States.',
-      text2: isAr ? 'نحن نؤمن بأن التعليم الهادف يتجاوز الإنجاز الأكاديمي. من خلال التعلم عبر الإنترنت، والتوجيه الشخصي، والقيم الأخلاقية القوية، والشراكة العائلية، نساعد الطلاب على بناء الثقة والاستعداد للفرص المقبلة.' : 'We believe meaningful education goes beyond academic achievement. Through online learning, personalized guidance, strong moral values, and family partnership, we help students build confidence and prepare for the opportunities ahead.',
+      text2: isAr ? 'نحن نؤمن بأن التعليم الهادف يتجاوز الإنجاز الأكاديمي. من خلال التعلم عبر الإنترنت, والتوجيه الشخصي، والقيم الأخلاقية القوية، والشراكة العائلية، نساعد الطلاب على بناء الثقة والاستعداد للفرص المقبلة.' : 'We believe meaningful education goes beyond academic achievement. Through online learning, personalized guidance, strong moral values, and family partnership, we help students build confidence and prepare for the opportunities ahead.',
       cta: isAr ? 'اعرف المزيد عن الأكاديمية' : 'Learn More About BBA'
     },
     planning: {
@@ -92,9 +93,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   };
 
   const testimonials = [
-    { s: 'S', name: isAr ? 'سارة م.' : 'Sarah M.', role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values." },
-    { s: 'A', name: isAr ? 'أحمد ك.' : 'Ahmed K.', role: isAr ? 'ولي أمر - ميشيغان' : 'Parent - Michigan', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel in ways I didn’t expect.' },
-    { s: 'N', name: isAr ? 'نورة ح.' : 'Noura H.', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
+    { name: isAr ? 'سارة' : 'Sarah', role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values." },
+    { name: isAr ? 'أحمد' : 'Ahmed', role: isAr ? 'ولي أمر - ميشيغان' : 'Parent - Michigan', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel in ways I didn’t expect.' },
+    { name: isAr ? 'نورة' : 'Noura', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
   ];
 
   return (
@@ -120,7 +121,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               <span className="relative text-[10px] sm:text-xs font-black tracking-[0.3em] text-white uppercase drop-shadow-md">{t.hero.welcome}</span>
             </div>
             
-            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-3xl xl:text-4xl leading-tight uppercase drop-shadow-2xl">
+            <h1 className="text-2xl sm:text-5xl lg:text-3xl xl:text-4xl font-black tracking-tight text-white leading-tight uppercase drop-shadow-2xl">
               {t.hero.title}
             </h1>
           </div>
@@ -290,8 +291,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
             {testimonials.map((test, idx) => (
               <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative space-y-4 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
-                    {test.s}
+                  <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
+                    <User className="h-6 w-6" />
                   </div>
                   <div className="min-w-0 text-start space-y-0.5">
                     <div className="font-black text-primary text-sm">{test.name}</div>

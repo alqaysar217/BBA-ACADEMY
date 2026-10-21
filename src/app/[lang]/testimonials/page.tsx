@@ -3,54 +3,48 @@
 
 import { use } from 'react';
 import { type Locale } from '@/lib/i18n/config';
-import { Star, Quote, Users, MessageSquare, ArrowRight, ArrowLeft, Heart, CheckCircle2 } from 'lucide-react';
+import { Star, Quote, Users, MessageSquare, ArrowRight, ArrowLeft, Heart, CheckCircle2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 const getTestimonials = (isAr: boolean) => [
   {
-    initial: 'S',
-    name: isAr ? 'سارة م.' : 'Sarah M.',
+    name: isAr ? 'سارة' : 'Sarah',
     role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York',
     text: isAr 
       ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.'
       : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values."
   },
   {
-    initial: 'A',
-    name: isAr ? 'أحمد ك.' : 'Ahmed K.',
+    name: isAr ? 'أحمد' : 'Ahmed',
     role: isAr ? 'ولي أمر - ميشيغان' : 'Parent - Michigan',
     text: isAr 
       ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.'
       : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel in ways I didn’t expect.'
   },
   {
-    initial: 'N',
-    name: isAr ? 'نورة ح.' : 'Noura H.',
+    name: isAr ? 'نورة' : 'Noura',
     role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas',
     text: isAr 
       ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.'
       : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.'
   },
   {
-    initial: 'M',
-    name: isAr ? 'مريم ر.' : 'Mariam R.',
+    name: isAr ? 'مريم' : 'Mariam',
     role: isAr ? 'ولي أمر - فرجينيا' : 'Parent - Virginia',
     text: isAr 
       ? 'نظام Edgenuity مع توجيه BBA جعل ابني أكثر استقلالية ومسؤولية. المعلمون متعاونون جداً ويجيبون على كافة استفساراتنا بسرعة.'
       : 'The Edgenuity system with BBA guidance made my son more independent. The teachers are very helpful and answer all our inquiries quickly.'
   },
   {
-    initial: 'Y',
-    name: isAr ? 'ياسين ب.' : 'Yassine B.',
+    name: isAr ? 'ياسين' : 'Yassine',
     role: isAr ? 'ولي أمر - نيوجيرسي' : 'Parent - New Jersey',
     text: isAr 
       ? 'أقدر جداً التركيز على الهوية الإسلامية واللغة العربية بجانب المنهج القوي. ابني الآن يقرأ القرآن بتجويد أفضل بكثير بفضل الله ثم الأكاديمية.'
       : 'I truly appreciate the focus on Islamic identity and Arabic alongside a strong curriculum. My son now reads Quran with much better Tajweed.'
   },
   {
-    initial: 'L',
-    name: isAr ? 'ليلى س.' : 'Layla S.',
+    name: isAr ? 'ليلى' : 'Layla',
     role: isAr ? 'ولي أمر - أوهايو' : 'Parent - Ohio',
     text: isAr 
       ? 'شكراً لكل القائمين على هذا العمل العظيم. ابنتي متحمسة دائماً لحضور حصصها المباشرة وتكوين صداقات مع طالبات من مختلف الولايات.'
@@ -117,8 +111,8 @@ export default function TestimonialsPage({ params }: { params: Promise<{ lang: L
                 
                 {/* Compact Profile Section */}
                 <div className="flex items-center gap-4 mb-6">
-                   <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center font-black text-lg shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
-                      {test.initial}
+                   <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
+                      <User className="h-6 w-6" />
                    </div>
                    <div className="min-w-0 text-start space-y-0.5">
                       <div className="font-black text-primary text-sm sm:text-base truncate">{test.name}</div>
