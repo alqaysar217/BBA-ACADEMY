@@ -229,6 +229,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
+        // Ensure files structure is correct even with old drafts
+        if (!parsed.files) parsed.files = [];
         setFormData((prev: any) => ({ ...prev, ...parsed }));
       } catch (e) {
         console.error("Failed to parse draft", e);
@@ -274,19 +276,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const validateStep = (stepId: number) => {
     if (stepId === 1) {
       return (
-        formData.parent1Name &&
-        formData.parent1Phone &&
-        formData.parent1Email &&
+        formData.parent1Name?.trim() &&
+        formData.parent1Phone?.trim() &&
+        formData.parent1Email?.trim() &&
         formData.relationship1 &&
-        formData.address.line1 &&
-        formData.address.city &&
+        formData.address.line1?.trim() &&
+        formData.address.city?.trim() &&
         formData.address.state &&
-        formData.address.zip
+        formData.address.zip?.trim()
       );
     }
     if (stepId === 2) {
-      return formData.students.every((st: any) => 
-        st.status && st.firstName && st.lastName && st.dob && st.gender && st.lastGrade && st.phone && st.email
+      return formData.students.length > 0 && formData.students.every((st: any) => 
+        st.status && st.firstName?.trim() && st.lastName?.trim() && st.dob && st.gender && st.lastGrade && st.phone?.trim() && st.email?.trim()
       );
     }
     if (stepId === 3) {
@@ -297,11 +299,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       if (formData.programOption === 'weekend') return !!formData.weekendSlot;
       return true;
     }
+    if (stepId === 4) {
+      return Array.isArray(formData.files) && formData.files.length > 0;
+    }
     return true;
   };
 
   const isFieldInvalid = (value: any) => {
-    return attemptedNext && !value;
+    return attemptedNext && (!value || (typeof value === 'string' && value.trim() === ''));
   };
 
   const handleSiblingCountChange = (count: string) => {
@@ -395,6 +400,31 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         title: isAr ? "لا يمكن الإرسال حالياً" : "Submission Unavailable",
         description: isAr ? "يرجى التحقق من اتصالك بالإنترنت للمتابعة." : "Please check your internet connection to continue.",
       });
+      return;
+    }
+
+    // FINAL COMPREHENSIVE VALIDATION CHECK
+    const step1Valid = validateStep(1);
+    const step2Valid = validateStep(2);
+    const step3Valid = validateStep(3);
+    const step4Valid = validateStep(4);
+
+    if (!step1Valid || !step2Valid || !step3Valid || !step4Valid) {
+      setAttemptedNext(true);
+      toast({
+        variant: "destructive",
+        title: isAr ? "خطأ في الإرسال" : "Submission Error",
+        description: isAr 
+          ? "يرجى التأكد من ملء كافة البيانات المطلوبة ورفع المستندات في جميع الخطوات." 
+          : "Please ensure all required data is filled and documents are uploaded in all steps.",
+      });
+      
+      // Navigate to the first invalid step
+      if (!step1Valid) setCurrentStep(1);
+      else if (!step2Valid) setCurrentStep(2);
+      else if (!step3Valid) setCurrentStep(3);
+      else if (!step4Valid) setCurrentStep(4);
+      
       return;
     }
 
@@ -1351,7 +1381,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <div 
                       className={cn(
                         "relative p-10 md:p-16 border-2 border-dashed rounded-[2.5rem] flex flex-col items-center text-center space-y-6 transition-all group mx-2",
-                        isProcessingFile ? "bg-secondary/5 border-secondary animate-pulse" : "bg-slate-50/50 border-slate-200 hover:bg-white hover:border-secondary/50 hover:shadow-2xl"
+                        isProcessingFile ? "bg-secondary/5 border-secondary animate-pulse" : "bg-slate-50/50 border-slate-200 hover:bg-white hover:border-secondary/50 hover:shadow-2xl",
+                        attemptedNext && (!formData.files || formData.files.length === 0) && "border-red-500 bg-red-50/10 shadow-[0_0_20px_rgba(239,68,68,0.1)]"
                       )}
                       onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-secondary', 'bg-secondary/5'); }}
                       onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-secondary', 'bg-secondary/5'); }}
@@ -1370,7 +1401,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                          </div>
                        )}
                        <div className="space-y-2">
-                          <div className="text-sm md:text-lg font-black text-primary uppercase tracking-tight">
+                          <div className={cn("text-sm md:text-lg font-black text-primary uppercase tracking-tight", attemptedNext && (!formData.files || formData.files.length === 0) && "text-red-600")}>
                             {isAr ? 'اسحب الملفات هنا أو انقر للإضافة' : 'Drag files here or click to add'}
                           </div>
                           <p className="text-[10px] md:text-xs text-slate-400 font-bold max-w-xs mx-auto">
