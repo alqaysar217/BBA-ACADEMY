@@ -149,8 +149,8 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
               <Card className="rounded-2xl border-none shadow-premium overflow-hidden bg-slate-50/50 hover:shadow-xl transition-all duration-700 group">
                  <div className="flex flex-col md:flex-row items-stretch">
                     <div className="md:w-1/4 bg-primary text-white p-8 lg:p-10 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden shrink-0 min-h-[200px]">
-                       {/* Background Image Replace Icons */}
-                       <div className="absolute inset-0 opacity-[0.15] group-hover:scale-110 transition-transform duration-1000">
+                       {/* Background Image with lower opacity */}
+                       <div className="absolute inset-0 opacity-[0.08] group-hover:scale-110 transition-transform duration-1000">
                           <Image 
                             src={section.image} 
                             alt={section.title} 
