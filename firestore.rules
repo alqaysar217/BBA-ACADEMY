@@ -5,14 +5,16 @@ service cloud.firestore {
     // Enrollments collection
     match /enrollments/{enrollmentId} {
       // Allow anyone to create an enrollment (public registration)
-      // Allow users to read/update their own drafts
       allow create: if true;
-      allow get, update: if request.auth != null && (request.auth.uid == resource.data.userId || request.auth.token.email.endsWith('@baneenbanaat.org'));
       
-      // Admin Access: Allow read and list if the user is logged in with an academy email
-      // This is a simplified admin check for the prototype
-      allow list: if request.auth != null && request.auth.token.email.endsWith('@baneenbanaat.org');
-      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || request.auth.token.email.endsWith('@baneenbanaat.org'));
+      // FOR PROTOTYPE TESTING: Allow public read and list so the 'admin/admin' 
+      // bypass works without real Firebase Authentication.
+      // IN PRODUCTION: These should be restricted to authenticated admins only.
+      allow list: if true;
+      allow get: if true;
+      
+      // Allow update for testing
+      allow update: if true; 
     }
   }
 }

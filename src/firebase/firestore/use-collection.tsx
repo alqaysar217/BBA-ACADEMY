@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -33,8 +34,11 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         setLoading(false);
       },
       async (serverError) => {
+        // Attempt to get a readable path from the query object for debugging
+        const path = (query as any).path || 'enrollments';
+        
         const permissionError = new FirestorePermissionError({
-          path: (query as any)._path?.relativeName || 'unknown',
+          path: path,
           operation: 'list',
         });
         errorEmitter.emit('permission-error', permissionError);
