@@ -1,4 +1,5 @@
 
+
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -106,7 +107,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
 
         <div className="container-tight relative z-10 flex flex-col flex-1 w-full px-4 h-full">
-          <div className="flex-[1.8]" />
+          <div className="flex-[1.5]" />
           
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-4 sm:space-y-6">
             <div className="relative inline-flex items-center gap-4 py-2 px-8">
@@ -305,8 +306,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
           <div className="mt-12 text-center">
             <Button asChild variant="ghost" className="text-secondary font-black hover:bg-secondary/5 gap-2 h-12 rounded-xl">
-              <Link href={`/${lang}/contact`} className="flex items-center gap-2">
-                {isAr ? 'هل لديك تجربة تود مشاركتها؟ تواصل معنا' : 'Have an experience to share? Contact us'}
+              <Link href={`/${lang}/testimonials`} className="flex items-center gap-2">
+                {isAr ? 'عرض كافة الآراء' : 'View All Testimonials'}
                 {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
               </Link>
             </Button>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -17,7 +18,8 @@ import {
   ChevronRight,
   ChevronLeft,
   UserCheck,
-  MapPin
+  MapPin,
+  MessageSquare
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -27,6 +29,7 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: { en: 'Home', ar: 'الرئيسية' }, href: '', icon: Home },
   { name: { en: 'Programs', ar: 'البرامج' }, href: '/programs', icon: BookOpen },
+  { name: { en: 'Testimonials', ar: 'آراء الأهالي' }, href: '/testimonials', icon: MessageSquare },
   { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
   { name: { en: 'Founder', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
   { name: { en: 'NY Resources', ar: 'موارد نيويورك' }, href: '/ny-resources', icon: MapPin },
@@ -83,7 +86,7 @@ export function Header({ lang }: { lang: Locale }) {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-6">
-            {navigation.filter(i => i.href !== '').map((item) => {
+            {navigation.filter(i => i.href !== '' && i.href !== '/planning' && i.href !== '/story').map((item) => {
               const Icon = item.icon;
               const active = isLinkActive(item.href);
               return (
