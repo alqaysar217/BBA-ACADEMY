@@ -26,7 +26,7 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TESTING BYPASS: Allow admin/admin for rapid testing
+    // 1. TESTING BYPASS: Allow admin/admin for rapid local testing
     if (email.toLowerCase() === 'admin' && password.toLowerCase() === 'admin') {
       setLoading(true);
       localStorage.setItem('bba_test_admin', 'true');
@@ -40,22 +40,40 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
       return;
     }
 
-    if (!auth) return;
+    // 2. REAL FIREBASE AUTHENTICATION
+    if (!auth) {
+      toast({
+        variant: "destructive",
+        title: isAr ? "خطأ في النظام" : "System Error",
+        description: isAr ? "خدمة المصادقة غير متوفرة حالياً." : "Auth service is currently unavailable.",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
+      // Try to sign in with official Firebase Credentials
       await signInWithEmailAndPassword(auth, email, password);
-      localStorage.removeItem('bba_test_admin'); // Clear test flag if real auth used
+      
+      // If successful, clear any test flags and proceed
+      localStorage.removeItem('bba_test_admin');
       toast({
-        title: isAr ? "تم تسجيل الدخول" : "Logged In Successfully",
-        description: isAr ? "مرحباً بك في لوحة الإدارة." : "Welcome to the Admin Panel.",
+        title: isAr ? "تم تسجيل الدخول بنجاح" : "Logged In Successfully",
+        description: isAr ? "تم التحقق من حسابك الرسمي." : "Official account verified.",
       });
       router.push(`/${lang}/admin`);
     } catch (err: any) {
+      console.error("Login failed:", err.code);
+      let errorMsg = isAr ? "البريد أو كلمة المرور غير صحيحة." : "Invalid email or password.";
+      
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        errorMsg = isAr ? "بيانات الدخول غير صحيحة. يرجى التأكد من الحساب المنشأ في Firebase." : "Invalid credentials. Please check your Firebase user account.";
+      }
+
       toast({
         variant: "destructive",
-        title: isAr ? "خطأ في الدخول" : "Login Error",
-        description: isAr ? "يرجى التحقق من البيانات." : "Invalid credentials.",
+        title: isAr ? "فشل الدخول" : "Login Failed",
+        description: errorMsg,
       });
     } finally {
       setLoading(false);
@@ -101,13 +119,14 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                   <User className="h-3 w-3 text-secondary" />
-                  {isAr ? "اسم المستخدم" : "Username / Email"}
+                  {isAr ? "البريد الإلكتروني" : "Email Address"}
                 </Label>
                 <Input 
+                  type="email"
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-14 rounded-xl border-slate-200 font-bold focus:border-secondary focus:ring-secondary/10"
-                  placeholder={isAr ? "أدخل admin للاختبار" : "Enter 'admin' for testing"}
+                  placeholder={isAr ? "example@baneenbanaat.org" : "admin@test.com"}
                   required
                 />
               </div>
@@ -130,14 +149,14 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
                 disabled={loading}
                 className="w-full h-14 bg-secondary hover:bg-primary text-white font-black rounded-xl shadow-xl shadow-secondary/10 transition-all text-lg"
               >
-                {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? "دخول" : "Sign In")}
+                {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? "تسجيل الدخول آمن" : "Secure Sign In")}
               </Button>
             </form>
           </CardContent>
         </Card>
         
         <p className="text-center text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed px-10">
-          Authorized personnel only. Access is monitored and recorded by BBA Security Systems.
+          Authorized personnel only. Use credentials created via Firebase Console for full access.
         </p>
       </div>
     </div>
