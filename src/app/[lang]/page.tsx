@@ -113,7 +113,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               <span className="relative text-[10px] sm:text-xs font-black tracking-[0.3em] text-white uppercase drop-shadow-md">{t.hero.welcome}</span>
             </div>
             
-            <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl lg:text-5xl leading-tight uppercase drop-shadow-2xl">
+            <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl lg:text-4xl xl:text-5xl leading-tight uppercase drop-shadow-2xl">
               {t.hero.title}
             </h1>
           </div>
@@ -153,7 +153,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
             {t.why.items.map((item, idx) => (
               <div key={idx} className="bg-white p-8 rounded-2xl shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
-                <div className="h-14 sm:h-16 lg:h-16 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
+                {/* Fixed Circular Icon Container with Primary Color */}
+                <div className="h-14 w-14 sm:h-16 sm:w-16 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shrink-0 group-hover:bg-secondary transition-all duration-700 group-hover:rotate-12">
                   <item.icon className="h-7 w-7 lg:h-8 lg:w-8" />
                 </div>
                 <div className="space-y-3">
@@ -243,22 +244,23 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
             {t.planning.items.map((item, idx) => (
-              <div key={idx} className="bg-white rounded-2xl p-8 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center relative overflow-hidden hover:-translate-y-2">
+              <div key={idx} className="bg-white rounded-[2rem] p-6 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center relative overflow-hidden hover:-translate-y-2">
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <pattern id={`grid-plan-${idx}`} width="20" height="20" patternUnits="userSpaceOnUse">
-                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                    <pattern id={`grid-plan-${idx}`} width="15" height="15" patternUnits="userSpaceOnUse">
+                      <path d="M 15 0 L 0 0 0 15" fill="none" stroke="currentColor" strokeWidth="0.5" />
                     </pattern>
                     <rect width="100%" height="100%" fill={`url(#grid-plan-${idx})`} />
                   </svg>
                 </div>
                 
-                <div className="h-14 lg:h-16 lg:w-16 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner mb-6 group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12 relative z-10">
+                {/* Fixed Circular Icon Container with Primary Color */}
+                <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg mb-6 shrink-0 group-hover:bg-secondary transition-all duration-700 group-hover:rotate-12 relative z-10">
                   <item.icon className="h-6 w-6 lg:h-8 lg:w-8" />
                 </div>
-                <h3 className="font-black text-base lg:text-lg mb-4 uppercase tracking-tight text-primary relative z-10">{item.title}</h3>
-                <p className="text-slate-500 font-medium text-[11px] lg:text-xs leading-relaxed mb-8 flex-1 opacity-80 relative z-10">{item.desc}</p>
-                <Button asChild className="w-full h-12 lg:h-10 rounded-xl bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[9px] transition-all relative z-10">
+                <h3 className="font-black text-sm lg:text-base mb-3 uppercase tracking-tight text-primary relative z-10">{item.title}</h3>
+                <p className="text-slate-500 font-medium text-[10px] lg:text-xs leading-relaxed mb-6 flex-1 opacity-80 relative z-10">{item.desc}</p>
+                <Button asChild className="w-full h-10 lg:h-9 rounded-xl bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[8px] transition-all relative z-10">
                   <Link href={`/${lang}/planning#${item.id}`}>
                     {isAr ? 'عرض التفاصيل' : 'View Details'}
                   </Link>
@@ -284,14 +286,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               { s: 'A', student: 'Student 2', name: 'Ahmed K.', role: isAr ? 'ولي أمر (ميشيغان)' : 'Parent (Michigan)', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel.' },
               { s: 'N', student: 'Student 3', name: 'Noura H.', role: isAr ? 'ولي أمر (تكساس)' : 'Parent (Texas)', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication.' }
             ].map((test, idx) => (
-              <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-xl transition-all duration-700 group hover:-translate-y-2">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="h-12 lg:h-14 lg:w-14 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0">
+              <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative space-y-6 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0">
                     {test.s}
                   </div>
-                  <div className="min-w-0 text-start">
-                    <div className="font-black text-primary text-sm lg:text-base">{test.student}</div>
-                    <div className="text-[10px] lg:text-xs font-bold text-secondary uppercase truncate">{test.name} — {test.role}</div>
+                  <div className="min-w-0 text-start space-y-0.5">
+                    <div className="font-black text-primary text-sm">{test.student}</div>
+                    <div className="text-[10px] font-bold text-secondary uppercase truncate">{test.name} — {test.role}</div>
                   </div>
                 </div>
                 <p className="text-slate-600 font-bold italic leading-relaxed text-xs lg:text-sm opacity-90 border-t border-slate-100 pt-4">
