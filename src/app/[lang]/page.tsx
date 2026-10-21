@@ -205,7 +205,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       </section>
 
       {/* SECTION 4 — ABOUT */}
-      <section className="py-20 lg:py-40 bg-slate-900 text-white relative overflow-hidden">
+      <section className="py-20 lg:py-32 bg-slate-900 text-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl group order-2 lg:order-1 transition-transform duration-1000 hover:scale-[1.02]">
@@ -234,7 +234,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       </section>
 
       {/* SECTION 5 — PLANNING */}
-      <section className="py-20 lg:py-40 bg-slate-50 relative overflow-hidden">
+      <section className="py-20 lg:py-32 bg-slate-50 relative overflow-hidden">
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
             <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
@@ -272,7 +272,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       </section>
 
       {/* SECTION 6 — TESTIMONIALS */}
-      <section className="py-20 lg:py-40 bg-white relative overflow-hidden">
+      <section className="py-20 lg:py-32 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
             <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{isAr ? 'آراء أولياء الأمور' : 'What Parents Say'}</h2>
@@ -282,13 +282,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10">
             {[
-              { s: 'S', student: isAr ? 'طالب 1' : 'Student 1', name: 'Sarah M.', role: isAr ? 'ولي أمر (نيويورك)' : 'Parent (New York)', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي. التوازن بين المواد الأكاديمية والقرآن الكريم رائع جداً، والمرشدون يتابعون كل تفصيلة بدقة.' : "The academy has changed my children's lives. The balance between academic subjects and the Holy Quran is wonderful." },
-              { s: 'A', student: isAr ? 'طالب 2' : 'Student 2', name: 'Ahmed K.', role: isAr ? 'ولي أمر (ميشيغان)' : 'Parent (Michigan)', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel.' },
-              { s: 'N', student: isAr ? 'طالب 3' : 'Student 3', name: 'Noura H.', role: isAr ? 'ولي أمر (تكساس)' : 'Parent (Texas)', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication.' }
+              { s: 'S', student: isAr ? 'طالب في الصف 4' : 'Student in Grade 4', name: 'Sarah M.', role: isAr ? 'ولي أمر (نيويورك)' : 'Parent (New York)', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful." },
+              { s: 'A', student: isAr ? 'طالب في الصف 9' : 'Student in Grade 9', name: 'Ahmed K.', role: isAr ? 'ولي أمر (ميشيغان)' : 'Parent (Michigan)', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel.' },
+              { s: 'N', student: isAr ? 'طالبة في الصف 7' : 'Student in Grade 7', name: 'Noura H.', role: isAr ? 'ولي أمر (تكساس)' : 'Parent (Texas)', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication.' }
             ].map((test, idx) => (
               <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative space-y-4 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0">
+                  <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0 border-2 border-white ring-1 ring-slate-100">
                     {test.s}
                   </div>
                   <div className="min-w-0 text-start space-y-0.5">
@@ -315,7 +315,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       </section>
 
       {/* SECTION 7 — FAQS */}
-      <section className="py-20 lg:py-40 bg-slate-50 border-y border-slate-100 relative">
+      <section className="py-20 lg:py-32 bg-slate-50 border-y border-slate-100 relative">
         <div className="container-tight px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
             <div className="space-y-8 text-center lg:text-start">
@@ -325,7 +325,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                 <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
               </div>
               <Button asChild size="lg" className="h-16 px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg rounded-2xl">
-                <Link href={`/${lang}/guide#courses-faqs`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
+                <Link href={`/${lang}/guide`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
               </Button>
             </div>
             <div className="bg-white p-8 lg:p-10 rounded-2xl shadow-premium border border-slate-100">
@@ -343,7 +343,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       </section>
 
       {/* SECTION 8 — FINAL CTA */}
-      <section className="py-20 lg:py-40 bg-primary relative overflow-hidden">
+      <section className="py-20 lg:py-32 bg-primary relative overflow-hidden">
         <div className="container-tight relative z-10 px-4">
           <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row items-center group">
             <div className="p-10 lg:p-16 flex-1 space-y-10 text-center lg:text-start">
