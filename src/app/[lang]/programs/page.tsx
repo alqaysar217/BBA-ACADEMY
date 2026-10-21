@@ -147,7 +147,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
 
       {/* Comparison Table Section */}
       <section className="container px-4 md:px-8 mt-24 lg:mt-32">
-        <div className="max-w-5xl mx-auto space-y-12">
+        <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center space-y-4">
             <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-tight">
               {t.comparison.title}
@@ -156,38 +156,38 @@ export default async function ProgramsPage({ params }: { params: Promise<{ lang:
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-100 shadow-premium overflow-hidden">
-            <div className="overflow-x-auto">
-              <Table>
+            <div className="overflow-x-auto pb-4">
+              <Table className="min-w-[900px]">
                 <TableHeader className="bg-primary text-white">
                   <TableRow className="hover:bg-primary/95 border-none">
-                    <TableHead className="text-white font-black uppercase text-[10px] sm:text-xs tracking-widest h-16">{t.comparison.headers.program}</TableHead>
-                    <TableHead className="text-white font-black uppercase text-[10px] sm:text-xs tracking-widest h-16">{t.comparison.headers.days}</TableHead>
-                    <TableHead className="text-white font-black uppercase text-[10px] sm:text-xs tracking-widest h-16">{t.comparison.headers.target}</TableHead>
-                    <TableHead className="text-white font-black uppercase text-[10px] sm:text-xs tracking-widest h-16">{t.comparison.headers.subjects}</TableHead>
-                    <TableHead className="text-white font-black uppercase text-[10px] sm:text-xs tracking-widest h-16">{t.comparison.headers.format}</TableHead>
+                    <TableHead className="text-white font-black uppercase text-[11px] sm:text-xs tracking-widest h-20 px-6">{t.comparison.headers.program}</TableHead>
+                    <TableHead className="text-white font-black uppercase text-[11px] sm:text-xs tracking-widest h-20 px-6">{t.comparison.headers.days}</TableHead>
+                    <TableHead className="text-white font-black uppercase text-[11px] sm:text-xs tracking-widest h-20 px-6">{t.comparison.headers.target}</TableHead>
+                    <TableHead className="text-white font-black uppercase text-[11px] sm:text-xs tracking-widest h-20 px-6">{t.comparison.headers.subjects}</TableHead>
+                    <TableHead className="text-white font-black uppercase text-[11px] sm:text-xs tracking-widest h-20 px-6">{t.comparison.headers.format}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {t.comparison.rows.map((row, idx) => (
                     <TableRow key={idx} className="hover:bg-slate-50 transition-colors border-slate-100">
-                      <TableCell className="font-black text-primary text-xs sm:text-sm py-6">{row.name}</TableCell>
-                      <TableCell className="text-slate-600 font-bold text-[10px] sm:text-xs">{row.days}</TableCell>
-                      <TableCell className="text-slate-600 font-bold text-[10px] sm:text-xs">{row.target}</TableCell>
-                      <TableCell className="text-slate-600 font-bold text-[10px] sm:text-xs">{row.subjects}</TableCell>
-                      <TableCell className="text-secondary font-black text-[10px] sm:text-xs italic">{row.format}</TableCell>
+                      <TableCell className="font-black text-primary text-xs sm:text-base py-8 px-6">{row.name}</TableCell>
+                      <TableCell className="text-slate-600 font-bold text-xs sm:text-sm px-6">{row.days}</TableCell>
+                      <TableCell className="text-slate-600 font-bold text-xs sm:text-sm px-6">{row.target}</TableCell>
+                      <TableCell className="text-slate-600 font-bold text-xs sm:text-sm px-6 leading-relaxed max-w-[200px]">{row.subjects}</TableCell>
+                      <TableCell className="text-secondary font-black text-xs sm:text-sm italic px-6">{row.format}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
             
-            <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <p className="text-[10px] sm:text-xs text-slate-400 font-bold italic leading-relaxed text-center sm:text-start">
+            <div className="p-8 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <p className="text-xs sm:text-sm text-slate-400 font-bold italic leading-relaxed text-center sm:text-start">
                 {isAr 
                   ? '* يمكنكم الحصول على مزيد من التفاصيل عبر الضغط على عرض تفاصيل كل برنامج أعلاه.' 
                   : '* You can get more details by clicking on "View Program Details" for each program above.'}
               </p>
-              <Button asChild size="sm" className="bg-secondary hover:bg-primary text-white font-black rounded-xl px-6 h-10 transition-all shadow-lg active:scale-95 shrink-0">
+              <Button asChild size="lg" className="bg-secondary hover:bg-primary text-white font-black rounded-xl px-8 h-12 transition-all shadow-xl active:scale-95 shrink-0">
                 <Link href={`/${lang}/enroll`}>
                   {isAr ? 'سجل الآن' : 'Enroll Now'}
                 </Link>
