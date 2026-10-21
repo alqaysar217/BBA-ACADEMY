@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -19,7 +20,8 @@ import {
   Map,
   Library,
   PhoneCall,
-  GraduationCap
+  GraduationCap,
+  Lock
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -183,10 +185,6 @@ export function Footer({ lang }: { lang: Locale }) {
                 </div>
                 <div className="text-sm font-black text-white">{content.weekdaysTime}</div>
               </div>
-              <div className="flex items-center gap-2 px-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                <span className="text-xs font-bold text-white/50">{content.weekends}</span>
-              </div>
               
               <Link 
                 href="https://wa.me/13136555778" 
@@ -195,6 +193,14 @@ export function Footer({ lang }: { lang: Locale }) {
               >
                 <MessageCircle className="h-4 w-4" />
                 {isAr ? 'تواصل عبر واتساب' : 'WhatsApp Support'}
+              </Link>
+
+              <Link 
+                href={`/${lang}/admin`} 
+                className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition-all font-bold text-[10px] uppercase tracking-widest"
+              >
+                <Lock className="h-3 w-3 text-secondary" />
+                {isAr ? 'لوحة الإدارة' : 'Admin Panel'}
               </Link>
             </div>
           </div>
