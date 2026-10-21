@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default async function PlanningPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
@@ -37,6 +38,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'تخطيط التخرج' : 'Graduation Planning',
         subtitle: isAr ? 'الاستعداد للتخرج وما بعده' : 'Preparing Students for Graduation and Beyond',
         icon: GraduationCap,
+        image: '/planning-1.png',
         content: isAr
           ? 'المرحلة الثانوية هي واحدة من أهم مراحل الرحلة التعليمية للطالب. القرارات المتخذة خلال هذه السنوات يمكن أن يكون لها تأثير دائم على التخرج والقبول في الجامعات وفرص العمل والنجاح المستقبلي. نساعد الطلاب على تتبع الساعات المعتمدة وضمان استيفاء جميع المتطلبات اللازمة للحصول على الشهادة الثانوية بنجاح.'
           : 'High school is one of the most important stages of a student\'s educational journey. The decisions made during these years can have a lasting impact on graduation, college admissions, career opportunities, and future success. We help students track credits and ensure all necessary requirements are met for a successful high school diploma.'
@@ -46,6 +48,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'تخطيط الدورات' : 'Course Planning',
         subtitle: isAr ? 'اختيارات ذكية لمستقبل مشرق' : 'Smart Choices for a Bright Future',
         icon: BookOpen,
+        image: '/planning-2.png',
         content: isAr
           ? 'على عكس المرحلتين الابتدائية والمتوسطة، تتطلب المرحلة الثانوية تخطيطاً دقيقاً. يجب على العائلات تتبع الدورات المكتملة بعناية، والحفاظ على سجلات أكاديمية دقيقة، والتأكد من استمرار الطلاب في إحراز تقدم مطرد نحو أهدافهم التعليمية. نحن نوجهك في اختيار المواد التي تتناسب مع ميول الطالب وتطلعاته الجامعية.'
           : 'Unlike elementary and middle school, high school requires thoughtful planning. Families should carefully track completed courses, maintain accurate academic records, and ensure students continue making steady progress toward their educational goals. We guide you in choosing subjects that align with the student\'s interests and university aspirations.'
@@ -55,6 +58,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'التوجيه الشخصي' : 'Personal Guidance',
         subtitle: isAr ? 'دعم فردي لكل طالب' : 'Individual Support for Every Learner',
         icon: Users,
+        image: '/planning-3.png',
         content: isAr
           ? 'نحن نؤمن بأن رحلة كل طالب التعليمية فريدة من نوعها. ولهذا السبب نعمل بشكل فردي مع العائلات لمساعدة الطلاب على البقاء منظمين واتخاذ قرارات تعليمية مدروسة والاستعداد بثقة للحياة بعد المدرسة الثانوية. يتلقى الطلاب المسجلون توجيهاً مستمراً كلما ظهرت أسئلة أو تحديات.'
           : 'We believe every student\'s educational journey is unique. That\'s why we work one-on-one with families to help students stay organized, make informed educational decisions, and confidently prepare for life after high school. Enrolled students receive ongoing support whenever questions or challenges arise.'
@@ -64,6 +68,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'السجلات الأكاديمية' : 'Academic Records',
         subtitle: isAr ? 'التنظيم هو مفتاح النجاح' : 'Organization is the Key to Success',
         icon: FileText,
+        image: '/planning-4.png',
         content: isAr
           ? 'إن الاحتفاظ بوثائق منظمة طوال المرحلة الثانوية - بما في ذلك كشوف الدرجات والدرجات وسجلات الحضور والدورات الدراسية وسجلات التعليم المنزلي - يمكن أن يجعل التحولات التعليمية المستقبلية أسهل بكثير. نحن نساعد العائلات في فهم كيفية بناء سجل أكاديمي قوي يعكس قدرات الطالب الحقيقية.'
           : 'Keeping organized documentation throughout high school—including transcripts, grades, attendance records, coursework, and homeschool records—can make future educational transitions much easier. We help families understand how to build a strong academic record that reflects the student\'s true abilities.'
@@ -73,6 +78,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
         title: isAr ? 'التحضير للكلية والمستقبل' : 'College & Future Preparation',
         subtitle: isAr ? 'خطوات مبكرة لنجاح طويل الأمد' : 'Early Steps for Long-term Success',
         icon: Target,
+        image: '/planning-5.png',
         content: isAr
           ? 'يعد الاستعداد للقبول في الكلية والمنح الدراسية عملية مستمرة تبدأ قبل وقت طويل من السنة الأخيرة. نحن نساعد الطلاب في فهم متطلبات القبول في الجامعات المختلفة، والتحضير للاختبارات القياسية، وجمع الوثائق اللازمة للتقديم، مما يقلل من التوتر خلال السنة الدراسية الأخيرة.'
           : 'Preparing for college admissions and scholarships is an ongoing process that starts long before senior year. We assist students in understanding the entry requirements of different universities, preparing for standardized tests, and gathering necessary documents, reducing stress during the final school year.'
@@ -142,14 +148,21 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
            <div key={section.id} id={section.id} className="scroll-mt-32">
               <Card className="rounded-2xl border-none shadow-premium overflow-hidden bg-slate-50/50 hover:shadow-xl transition-all duration-700 group">
                  <div className="flex flex-col md:flex-row items-stretch">
-                    <div className="md:w-1/4 bg-primary text-white p-8 lg:p-10 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden shrink-0">
-                       <div className="absolute inset-0 opacity-[0.05] group-hover:scale-125 transition-transform duration-1000">
-                          <section.icon className="h-48 w-48 lg:h-64 lg:w-64" />
+                    <div className="md:w-1/4 bg-primary text-white p-8 lg:p-10 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden shrink-0 min-h-[200px]">
+                       {/* Background Image Replace Icons */}
+                       <div className="absolute inset-0 opacity-[0.15] group-hover:scale-110 transition-transform duration-1000">
+                          <Image 
+                            src={section.image} 
+                            alt={section.title} 
+                            fill 
+                            className="object-cover"
+                            unoptimized
+                          />
                        </div>
-                       <section.icon className="h-10 w-10 lg:h-12 lg:w-12 text-secondary relative z-10" />
-                       <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight relative z-10 leading-tight">{section.title}</h2>
+                       <section.icon className="h-10 w-10 lg:h-12 lg:w-12 text-secondary relative z-10 drop-shadow-lg" />
+                       <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight relative z-10 leading-tight drop-shadow-md">{section.title}</h2>
                     </div>
-                    <div className="flex-1 p-8 lg:p-12 space-y-6">
+                    <div className="flex-1 p-8 lg:p-12 space-y-6 bg-white">
                        <h3 className="text-lg lg:text-2xl font-black text-primary">{section.subtitle}</h3>
                        <p className="text-sm lg:text-lg text-slate-600 leading-relaxed font-medium">
                           {section.content}
