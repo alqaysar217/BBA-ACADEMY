@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { use } from 'react';
@@ -11,54 +10,48 @@ import Link from 'next/link';
 const getTestimonials = (isAr: boolean) => [
   {
     initial: 'S',
-    student: isAr ? 'طالب في الصف 4' : 'Student in Grade 4',
-    name: 'Sarah M.',
-    location: isAr ? 'نيويورك' : 'New York',
+    name: isAr ? 'سارة م.' : 'Sarah M.',
+    role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York',
     text: isAr 
       ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.'
       : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values."
   },
   {
     initial: 'A',
-    student: isAr ? 'طالب في الصف 9' : 'Student in Grade 9',
-    name: 'Ahmed K.',
-    location: isAr ? 'ميشيغان' : 'Michigan',
+    name: isAr ? 'أحمد ك.' : 'Ahmed K.',
+    role: isAr ? 'ولي أمر - ميشيغان' : 'Parent - Michigan',
     text: isAr 
       ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.'
       : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel in ways I didn’t expect.'
   },
   {
     initial: 'N',
-    student: isAr ? 'طالبة في الصف 7' : 'Student in Grade 7',
-    name: 'Noura H.',
-    location: isAr ? 'تكساس' : 'Texas',
+    name: isAr ? 'نورة ح.' : 'Noura H.',
+    role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas',
     text: isAr 
       ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.'
       : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.'
   },
   {
     initial: 'M',
-    student: isAr ? 'طالب في الصف 5' : 'Student in Grade 5',
-    name: 'Mariam R.',
-    location: isAr ? 'فرجينيا' : 'Virginia',
+    name: isAr ? 'مريم ر.' : 'Mariam R.',
+    role: isAr ? 'ولي أمر - فرجينيا' : 'Parent - Virginia',
     text: isAr 
       ? 'نظام Edgenuity مع توجيه BBA جعل ابني أكثر استقلالية ومسؤولية. المعلمون متعاونون جداً ويجيبون على كافة استفساراتنا بسرعة.'
       : 'The Edgenuity system with BBA guidance made my son more independent. The teachers are very helpful and answer all our inquiries quickly.'
   },
   {
     initial: 'Y',
-    student: isAr ? 'طالب في الصف 11' : 'Student in Grade 11',
-    name: 'Yassine B.',
-    location: isAr ? 'نيوجيرسي' : 'New Jersey',
+    name: isAr ? 'ياسين ب.' : 'Yassine B.',
+    role: isAr ? 'ولي أمر - نيوجيرسي' : 'Parent - New Jersey',
     text: isAr 
       ? 'أقدر جداً التركيز على الهوية الإسلامية واللغة العربية بجانب المنهج القوي. ابني الآن يقرأ القرآن بتجويد أفضل بكثير بفضل الله ثم الأكاديمية.'
       : 'I truly appreciate the focus on Islamic identity and Arabic alongside a strong curriculum. My son now reads Quran with much better Tajweed.'
   },
   {
     initial: 'L',
-    student: isAr ? 'طالبة في الصف 3' : 'Student in Grade 3',
-    name: 'Layla S.',
-    location: isAr ? 'أوهايو' : 'Ohio',
+    name: isAr ? 'ليلى س.' : 'Layla S.',
+    role: isAr ? 'ولي أمر - أوهايو' : 'Parent - Ohio',
     text: isAr 
       ? 'شكراً لكل القائمين على هذا العمل العظيم. ابنتي متحمسة دائماً لحضور حصصها المباشرة وتكوين صداقات مع طالبات من مختلف الولايات.'
       : 'Thank you to everyone behind this great work. My daughter is always excited to attend her live classes and make friends with students from different states.'
@@ -128,8 +121,8 @@ export default function TestimonialsPage({ params }: { params: Promise<{ lang: L
                       {test.initial}
                    </div>
                    <div className="min-w-0 text-start space-y-0.5">
-                      <div className="font-black text-primary text-sm sm:text-base truncate">{test.student}</div>
-                      <div className="text-[10px] font-bold text-secondary uppercase truncate">{test.name} — {test.location}</div>
+                      <div className="font-black text-primary text-sm sm:text-base truncate">{test.name}</div>
+                      <div className="text-[10px] font-bold text-secondary uppercase truncate">{test.role}</div>
                    </div>
                 </div>
 
@@ -169,4 +162,3 @@ export default function TestimonialsPage({ params }: { params: Promise<{ lang: L
     </div>
   );
 }
-
