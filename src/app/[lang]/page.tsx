@@ -47,7 +47,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
     programs: {
       title: isAr ? 'برامجنا التعليمية عبر الإنترنت' : 'Our Online Programs',
       subtitle: isAr ? 'ابحث عن المسار التعليمي المناسب لطفلك' : 'Find the Right Learning Path for Your Child',
-      intro: isAr ? 'تقدم BBA برامج تعليمية عبر الإنترنت مصممة لمختلف الأعمار والاحتياجات التعليمية والأهداف الأكاديمية.' : 'BBA offers online educational programs designed for different ages, learning needs, and academic goals.',
       items: [
         { id: 'grades-3-5', title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote', image: "/program-1.png", desc: isAr ? 'بناء الأسس الأكاديمية وتعزيز الهوية الإسلامية.' : 'Building academic foundations and strengthening Islamic identity.' },
         { id: 'grades-6-12', title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote', image: "/program-2.png", desc: isAr ? 'دعم التقدم الأكاديمي والتحضير للمستقبل.' : 'Support academic progress and prepare for future opportunities.' },
@@ -66,27 +65,26 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       subtitle: isAr ? 'مساعدة الطلاب على الاستعداد لما هو قادم' : 'Helping Students Prepare for What Comes Next',
       intro: isAr ? 'تتطلب الرحلة التعليمية الناجحة أكثر من مجرد إكمال الفصول الدراسية. يمكن أن يساعد التخطيط المدروس والسجلات المنظمة والتوجيه المستمر العائلات على اتخاذ قرارات مدروسة.' : 'A successful educational journey requires more than completing classes. Thoughtful planning, organized records, and ongoing guidance can help families make informed decisions.',
       items: [
-        { id: 'graduation', title: isAr ? 'تخطيط التخرج' : 'Graduation Planning', icon: GraduationCap, desc: isAr ? 'فهم أهمية التخطيط المسبق، وتتبع التقدم الأكاديمي، والتحضير لمتطلبات التخرج.' : 'Understand the importance of planning ahead, tracking academic progress, and preparing for graduation requirements.' },
-        { id: 'course', title: isAr ? 'تخطيط الدورات' : 'Course Planning', icon: BookOpen, desc: isAr ? 'اتخاذ قرارات مدروسة بشأن الدورات الدراسية والأهداف التعليمية طوال السنوات الدراسية.' : 'Make informed decisions about coursework and educational goals throughout the school years.' },
-        { id: 'guidance', title: isAr ? 'التوجيه الشخصي' : 'Personal Guidance', icon: Target, desc: isAr ? 'تلقي توجيه تعليمي يأخذ في الاعتبار الاحتياجات الفردية لكل طالب وتقدمه وخططه المستقبلية.' : "Receive educational guidance that considers each student's individual needs, progress, and future plans." },
-        { id: 'records', title: isAr ? 'السجلات الأكاديمية' : 'Academic Records', icon: FileText, desc: isAr ? 'تعرف على سبب أهمية الاحتفاظ بكشوف الدرجات والدرجات والدورات الدراسية والحضور والسجلات التعليمية الأخرى المنظمة.' : 'Learn why maintaining organized transcripts, grades, coursework, attendance, and other educational records matters.' },
-        { id: 'college', title: isAr ? 'التحضير للكلية والمستقبل' : 'College & Future Preparation', icon: Zap, desc: isAr ? 'استكشاف أهمية التخطيط المبكر للقبول في الجامعات، والتعليم المستقبلي، والفرص بعد التخرج.' : 'Explore the importance of early planning for college admissions, future education, and opportunities beyond graduation.' }
+        { id: 'graduation', title: isAr ? 'تخطيط التخرج' : 'Graduation Planning', icon: GraduationCap, desc: isAr ? 'فهم أهمية التخطيط المسبق وتتبع التقدم الأكاديمي.' : 'Understand the importance of planning ahead and tracking academic progress.' },
+        { id: 'course', title: isAr ? 'تخطيط الدورات' : 'Course Planning', icon: BookOpen, desc: isAr ? 'اتخاذ قرارات مدروسة بشأن الدورات الدراسية والأهداف التعليمية.' : 'Make informed decisions about coursework and educational goals.' },
+        { id: 'guidance', title: isAr ? 'التوجيه الشخصي' : 'Personal Guidance', icon: Target, desc: isAr ? 'تلقي توجيه تعليمي يأخذ في الاعتبار الاحتياجات الفردية لكل طالب.' : "Receive educational guidance that considers each student's individual needs." },
+        { id: 'records', title: isAr ? 'السجلات الأكاديمية' : 'Academic Records', icon: FileText, desc: isAr ? 'تعرف على سبب أهمية الاحتفاظ بكشوف الدرجات والسجلات التعليمية.' : 'Learn why maintaining organized transcripts and educational records matters.' },
+        { id: 'college', title: isAr ? 'التحضير للمستقبل' : 'College & Future Prep', icon: Zap, desc: isAr ? 'استكشاف أهمية التخطيط المبكر للقبول في الجامعات.' : 'Explore the importance of early planning for college admissions.' }
       ]
     },
     faqs: {
       title: isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions',
       subtitle: isAr ? 'إجابات مفيدة للعائلات' : 'Helpful Answers for Families',
-      cta: isAr ? 'عرض كافة الأسئلة' : 'View All FAQs',
       items: [
-        { q: isAr ? 'كيف يعمل برنامج BBA عبر الإنترنت؟' : 'How does the BBA online program work?', a: isAr ? 'بدلاً من حضور دروس مباشرة كل يوم، يكمل الطلاب دوراتهم الدراسية عبر الإنترنت من خلال Edgenuity مع تلقي التوجيه والدعم من الفريق الأكاديمي للأكاديمية.' : "Instead of attending live classes every day, students complete their coursework online through Edgenuity while receiving guidance and support from BBA's academic team." },
-        { q: isAr ? 'كم عدد الدورات التي سيكملها الطالب؟' : 'How many courses will a student complete?', a: isAr ? 'يتم تعيين 10 دورات لمعظم الطلاب لإكمالها من سبتمبر حتى يونيو، بمعدل دورة واحدة كل شهر تقريباً.' : 'Most students are assigned 10 courses to complete from September through June, averaging one course each month.' },
-        { q: isAr ? 'هل مرشد الطالب متاح دائماً؟' : 'Is a student mentor always available?', a: isAr ? 'نعم، يتم تعيين مرشد مخصص لكل طالب لمراقبة التقدم والإجابة على الأسئلة وتقديم التشجيع طوال العام الدراسي.' : 'Yes, every student is assigned a dedicated mentor to monitor progress, answer questions, and provide encouragement throughout the school year.' }
+        { q: isAr ? 'كيف يعمل برنامج BBA عبر الإنترنت؟' : 'How does the BBA online program work?', a: isAr ? 'بدلاً من حضور دروس مباشرة كل يوم، يكمل الطلاب دوراتهم الدراسية عبر الإنترنت من خلال Edgenuity مع تلقي التوجيه والدعم.' : "Instead of attending live classes every day, students complete their coursework online through Edgenuity with guidance and support." },
+        { q: isAr ? 'كم عدد الدورات التي سيكملها الطالب؟' : 'How many courses will a student complete?', a: isAr ? 'يتم تعيين 10 دورات لمعظم الطلاب لإكمالها من سبتمبر حتى يونيو.' : 'Most students are assigned 10 courses to complete from September through June.' },
+        { q: isAr ? 'هل مرشد الطالب متاح دائماً؟' : 'Is a student mentor always available?', a: isAr ? 'نعم، يتم تعيين مرشد مخصص لكل طالب لمراقبة التقدم والإجابة على الأسئلة.' : 'Yes, every student is assigned a dedicated mentor to monitor progress and answer questions.' }
       ]
     },
     cta: {
       title: isAr ? 'جاهز لبدء رحلتك مع BBA؟' : 'Ready to Begin Your BBA Journey?',
       subtitle: isAr ? 'فصل جديد لطفلك يبدأ من هنا' : "Your Child's Next Chapter Starts Here",
-      text: isAr ? 'استكشف تجربة تعلم عبر الإنترنت تتمحور حول النمو الأكاديمي والقيم الهادفة والدعم الشخصي. أكمل نموذج التسجيل الخاص بنا وسيتواصل معك فريقنا.' : 'Explore an online learning experience centered on academic growth, meaningful values, and personalized support. Complete our enrollment form and our team will contact you.',
+      text: isAr ? 'استكشف تجربة تعلم عبر الإنترنت تتمحور حول النمو الأكاديمي والقيم الهادفة والدعم الشخصي.' : 'Explore an online learning experience centered on academic growth, meaningful values, and personalized support.',
       primary: isAr ? 'ابدأ التسجيل' : 'Start Your Enrollment',
       secondary: isAr ? 'اتصل بالأكاديمية' : 'Contact BBA'
     }
@@ -95,7 +93,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       {/* SECTION 1 — HERO */}
-      <section className="relative min-h-[90vh] sm:min-h-[95vh] flex flex-col items-center overflow-hidden bg-primary py-12 sm:py-20 lg:py-24">
+      <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col overflow-hidden bg-primary py-12 sm:py-24">
         <div className="absolute inset-0 z-0">
           <div className="hidden sm:block absolute inset-0">
             <Image src="/Academy background.png" alt="Academy background" fill className="object-cover" priority unoptimized />
@@ -106,23 +104,33 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/30 to-primary/80" />
         </div>
 
-        <div className="container-tight relative z-10 flex flex-col h-full flex-1 w-full px-4">
+        <div className="container-tight relative z-10 flex flex-col flex-1 w-full px-4 h-full">
           <div className="flex-1" />
-          <div className="flex flex-col items-center text-center max-w-5xl mx-auto space-y-8 sm:space-y-12">
+          
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8 sm:space-y-12">
             <div className="relative inline-flex items-center gap-4 py-2 px-8">
               <div className="absolute inset-0 bg-white/10 border-l-4 border-secondary -skew-x-12 backdrop-blur-md rounded-lg" />
-              <span className="relative text-[10px] sm:text-sm lg:text-base font-black tracking-[0.3em] text-white uppercase">{t.hero.welcome}</span>
+              <span className="relative text-[10px] sm:text-sm font-black tracking-[0.3em] text-white uppercase drop-shadow-md">{t.hero.welcome}</span>
             </div>
-            <h1 className="text-3xl sm:text-7xl lg:text-8xl font-black tracking-tight text-white leading-tight uppercase drop-shadow-2xl">
-              {t.hero.title}
-            </h1>
+            
+            <div className="space-y-2 sm:space-y-4">
+              <h1 className="text-3xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight uppercase drop-shadow-2xl">
+                {t.hero.title}
+              </h1>
+            </div>
+
+            <p className="text-sm sm:text-2xl text-white/90 leading-relaxed max-w-3xl font-bold drop-shadow-lg px-6">
+              A trusted educational partner helping students and families achieve academic success through flexible online learning.
+            </p>
           </div>
+          
           <div className="flex-1" />
-          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto max-w-4xl mx-auto mb-10 sm:mb-20">
-            <Button asChild className="h-16 sm:h-20 lg:h-24 px-10 sm:px-20 text-xl sm:text-2xl lg:text-3xl bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl rounded-full transition-all font-black border-4 border-transparent hover:border-secondary">
+
+          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto px-6 max-w-4xl mx-auto mb-12 sm:mb-20">
+            <Button asChild size="lg" className="h-16 sm:h-20 px-12 sm:px-20 text-xl sm:text-2xl bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl rounded-full transition-all font-black border-4 border-transparent hover:border-secondary">
               <Link href={`/${lang}/enroll`}>{t.hero.apply}</Link>
             </Button>
-            <Button asChild className="h-16 sm:h-20 lg:h-24 px-10 sm:px-20 text-xl sm:text-2xl lg:text-3xl bg-white/10 backdrop-blur-md text-white hover:bg-white hover:text-primary rounded-full transition-all font-black border-2 border-white/20">
+            <Button asChild size="lg" className="h-16 sm:h-20 px-12 sm:px-20 text-xl sm:text-2xl bg-white/10 backdrop-blur-md text-white hover:bg-white hover:text-primary rounded-full transition-all font-black border-2 border-white/20">
               <Link href={`/${lang}/programs`}>{t.hero.explore}</Link>
             </Button>
           </div>
@@ -142,13 +150,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 lg:mb-24 space-y-6">
-            <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
+            <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
             <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight max-w-2xl mx-auto">{t.why.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
             <p className="text-slate-500 max-w-3xl mx-auto font-bold text-sm sm:text-xl leading-relaxed opacity-80">{t.why.intro}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
             {t.why.items.map((item, idx) => (
               <div key={idx} className="bg-white p-8 sm:p-10 rounded-2xl shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
                 <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
@@ -168,10 +176,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 lg:mb-24 space-y-6">
-            <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
+            <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
             <p className="text-lg sm:text-3xl font-black text-secondary italic max-w-2xl mx-auto">{t.programs.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
-            <p className="text-slate-500 max-w-2xl mx-auto font-bold text-sm sm:text-lg opacity-70">{t.programs.intro}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
@@ -211,12 +218,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
              </div>
              <div className="space-y-10 order-1 lg:order-2">
                 <div className="space-y-6 text-center lg:text-start">
-                   <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
+                   <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
                    <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight">{t.about.subtitle}</p>
                    <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                 </div>
                 <div className="space-y-8 text-white/80 font-medium text-sm sm:text-xl leading-relaxed">
-                   <p className="font-black text-white text-base sm:text-xl border-l-8 border-secondary pl-8 py-2 bg-white/5 rounded-r-xl italic">
+                   <p className="font-black text-white text-base sm:text-xl border-l-8 border-secondary pl-6 sm:pl-8 py-2 bg-white/5 rounded-r-xl italic">
                      {t.about.text1}
                    </p>
                    <p className="opacity-90">{t.about.text2}</p>
@@ -235,16 +242,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-slate-50 relative overflow-hidden">
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 sm:mb-24 space-y-6">
-            <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
+            <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
             <p className="text-lg sm:text-3xl font-black text-secondary italic max-w-3xl mx-auto">{t.planning.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
-            <p className="text-slate-500 max-w-4xl mx-auto font-bold text-sm sm:text-xl leading-relaxed opacity-80">{t.planning.intro}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 sm:gap-8">
             {t.planning.items.map((item, idx) => (
               <div key={idx} className="bg-white rounded-2xl p-8 sm:p-10 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center relative overflow-hidden hover:-translate-y-2">
-                {/* Subtle Grid Background */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                     <pattern id={`grid-plan-${idx}`} width="20" height="20" patternUnits="userSpaceOnUse">
@@ -254,15 +259,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   </svg>
                 </div>
                 
-                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner mb-8 group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12 relative z-10">
-                  <item.icon className="h-8 w-8 sm:h-10 sm:w-10" />
+                <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner mb-6 group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12 relative z-10">
+                  <item.icon className="h-6 w-6 sm:h-8 sm:w-8" />
                 </div>
-                <h3 className="font-black text-base sm:text-2xl mb-4 uppercase tracking-tight text-primary relative z-10">{item.title}</h3>
-                <p className="text-slate-500 font-medium text-[11px] sm:text-base leading-relaxed mb-10 flex-1 opacity-80 relative z-10">{item.desc}</p>
-                <Button asChild className="w-full h-14 rounded-xl bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[10px] transition-all relative z-10">
+                <h3 className="font-black text-base sm:text-xl mb-4 uppercase tracking-tight text-primary relative z-10">{item.title}</h3>
+                <p className="text-slate-500 font-medium text-[11px] sm:text-sm leading-relaxed mb-8 flex-1 opacity-80 relative z-10">{item.desc}</p>
+                <Button asChild className="w-full h-12 rounded-xl bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[9px] transition-all relative z-10">
                   <Link href={`/${lang}/planning#${item.id}`}>
                     {isAr ? 'عرض التفاصيل' : 'View Details'}
-                    {isAr ? <ChevronLeft className="mr-2 h-4 w-4" /> : <ChevronRight className="ml-2 h-4 w-4" />}
                   </Link>
                 </Button>
               </div>
@@ -275,28 +279,28 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 sm:mb-24 space-y-6">
-            <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-tight">{isAr ? 'آراء أولياء الأمور' : 'What Parents Say'}</h2>
+            <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{isAr ? 'آراء أولياء الأمور' : 'What Parents Say'}</h2>
             <p className="text-lg sm:text-3xl font-black text-secondary italic max-w-2xl mx-auto">{isAr ? 'تجارب حقيقية من عائلات BBA' : 'Real Experiences from BBA Families'}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10">
             {[
-              { s: 'S', name: 'Sarah M.', role: isAr ? 'ولي أمر (نيويورك)' : 'Parent (New York)', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي. التوازن بين المواد الأكاديمية والقرآن الكريم رائع جداً، والمرشدون يتابعون كل تفصيلة بدقة.' : "The academy has changed my children's lives. The balance between academic subjects and the Holy Quran is wonderful, and the mentors follow every detail closely." },
-              { s: 'A', name: 'Ahmed K.', role: isAr ? 'ولي أمر (ميشيغان)' : 'Parent (Michigan)', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel and stand out.' },
-              { s: 'N', name: 'Noura H.', role: isAr ? 'ولي أمر (تكساس)' : 'Parent (Texas)', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and administration.' }
+              { s: 'S', student: 'Student 1', name: 'Sarah M.', role: isAr ? 'ولي أمر (نيويورك)' : 'Parent (New York)', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي. التوازن بين المواد الأكاديمية والقرآن الكريم رائع جداً، والمرشدون يتابعون كل تفصيلة بدقة.' : "The academy has changed my children's lives. The balance between academic subjects and the Holy Quran is wonderful." },
+              { s: 'A', student: 'Student 2', name: 'Ahmed K.', role: isAr ? 'ولي أمر (ميشيغان)' : 'Parent (Michigan)', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel.' },
+              { s: 'N', student: 'Student 3', name: 'Noura H.', role: isAr ? 'ولي أمر (تكساس)' : 'Parent (Texas)', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication.' }
             ].map((test, idx) => (
               <div key={idx} className="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-xl transition-all duration-700 group hover:-translate-y-2">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary text-white flex items-center justify-center text-lg sm:text-xl font-black shadow-lg shrink-0">
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0">
                     {test.s}
                   </div>
-                  <div className="min-w-0">
-                    <div className="font-black text-primary text-sm sm:text-lg truncate">{test.name}</div>
-                    <div className="text-[10px] sm:text-xs font-black text-secondary uppercase tracking-widest truncate">{test.role}</div>
+                  <div className="min-w-0 text-start">
+                    <div className="font-black text-primary text-sm sm:text-base">{test.student}</div>
+                    <div className="text-[10px] sm:text-xs font-bold text-secondary uppercase truncate">{test.name} — {test.role}</div>
                   </div>
                 </div>
-                <p className="text-slate-600 font-bold italic leading-relaxed text-xs sm:text-base opacity-90 border-t border-slate-100 pt-4">
+                <p className="text-slate-600 font-bold italic leading-relaxed text-xs sm:text-sm opacity-90 border-t border-slate-100 pt-4">
                   "{test.text}"
                 </p>
               </div>
@@ -305,13 +309,41 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* SECTION 7 — FINAL CTA */}
+      {/* SECTION 7 — FAQS (COMPACT) */}
+      <section className="py-20 lg:py-40 bg-slate-50 border-y border-slate-100 relative">
+        <div className="container-tight px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
+            <div className="space-y-8 text-center lg:text-start">
+              <div className="space-y-6">
+                <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.faqs.title}</h2>
+                <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight">{t.faqs.subtitle}</p>
+                <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
+              </div>
+              <Button asChild size="lg" className="h-16 rounded-xl px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg">
+                <Link href={`/${lang}/guide#courses-faqs`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
+              </Button>
+            </div>
+            <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-premium border border-slate-100">
+              <Accordion type="single" collapsible className="w-full space-y-4">
+                {t.faqs.items.map((faq, idx) => (
+                  <AccordionItem key={idx} value={`faq-${idx}`} className="border-none rounded-xl px-6 bg-slate-50 hover:bg-white transition-all duration-500 shadow-sm">
+                    <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-xs sm:text-lg py-6">{faq.q}</AccordionTrigger>
+                    <AccordionContent className="text-slate-600 font-bold leading-relaxed pb-8 pt-2 border-t border-slate-100 text-[11px] sm:text-base opacity-80">{faq.a}</AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 8 — FINAL CTA */}
       <section className="py-20 lg:py-40 bg-primary relative overflow-hidden">
         <div className="container-tight relative z-10 px-4">
           <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row items-center group">
             <div className="p-10 sm:p-20 flex-1 space-y-10 text-center lg:text-start">
               <div className="space-y-6">
-                <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
+                <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
                 <p className="text-lg sm:text-3xl font-black text-secondary italic">{t.cta.subtitle}</p>
               </div>
               <p className="text-slate-500 font-bold text-sm sm:text-xl leading-relaxed max-w-2xl">{t.cta.text}</p>
