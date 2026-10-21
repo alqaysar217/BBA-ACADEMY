@@ -41,10 +41,17 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // Access check: allow if Firebase user exists OR if test bypass flag is set
+    const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
+    if (!authLoading && !user && !isTestAdmin) {
       router.push(`/${lang}/admin/login`);
     }
   }, [user, authLoading, router, lang]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('bba_test_admin');
+    router.push(`/${lang}`);
+  };
 
   if (authLoading || dataLoading) {
     return (
@@ -85,10 +92,10 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
            
            <div className="flex items-center gap-4">
              <div className="hidden md:block text-right">
-                <p className="text-xs font-black">{user?.email}</p>
+                <p className="text-xs font-black">{user?.email || 'Test Administrator'}</p>
                 <p className="text-[9px] text-white/50 font-bold uppercase">Administrator</p>
              </div>
-             <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}`)} className="text-white hover:bg-white/10">
+             <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white hover:bg-white/10">
                 <LogOut className="h-5 w-5" />
              </Button>
            </div>
