@@ -117,7 +117,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="bg-primary text-white py-24 relative overflow-hidden">
+      <section className="bg-primary text-white py-16 lg:py-24 relative overflow-hidden">
          <div className="absolute inset-0 opacity-10">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                <pattern id="plan-hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -126,36 +126,36 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
                <rect width="100%" height="100%" fill="url(#plan-hero-grid)" />
             </svg>
          </div>
-         <div className="container-tight relative z-10 text-center space-y-8">
-            <h1 className="text-4xl sm:text-7xl font-black uppercase tracking-tight drop-shadow-xl">{t.hero.title}</h1>
-            <div className="h-1.5 w-32 bg-secondary mx-auto rounded-full" />
+         <div className="container-tight relative z-10 text-center space-y-8 px-4">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight drop-shadow-xl leading-tight">{t.hero.title}</h1>
+            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
             <div className="max-w-4xl mx-auto space-y-6">
-              <p className="text-xl sm:text-2xl font-bold leading-relaxed">{t.hero.intro}</p>
-              <p className="text-lg text-white/70 italic">{t.hero.guide}</p>
+              <p className="text-lg sm:text-xl font-bold leading-relaxed">{t.hero.intro}</p>
+              <p className="text-sm sm:text-lg text-white/70 italic">{t.hero.guide}</p>
             </div>
          </div>
       </section>
 
       {/* Main Sections - The Five Cards */}
-      <section className="py-24 container-tight space-y-16">
+      <section className="py-16 lg:py-24 container-tight space-y-8 lg:space-y-12 px-4">
          {t.sections.map((section) => (
            <div key={section.id} id={section.id} className="scroll-mt-32">
-              <Card className="rounded-[3rem] border-none shadow-premium overflow-hidden bg-slate-50/50 hover:shadow-2xl transition-all duration-700 group">
+              <Card className="rounded-2xl border-none shadow-premium overflow-hidden bg-slate-50/50 hover:shadow-xl transition-all duration-700 group">
                  <div className="flex flex-col md:flex-row items-stretch">
-                    <div className="md:w-1/4 bg-primary text-white p-10 flex flex-col items-center justify-center text-center space-y-6 relative overflow-hidden">
+                    <div className="md:w-1/4 bg-primary text-white p-8 lg:p-10 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden shrink-0">
                        <div className="absolute inset-0 opacity-[0.05] group-hover:scale-125 transition-transform duration-1000">
-                          <section.icon className="h-64 w-64" />
+                          <section.icon className="h-48 w-48 lg:h-64 lg:w-64" />
                        </div>
-                       <section.icon className="h-16 w-16 text-secondary relative z-10" />
-                       <h2 className="text-2xl font-black uppercase tracking-tight relative z-10 leading-tight">{section.title}</h2>
+                       <section.icon className="h-10 w-10 lg:h-12 lg:w-12 text-secondary relative z-10" />
+                       <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight relative z-10 leading-tight">{section.title}</h2>
                     </div>
-                    <div className="flex-1 p-10 sm:p-16 space-y-6">
-                       <h3 className="text-xl sm:text-3xl font-black text-primary">{section.subtitle}</h3>
-                       <p className="text-lg text-slate-600 leading-relaxed font-medium">
+                    <div className="flex-1 p-8 lg:p-12 space-y-6">
+                       <h3 className="text-lg lg:text-2xl font-black text-primary">{section.subtitle}</h3>
+                       <p className="text-sm lg:text-lg text-slate-600 leading-relaxed font-medium">
                           {section.content}
                        </p>
-                       <div className="pt-6">
-                          <div className="h-1 w-20 bg-secondary rounded-full" />
+                       <div className="pt-2">
+                          <div className="h-1 w-16 bg-secondary rounded-full" />
                        </div>
                     </div>
                  </div>
@@ -165,37 +165,37 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
       </section>
 
       {/* Why Planning Matters Section */}
-      <section className="py-24 bg-slate-50">
-         <div className="container-tight grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-10">
-               <h2 className="text-3xl sm:text-5xl font-black text-primary uppercase tracking-tight">{t.why.title}</h2>
-               <div className="space-y-4">
+      <section className="py-16 lg:py-24 bg-slate-50 border-y border-slate-100">
+         <div className="container-tight grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center px-4">
+            <div className="space-y-8">
+               <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">{t.why.title}</h2>
+               <div className="space-y-3">
                   {t.why.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 group hover:shadow-md transition-all">
-                       <CheckCircle2 className="h-6 w-6 text-secondary shrink-0 group-hover:scale-110 transition-transform" />
-                       <span className="font-bold text-slate-700">{item}</span>
+                    <div key={idx} className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-slate-100 group hover:shadow-md transition-all">
+                       <CheckCircle2 className="h-5 w-5 text-secondary shrink-0 group-hover:scale-110 transition-transform" />
+                       <span className="font-bold text-slate-700 text-sm lg:text-base">{item}</span>
                     </div>
                   ))}
                </div>
             </div>
 
-            <div className="bg-primary text-white p-12 sm:p-16 rounded-[4rem] shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-1000">
-                  <Star className="h-48 w-48" />
+            <div className="bg-primary text-white p-8 lg:p-12 rounded-2xl shadow-xl relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-1000">
+                  <Star className="h-32 w-32 lg:h-48 lg:w-48" />
                </div>
-               <div className="relative z-10 space-y-8">
+               <div className="relative z-10 space-y-6">
                   <div className="flex items-center gap-4">
-                     <div className="h-14 w-14 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-2xl">
-                        <Users className="h-7 w-7" />
+                     <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg">
+                        <Users className="h-6 w-6" />
                      </div>
-                     <h2 className="text-2xl font-black uppercase tracking-[0.2em]">{t.howBbaHelps.title}</h2>
+                     <h2 className="text-lg lg:text-xl font-black uppercase tracking-[0.2em]">{t.howBbaHelps.title}</h2>
                   </div>
-                  <p className="text-white/80 font-bold text-lg border-l-4 border-secondary pl-6 py-2">{t.howBbaHelps.intro}</p>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <p className="text-white/80 font-bold text-sm lg:text-lg border-l-4 border-secondary pl-6 py-1">{t.howBbaHelps.intro}</p>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {t.howBbaHelps.list.map((item, idx) => (
                       <li key={idx} className="flex items-center gap-3">
-                         <div className="h-2 w-2 rounded-full bg-secondary shrink-0" />
-                         <span className="font-bold text-sm opacity-90">{item}</span>
+                         <div className="h-1.5 w-1.5 rounded-full bg-secondary shrink-0" />
+                         <span className="font-bold text-xs lg:text-sm opacity-90">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -205,32 +205,37 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
       </section>
 
       {/* Quote Section */}
-      <section className="py-24 container-tight text-center">
-         <Card className="bg-secondary/5 border-2 border-dashed border-secondary/20 rounded-[4rem] overflow-hidden group hover:bg-secondary/10 transition-all duration-500">
-            <CardContent className="p-16 sm:p-24 space-y-10">
+      <section className="py-16 lg:py-24 container-tight text-center px-4">
+         <Card className="bg-secondary/5 border-2 border-dashed border-secondary/20 rounded-2xl overflow-hidden group hover:bg-secondary/10 transition-all duration-500">
+            <CardContent className="p-10 lg:p-20 space-y-8">
                <div className="flex justify-center">
-                  <Clock className="h-16 w-16 text-secondary animate-pulse" />
+                  <Clock className="h-12 w-12 lg:h-16 lg:w-16 text-secondary animate-pulse" />
                </div>
-               <p className="text-2xl sm:text-4xl lg:text-5xl font-black text-primary leading-tight italic max-w-4xl mx-auto transition-transform group-hover:scale-[1.02] duration-700">
+               <p className="text-xl lg:text-3xl font-black text-primary leading-tight italic max-w-4xl mx-auto transition-transform group-hover:scale-[1.01] duration-700">
                   "{t.quote.text}"
                </p>
                <div className="space-y-2">
-                  <div className="h-1 w-20 bg-secondary mx-auto rounded-full" />
-                  <p className="text-xl font-black text-secondary uppercase tracking-[0.3em]">— {t.quote.author}</p>
+                  <div className="h-1 w-16 bg-secondary mx-auto rounded-full" />
+                  <p className="text-sm lg:text-lg font-black text-secondary uppercase tracking-[0.3em]">— {t.quote.author}</p>
                </div>
             </CardContent>
          </Card>
       </section>
 
       {/* Final Enrollment CTA */}
-      <section className="py-24 bg-primary text-white text-center">
-         <div className="container-tight space-y-10">
-            <h2 className="text-4xl sm:text-6xl font-black uppercase tracking-tight drop-shadow-xl">{t.cta.title}</h2>
+      <section className="py-20 lg:py-32 bg-primary text-white text-center px-4 relative overflow-hidden">
+         <div className="absolute inset-0 opacity-5">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+               <circle cx="10" cy="10" r="1" fill="white" />
+            </svg>
+         </div>
+         <div className="container-tight relative z-10 space-y-10">
+            <h2 className="text-2xl lg:text-4xl font-black uppercase tracking-tight drop-shadow-xl">{t.cta.title}</h2>
             <div className="pt-4">
-              <Button asChild size="lg" className="h-20 px-16 text-xl sm:text-2xl bg-secondary hover:bg-white hover:text-secondary text-white font-black rounded-3xl shadow-[0_20px_40px_rgba(var(--secondary),0.3)] transition-all scale-110 active:scale-95 border-4 border-transparent hover:border-secondary">
-                 <Link href={`/${lang}/enroll`}>
+              <Button asChild size="lg" className="h-16 lg:h-18 px-10 lg:px-16 text-lg lg:text-xl bg-secondary hover:bg-white hover:text-secondary text-white font-black rounded-xl shadow-2xl transition-all active:scale-95 border-2 border-transparent hover:border-secondary">
+                 <Link href={`/${lang}/enroll`} className="flex items-center gap-3">
                     {t.cta.btn}
-                    {isAr ? <ArrowLeft className="mr-4 h-8 w-8" /> : <ArrowRight className="ml-4 h-8 w-8" />}
+                    {isAr ? <ArrowLeft className="h-6 w-6" /> : <ArrowRight className="h-6 w-6" />}
                  </Link>
               </Button>
             </div>
