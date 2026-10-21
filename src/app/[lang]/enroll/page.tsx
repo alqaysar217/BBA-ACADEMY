@@ -50,7 +50,9 @@ import {
   WifiOff,
   CloudOff,
   FileUp,
-  FileWarning
+  FileWarning,
+  Eye,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
@@ -225,7 +227,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        // Handle migration from old categorized files to unified array
+        // Ensure files exist and is an array (migration path)
         let consolidatedFiles = [];
         if (Array.isArray(parsed.files)) {
           consolidatedFiles = parsed.files;
@@ -413,7 +415,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           let width = img.width;
           let height = img.height;
 
-          const MAX_DIM = 1000; // More aggressive compression for many files
+          const MAX_DIM = 1000; 
           if (width > height) {
             if (width > MAX_DIM) {
               height *= MAX_DIM / width;
@@ -431,7 +433,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6); // 60% quality
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6); 
           resolve(compressedBase64);
         };
         img.onerror = reject;
@@ -1285,7 +1287,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                        </p>
                     </div>
 
-                    {/* Requirements Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-2">
                       {[
                         { 
@@ -1318,7 +1319,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       ))}
                     </div>
 
-                    {/* Unified Upload Area */}
                     <div 
                       className={cn(
                         "relative p-10 md:p-16 border-2 border-dashed rounded-[2.5rem] flex flex-col items-center text-center space-y-6 transition-all group mx-2",
@@ -1359,7 +1359,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       onChange={(e) => handleFileSelect(e.target.files)}
                     />
 
-                    {/* File List */}
                     {formData.files?.length > 0 && (
                       <div className="space-y-3 px-2">
                         <div className="flex justify-between items-center px-4">
@@ -1387,7 +1386,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </div>
                     )}
 
-                    {/* Offline Protection Notice - Only visible when offline */}
                     {!isOnline && (
                       <div className="bg-slate-100 p-6 rounded-2xl border border-slate-200 flex items-center gap-4 mx-2 animate-in fade-in slide-in-from-top-2 duration-300" dir={isAr ? 'rtl' : 'ltr'}>
                         <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm">
@@ -1405,16 +1403,129 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     )}
                   </div>
 
+                  {/* APPLICATION REVIEW SUMMARY */}
+                  <div className="space-y-6 pt-8 border-t border-slate-100 mx-2">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+                         <Eye className="h-5 w-5" />
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-black text-primary uppercase tracking-tight">
+                        {isAr ? 'مراجعة طلب التسجيل' : 'Review Your Application'}
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6">
+                      {/* Parent & Address Card */}
+                      <Card className="rounded-2xl border-slate-100 bg-slate-50/30 overflow-hidden">
+                        <CardHeader className="bg-primary p-4 text-white flex flex-row items-center gap-3">
+                           <UserCircle2 className="h-5 w-5 text-secondary" />
+                           <CardTitle className="text-sm font-black uppercase tracking-widest">{isAr ? 'بيانات أولياء الأمور والعنوان' : 'Parents & Address'}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                          <div className="space-y-4">
+                             <div>
+                               <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{isAr ? 'ولي الأمر الأول' : 'Parent 1'}</div>
+                               <div className="font-bold text-primary">{formData.parent1Name || '-'}</div>
+                               <div className="text-xs text-slate-500 font-medium">{formData.parent1Phone} | {formData.parent1Email}</div>
+                             </div>
+                             {formData.parent2Name && (
+                               <div>
+                                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{isAr ? 'ولي الأمر الثاني' : 'Parent 2'}</div>
+                                 <div className="font-bold text-primary">{formData.parent2Name}</div>
+                                 <div className="text-xs text-slate-500 font-medium">{formData.parent2Phone} | {formData.parent2Email}</div>
+                               </div>
+                             )}
+                          </div>
+                          <div>
+                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{isAr ? 'عنوان السكن' : 'Home Address'}</div>
+                             <div className="font-bold text-primary leading-relaxed">
+                               {formData.address.line1}, {formData.address.line2 && `${formData.address.line2}, `}
+                               <br />
+                               {formData.address.city}, {formData.address.state} {formData.address.zip}
+                             </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Students List Card */}
+                      <Card className="rounded-2xl border-slate-100 bg-slate-50/30 overflow-hidden">
+                        <CardHeader className="bg-primary p-4 text-white flex flex-row items-center gap-3">
+                           <GraduationCap className="h-5 w-5 text-secondary" />
+                           <CardTitle className="text-sm font-black uppercase tracking-widest">{isAr ? 'الطلاب المسجلون' : 'Registered Students'}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                          {formData.students.map((st: any, i: number) => (
+                            <div key={i} className={cn("p-6 flex items-start gap-4", i !== formData.students.length - 1 && "border-b border-slate-100")}>
+                               <div className="h-8 w-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center font-black text-primary shrink-0">
+                                 {i + 1}
+                               </div>
+                               <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div>
+                                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{isAr ? 'الاسم بالكامل' : 'Full Name'}</div>
+                                     <div className="text-sm font-bold text-primary">{st.firstName} {st.middleName} {st.lastName}</div>
+                                  </div>
+                                  <div>
+                                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{isAr ? 'تاريخ الميلاد' : 'Date of Birth'}</div>
+                                     <div className="text-sm font-bold text-primary">{st.dob}</div>
+                                  </div>
+                                  <div>
+                                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{isAr ? 'المرحلة الدراسية' : 'Grade Level'}</div>
+                                     <div className="text-sm font-bold text-primary">{st.lastGrade ? `Grade ${st.lastGrade}` : '-'}</div>
+                                  </div>
+                               </div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+
+                      {/* Selected Program Card */}
+                      <Card className="rounded-2xl border-slate-100 bg-slate-50/30 overflow-hidden">
+                        <CardHeader className="bg-primary p-4 text-white flex flex-row items-center gap-3">
+                           <CreditCard className="h-5 w-5 text-secondary" />
+                           <CardTitle className="text-sm font-black uppercase tracking-widest">{isAr ? 'البرنامج التعليمي والدفع' : 'Program & Payment'}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                           <div>
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{isAr ? 'البرنامج المختار' : 'Selected Program'}</div>
+                              <div className="font-bold text-primary text-base">
+                                {availablePrograms.find(p => p.id === formData.programOption)?.title}
+                              </div>
+                              {formData.languageOption && (
+                                <div className="mt-1 px-2 py-0.5 inline-block bg-secondary/10 text-secondary rounded font-black text-[10px] uppercase">
+                                  {formData.languageOption === 'english-arabic' ? (isAr ? 'إنجليزي + عربي' : 'English + Arabic') : (isAr ? 'دعم ESL' : 'ESL Support')}
+                                </div>
+                              )}
+                              {formData.weekendSlot && (
+                                <div className="mt-1 text-slate-500 font-bold text-xs">
+                                  {isAr ? 'الفترة:' : 'Time Slot:'} {formData.weekendSlot}
+                                </div>
+                              )}
+                           </div>
+                           <div>
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{isAr ? 'المبلغ التقريبي المستحق' : 'Approximate Amount Due'}</div>
+                              <div className="font-black text-secondary text-2xl">
+                                 {formData.programOption === 'weekend' ? `$${getWeekendTuition(formData.siblingCount).term}.00` : 
+                                  formData.paymentTier === 'initial-3-5' || formData.paymentTier === 'initial-6-12' ? '$1,650.00' : '$2,850.00'}
+                              </div>
+                              <div className="text-[9px] text-slate-400 font-bold italic mt-1 leading-relaxed">
+                                {isAr ? '* سيتم تأكيد الرسوم النهائية وأي خصومات أشقاء بعد مراجعة الإدارة.' : '* Final fees and sibling discounts will be confirmed after review.'}
+                              </div>
+                           </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+
                   <div className="p-8 bg-primary text-white rounded-[2rem] shadow-2xl relative overflow-hidden space-y-6 mx-2">
                     <div className="absolute top-0 right-0 p-10 opacity-10">
                        <Send className="h-24 w-24" />
                     </div>
                     <div className="space-y-2 relative z-10" dir={isAr ? 'rtl' : 'ltr'}>
-                      <h4 className="text-xl font-black uppercase tracking-tight">{isAr ? 'تأكيد الإرسال' : 'Final Submission'}</h4>
+                      <h4 className="text-xl font-black uppercase tracking-tight">{isAr ? 'تأكيد وإرسال الطلب' : 'Final Confirmation'}</h4>
                       <p className="text-sm font-bold text-white/70 leading-relaxed max-w-xl">
                         {isAr 
-                          ? 'بمجرد الضغط على إرسال، سيتم رفع البيانات المشفرة لمراجعتها من قبل الإدارة.' 
-                          : 'Upon clicking submit, your secured data will be uploaded for administration review.'}
+                          ? 'بمراجعة البيانات أعلاه، أؤكد صحة كافة المعلومات المقدمة وأرغب في إرسال طلب التسجيل للأكاديمية.' 
+                          : 'By reviewing the data above, I confirm that all information provided is accurate and I wish to submit this application to the academy.'}
                       </p>
                     </div>
                   </div>
