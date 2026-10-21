@@ -130,6 +130,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
   const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
 
+  // Validation State
+  const [attemptedNext, setAttemptedNext] = useState(false);
+
   // File Upload State
   const [isProcessingFile, setIsProcessingFile] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -168,12 +171,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     languageOption: '',
     weekendTerm: '',
     weekendSlot: '',
-    files: [] // Consolidated into a single list
+    files: [] 
   };
 
   const [formData, setFormData] = useState<any>(initialFormData);
 
-  // Network Status Monitor
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => {
@@ -227,24 +229,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        // Ensure files exist and is an array (migration path)
-        let consolidatedFiles = [];
-        if (Array.isArray(parsed.files)) {
-          consolidatedFiles = parsed.files;
-        } else if (parsed.files && typeof parsed.files === 'object') {
-          consolidatedFiles = [
-            ...(parsed.files.reportCard || []),
-            ...(parsed.files.studentId || []),
-            ...(parsed.files.parentId || []),
-          ];
-        }
-
-        const mergedData = {
-          ...initialFormData,
-          ...parsed,
-          files: consolidatedFiles
-        };
-        setFormData(mergedData);
+        setFormData((prev: any) => ({ ...prev, ...parsed }));
       } catch (e) {
         console.error("Failed to parse draft", e);
       }
@@ -285,6 +270,40 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     return value.replace(/\D/g, '').slice(0, 5);
   };
 
+  // VALIDATION LOGIC
+  const validateStep = (stepId: number) => {
+    if (stepId === 1) {
+      return (
+        formData.parent1Name &&
+        formData.parent1Phone &&
+        formData.parent1Email &&
+        formData.relationship1 &&
+        formData.address.line1 &&
+        formData.address.city &&
+        formData.address.state &&
+        formData.address.zip
+      );
+    }
+    if (stepId === 2) {
+      return formData.students.every((st: any) => 
+        st.status && st.firstName && st.lastName && st.dob && st.gender && st.lastGrade && st.phone && st.email
+      );
+    }
+    if (stepId === 3) {
+      const basic = !!formData.programOption;
+      if (!basic) return false;
+      if (formData.programOption === 'grades-3-5') return !!formData.paymentTier;
+      if (formData.programOption === 'grades-6-12') return !!formData.languageOption && !!formData.paymentTier;
+      if (formData.programOption === 'weekend') return !!formData.weekendSlot;
+      return true;
+    }
+    return true;
+  };
+
+  const isFieldInvalid = (value: any) => {
+    return attemptedNext && !value;
+  };
+
   const handleSiblingCountChange = (count: string) => {
     const n = parseInt(count);
     let newStudents = [...formData.students];
@@ -316,11 +335,22 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   };
 
   const handleNext = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
-    window.scrollTo(0, 0);
+    if (validateStep(currentStep)) {
+      setAttemptedNext(false);
+      if (currentStep < 4) setCurrentStep(currentStep + 1);
+      window.scrollTo(0, 0);
+    } else {
+      setAttemptedNext(true);
+      toast({
+        variant: "destructive",
+        title: isAr ? "بيانات ناقصة" : "Missing Information",
+        description: isAr ? "يرجى تعبئة كافة الحقول المطلوبة باللون الأحمر للمتابعة." : "Please fill in all required fields marked in red to continue.",
+      });
+    }
   };
 
   const handleBack = () => {
+    setAttemptedNext(false);
     if (currentStep > 1) setCurrentStep(currentStep - 1);
     window.scrollTo(0, 0);
   };
@@ -400,8 +430,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       setIsSubmitting(false);
     }
   };
-
-  // --- FILE HANDLING LOGIC ---
 
   const compressImage = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -508,7 +536,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }));
   };
 
-  // Weekend Tuition Logic
   const getWeekendTuition = (count: string) => {
     const n = parseInt(count) || 1;
     if (n === 1) return { monthly: 75, term: 225 };
@@ -544,7 +571,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      {/* Offline Status Bar */}
       {!isOnline && (
         <div className="bg-red-600 text-white py-2 px-4 flex items-center justify-center gap-3 sticky top-20 z-[55] animate-in slide-in-from-top duration-300">
           <WifiOff className="h-4 w-4" />
@@ -622,7 +648,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     
                     <div className={cn(
                       "rounded-2xl border transition-all duration-300",
-                      openParent === 'p1' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
+                      openParent === 'p1' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200",
+                      attemptedNext && (!formData.parent1Name || !formData.parent1Phone || !formData.parent1Email || !formData.relationship1) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                     )} onClick={() => setOpenParent('p1')}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
@@ -631,39 +658,40 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           </div>
                           <span className="font-black text-primary">{isAr ? 'ولي الأمر الأول' : 'Parent 1'}</span>
                         </div>
+                        {isFieldInvalid(formData.parent1Name) && <AlertCircle className="h-4 w-4 text-red-500 animate-pulse" />}
                         {openParent !== 'p1' && <ChevronDown className="h-4 w-4 text-slate-400" />}
                       </div>
 
                       {openParent === 'p1' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Name) && "text-red-500")}>
                               <User className="h-3 w-3 text-secondary" />
                               {isAr ? 'الاسم الكامل *' : 'Full Name *'}
                             </Label>
-                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="John Doe" />
+                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Name) && "border-red-500 ring-red-50")} placeholder="John Doe" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Phone) && "text-red-500")}>
                               <Phone className="h-3 w-3 text-secondary" />
                               {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
                             </Label>
-                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" inputMode="numeric" />
+                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Email) && "text-red-500")}>
                               <Mail className="h-3 w-3 text-secondary" />
                               {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
                             </Label>
-                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" type="email" placeholder="example@mail.com" />
+                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Email) && "border-red-500 ring-red-50")} type="email" placeholder="example@mail.com" />
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship1) && "text-red-500")}>
                               <Users className="h-3 w-3 text-secondary" />
                               {isAr ? 'صلة القرابة *' : 'Relationship *'}
                             </Label>
                             <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                              <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                              <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.relationship1) && "border-red-500 ring-red-50")}>
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
                               </SelectTrigger>
                               <SelectContent>
@@ -742,11 +770,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2 space-y-2">
-                        <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                        <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.line1) && "text-red-500")}>
                           <Type className="h-3 w-3 text-secondary" />
                           {isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}
                         </Label>
-                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="123 Academy St." />
+                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.line1) && "border-red-500 ring-red-50")} placeholder="123 Academy St." />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
@@ -757,19 +785,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                          <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.city) && "text-red-500")}>
                             <Building className="h-3 w-3 text-secondary" />
                             {isAr ? 'المدينة *' : 'City *'}
                           </Label>
-                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.city) && "border-red-500 ring-red-50")} />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                          <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.state) && "text-red-500")}>
                             <MapPin className="h-3 w-3 text-secondary" />
                             {isAr ? 'الولاية *' : 'State *'}
                           </Label>
                           <Select value={formData.address.state} onValueChange={(v) => updateAddress('state', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                            <SelectTrigger className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold">
+                            <SelectTrigger className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.state) && "border-red-500 ring-red-50")}>
                               <SelectValue placeholder={isAr ? 'الولاية' : 'State'} />
                             </SelectTrigger>
                             <SelectContent>
@@ -780,11 +808,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                          <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.zip) && "text-red-500")}>
                             <Hash className="h-3 w-3 text-secondary" />
                             {isAr ? 'الرمز البريدي *' : 'ZIP Code *'}
                           </Label>
-                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', formatZipCode(e.target.value))} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" maxLength={5} inputMode="numeric" />
+                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', formatZipCode(e.target.value))} className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.zip) && "border-red-500 ring-red-50")} maxLength={5} inputMode="numeric" />
                         </div>
                       </div>
                     </div>
@@ -833,7 +861,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     {formData.students.map((student: any, idx: number) => (
                       <div key={idx} className={cn(
                         "rounded-xl border transition-all duration-300 overflow-hidden",
-                        openStudentIdx === idx ? "border-primary shadow-lg" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200"
+                        openStudentIdx === idx ? "border-primary shadow-lg" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200",
+                        attemptedNext && (!student.status || !student.firstName || !student.lastName || !student.dob || !student.gender || !student.lastGrade || !student.phone || !student.email) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                       )} onClick={() => setOpenStudentIdx(idx)}>
                         <div className={cn("flex justify-between items-center p-5", openStudentIdx === idx ? "bg-primary text-white" : "bg-white")}>
                           <div className="flex items-center gap-3">
@@ -845,13 +874,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               {student.firstName && ` - ${student.firstName}`}
                             </span>
                           </div>
+                          {openStudentIdx !== idx && attemptedNext && (!student.status || !student.firstName || !student.lastName) && <AlertCircle className="h-4 w-4 text-red-500 animate-pulse" />}
                           {openStudentIdx !== idx ? (isAr ? <ChevronLeft className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />) : <ChevronDown className="h-4 w-4" />}
                         </div>
 
                         {openStudentIdx === idx && (
                           <div className="p-4 md:p-8 space-y-10 animate-in slide-in-from-top-4 duration-500" onClick={(e) => e.stopPropagation()}>
                             <div className="space-y-4">
-                              <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                              <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1", isFieldInvalid(student.status) && "text-red-500")}>
                                 <ShieldCheck className="h-3 w-3 text-secondary" />
                                 {isAr ? 'حالة الطالب في الأكاديمية' : 'Student Status at Academy'}
                               </Label>
@@ -869,7 +899,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                       "relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
                                       student.status === status 
                                         ? "bg-secondary/5 border-secondary shadow-sm" 
-                                        : "bg-white border-slate-100 hover:border-slate-200"
+                                        : "bg-white border-slate-100 hover:border-slate-200",
+                                      isFieldInvalid(student.status) && "border-red-200 bg-red-50/10"
                                     )}
                                   >
                                     <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
@@ -883,11 +914,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                               <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.firstName) && "text-red-500")}>
                                   <User className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأول *' : 'First Name *'}
                                 </Label>
-                                <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                                <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.firstName) && "border-red-500 ring-red-50")} />
                               </div>
                               <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
@@ -897,27 +928,27 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
                               </div>
                               <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastName) && "text-red-500")}>
                                   <User className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأخير *' : 'Last Name *'}
                                 </Label>
-                                <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                                <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastName) && "border-red-500 ring-red-50")} />
                               </div>
 
                               <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.dob) && "text-red-500")}>
                                   <CalendarIcon className="h-3 w-3 text-secondary" />
                                   {isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}
                                 </Label>
-                                <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                                <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.dob) && "border-red-500 ring-red-50")} />
                               </div>
                               <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.gender) && "text-red-500")}>
                                   <UserCircle2 className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الجنس *' : 'Gender *'}
                                 </Label>
                                 <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                                  <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                                  <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.gender) && "border-red-500 ring-red-50")}>
                                     <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -927,12 +958,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 </Select>
                               </div>
                               <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastGrade) && "text-red-500")}>
                                   <GraduationCap className="h-3 w-3 text-secondary" />
                                   {isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}
                                 </Label>
                                 <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                                  <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold">
+                                  <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastGrade) && "border-red-500 ring-red-50")}>
                                     <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -944,18 +975,18 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </div>
 
                               <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.phone) && "text-red-500")}>
                                   <Phone className="h-3 w-3 text-secondary" />
                                   {isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}
                                 </Label>
-                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="(777) 777-7777" inputMode="numeric" />
+                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                               </div>
                               <div className="md:col-span-2 space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.email) && "text-red-500")}>
                                   <Mail className="h-3 w-3 text-secondary" />
                                   {isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}
                                 </Label>
-                                <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" placeholder="student@example.com" />
+                                <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.email) && "border-red-500 ring-red-50")} placeholder="student@example.com" />
                               </div>
                             </div>
                           </div>
@@ -969,7 +1000,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
               {currentStep === 3 && (
                 <div className="space-y-12">
                   <div className="text-center space-y-3">
-                    <h3 className="text-2xl font-black text-primary uppercase tracking-tight px-4">
+                    <h3 className={cn("text-2xl font-black uppercase tracking-tight px-4", attemptedNext && !formData.programOption ? "text-red-500" : "text-primary")}>
                       {isAr ? 'ما هو برنامج BBA الذي ترغب في التسجيل فيه؟' : 'Which BBA Online Program Would You Like to Enroll In?'}
                     </h3>
                     <p className="text-xs md:text-sm text-slate-500 font-bold max-w-lg mx-auto">
@@ -992,7 +1023,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     {availablePrograms.map((prog) => (
                       <Label key={prog.id} htmlFor={`opt-${prog.id}`} className={cn(
                         "relative group rounded-[1.5rem] overflow-hidden border-2 cursor-pointer transition-all duration-500 h-56 md:h-64",
-                        formData.programOption === prog.id ? `border-${prog.color} shadow-2xl scale-[1.02] z-10` : "border-slate-100 hover:border-slate-300"
+                        formData.programOption === prog.id ? `border-${prog.color} shadow-2xl scale-[1.02] z-10` : "border-slate-100 hover:border-slate-300",
+                        attemptedNext && !formData.programOption && "border-red-200 bg-red-50/5"
                       )}>
                         <RadioGroupItem value={prog.id} id={`opt-${prog.id}`} className="sr-only" />
                         <div className="absolute inset-0 z-0">
@@ -1024,7 +1056,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                   {formData.programOption === 'grades-3-5' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
-                      <Card className="border-2 border-secondary/20 bg-secondary/5 rounded-[2rem] overflow-hidden">
+                      <Card className={cn("border-2 rounded-[2rem] overflow-hidden", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-secondary/20 bg-secondary/5")}>
                         <CardHeader className="bg-secondary text-white p-6 md:p-8">
                           <div className="flex items-center gap-4">
                             <BookOpen className="h-6 w-6 md:h-8 md:w-8" />
@@ -1057,18 +1089,18 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <p className="text-xs md:text-sm font-bold text-amber-900 leading-relaxed">
                                    {isAr ? 'وفر 300 دولار عند دفع الرسوم الدراسية الكاملة مقدماً!' : 'Save $300 when paying full tuition upfront!'}
                                 </p>
-                                <p className="text-[9px] md:text-[10px] text-amber-700 italic">
-                                   {isAr ? '* خصم 10% يطبق على الرسوم السنوية فقط (من 3000$ إلى 2700$). ' : '* 10% discount applies to annual tuition only ($3,000 → $2,700).'}
-                                </p>
                              </div>
                           </div>
 
                           <div className="space-y-6">
-                             <h4 className="text-center font-black text-primary uppercase tracking-widest text-xs md:text-sm">{isAr ? 'اختر خطة الدفع المناسبة' : 'Select a Payment Option'}</h4>
+                             <h4 className={cn("text-center font-black uppercase tracking-widest text-xs md:text-sm", isFieldInvalid(formData.paymentTier) ? "text-red-500" : "text-primary")}>
+                               {isAr ? 'اختر خطة الدفع المناسبة' : 'Select a Payment Option'}
+                             </h4>
                              <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Label htmlFor="pay-3-5-a" className={cn(
                                    "relative flex flex-col p-5 md:p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                   formData.paymentTier === 'initial-3-5' ? "border-secondary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-secondary/30"
+                                   formData.paymentTier === 'initial-3-5' ? "border-secondary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-secondary/30",
+                                   isFieldInvalid(formData.paymentTier) && "border-red-100"
                                 )}>
                                    <RadioGroupItem value="initial-3-5" id="pay-3-5-a" className="absolute top-4 right-4" />
                                    <div className="flex flex-col h-full space-y-4">
@@ -1082,7 +1114,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                                 <Label htmlFor="pay-3-5-b" className={cn(
                                    "relative flex flex-col p-5 md:p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                   formData.paymentTier === 'full-3-5' ? "border-secondary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-secondary/30"
+                                   formData.paymentTier === 'full-3-5' ? "border-secondary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-secondary/30",
+                                   isFieldInvalid(formData.paymentTier) && "border-red-100"
                                 )}>
                                    <RadioGroupItem value="full-3-5" id="pay-3-5-b" className="absolute top-4 right-4" />
                                    <div className="flex flex-col h-full space-y-4">
@@ -1103,7 +1136,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   {formData.programOption === 'grades-6-12' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                       <div className="text-center space-y-4 px-4">
-                        <h4 className="font-black text-primary uppercase tracking-widest text-xs md:text-sm">{isAr ? 'اختر مسار البرنامج' : 'Select Program Variant'}</h4>
+                        <h4 className={cn("font-black uppercase tracking-widest text-xs md:text-sm", isFieldInvalid(formData.languageOption) ? "text-red-500" : "text-primary")}>
+                          {isAr ? 'اختر مسار البرنامج' : 'Select Program Variant'}
+                        </h4>
                         <RadioGroup 
                            value={formData.languageOption} 
                            onValueChange={(v) => { updateField('languageOption', v); updateField('paymentTier', ''); }} 
@@ -1116,7 +1151,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                            ].map(opt => (
                               <Label key={opt.id} htmlFor={`var-${opt.id}`} className={cn(
                                  "flex flex-col items-center justify-center p-6 rounded-2xl border-2 text-center transition-all cursor-pointer",
-                                 formData.languageOption === opt.id ? "bg-primary text-white border-primary shadow-xl" : "bg-white border-slate-100 hover:border-primary/20 text-primary"
+                                 formData.languageOption === opt.id ? "bg-primary text-white border-primary shadow-xl" : "bg-white border-slate-100 hover:border-primary/20 text-primary",
+                                 isFieldInvalid(formData.languageOption) && "border-red-100"
                               )}>
                                  <RadioGroupItem value={opt.id} id={`var-${opt.id}`} className="sr-only" />
                                  <opt.icon className={cn("h-6 w-6 mb-3", formData.languageOption === opt.id ? "text-secondary" : "text-primary/40")} />
@@ -1127,7 +1163,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </div>
 
                       {formData.languageOption && (
-                        <Card className="border-2 border-primary/20 bg-primary/5 rounded-[2rem] overflow-hidden">
+                        <Card className={cn("border-2 rounded-[2rem] overflow-hidden", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-primary/20 bg-primary/5")}>
                            <CardHeader className="bg-primary text-white p-6 md:p-8">
                               <div className="flex items-center gap-4">
                                  <GraduationCap className="h-6 w-6 md:h-8 md:w-8" />
@@ -1143,15 +1179,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                     <div className="p-4 bg-white rounded-xl shadow-sm space-y-3 text-xs md:text-sm">
                                        <div className="flex justify-between items-center"><span className="font-bold">{isAr ? 'رسوم التسجيل' : 'Registration Fee'}</span><span className="font-black">$150.00</span></div>
                                        <div className="flex justify-between items-center"><span className="font-bold">{isAr ? 'الدفعة الأولى' : 'First Payment'}</span><span className="font-black">$1,500.00</span></div>
-                                       <div className="flex justify-between items-center"><span className="font-bold">{isAr ? 'الدفعة الثانية' : 'Second Payment'}</span><span className="font-black">$1,000.00</span></div>
-                                       <div className="flex justify-between items-center"><span className="font-bold">{isAr ? 'الدفعة النهائية' : 'Final Payment'}</span><span className="font-black">$1,000.00</span></div>
-                                    </div>
-                                 </div>
-                                 <div className="p-5 md:p-6 bg-white rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                                    <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-slate-50 pb-2">{isAr ? 'تفاصيل الرسوم' : 'Tuition Details'}</h4>
-                                    <div className="space-y-3">
-                                       <div className="flex justify-between items-center"><span className="text-slate-500">{isAr ? 'إجمالي التعليم قبل الخصم' : 'Total Tuition'}</span><span className="font-black text-primary">$3,500.00</span></div>
-                                       <div className="flex justify-between items-center text-secondary"><span className="font-bold">{isAr ? 'خصم الأشقاء (10%)' : 'Sibling Discount (10%)'}</span><span className="font-black">-$350.00</span></div>
                                     </div>
                                  </div>
                               </div>
@@ -1160,7 +1187,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                  <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)} className="max-w-md mx-auto">
                                     <Label htmlFor="pay-6-12" className={cn(
                                        "flex items-center justify-between p-5 md:p-6 rounded-2xl border-2 cursor-pointer transition-all bg-white",
-                                       formData.paymentTier === 'initial-6-12' ? "border-primary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-primary/30"
+                                       formData.paymentTier === 'initial-6-12' ? "border-primary shadow-xl scale-[1.01]" : "border-slate-100 hover:border-primary/30",
+                                       isFieldInvalid(formData.paymentTier) && "border-red-100"
                                     )}>
                                        <RadioGroupItem value="initial-6-12" id="pay-6-12" />
                                        <div className="flex flex-col text-center flex-1 px-4">
@@ -1178,7 +1206,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                   {formData.programOption === 'weekend' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
-                       <Card className="border-2 border-accent/20 bg-accent/5 rounded-[2rem] overflow-hidden">
+                       <Card className={cn("border-2 rounded-[2rem] overflow-hidden", isFieldInvalid(formData.weekendSlot) ? "border-red-300" : "border-accent/20 bg-accent/5")}>
                           <CardHeader className="bg-accent text-white p-6 md:p-8">
                              <div className="flex items-center gap-4">
                                 <Calendar className="h-6 w-6 md:h-8 md:w-8" />
@@ -1189,7 +1217,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           </CardHeader>
                           <CardContent className="p-4 md:p-8 space-y-10">
                              <div className="space-y-4">
-                                <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-accent/20 pb-2 flex items-center gap-2">
+                                <h4 className={cn("font-black uppercase text-xs md:text-sm border-b-2 pb-2 flex items-center gap-2", isFieldInvalid(formData.weekendSlot) ? "text-red-500 border-red-200" : "text-primary border-accent/20")}>
                                    <Clock className="h-4 w-4" />
                                    {isAr ? 'الفترات الزمنية المتاحة (بتوقيت نيويورك)' : 'Available Time Slots (New York Time)'}
                                 </h4>
@@ -1197,7 +1225,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                    {['8:00 AM – 10:00 AM', '10:00 AM – 12:00 PM', '12:00 PM – 2:00 PM'].map(slot => (
                                       <Label key={slot} htmlFor={`slot-${slot}`} className={cn(
                                          "p-4 rounded-xl border-2 text-center font-black cursor-pointer transition-all text-xs md:text-sm",
-                                         formData.weekendSlot === slot ? "bg-accent text-white border-accent shadow-lg" : "bg-white border-slate-100 hover:border-accent/20 text-accent"
+                                         formData.weekendSlot === slot ? "bg-accent text-white border-accent shadow-lg" : "bg-white border-slate-100 hover:border-accent/20 text-accent",
+                                         isFieldInvalid(formData.weekendSlot) && "border-red-100"
                                       )}>
                                          <RadioGroupItem value={slot} id={`slot-${slot}`} className="sr-only" />
                                          {slot}
@@ -1246,7 +1275,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
                   )}
 
-                  {formData.paymentTier && (
+                  {validateStep(3) && (
                     <div className="bg-slate-900 text-white p-6 md:p-8 rounded-[2rem] shadow-2xl space-y-6 animate-in fade-in duration-700 mx-1">
                        <div className="flex items-center gap-3 border-b border-white/10 pb-4">
                           <CheckCircle2 className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
@@ -1403,7 +1432,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     )}
                   </div>
 
-                  {/* APPLICATION REVIEW SUMMARY */}
                   <div className="space-y-6 pt-8 border-t border-slate-100 mx-2">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
@@ -1415,7 +1443,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
-                      {/* Parent & Address Card */}
                       <Card className="rounded-2xl border-slate-100 bg-slate-50/30 overflow-hidden">
                         <CardHeader className="bg-primary p-4 text-white flex flex-row items-center gap-3">
                            <UserCircle2 className="h-5 w-5 text-secondary" />
@@ -1447,7 +1474,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
-                      {/* Students List Card */}
                       <Card className="rounded-2xl border-slate-100 bg-slate-50/30 overflow-hidden">
                         <CardHeader className="bg-primary p-4 text-white flex flex-row items-center gap-3">
                            <GraduationCap className="h-5 w-5 text-secondary" />
@@ -1478,7 +1504,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
-                      {/* Selected Program Card */}
                       <Card className="rounded-2xl border-slate-100 bg-slate-50/30 overflow-hidden">
                         <CardHeader className="bg-primary p-4 text-white flex flex-row items-center gap-3">
                            <CreditCard className="h-5 w-5 text-secondary" />
@@ -1548,7 +1573,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   
                   <Button 
                     onClick={currentStep < 4 ? handleNext : handleSubmit} 
-                    disabled={isSubmitting || (currentStep === 3 && !formData.paymentTier)}
+                    disabled={isSubmitting}
                     className={cn(
                       "h-14 md:h-16 rounded-2xl font-black text-sm md:text-lg transition-all gap-3 shadow-xl active:scale-95",
                       currentStep > 1 ? "flex-[2.5]" : "w-full",
