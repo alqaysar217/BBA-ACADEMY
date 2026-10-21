@@ -223,156 +223,185 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Section 1 — Hero */}
+      {/* Section 1 — Improved Hero with Geometric Patterns */}
       <section className="relative pt-24 pb-20 lg:pt-32 lg:pb-32 bg-primary overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <svg className="absolute inset-0 h-full w-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
+          {/* Triangular Geometric Grid Pattern */}
+          <svg className="absolute inset-0 h-full w-full opacity-[0.07]" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="ny-grid" width="60" height="60" patternUnits="userSpaceOnUse">
-                <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="1" />
-                <circle cx="30" cy="30" r="1.5" fill="white" />
+              <pattern id="ny-geo-pattern" width="80" height="80" patternUnits="userSpaceOnUse">
+                <path d="M 80 0 L 0 0 0 80" fill="none" stroke="white" strokeWidth="1" />
+                <path d="M 0 80 L 80 0" fill="none" stroke="white" strokeWidth="1" />
+                <path d="M 40 0 L 40 80" fill="none" stroke="white" strokeWidth="0.5" />
+                <path d="M 0 40 L 80 40" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#ny-grid)" />
+            <rect width="100%" height="100%" fill="url(#ny-geo-pattern)" />
           </svg>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/20 blur-[140px] rounded-full animate-pulse" />
+          
+          {/* Layered Glow Gradients */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-secondary/15 blur-[160px] rounded-full animate-pulse" />
+          <div className="absolute top-0 right-0 w-[40%] h-full bg-accent/10 blur-[120px] rounded-full translate-x-1/4 -translate-y-1/4" />
         </div>
 
         <div className="container-tight relative z-10 text-center space-y-8 px-4">
           <div className="space-y-4 max-w-4xl mx-auto">
-            <h1 className="text-3xl sm:text-6xl lg:text-7xl font-black text-white uppercase tracking-tighter leading-[1.1] drop-shadow-2xl">
+            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black text-white uppercase tracking-tighter leading-[1] drop-shadow-[0_20px_20px_rgba(0,0,0,0.3)]">
               {t.hero.title}
             </h1>
-            <h2 className="text-lg sm:text-2xl text-secondary font-black uppercase tracking-widest">
+            <h2 className="text-lg sm:text-3xl text-secondary font-black uppercase tracking-[0.2em] drop-shadow-md">
               {t.hero.subtitle}
             </h2>
           </div>
-          <p className="text-sm sm:text-xl text-white/80 font-bold max-w-3xl mx-auto leading-relaxed italic border-l-2 border-secondary/30 pl-4 sm:pl-8 inline-block">
+          <p className="text-sm sm:text-xl text-white/80 font-bold max-w-3xl mx-auto leading-relaxed italic border-l-4 border-secondary pl-6 sm:pl-10 inline-block text-start">
             {t.hero.desc}
           </p>
-          <div className="pt-6">
+          <div className="pt-8">
             <Button 
               size="lg" 
               onClick={() => scrollTo('intro')}
-              className="bg-secondary hover:bg-white hover:text-secondary text-white font-black h-16 px-10 rounded-2xl shadow-2xl transition-all scale-105 active:scale-95"
+              className="bg-secondary hover:bg-white hover:text-secondary text-white font-black h-16 px-12 rounded-2xl shadow-[0_20px_40px_rgba(var(--secondary),0.3)] transition-all scale-110 active:scale-95 border-2 border-transparent hover:border-secondary"
             >
               {t.hero.cta}
-              {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
+              {isAr ? <ArrowLeft className="mr-3 h-6 w-6" /> : <ArrowRight className="ml-3 h-6 w-6" />}
             </Button>
           </div>
         </div>
       </section>
 
       {/* Sticky Sub-Navigation */}
-      <nav className="sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm hidden md:block">
-        <div className="container-tight flex items-center justify-center gap-10 h-16">
+      <nav className="sticky top-20 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm hidden md:block">
+        <div className="container-tight flex items-center justify-center gap-10 h-20">
           {Object.entries(t.nav).map(([key, label]) => (
             <button
               key={key}
               onClick={() => scrollTo(key === 'overview' ? 'intro' : key)}
-              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors py-2 border-b-2 border-transparent hover:border-secondary"
+              className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-primary transition-all py-2 border-b-2 border-transparent hover:border-secondary relative group"
             >
               {label}
+              <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-secondary group-hover:w-full transition-all duration-300" />
             </button>
           ))}
         </div>
       </nav>
 
       {/* Section 2 — Homeschooling in New York (Intro) */}
-      <section id="intro" className="py-24">
-        <div className="container-tight px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
+      <section id="intro" className="py-24 relative overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <pattern id="intro-dots" width="40" height="40" patternUnits="userSpaceOnUse">
+                 <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+              </pattern>
+              <rect width="100%" height="100%" fill="url(#intro-dots)" />
+           </svg>
+        </div>
+
+        <div className="container-tight px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <div className="space-y-10">
               <div className="space-y-4">
-                <h2 className="text-3xl lg:text-5xl font-black text-primary uppercase tracking-tight">
+                <h2 className="text-3xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">
                   {t.intro.title}
                 </h2>
-                <div className="h-1.5 w-20 bg-secondary rounded-full" />
-                <p className="text-xl font-black text-secondary italic">
+                <div className="h-2 w-24 bg-secondary rounded-full" />
+                <p className="text-xl lg:text-2xl font-black text-secondary italic leading-snug">
                   {t.intro.supporting}
                 </p>
               </div>
-              <div className="space-y-6 text-slate-600 font-medium text-lg leading-relaxed">
+              <div className="space-y-8 text-slate-600 font-medium text-lg leading-relaxed">
                 <p>{t.intro.content1}</p>
-                <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-2 h-full bg-secondary" />
-                  <p className="relative z-10 text-primary font-bold">
+                <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-2.5 h-full bg-secondary group-hover:w-full group-hover:opacity-5 transition-all duration-700" />
+                  <p className="relative z-10 text-primary font-black text-xl leading-relaxed">
                     {t.intro.content2}
                   </p>
                 </div>
-                <p className="font-black text-primary">{t.intro.content3}</p>
+                <p className="font-black text-primary text-xl flex items-center gap-4">
+                   <Target className="h-6 w-6 text-secondary shrink-0" />
+                   {t.intro.content3}
+                </p>
               </div>
             </div>
-            <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white ring-1 ring-slate-100">
+            <div className="relative aspect-square lg:aspect-[4/5] rounded-[4rem] overflow-hidden shadow-2xl border-8 border-white ring-1 ring-slate-100 group">
                <Image 
-                src="https://picsum.photos/seed/ny1/800/800" 
+                src="https://picsum.photos/seed/ny1/800/1000" 
                 alt="New York Landscape" 
                 fill 
-                className="object-cover" 
+                className="object-cover transition-transform duration-1000 group-hover:scale-105" 
                 unoptimized
                 data-ai-hint="new york building"
                />
-               <div className="absolute inset-0 bg-primary/20" />
+               <div className="absolute inset-0 bg-primary/10 group-hover:bg-primary/0 transition-colors" />
+               <div className="absolute bottom-8 left-8 right-8 p-6 bg-white/90 backdrop-blur-md rounded-3xl border border-white/20 shadow-xl opacity-0 translate-y-10 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700">
+                  <p className="text-xs font-black text-primary uppercase tracking-widest leading-relaxed">
+                     {isAr ? 'ندعم رحلة طفلك التعليمية في قلب نيويورك' : 'Supporting your child\'s journey in the heart of NY'}
+                  </p>
+               </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Section 3 — The Homeschool Process in New York */}
-      <section id="process" className="py-24 bg-slate-50 border-y border-slate-100">
-        <div className="container-tight px-4">
-          <div className="max-w-4xl mx-auto text-center space-y-6 mb-20">
-            <h2 className="text-3xl lg:text-5xl font-black text-primary uppercase tracking-tight">
+      <section id="process" className="py-24 bg-slate-50 border-y border-slate-100 relative">
+        <div className="container-tight px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center space-y-6 mb-24">
+            <h2 className="text-3xl lg:text-7xl font-black text-primary uppercase tracking-tight">
               {t.process.title}
             </h2>
-            <p className="text-slate-600 font-bold text-lg leading-relaxed">
+            <p className="text-slate-600 font-bold text-lg lg:text-2xl leading-relaxed italic max-w-3xl mx-auto">
               {t.process.intro}
             </p>
-            <div className="p-4 bg-white/50 rounded-xl border border-slate-200 inline-block">
-               <p className="text-xs font-black text-secondary uppercase tracking-widest">{t.process.subtitle}</p>
+            <div className="px-6 py-3 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 inline-block shadow-sm">
+               <p className="text-[10px] lg:text-xs font-black text-secondary uppercase tracking-[0.3em]">{t.process.subtitle}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-12 relative">
-             {/* Desktop visual connector line */}
-            <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-200 -translate-x-1/2" />
+          <div className="grid grid-cols-1 gap-16 relative">
+             {/* Desktop visual connector line - enhanced */}
+            <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-slate-200 to-transparent -translate-x-1/2" />
             
             {t.process.steps.map((step, idx) => (
               <div key={idx} className={cn(
-                "relative flex flex-col lg:flex-row items-center gap-8 lg:gap-20 group",
+                "relative flex flex-col lg:flex-row items-center gap-12 lg:gap-32 group",
                 idx % 2 === 1 ? "lg:flex-row-reverse" : ""
               )}>
                 {/* Step Number Circle */}
-                <div className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 z-10">
-                   <div className="h-16 w-16 rounded-2xl bg-white border-2 border-secondary flex items-center justify-center font-black text-2xl text-primary shadow-xl group-hover:bg-secondary group-hover:text-white transition-all duration-500 group-hover:scale-110">
+                <div className="lg:absolute lg:left-1/2 lg:-translate-x-1/2 z-20">
+                   <div className="h-20 w-20 rounded-[2rem] bg-white border-4 border-secondary flex items-center justify-center font-black text-3xl text-primary shadow-2xl group-hover:bg-secondary group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
                       {step.id}
                    </div>
                 </div>
 
                 {/* Content Side */}
                 <div className="flex-1 w-full">
-                   <Card className="rounded-[2.5rem] border-none shadow-premium overflow-hidden bg-white hover:shadow-2xl transition-all duration-500">
-                      <CardHeader className="bg-primary p-8 text-white">
-                         <CardTitle className="text-xl lg:text-2xl font-black uppercase tracking-tight">{step.title}</CardTitle>
+                   <Card className="rounded-[3rem] border-none shadow-premium overflow-hidden bg-white hover:shadow-2xl transition-all duration-700 ring-1 ring-slate-100">
+                      <CardHeader className="bg-primary p-10 text-white relative overflow-hidden">
+                         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                            <Zap className="h-16 w-16" />
+                         </div>
+                         <CardTitle className="text-xl lg:text-3xl font-black uppercase tracking-tight relative z-10 drop-shadow-md">{step.title}</CardTitle>
                       </CardHeader>
-                      <CardContent className="p-8 lg:p-10 space-y-8">
-                         <div className="space-y-4">
-                            <p className="text-slate-600 font-bold leading-relaxed text-sm lg:text-base">
+                      <CardContent className="p-8 lg:p-12 space-y-10">
+                         <div className="space-y-6">
+                            <p className="text-slate-600 font-bold leading-relaxed text-sm lg:text-lg">
                               {step.desc}
                             </p>
-                            <p className="text-slate-400 font-medium text-xs italic leading-relaxed">
+                            <p className="text-slate-400 font-medium text-xs lg:text-sm italic leading-relaxed pl-6 border-l-2 border-slate-100">
                               {step.extra}
                             </p>
                          </div>
                          
-                         <div className="bg-secondary/5 rounded-2xl p-6 lg:p-8 border border-secondary/10 space-y-4">
-                            <div className="flex items-center gap-3">
-                               <div className="h-8 w-8 rounded-lg bg-secondary text-white flex items-center justify-center shadow-md">
-                                  <ShieldCheck className="h-4 w-4" />
+                         <div className="bg-secondary/5 rounded-[2.5rem] p-8 lg:p-10 border border-secondary/10 space-y-6 shadow-inner relative overflow-hidden group/support">
+                            <div className="absolute bottom-0 right-0 w-24 h-24 bg-secondary/5 blur-3xl rounded-full" />
+                            <div className="flex items-center gap-4 relative z-10">
+                               <div className="h-12 w-12 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-xl group-hover/support:rotate-12 transition-transform">
+                                  <ShieldCheck className="h-6 w-6" />
                                </div>
-                               <h4 className="font-black text-primary uppercase text-sm tracking-widest">{t.process.bbaSupport}</h4>
+                               <h4 className="font-black text-primary uppercase text-sm lg:text-lg tracking-widest">{t.process.bbaSupport}</h4>
                             </div>
-                            <p className="text-slate-600 text-sm font-bold leading-relaxed border-l-4 border-secondary pl-4 py-1">
+                            <p className="text-slate-600 text-sm lg:text-base font-bold leading-relaxed border-l-4 border-secondary pl-6 py-2 relative z-10">
                                {step.bba}
                             </p>
                          </div>
@@ -389,72 +418,88 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Section 4 — College Pathways */}
-      <section id="college" className="py-32">
-        <div className="container-tight px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+      <section id="college" className="py-32 relative overflow-hidden">
+        {/* Abstract Background Shapes */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] rounded-full -translate-x-1/2 translate-y-1/2" />
+
+        <div className="container-tight px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
             <div className="lg:col-span-7 space-y-12">
                <div className="space-y-6">
-                  <h2 className="text-3xl lg:text-5xl font-black text-primary uppercase tracking-tight leading-tight">
+                  <h2 className="text-4xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-tight">
                     {t.college.title}
                   </h2>
-                  <p className="text-2xl font-black text-secondary italic">
+                  <p className="text-2xl lg:text-4xl font-black text-secondary italic drop-shadow-sm">
                     {t.college.supporting}
                   </p>
                </div>
 
-               <div className="p-10 bg-slate-900 text-white rounded-[3rem] shadow-2xl relative overflow-hidden space-y-6 group">
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                     <GraduationCap className="h-32 w-32" />
+               <div className="p-10 lg:p-16 bg-slate-900 text-white rounded-[4rem] shadow-2xl relative overflow-hidden space-y-8 group border-b-8 border-secondary">
+                  <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-1000">
+                     <GraduationCap className="h-48 w-48" />
                   </div>
-                  <h3 className="text-xl lg:text-3xl font-black italic relative z-10">{t.college.question}</h3>
-                  <div className="h-1 w-20 bg-secondary rounded-full relative z-10" />
-                  <p className="text-4xl lg:text-6xl font-black text-secondary uppercase relative z-10 drop-shadow-xl">{t.college.answer}</p>
+                  <h3 className="text-xl lg:text-4xl font-black italic relative z-10 leading-tight">{t.college.question}</h3>
+                  <div className="h-2 w-24 bg-secondary rounded-full relative z-10" />
+                  <p className="text-5xl lg:text-8xl font-black text-secondary uppercase relative z-10 drop-shadow-[0_15px_15px_rgba(0,0,0,0.4)]">{t.college.answer}</p>
                </div>
 
-               <div className="space-y-6 text-slate-600 font-medium text-lg leading-relaxed">
+               <div className="space-y-8 text-slate-600 font-medium text-lg lg:text-xl leading-relaxed">
                   <p>{t.college.p1}</p>
-                  <p>{t.college.p2}</p>
+                  <p className="p-8 bg-slate-50 rounded-3xl border border-slate-100 italic">{t.college.p2}</p>
                </div>
 
-               <div className="bg-slate-50 p-8 lg:p-12 rounded-[2.5rem] border border-slate-100 shadow-inner">
-                  <div className="flex items-center gap-4 mb-8">
-                     <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg">
-                        <Zap className="h-5 w-5" />
-                     </div>
-                     <h4 className="text-xl font-black text-primary uppercase tracking-widest">{t.college.checklistTitle}</h4>
+               <div className="bg-slate-50/50 p-10 lg:p-16 rounded-[4rem] border border-slate-100 shadow-inner relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                     <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <pattern id="checklist-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                           <path d="M 0 40 L 40 0" stroke="currentColor" strokeWidth="1" fill="none" />
+                        </pattern>
+                        <rect width="100%" height="100%" fill="url(#checklist-pattern)" />
+                     </svg>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-6 mb-10 relative z-10">
+                     <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-xl">
+                        <Zap className="h-7 w-7" />
+                     </div>
+                     <h4 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-widest">{t.college.checklistTitle}</h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
                     {t.college.checklist.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-slate-100 hover:border-secondary/30 transition-all">
-                        <CheckCircle2 className="h-5 w-5 text-secondary shrink-0" />
-                        <span className="font-bold text-primary text-sm lg:text-base">{lang === 'ar' ? item.ar : item.en}</span>
+                      <div key={idx} className="flex items-center gap-5 p-6 bg-white rounded-3xl shadow-premium border border-slate-100 hover:border-secondary/50 hover:shadow-2xl transition-all group">
+                        <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-colors shadow-sm">
+                           <CheckCircle2 className="h-5 w-5 shrink-0" />
+                        </div>
+                        <span className="font-black text-primary text-sm lg:text-lg">{lang === 'ar' ? item.ar : item.en}</span>
                       </div>
                     ))}
                   </div>
                </div>
             </div>
 
-            <div className="lg:col-span-5 space-y-10">
-               <Card className="rounded-[3rem] border-none shadow-2xl bg-primary text-white p-10 lg:p-12 relative overflow-hidden group">
-                  <div className="absolute -bottom-10 -right-10 opacity-5">
-                     <ShieldCheck className="h-64 w-64" />
+            <div className="lg:col-span-5 space-y-12 lg:sticky lg:top-48">
+               <Card className="rounded-[4rem] border-none shadow-2xl bg-primary text-white p-12 lg:p-16 relative overflow-hidden group ring-1 ring-white/10">
+                  <div className="absolute -bottom-16 -right-16 opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-1000">
+                     <ShieldCheck className="h-80 w-80" />
                   </div>
-                  <div className="relative z-10 space-y-8">
-                     <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-                           <LayoutDashboard className="h-6 w-6" />
+                  <div className="relative z-10 space-y-10">
+                     <div className="flex items-center gap-5">
+                        <div className="h-16 w-16 rounded-3xl bg-secondary text-white flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform">
+                           <LayoutDashboard className="h-8 w-8" />
                         </div>
-                        <h4 className="text-xl font-black uppercase tracking-widest">{isAr ? 'دعم الأكاديمية' : 'BBA Support'}</h4>
+                        <h4 className="text-2xl font-black uppercase tracking-[0.2em]">{isAr ? 'دعم الأكاديمية' : 'BBA Support'}</h4>
                      </div>
-                     <p className="text-white/80 font-bold leading-relaxed text-sm lg:text-base italic">
+                     <p className="text-white/90 font-black leading-relaxed text-lg lg:text-2xl italic border-l-4 border-secondary pl-8 py-4">
                         {t.college.bba}
                      </p>
                   </div>
                </Card>
 
-               <div className="bg-secondary/10 p-10 rounded-[2rem] border-2 border-secondary/20 text-center space-y-4">
-                  <Lightbulb className="h-10 w-10 text-secondary mx-auto mb-4" />
-                  <p className="text-xl font-black text-primary leading-tight">
+               <div className="bg-secondary/10 p-12 rounded-[3rem] border-2 border-dashed border-secondary/30 text-center space-y-6 hover:bg-secondary/15 transition-colors">
+                  <div className="h-16 w-16 rounded-2xl bg-white shadow-xl flex items-center justify-center mx-auto mb-6">
+                     <Lightbulb className="h-8 w-8 text-secondary animate-pulse" />
+                  </div>
+                  <p className="text-xl lg:text-3xl font-black text-primary leading-tight tracking-tight px-4">
                     {t.college.closing}
                   </p>
                </div>
@@ -464,28 +509,40 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Section 5 — Common Mistakes */}
-      <section id="mistakes" className="py-24 bg-slate-50 border-y border-slate-100">
-        <div className="container-tight px-4">
-          <div className="text-center space-y-6 mb-20 max-w-4xl mx-auto">
-            <h2 className="text-3xl lg:text-5xl font-black text-primary uppercase tracking-tight">
+      <section id="mistakes" className="py-24 bg-slate-50 border-y border-slate-100 relative overflow-hidden">
+        {/* Geometric Background Triangles */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none">
+           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <pattern id="mistake-geo" width="100" height="100" patternUnits="userSpaceOnUse">
+                 <path d="M 0 100 L 100 0" stroke="currentColor" strokeWidth="1" fill="none" />
+                 <path d="M 0 0 L 100 100" stroke="currentColor" strokeWidth="0.5" fill="none" />
+              </pattern>
+              <rect width="100%" height="100%" fill="url(#mistake-geo)" />
+           </svg>
+        </div>
+
+        <div className="container-tight px-4 relative z-10">
+          <div className="text-center space-y-8 mb-24 max-w-4xl mx-auto">
+            <h2 className="text-3xl lg:text-7xl font-black text-primary uppercase tracking-tight">
                {t.mistakes.title}
             </h2>
-            <p className="text-2xl font-black text-secondary italic">
+            <p className="text-2xl lg:text-4xl font-black text-secondary italic leading-tight">
                {t.mistakes.supporting}
             </p>
-            <p className="text-slate-500 font-bold text-lg leading-relaxed max-w-2xl mx-auto">
+            <div className="h-1.5 w-32 bg-secondary mx-auto rounded-full" />
+            <p className="text-slate-500 font-bold text-lg lg:text-2xl leading-relaxed max-w-3xl mx-auto opacity-80">
                {t.mistakes.intro}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
              {t.mistakes.list.map((mistake, idx) => (
-                <Card key={idx} className="rounded-[2rem] border-none shadow-sm hover:shadow-xl transition-all duration-300 bg-white group flex flex-col h-full overflow-hidden">
-                   <div className="p-8 space-y-6 flex-1">
-                      <div className="h-12 w-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shadow-inner group-hover:bg-red-500 group-hover:text-white transition-colors duration-500 shrink-0">
-                         <FileWarning className="h-6 w-6" />
+                <Card key={idx} className="rounded-[3rem] border-none shadow-premium hover:shadow-2xl transition-all duration-500 bg-white group flex flex-col h-full overflow-hidden hover:-translate-y-2 ring-1 ring-slate-100">
+                   <div className="p-10 lg:p-12 space-y-8 flex-1">
+                      <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center shadow-inner group-hover:bg-red-500 group-hover:text-white group-hover:rotate-12 transition-all duration-700 shrink-0">
+                         <FileWarning className="h-8 w-8" />
                       </div>
-                      <p className="text-slate-700 font-black text-sm lg:text-base leading-relaxed">
+                      <p className="text-slate-700 font-black text-base lg:text-xl leading-relaxed">
                          {mistake}
                       </p>
                    </div>
@@ -493,17 +550,17 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
              ))}
              
              {/* BBA Tip Card spanning remaining columns */}
-             <div className="md:col-span-2 lg:col-span-3">
-                <div className="bg-primary text-white p-8 lg:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 group">
-                   <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:scale-110 transition-transform">
-                      <Lightbulb className="h-64 w-64" />
+             <div className="md:col-span-2 lg:col-span-3 mt-10">
+                <div className="bg-primary text-white p-10 lg:p-20 rounded-[4rem] shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-12 group border-b-8 border-secondary">
+                   <div className="absolute top-0 right-0 p-16 opacity-[0.05] group-hover:scale-125 group-hover:rotate-6 transition-transform duration-1000">
+                      <Lightbulb className="h-96 w-96" />
                    </div>
-                   <div className="h-20 w-20 rounded-3xl bg-secondary text-white flex items-center justify-center shadow-xl shrink-0 group-hover:rotate-12 transition-transform">
-                      <ShieldCheck className="h-10 w-10" />
+                   <div className="h-24 w-24 rounded-[2rem] bg-secondary text-white flex items-center justify-center shadow-2xl shrink-0 group-hover:rotate-12 transition-all duration-500 ring-4 ring-white/10 relative z-10">
+                      <ShieldCheck className="h-12 w-12" />
                    </div>
-                   <div className="space-y-4 relative z-10">
-                      <h4 className="text-xl font-black uppercase tracking-widest text-secondary">{t.mistakes.tipTitle}</h4>
-                      <p className="text-base lg:text-xl font-bold leading-relaxed text-white/90 italic">
+                   <div className="space-y-6 relative z-10 text-center md:text-start">
+                      <h4 className="text-2xl lg:text-4xl font-black uppercase tracking-[0.2em] text-secondary drop-shadow-md">{t.mistakes.tipTitle}</h4>
+                      <p className="text-lg lg:text-3xl font-bold leading-relaxed text-white opacity-95 italic max-w-4xl">
                          {t.mistakes.tipContent}
                       </p>
                    </div>
@@ -514,42 +571,46 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Section 6 — How BBA Supports New York Families */}
-      <section id="support" className="py-32 bg-white">
-        <div className="container-tight px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-             <div className="lg:col-span-5 space-y-8 lg:sticky lg:top-40">
-                <h2 className="text-3xl lg:text-5xl font-black text-primary uppercase tracking-tight leading-tight">
+      <section id="support" className="py-32 bg-white relative">
+        <div className="container-tight px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-32 items-start">
+             <div className="lg:col-span-5 space-y-10 lg:sticky lg:top-48">
+                <h2 className="text-4xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-none drop-shadow-sm">
                    {t.support.title}
                 </h2>
-                <div className="h-2 w-20 bg-secondary rounded-full" />
-                <div className="space-y-6 text-slate-600 font-medium text-lg leading-relaxed border-l-4 border-slate-100 pl-8">
+                <div className="h-2.5 w-24 bg-secondary rounded-full" />
+                <div className="space-y-8 text-slate-600 font-medium text-lg lg:text-xl leading-relaxed border-l-8 border-slate-50 pl-10 py-4">
                    <p>{t.support.intro}</p>
-                   <p className="font-black text-primary italic leading-relaxed">{t.support.responsibility}</p>
+                   <p className="font-black text-primary italic text-xl lg:text-2xl drop-shadow-sm">{t.support.responsibility}</p>
                 </div>
              </div>
 
              <div className="lg:col-span-7">
-                <div className="bg-slate-50 p-8 lg:p-12 rounded-[3rem] border border-slate-100 shadow-inner space-y-10">
-                   <h3 className="text-xl font-black text-primary uppercase tracking-widest flex items-center gap-4">
-                      <CheckSquare className="h-6 w-6 text-secondary" />
+                <div className="bg-slate-50/50 p-10 lg:p-20 rounded-[4rem] border border-slate-100 shadow-inner space-y-12 relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 blur-[120px] rounded-full" />
+                   
+                   <h3 className="text-2xl lg:text-4xl font-black text-primary uppercase tracking-tight flex items-center gap-6 relative z-10">
+                      <div className="h-14 w-14 rounded-2xl bg-white shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                         <CheckSquare className="h-8 w-8 text-secondary" />
+                      </div>
                       {t.support.listIntro}
                    </h3>
                    
-                   <div className="grid grid-cols-1 gap-4">
+                   <div className="grid grid-cols-1 gap-5 relative z-10">
                       {t.support.items.map((item, idx) => (
-                         <div key={idx} className="flex items-center gap-5 p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                            <div className="h-8 w-8 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center font-black text-xs group-hover:bg-secondary group-hover:text-white transition-colors">
+                         <div key={idx} className="flex items-center gap-6 p-6 bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 group/item border border-slate-50 hover:border-secondary/20 hover:-translate-x-2">
+                            <div className="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center font-black text-sm group-hover/item:bg-secondary group-hover/item:text-white transition-all shadow-inner">
                                {idx + 1}
                             </div>
-                            <span className="font-bold text-primary text-sm lg:text-base leading-tight">
+                            <span className="font-black text-primary text-base lg:text-xl leading-tight opacity-90 group-hover/item:opacity-100 transition-opacity">
                                {item}
                             </span>
                          </div>
                       ))}
                    </div>
 
-                   <div className="pt-10 border-t border-slate-200">
-                      <p className="text-slate-500 font-bold text-base leading-relaxed italic text-center max-w-xl mx-auto">
+                   <div className="pt-12 border-t border-slate-200 relative z-10">
+                      <p className="text-slate-500 font-bold text-lg lg:text-2xl leading-relaxed italic text-center max-w-2xl mx-auto opacity-70">
                         {t.support.closing}
                       </p>
                    </div>
@@ -562,31 +623,38 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       {/* Section 7 — Have Questions? */}
       <section id="contact" className="py-24 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 z-0">
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-secondary/10 blur-[160px] rounded-full" />
-           <div className="absolute -bottom-20 -right-20 opacity-5">
-              <Mail className="h-96 w-96 text-white" />
+           {/* Sophisticated Glow Layers */}
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-secondary/15 blur-[200px] rounded-full animate-pulse" />
+           <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-white/5 blur-[140px] rounded-full" />
+           <div className="absolute top-0 left-0 w-full h-full opacity-[0.05] pointer-events-none">
+              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                 <pattern id="footer-tri" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <path d="M 0 0 L 100 0 L 50 100 Z" fill="none" stroke="white" strokeWidth="0.5" />
+                 </pattern>
+                 <rect width="100%" height="100%" fill="url(#footer-tri)" />
+              </svg>
            </div>
         </div>
 
         <div className="container-tight relative z-10 px-4">
-          <Card className="rounded-[3rem] border-none shadow-2xl bg-white p-10 lg:p-16 text-center space-y-10 max-w-4xl mx-auto">
-             <div className="space-y-4">
-                <h2 className="text-3xl lg:text-6xl font-black text-primary uppercase tracking-tight">{t.footer.title}</h2>
-                <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
-                <p className="text-xl lg:text-2xl font-black text-secondary italic">{t.footer.supporting}</p>
+          <Card className="rounded-[4rem] border-none shadow-2xl bg-white p-12 lg:p-24 text-center space-y-12 max-w-5xl mx-auto group">
+             <div className="space-y-6">
+                <h2 className="text-4xl lg:text-8xl font-black text-primary uppercase tracking-tighter drop-shadow-sm group-hover:scale-105 transition-transform duration-700">{t.footer.title}</h2>
+                <div className="h-2 w-32 bg-secondary mx-auto rounded-full shadow-[0_0_20px_rgba(var(--secondary),0.5)]" />
+                <p className="text-xl lg:text-4xl font-black text-secondary italic tracking-tight">{t.footer.supporting}</p>
              </div>
              
-             <div className="space-y-6 text-slate-600 font-bold text-lg leading-relaxed max-w-2xl mx-auto">
-                <p className="text-primary font-black text-2xl">{t.footer.p1}</p>
-                <p>{t.footer.p2}</p>
-                <p className="text-sm lg:text-base opacity-70 italic">{t.footer.p3}</p>
+             <div className="space-y-10 text-slate-600 font-bold text-lg lg:text-2xl leading-relaxed max-w-3xl mx-auto">
+                <p className="text-primary font-black text-2xl lg:text-4xl leading-tight border-x-4 border-slate-100 px-8 py-2 inline-block">{t.footer.p1}</p>
+                <p className="opacity-90">{t.footer.p2}</p>
+                <p className="text-base lg:text-xl opacity-60 italic leading-relaxed border-t border-slate-50 pt-8">{t.footer.p3}</p>
              </div>
 
-             <div className="pt-6">
-                <Button asChild size="lg" className="h-16 px-12 text-lg font-black bg-secondary hover:bg-primary text-white rounded-2xl shadow-xl transition-all scale-110 active:scale-95 shadow-secondary/20 border-4 border-transparent hover:border-secondary/20">
+             <div className="pt-10">
+                <Button asChild size="lg" className="h-20 px-16 text-xl lg:text-3xl font-black bg-secondary hover:bg-primary text-white rounded-3xl shadow-[0_30px_60px_rgba(var(--secondary),0.3)] transition-all scale-110 active:scale-95 border-4 border-transparent hover:border-secondary group-hover:shadow-[0_40px_80px_rgba(var(--secondary),0.4)]">
                    <Link href={`/${lang}/contact`}>
                       {t.footer.btn}
-                      {isAr ? <ArrowLeft className="mr-3 h-6 w-6" /> : <ArrowRight className="ml-3 h-6 w-6" />}
+                      {isAr ? <ArrowLeft className="mr-5 h-8 w-8" /> : <ArrowRight className="ml-5 h-8 w-8" />}
                    </Link>
                 </Button>
              </div>
