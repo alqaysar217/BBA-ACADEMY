@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Lock, Mail, Loader2, ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AdminLoginPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -48,18 +49,31 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md space-y-8">
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-6">
           <Link href={`/${lang}`} className="inline-flex items-center gap-2 text-slate-400 hover:text-primary font-bold text-sm transition-colors">
             {isAr ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
             {isAr ? "العودة للموقع" : "Back to Website"}
           </Link>
-          <div className="mx-auto h-16 w-16 bg-primary rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20">
-             <ShieldCheck className="h-8 w-8 text-secondary" />
+          
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-24 w-24 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-primary/10 p-4">
+               <Image 
+                src="/logo.png" 
+                alt="BBA Logo" 
+                width={80} 
+                height={80} 
+                className="object-contain"
+                unoptimized
+               />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black text-primary uppercase tracking-tight">Admin Gateway</h1>
+              <p className="text-[10px] text-secondary font-black uppercase tracking-[0.3em]">Baneen & Banaat Academy</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-black text-primary uppercase tracking-tight">Admin Gateway</h1>
         </div>
 
-        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden">
+        <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
           <CardHeader className="bg-primary p-8 text-white">
             <CardTitle className="text-xl font-black uppercase tracking-widest flex items-center gap-3">
               <Lock className="h-5 w-5 text-secondary" />
@@ -77,21 +91,23 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
                   type="email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-14 rounded-xl border-slate-200 font-bold"
+                  className="h-14 rounded-xl border-slate-200 font-bold focus:border-secondary focus:ring-secondary/10"
                   placeholder="admin@baneenbanaat.org"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                  <Lock className="h-3 w-3 text-secondary" />
-                  {isAr ? "كلمة المرور" : "Password"}
-                </Label>
+                <div className="flex justify-between items-center">
+                  <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                    <Lock className="h-3 w-3 text-secondary" />
+                    {isAr ? "كلمة المرور" : "Password"}
+                  </Label>
+                </div>
                 <Input 
                   type="password" 
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-14 rounded-xl border-slate-200 font-bold"
+                  className="h-14 rounded-xl border-slate-200 font-bold focus:border-secondary focus:ring-secondary/10"
                   required
                 />
               </div>
@@ -106,8 +122,8 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
           </CardContent>
         </Card>
         
-        <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">
-          Baneen & Banaat Academy Management System
+        <p className="text-center text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed px-10">
+          Authorized personnel only. Access is monitored and recorded by BBA Security Systems.
         </p>
       </div>
     </div>
