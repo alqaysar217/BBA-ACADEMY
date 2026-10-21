@@ -47,6 +47,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
     programs: {
       title: isAr ? 'برامجنا التعليمية عبر الإنترنت' : 'Our Online Programs',
       subtitle: isAr ? 'ابحث عن المسار التعليمي المناسب لطفلك' : 'Find the Right Learning Path for Your Child',
+      viewAll: isAr ? 'تصفح جميع البرامج' : 'Browse All Programs',
       items: [
         { id: 'grades-3-5', title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote', image: "/program-1.png", desc: isAr ? 'بناء الأسس الأكاديمية وتعزيز الهوية الإسلامية.' : 'Building academic foundations and strengthening Islamic identity.' },
         { id: 'grades-6-12', title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote', image: "/program-2.png", desc: isAr ? 'دعم التقدم الأكاديمي والتحضير للمستقبل.' : 'Support academic progress and prepare for future opportunities.' },
@@ -105,8 +106,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
 
         <div className="container-tight relative z-10 flex flex-col flex-1 w-full px-4 h-full">
-          {/* Spacer pushed to flex-1.5 to lower the title area and reveal more of the background top detail */}
-          <div className="flex-[1.5]" />
+          <div className="flex-[1.8]" />
           
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-4 sm:space-y-6">
             <div className="relative inline-flex items-center gap-4 py-2 px-8">
@@ -121,11 +121,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           
           <div className="flex-1" />
 
-          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto px-6 max-w-4xl mx-auto mb-6 md:mb-10">
-            <Button asChild size="lg" className="h-16 sm:h-20 lg:h-16 px-12 sm:px-16 lg:px-12 text-xl sm:text-2xl lg:text-xl bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl rounded-full transition-all font-black border-4 border-transparent hover:border-secondary">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto px-6 max-w-4xl mx-auto mb-12 lg:mb-20">
+            <Button asChild size="lg" className="h-16 sm:h-20 lg:h-16 px-12 sm:px-16 lg:px-12 text-xl sm:text-2xl lg:text-xl bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl rounded-2xl transition-all font-black border-4 border-transparent hover:border-secondary">
               <Link href={`/${lang}/enroll`}>{t.hero.apply}</Link>
             </Button>
-            <Button asChild size="lg" className="h-16 sm:h-20 lg:h-16 px-12 sm:px-16 lg:px-12 text-xl sm:text-2xl lg:text-xl bg-white/10 backdrop-blur-md text-white hover:bg-white hover:text-primary rounded-full transition-all font-black border-2 border-white/20">
+            <Button asChild size="lg" className="h-16 sm:h-20 lg:h-16 px-12 sm:px-16 lg:px-12 text-xl sm:text-2xl lg:text-xl bg-white/10 backdrop-blur-md text-white hover:bg-white hover:text-primary rounded-2xl transition-all font-black border-2 border-white/20">
               <Link href={`/${lang}/programs`}>{t.hero.explore}</Link>
             </Button>
           </div>
@@ -134,15 +134,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
       {/* SECTION 2 — WHY CHOOSE BBA */}
       <section className="py-20 lg:py-40 bg-slate-50 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <pattern id="why-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
-                 <circle cx="30" cy="30" r="1" fill="currentColor" />
-              </pattern>
-              <rect width="100%" height="100%" fill="url(#why-pattern)" />
-           </svg>
-        </div>
-
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
             <h2 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
@@ -154,7 +145,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
             {t.why.items.map((item, idx) => (
               <div key={idx} className="bg-white p-8 rounded-2xl shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
-                <div className="h-14 w-14 sm:h-16 sm:w-16 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shrink-0 group-hover:bg-secondary transition-all duration-700 group-hover:rotate-12">
+                <div className="h-14 w-14 sm:h-16 sm:w-16 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shrink-0 transition-all duration-700 group-hover:rotate-12">
                   <item.icon className="h-7 w-7 lg:h-8 lg:w-8" />
                 </div>
                 <div className="space-y-3">
@@ -201,6 +192,15 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               </div>
             ))}
           </div>
+
+          <div className="mt-16 text-center">
+            <Button asChild size="lg" className="h-16 px-12 rounded-2xl bg-primary hover:bg-secondary text-white font-black text-lg transition-all shadow-xl">
+              <Link href={`/${lang}/programs`}>
+                {t.programs.viewAll}
+                {isAr ? <ArrowLeft className="mr-3 h-6 w-6" /> : <ArrowRight className="ml-3 h-6 w-6" />}
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -224,7 +224,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                    <p className="opacity-90">{t.about.text2}</p>
                 </div>
                 <div className="pt-6">
-                  <Button asChild size="lg" className="h-16 px-12 rounded-xl bg-secondary hover:bg-white hover:text-secondary transition-all shadow-xl font-black text-lg w-full sm:w-auto">
+                  <Button asChild size="lg" className="h-16 px-12 rounded-2xl bg-secondary hover:bg-white hover:text-secondary transition-all shadow-xl font-black text-lg w-full sm:w-auto">
                     <Link href={`/${lang}/about`}>{t.about.cta}</Link>
                   </Button>
                 </div>
@@ -255,7 +255,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   </svg>
                 </div>
                 
-                <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg mb-6 shrink-0 group-hover:bg-secondary transition-all duration-700 group-hover:rotate-12 relative z-10">
+                <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg mb-6 shrink-0 transition-all duration-700 group-hover:rotate-12 relative z-10">
                   <item.icon className="h-6 w-6 lg:h-8 lg:w-8" />
                 </div>
                 <h3 className="font-black text-sm lg:text-base mb-3 uppercase tracking-tight text-primary relative z-10">{item.title}</h3>
@@ -302,6 +302,15 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               </div>
             ))}
           </div>
+
+          <div className="mt-12 text-center">
+            <Button asChild variant="ghost" className="text-secondary font-black hover:bg-secondary/5 gap-2 h-12 rounded-xl">
+              <Link href={`/${lang}/contact`} className="flex items-center gap-2">
+                {isAr ? 'هل لديك تجربة تود مشاركتها؟ تواصل معنا' : 'Have an experience to share? Contact us'}
+                {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -315,7 +324,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                 <p className="text-lg md:text-xl font-black text-secondary italic leading-tight">{t.faqs.subtitle}</p>
                 <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
               </div>
-              <Button asChild size="lg" className="h-16 px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg">
+              <Button asChild size="lg" className="h-16 px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg rounded-2xl">
                 <Link href={`/${lang}/guide#courses-faqs`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
               </Button>
             </div>
@@ -344,10 +353,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               </div>
               <p className="text-slate-500 font-bold text-sm lg:text-lg leading-relaxed max-w-2xl">{t.cta.text}</p>
               <div className="flex flex-col sm:flex-row gap-6 pt-8">
-                <Button asChild size="lg" className="h-16 px-12 rounded-full bg-secondary hover:bg-primary text-white font-black text-lg transition-all shadow-2xl">
+                <Button asChild size="lg" className="h-16 px-12 rounded-2xl bg-secondary hover:bg-primary text-white font-black text-lg transition-all shadow-2xl">
                   <Link href={`/${lang}/enroll`}>{t.cta.primary}</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-16 px-12 rounded-full border-2 border-primary/10 text-primary font-black text-lg hover:bg-primary hover:text-white transition-all">
+                <Button asChild variant="outline" size="lg" className="h-16 px-12 rounded-2xl border-2 border-primary/10 text-primary font-black text-lg hover:bg-primary hover:text-white transition-all">
                   <Link href={`/${lang}/contact`}>{t.cta.secondary}</Link>
                 </Button>
               </div>
