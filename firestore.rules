@@ -2,19 +2,19 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Enrollments collection
+    // مجموعة طلبات التسجيل
     match /enrollments/{enrollmentId} {
-      // Allow anyone to create an enrollment (public registration)
+      // السماح للجميع بإنشاء طلب (للسماح للزوار بالتسجيل)
       allow create: if true;
       
-      // FOR PROTOTYPE TESTING: Allow public read and list so the 'admin/admin' 
-      // bypass works without real Firebase Authentication.
-      // IN PRODUCTION: These should be restricted to authenticated admins only.
-      allow list: if true;
-      allow get: if true;
-      
-      // Allow update for testing
-      allow update: if true; 
+      // وضع الاختبار: السماح بالقراءة والتحديث للجميع لدعم حساب admin/admin التجريبي
+      // في النسخة النهائية، يجب حصر هذه الصلاحيات بالمستخدمين المسجلين كمسؤولين فقط
+      allow read, list, get, update, delete: if true;
+    }
+
+    // السماح بالقراءة والكتابة العامة لأي مسارات أخرى في وضع التطوير
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
