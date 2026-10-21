@@ -15,6 +15,7 @@ import {
   Clock, 
   CheckCircle2,
   ChevronRight,
+  ChevronLeft,
   Globe,
   FileText,
   MousePointer2,
@@ -52,7 +53,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           icon: Star 
         },
         { 
-          title: isAr ? 'دعم طلابي شخصي' : 'Personalized Student Support', 
+          title: isAr ? 'دعم طلابي شخصي' : 'Personal Student Support', 
           desc: isAr ? 'نحن ندرك أن كل متعلم مختلف ونعمل بشكل وثيق مع العائلات لدعم الرحلة التعليمية لكل طالب.' : "We recognize that every learner is different and work closely with families to support each student's educational journey.",
           icon: Users 
         },
@@ -167,7 +168,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
-      {/* SECTION 1 — HERO (PRESERVED) */}
+      {/* SECTION 1 — HERO (Preserved design) */}
       <section className="relative min-h-[75vh] sm:min-h-[90vh] flex items-center overflow-hidden bg-primary py-12 sm:py-24">
         <div className="absolute inset-0 z-0">
           <div className="hidden sm:block absolute inset-0">
@@ -229,9 +230,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* SECTION 2 — WHY FAMILIES CHOOSE BBA (SHIC & CENTERED) */}
-      <section className="section-padding bg-slate-50 relative overflow-hidden">
-        {/* Subtle background pattern */}
+      {/* SECTION 2 — WHY FAMILIES CHOOSE BBA (Refined) */}
+      <section className="py-20 lg:py-32 bg-slate-50 relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <pattern id="why-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
@@ -243,22 +243,21 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 sm:mb-24 space-y-6">
-            <h2 className="text-3xl sm:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
-            <p className="text-xl sm:text-3xl font-black text-secondary italic leading-tight max-w-2xl mx-auto">{t.why.subtitle}</p>
-            <div className="h-2 w-24 bg-secondary mx-auto rounded-full" />
-            <p className="text-slate-500 max-w-3xl mx-auto font-bold text-base sm:text-xl leading-relaxed opacity-80">{t.why.intro}</p>
+            <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
+            <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight max-w-2xl mx-auto">{t.why.subtitle}</p>
+            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+            <p className="text-slate-500 max-w-3xl mx-auto font-bold text-sm sm:text-xl leading-relaxed opacity-80">{t.why.intro}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
             {t.why.items.map((item, idx) => (
-              <div key={idx} className="bg-white p-10 rounded-[3rem] shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="h-16 w-16 sm:h-24 sm:w-24 rounded-[2rem] bg-slate-50 shadow-inner flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all duration-700">
-                  <item.icon className="h-8 w-8 sm:h-12 sm:w-12" />
+              <div key={idx} className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
+                <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-[1.5rem] bg-secondary/10 text-secondary flex items-center justify-center shadow-inner group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
+                  <item.icon className="h-7 w-7 sm:h-10 sm:w-10" />
                 </div>
                 <div className="space-y-3">
-                  <h3 className="font-black text-lg sm:text-xl text-primary uppercase leading-tight">{item.title}</h3>
-                  <p className="text-slate-500 font-medium text-xs sm:text-sm leading-relaxed">{item.desc}</p>
+                  <h3 className="font-black text-base sm:text-xl text-primary uppercase leading-tight">{item.title}</h3>
+                  <p className="text-slate-500 font-medium text-[11px] sm:text-sm leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -266,20 +265,20 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* SECTION 3 — EXPLORE OUR ONLINE PROGRAMS (CHIC CARDS) */}
-      <section className="section-padding bg-white relative overflow-hidden">
+      {/* SECTION 3 — EXPLORE OUR ONLINE PROGRAMS (With Images) */}
+      <section className="py-20 lg:py-32 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 sm:mb-24 space-y-6">
-            <h2 className="text-3xl sm:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
-            <p className="text-xl sm:text-3xl font-black text-secondary italic max-w-2xl mx-auto">{t.programs.subtitle}</p>
-            <div className="h-2 w-24 bg-secondary mx-auto rounded-full" />
-            <p className="text-slate-500 max-w-2xl mx-auto font-bold text-base sm:text-lg opacity-70">{t.programs.intro}</p>
+            <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
+            <p className="text-lg sm:text-3xl font-black text-secondary italic max-w-2xl mx-auto">{t.programs.subtitle}</p>
+            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+            <p className="text-slate-500 max-w-2xl mx-auto font-bold text-sm sm:text-lg opacity-70">{t.programs.intro}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
             {t.programs.items.map((prog) => (
-              <div key={prog.id} className="group flex flex-col bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-slate-100 transition-all duration-700 hover:shadow-premium hover:-translate-y-3">
-                <div className="relative h-64 sm:h-80 overflow-hidden">
+              <div key={prog.id} className="group flex flex-col bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100 transition-all duration-700 hover:shadow-premium hover:-translate-y-3">
+                <div className="relative h-56 sm:h-80 overflow-hidden">
                   <Image src={prog.image} alt={prog.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6">
@@ -287,10 +286,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   </div>
                 </div>
                 <div className="p-8 sm:p-12 flex-1 flex flex-col space-y-6">
-                  <h3 className="text-xl sm:text-2xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
+                  <h3 className="text-lg sm:text-2xl font-black text-primary group-hover:text-secondary transition-colors duration-300 leading-tight">
                     {prog.title}
                   </h3>
-                  <p className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed opacity-90">
+                  <p className="text-slate-500 font-medium text-xs sm:text-base leading-relaxed opacity-90">
                     {prog.desc}
                   </p>
                   <div className="pt-6 mt-auto">
@@ -307,17 +306,16 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           </div>
 
           <div className="mt-16 text-center">
-            <Button asChild size="lg" className="h-16 sm:h-24 px-12 sm:px-24 rounded-[2.5rem] bg-primary hover:bg-secondary font-black transition-all shadow-2xl text-lg sm:text-2xl">
+            <Button asChild size="lg" className="h-16 sm:h-24 px-12 sm:px-24 rounded-[2rem] bg-primary hover:bg-secondary font-black transition-all shadow-2xl text-lg sm:text-2xl">
                <Link href={`/${lang}/programs`}>{t.programs.cta}</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4 — ABOUT BBA (SHIC TWO-COLUMN) */}
-      <section className="section-padding bg-slate-900 text-white relative overflow-hidden">
-         {/* Background Patterns */}
-         <div className="absolute inset-0 opacity-[0.05]">
+      {/* SECTION 4 — ABOUT BBA */}
+      <section className="py-20 lg:py-32 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.05]">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                <pattern id="about-geo" width="80" height="80" patternUnits="userSpaceOnUse">
                   <path d="M 80 0 L 0 0 0 80" fill="none" stroke="white" strokeWidth="0.5" />
@@ -326,33 +324,31 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                <rect width="100%" height="100%" fill="url(#about-geo)" />
             </svg>
          </div>
-         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/10 blur-[150px] rounded-full animate-pulse" />
 
         <div className="container-tight px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
-             <div className="relative aspect-[4/5] sm:aspect-square rounded-[4rem] overflow-hidden shadow-2xl ring-[12px] ring-white/5 group order-2 lg:order-1 transition-transform duration-1000 hover:scale-[1.02]">
+             <div className="relative aspect-[4/5] sm:aspect-square rounded-[3rem] overflow-hidden shadow-2xl group order-2 lg:order-1 transition-transform duration-1000 hover:scale-[1.02]">
                 <Image src="https://picsum.photos/seed/bba-editorial/1000/1000" alt="Academy Excellence" fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent opacity-60" />
-                <div className="absolute bottom-12 left-12 right-12 text-center p-8 bg-white/10 backdrop-blur-xl rounded-[2.5rem] border border-white/20">
-                   <p className="text-secondary font-black text-2xl sm:text-4xl drop-shadow-md">Est. 2019</p>
-                   <p className="text-[10px] sm:text-xs font-black uppercase tracking-[0.3em] opacity-60 mt-2">Serving Families Nationwide</p>
+                <div className="absolute bottom-8 left-8 right-8 text-center p-6 bg-white/10 backdrop-blur-xl rounded-[2rem] border border-white/20">
+                   <p className="text-secondary font-black text-xl sm:text-4xl drop-shadow-md">Est. 2019</p>
                 </div>
              </div>
 
              <div className="space-y-10 order-1 lg:order-2">
-                <div className="space-y-6">
-                  <h2 className="text-3xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
-                  <p className="text-xl sm:text-3xl font-black text-secondary italic leading-tight">{t.about.subtitle}</p>
-                  <div className="h-2 w-24 bg-secondary rounded-full" />
+                <div className="space-y-6 text-center lg:text-start">
+                  <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
+                  <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight">{t.about.subtitle}</p>
+                  <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                 </div>
-                <div className="space-y-8 text-white/80 font-medium text-base sm:text-xl leading-relaxed">
-                   <p className="font-black text-white text-lg sm:text-2xl border-l-8 border-secondary pl-8 py-2 bg-white/5 rounded-r-3xl italic">
+                <div className="space-y-8 text-white/80 font-medium text-sm sm:text-xl leading-relaxed">
+                   <p className="font-black text-white text-base sm:text-2xl border-l-8 border-secondary pl-8 py-2 bg-white/5 rounded-r-[2rem] italic">
                      {t.about.text1}
                    </p>
                    <p className="opacity-90">{t.about.text2}</p>
                 </div>
                 <div className="pt-6">
-                  <Button asChild size="lg" className="h-16 sm:h-20 px-12 rounded-[2rem] bg-secondary hover:bg-white hover:text-secondary transition-all shadow-xl font-black text-lg sm:text-xl w-full sm:w-auto">
+                  <Button asChild size="lg" className="h-16 sm:h-20 px-12 rounded-[1.5rem] bg-secondary hover:bg-white hover:text-secondary transition-all shadow-xl font-black text-lg sm:text-xl w-full sm:w-auto">
                     <Link href={`/${lang}/about`}>{t.about.cta}</Link>
                   </Button>
                 </div>
@@ -361,28 +357,25 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
       </section>
 
-      {/* SECTION 5 — EDUCATIONAL PLANNING (SHIC GRID) */}
-      <section className="section-padding bg-slate-50 relative overflow-hidden">
+      {/* SECTION 5 — EDUCATIONAL PLANNING */}
+      <section className="py-20 lg:py-32 bg-slate-50 relative overflow-hidden">
          <div className="container-tight relative z-10 px-4">
             <div className="text-center mb-16 sm:mb-24 space-y-6">
-               <h2 className="text-3xl sm:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
-               <p className="text-xl sm:text-3xl font-black text-secondary italic max-w-3xl mx-auto">{t.planning.subtitle}</p>
-               <div className="h-2 w-24 bg-secondary mx-auto rounded-full" />
-               <p className="text-slate-500 max-w-4xl mx-auto font-bold text-base sm:text-xl leading-relaxed opacity-80">{t.planning.intro}</p>
+               <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
+               <p className="text-lg sm:text-3xl font-black text-secondary italic max-w-4xl mx-auto">{t.planning.subtitle}</p>
+               <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+               <p className="text-slate-500 max-w-4xl mx-auto font-bold text-sm sm:text-xl leading-relaxed opacity-80">{t.planning.intro}</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                {t.planning.items.map((item, idx) => (
-                 <div key={idx} className={cn(
-                    "bg-white rounded-[3rem] p-10 border border-slate-100 hover:bg-white transition-all duration-500 group flex flex-col h-full hover:shadow-premium ring-1 ring-slate-100/50 hover:-translate-y-2",
-                    idx === 3 ? "lg:col-span-1" : idx === 4 ? "lg:col-span-1" : ""
-                 )}>
-                    <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-[1.8rem] bg-secondary/10 text-secondary flex items-center justify-center shadow-inner mb-8 group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
+                 <div key={idx} className="bg-white rounded-[2.5rem] p-8 sm:p-10 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center hover:-translate-y-2">
+                    <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-[1.5rem] bg-secondary/10 text-secondary flex items-center justify-center shadow-inner mb-8 group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
                        <item.icon className="h-8 w-8 sm:h-10 sm:w-10" />
                     </div>
-                    <h3 className="font-black text-lg sm:text-2xl mb-4 uppercase tracking-tight text-primary transition-colors">{item.title}</h3>
-                    <p className="text-slate-500 font-medium text-xs sm:text-base leading-relaxed mb-10 flex-1 opacity-80">{item.desc}</p>
-                    <Button asChild className="w-full h-14 rounded-2xl bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all border-none">
+                    <h3 className="font-black text-base sm:text-2xl mb-4 uppercase tracking-tight text-primary">{item.title}</h3>
+                    <p className="text-slate-500 font-medium text-[11px] sm:text-base leading-relaxed mb-10 flex-1 opacity-80">{item.desc}</p>
+                    <Button asChild className="w-full h-14 rounded-[1.2rem] bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[10px] transition-all">
                        <Link href={`/${lang}/planning#${item.id}`}>
                           {t.planning.details}
                           {isAr ? <ChevronLeft className="mr-2 h-4 w-4" /> : <ChevronRight className="ml-2 h-4 w-4" />}
@@ -394,61 +387,62 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
          </div>
       </section>
 
-      {/* SECTION 6 — TESTIMONIALS (WARM & CHIC) */}
-      <section className="section-padding bg-white relative overflow-hidden">
+      {/* SECTION 6 — TESTIMONIALS */}
+      <section className="py-20 lg:py-32 bg-white relative overflow-hidden">
          <div className="container-tight px-4 relative z-10">
             <div className="text-center mb-16 sm:mb-24 space-y-6">
-               <h2 className="text-3xl sm:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.testimonials.title}</h2>
-               <p className="text-xl sm:text-3xl font-black text-secondary italic max-w-2xl mx-auto">{t.testimonials.subtitle}</p>
-               <div className="h-2 w-24 bg-secondary mx-auto rounded-full" />
+               <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.testimonials.title}</h2>
+               <p className="text-lg sm:text-3xl font-black text-secondary italic max-w-2xl mx-auto">{t.testimonials.subtitle}</p>
+               <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10">
               {t.testimonials.items.map((test, idx) => (
-                <div key={idx} className="bg-slate-50 p-10 sm:p-14 rounded-[4rem] border border-slate-100 relative space-y-8 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
-                  <div className="flex gap-1.5 text-amber-400">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />)}
+                <div key={idx} className="bg-slate-50 p-10 sm:p-14 rounded-[3rem] border border-slate-100 relative space-y-8 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
+                  <div className="flex gap-1 text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-current" />
+                    ))}
                   </div>
-                  <p className="text-slate-700 font-bold italic leading-relaxed text-base sm:text-xl relative z-10">"{test.text}"</p>
+                  <p className="text-slate-700 font-bold italic leading-relaxed text-sm sm:text-xl relative z-10">"{test.text}"</p>
                   <div className="flex items-center gap-5 pt-8 border-t border-slate-200/60">
-                    <div className="h-14 w-14 sm:h-18 sm:w-18 rounded-full bg-primary text-white flex items-center justify-center text-xl sm:text-2xl font-black shadow-xl ring-4 ring-white">
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-xl">
                       {test.name[0]}
                     </div>
                     <div>
-                      <div className="font-black text-primary text-base sm:text-xl">{test.name}</div>
+                      <div className="font-black text-primary text-sm sm:text-xl">{test.name}</div>
                       <div className="text-[10px] sm:text-xs font-black text-secondary uppercase tracking-[0.2em]">{test.role}</div>
                     </div>
                   </div>
-                  <Quote className="absolute top-10 right-10 h-12 w-12 sm:h-20 sm:w-20 text-primary/5 group-hover:text-secondary/10 transition-all duration-1000 rotate-12" />
                 </div>
               ))}
             </div>
          </div>
       </section>
 
-      {/* SECTION 7 — FAQ (COMPACT & SOFT) */}
-      <section className="section-padding bg-slate-50 border-y border-slate-100 relative">
+      {/* SECTION 7 — FAQ */}
+      <section className="py-20 lg:py-32 bg-slate-50 border-y border-slate-100 relative">
          <div className="container-tight px-4 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
                <div className="space-y-8 text-center lg:text-start">
                   <div className="space-y-6">
-                     <h2 className="text-3xl sm:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.faq.title}</h2>
-                     <p className="text-xl sm:text-3xl font-black text-secondary italic leading-tight">{t.faq.subtitle}</p>
-                     <div className="h-2 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
+                     <h2 className="text-2xl sm:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-tight">{t.faq.title}</h2>
+                     <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight">{t.faq.subtitle}</p>
+                     <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                   </div>
-                  <Button asChild size="lg" className="h-16 sm:h-20 px-12 rounded-[2rem] bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg">
+                  <Button asChild size="lg" className="h-16 rounded-[1.5rem] px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg">
                      <Link href={`/${lang}/guide#courses-faqs`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
                   </Button>
                </div>
                
-               <div className="bg-white p-8 sm:p-16 rounded-[3.5rem] shadow-premium border border-slate-100 ring-1 ring-slate-100">
-                  <Accordion type="single" collapsible className="w-full space-y-6">
+               <div className="bg-white p-8 sm:p-12 rounded-[2.5rem] shadow-premium border border-slate-100">
+                  <Accordion type="single" collapsible className="w-full space-y-4">
                     {t.faq.items.map((item, idx) => (
-                      <AccordionItem key={idx} value={`faq-${idx}`} className="border-none rounded-[2rem] px-8 bg-slate-50 hover:bg-white transition-all duration-500 shadow-sm hover:shadow-lg">
-                        <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-sm sm:text-xl py-8 gap-6">
+                      <AccordionItem key={idx} value={`faq-${idx}`} className="border-none rounded-[1.5rem] px-6 bg-slate-50 hover:bg-white transition-all duration-500 shadow-sm">
+                        <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-xs sm:text-lg py-6">
                            {item.q}
                         </AccordionTrigger>
-                        <AccordionContent className="text-slate-600 font-bold leading-relaxed pb-10 pt-4 border-t border-slate-100 text-xs sm:text-lg opacity-80">
+                        <AccordionContent className="text-slate-600 font-bold leading-relaxed pb-8 pt-2 border-t border-slate-100 text-[11px] sm:text-base opacity-80">
                            {item.a}
                         </AccordionContent>
                       </AccordionItem>
@@ -459,41 +453,28 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
          </div>
       </section>
 
-      {/* SECTION 8 — FINAL CTA (PREMIUM BLUE) */}
-      <section className="section-padding bg-primary relative overflow-hidden py-24 sm:py-40">
-         {/* Advanced Glow Background */}
-         <div className="absolute inset-0">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-secondary/15 blur-[180px] rounded-full animate-pulse" />
-            <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-white/5 blur-[120px] rounded-full" />
-            <svg className="absolute inset-0 h-full w-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
-              <pattern id="cta-pattern" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M 100 0 L 0 100 M 50 0 L 0 50 M 100 50 L 50 100" stroke="white" strokeWidth="1" fill="none" />
-              </pattern>
-              <rect width="100%" height="100%" fill="url(#cta-pattern)" />
-            </svg>
-         </div>
-         
+      {/* SECTION 8 — FINAL CTA */}
+      <section className="py-20 sm:py-32 bg-primary relative overflow-hidden">
          <div className="container-tight relative z-10 px-4">
-            <div className="max-w-6xl mx-auto bg-white rounded-[4rem] sm:rounded-[6rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col lg:flex-row items-center border border-white/20 group">
-               <div className="p-10 sm:p-24 flex-1 space-y-10 text-center lg:text-start">
+            <div className="max-w-6xl mx-auto bg-white rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row items-center group">
+               <div className="p-10 sm:p-20 flex-1 space-y-10 text-center lg:text-start">
                   <div className="space-y-6">
-                    <h2 className="text-3xl sm:text-6xl lg:text-8xl font-black text-primary uppercase tracking-tight leading-[1] transition-transform duration-700 group-hover:scale-[1.01]">{t.cta.title}</h2>
-                    <p className="text-xl sm:text-4xl font-black text-secondary italic drop-shadow-sm">{t.cta.subtitle}</p>
+                    <h2 className="text-2xl sm:text-5xl lg:text-7xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
+                    <p className="text-lg sm:text-3xl font-black text-secondary italic">{t.cta.subtitle}</p>
                   </div>
-                  <p className="text-slate-500 font-bold text-base sm:text-2xl leading-relaxed max-w-2xl opacity-90">{t.cta.desc}</p>
-                  <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 pt-8">
-                     <Button asChild size="lg" className="h-18 sm:h-28 px-12 sm:px-20 rounded-full bg-secondary hover:bg-primary text-white font-black text-lg sm:text-3xl transition-all shadow-2xl scale-110 active:scale-95 border-4 border-transparent hover:border-secondary group-hover:shadow-secondary/30">
+                  <p className="text-slate-500 font-bold text-sm sm:text-xl leading-relaxed max-w-2xl">{t.cta.desc}</p>
+                  <div className="flex flex-col sm:flex-row gap-6 pt-8">
+                     <Button asChild size="lg" className="h-16 sm:h-20 px-12 rounded-full bg-secondary hover:bg-primary text-white font-black text-lg sm:text-2xl transition-all shadow-2xl">
                         <Link href={`/${lang}/enroll`}>{t.cta.primary}</Link>
                      </Button>
-                     <Button asChild variant="outline" size="lg" className="h-18 sm:h-28 px-12 sm:px-20 rounded-full border-4 border-primary/10 text-primary font-black text-lg sm:text-3xl hover:bg-primary hover:text-white transition-all active:scale-95">
+                     <Button asChild variant="outline" size="lg" className="h-16 sm:h-20 px-12 rounded-full border-2 border-primary/10 text-primary font-black text-lg sm:text-2xl hover:bg-primary hover:text-white transition-all">
                         <Link href={`/${lang}/contact`}>{t.cta.secondary}</Link>
                      </Button>
                   </div>
                </div>
                
-               <div className="hidden lg:block relative w-1/3 aspect-[4/5] overflow-hidden group-hover:scale-105 transition-transform duration-1000">
-                  <Image src="https://picsum.photos/seed/bba-cta/800/1200" alt="Academy Future" fill className="object-cover" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/10 to-white/90" />
+               <div className="hidden lg:block relative w-1/3 aspect-[4/5] overflow-hidden">
+                  <Image src="https://picsum.photos/seed/bba-cta/800/1200" alt="Academy Future" fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
                </div>
             </div>
          </div>

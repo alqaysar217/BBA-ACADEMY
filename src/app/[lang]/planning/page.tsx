@@ -84,7 +84,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
         isAr ? 'يساعد الطلاب على البقاء على المسار الصحيح للتخرج.' : 'Helps students stay on track for graduation.',
         isAr ? 'يبسط القبول في الجامعات وطلبات المنح الدراسية.' : 'Simplifies college admissions and scholarship applications.',
         isAr ? 'ينشئ سجلات أكاديمية منظمة.' : 'Creates organized academic records.',
-        isAr ? 'يقلل التوتر خلال السنة الأخيرة.' : 'Reduces stress during the senior year.',
+        isAr ? 'يقلل التوتر خلال السنة الأخيرة.' : 'Reduces stress during the final year.',
         isAr ? 'يساعد العائلات على الاستعداد لفرص تعليمية مستقبلية.' : 'Helps families prepare for future educational opportunities.'
       ]
     },
@@ -138,7 +138,7 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
 
       {/* Main Sections - The Five Cards */}
       <section className="py-24 container-tight space-y-16">
-         {t.sections.map((section, idx) => (
+         {t.sections.map((section) => (
            <div key={section.id} id={section.id} className="scroll-mt-32">
               <Card className="rounded-[3rem] border-none shadow-premium overflow-hidden bg-slate-50/50 hover:shadow-2xl transition-all duration-700 group">
                  <div className="flex flex-col md:flex-row items-stretch">
