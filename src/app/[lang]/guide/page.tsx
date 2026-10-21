@@ -32,7 +32,12 @@ import {
   AlertCircle,
   Heart,
   Zap,
-  ChevronDown
+  ChevronDown,
+  MapPin,
+  Globe,
+  Languages,
+  MessageCircle,
+  Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -167,89 +172,57 @@ const getGuideSections = (isAr: boolean) => [
     )
   },
   {
-    id: 'agreement',
-    icon: ShieldCheck,
-    title: isAr ? '4. اتفاقية الطالب في الأكاديمية' : '4. The BBA Student Agreement',
-    content: (
-      <div className="space-y-10 py-4">
-        <div className="grid grid-cols-1 gap-8">
-          <div className="p-8 sm:p-10 bg-white rounded-2xl border border-slate-100 shadow-premium space-y-6 relative group overflow-hidden">
-            <div className="flex items-center gap-4 border-b pb-4 border-slate-100 relative z-10">
-              <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
-                 <Star className="h-6 w-6 fill-white" />
-              </div>
-              <h4 className="font-black text-primary text-lg sm:text-2xl uppercase tracking-tight">
-                {isAr ? 'ماذا تتوقع من الأكاديمية' : 'What You Can Expect From BBA'}
-              </h4>
-            </div>
-            <div className="grid grid-cols-1 gap-4 relative z-10">
-              {[
-                isAr ? 'تقديم خطة طالب شخصية مصممة لتوجيهك.' : 'Provide a personalized Student Plan designed to guide you.',
-                isAr ? 'تعيين مرشد مخصص لدعمك وتشجيعك.' : 'Assign a dedicated mentor to support and encourage you.',
-                isAr ? 'مراقبة تقدمك الأكاديمي والتواصل عند الحاجة.' : 'Monitor your academic progress and reach out if needed.',
-                isAr ? 'الرد على أسئلتك خلال ساعات العمل الرسمية.' : 'Respond to your questions during regular office hours.',
-                isAr ? 'مراجعة الدورات المكتملة وفتح دورات جديدة.' : 'Review completed courses and unlock new ones.',
-                isAr ? 'معاملة كل أسرة بمهنية واحترام ورعاية.' : 'Treat every family with professionalism and respect.'
-              ].map((li, i) => (
-                <div key={i} className="flex gap-3 text-sm sm:text-base font-bold text-slate-600 p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-                  <span>{li}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-8 sm:p-10 bg-primary text-white rounded-2xl shadow-2xl relative overflow-hidden space-y-6 group">
-            <div className="flex items-center gap-4 border-b pb-4 border-white/10 relative z-10">
-              <div className="h-12 w-12 rounded-full bg-secondary text-white flex items-center justify-center shadow-lg">
-                 <Users className="h-6 w-6" />
-              </div>
-              <h4 className="font-black text-white text-lg sm:text-2xl uppercase tracking-tight">
-                {isAr ? 'ماذا نتوقع من الطلاب' : 'What BBA Expects From You'}
-              </h4>
-            </div>
-            <div className="grid grid-cols-1 gap-4 relative z-10">
-              {[
-                isAr ? 'تسجيل الدخول إلى Edgenuity بانتظام.' : 'Log into Edgenuity regularly.',
-                isAr ? 'إكمال ما يقرب من 5-7٪ من الدورات يومياً.' : 'Complete approximately 5–7% daily.',
-                isAr ? 'اتباع خطة الطالب وإكمال الدورات في وقتها.' : 'Follow your Student Plan and complete courses on time.',
-                isAr ? 'قراءة الرسائل من المرشد والرد عليها.' : 'Read and respond to messages from your mentor.',
-                isAr ? 'طلب المساعدة عند وجود أسئلة أو تحديات.' : 'Reach out for help whenever you have questions.',
-                isAr ? 'إكمال جميع المهام والامتحانات بأمانة.' : 'Complete all assignments and exams honestly.'
-              ].map((li, i) => (
-                <div key={i} className="flex gap-3 text-sm sm:text-base font-bold text-white/90 p-3 bg-white/5 rounded-xl border border-white/10">
-                  <div className="h-1.5 w-1.5 rounded-full bg-secondary shrink-0 mt-2" />
-                  <span>{li}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  },
-  {
     id: 'courses-faqs',
     icon: HelpCircle,
-    title: isAr ? '5. فهم الدورات (الأسئلة الشائعة)' : '5. Understanding Your Courses (FAQs)',
+    title: isAr ? '4. الأسئلة الشائعة والإرشادية' : '4. Frequently Asked Questions',
     content: (
       <div className="space-y-6 py-4">
         <p className="text-slate-500 font-bold text-sm sm:text-lg leading-relaxed mb-6 italic border-r-4 border-secondary pr-4">
-          {isAr ? 'دوراتك هي أساس تجربتك التعليمية. فهم كيفية عملها سيساعدك على البقاء منظماً وتجنب التأخير.' : 'Your courses are the foundation of your experience. Understanding how they work will help you stay organized and avoid delays.'}
+          {isAr ? 'إليك إجابات واضحة ومباشرة على أكثر الأسئلة شيوعاً حول الأكاديمية وبرامجنا وكيفية التواصل معنا.' : 'Here are clear and direct answers to the most common questions about the academy, our programs, and how to reach us.'}
         </p>
         <Accordion type="single" collapsible className="space-y-3">
           {[
-            { q: isAr ? 'كم عدد الدورات التي سأكملها؟' : 'How many courses will I complete?', a: isAr ? 'يتم تعيين 10 دورات لمعظم الطلاب لإكمالها خلال العام الدراسي، وهي مدرجة في خطة الطالب الشخصية الخاصة بك من سبتمبر حتى يونيو.' : 'Most students are assigned 10 courses to complete during the school year, as listed in your Student Plan from September through June.' },
-            { q: isAr ? 'هل يمكنني العمل على أكثر من دورة في وقت واحد؟' : 'Can I work on more than one course at a time?', a: isAr ? 'في معظم الحالات، لا. يتوقع من الطلاب التركيز على دورة واحدة في كل مرة لتعزيز التعلم وتجنب الإرهاق، إلا في حالات خاصة يوافق عليها المستشار.' : 'In most cases, NO. Students should focus on one course at a time to improve learning and prevent overwhelm, unless approved by a counselor.' },
-            { q: isAr ? 'هل يمكنني إعادة المهام أو الاختبارات؟' : 'Can I redo assignments, quizzes, or exams?', a: isAr ? 'نعم، إذا كانت درجتك أقل من النجاح أو للتحسين، ولكن فرص إعادة الاختبار محدودة وتتطلب تنسيقاً مع المرشد.' : 'Yes, if your grade is below passing or for improvement, but retake opportunities are limited and require coordination with your mentor.' },
-            { q: isAr ? 'هل يمكنني تغيير إحدى دوراتي؟' : 'Can I change one of my courses?', a: isAr ? 'ممكن، يجب عليك الاتصال بالمستشار لمناقشة الطلب، وتعتمد الموافقة على متطلبات التخرج والخطة الأ الأكاديمية.' : 'Possibly. Contact your counselor to discuss the request; approval depends on graduation requirements and your plan.' },
-            { q: isAr ? 'كم من الوقت يجب أن تستغرق كل دورة؟' : 'How long should each course take?', a: isAr ? 'من 3-4 أسابيع، مما يتيح إنهاء دورة واحدة شهرياً عند الالتزام بتقدم 5-7٪ يومياً.' : 'Generally 3–4 weeks, allowing for one course per month with 5–7% daily progress.' },
-            { q: isAr ? 'هل يمكنني العمل مسبقاً؟' : 'Can I work ahead?', a: isAr ? 'نعم! نشجع على ذلك، ولكن يُسمح بإنهاء دورتين كحد أقصى في الشهر الواحد.' : 'Yes! We encourage staying ahead, but students are limited to two courses per month.' },
-            { q: isAr ? 'هل يمكنني تخطي الدروس؟' : 'Can I skip lessons or assignments?', a: isAr ? 'لا. كل درس ومهمة ضرورية لإتقان المادة، وتخطيها يمنع إكمال الدورة بنجاح.' : 'No. Every lesson and assignment is essential for mastery; skipping them prevents successful completion.' },
-            { q: isAr ? 'كيف أستلم دورتي القادمة؟' : 'How Do I Receive My Next Course?', a: isAr ? 'أكمل الدورة الحالية، أخطر مرشدك، سنراجع درجتك وأداءك، ثم يتم تعيين الدورة التالية.' : 'Complete the current course, notify your mentor, we review your performance, then assign the next course.' }
+            // Common Identity & Contact Questions
+            { 
+              q: isAr ? 'ما هي البرامج التعليمية التي تقدمها الأكاديمية؟' : 'What educational programs do you offer?', 
+              a: isAr ? 'نقدم ثلاثة برامج رئيسية: برنامج الصفوف 3-5 للمرحلة الابتدائية، وبرنامج الصفوف 6-12 للمرحلتين المتوسطة والثانوية، بالإضافة إلى برنامج عطلة نهاية الأسبوع المخصص لتعزيز الهوية الإسلامية واللغة العربية والقرآن.' : 'We offer three main programs: Grades 3–5 for elementary, Grades 6–12 for middle and high school, and a Weekend Program dedicated to strengthening Islamic identity, Arabic, and Quran.',
+              icon: BookOpen
+            },
+            { 
+              q: isAr ? 'أين يقع مقر الأكاديمية وهل تخدمون جميع الولايات؟' : 'Where is the academy located and do you serve all states?', 
+              a: isAr ? 'يقع مقرنا الرئيسي في ولاية ميشيغان، ولكننا أكاديمية تعمل بالكامل عبر الإنترنت (عن بعد)، مما يتيح لنا خدمة الطلاب والعائلات في جميع أنحاء الولايات المتحدة الأمريكية بكفاءة عالية.' : 'Our headquarters is in Michigan, but we are a fully online academy, allowing us to serve students and families effectively across all US states.',
+              icon: MapPin
+            },
+            { 
+              q: isAr ? 'كيف يمكنني التواصل مع الأكاديمية مباشرة؟' : 'How can I contact the academy directly?', 
+              a: isAr ? 'يمكنكم التواصل معنا عبر الهاتف على (734) 645-3613، أو عبر واتساب على (313) 655-5778. كما يمكنكم مراسلتنا عبر البريد الإلكتروني info@baneenbanaat.org أو زيارة موقعنا baneenbanaat.org.' : 'You can contact us via phone at (734) 645-3613, via WhatsApp at (313) 655-5778, or email us at info@baneenbanaat.org or visit our site baneenbanaat.org.',
+              icon: Phone
+            },
+            { 
+              q: isAr ? 'هل التعليم باللغة العربية أم الإنجليزية؟' : 'Is instruction in Arabic or English?', 
+              a: isAr ? 'برامجنا ثنائية اللغة؛ حيث يتم تدريس المناهج الأكاديمية الأمريكية باللغة الإنجليزية، بينما يتم تدريس دروس اللغة العربية والقرآن والدراسات الإسلامية باللغة العربية (مع توفير الدعم اللازم لغير الناطقين بها) لضمان بناء هوية متوازنة.' : 'Our programs are bilingual; American academic curricula are taught in English, while Arabic, Quran, and Islamic Studies are taught in Arabic (with support for non-speakers) to build a balanced identity.',
+              icon: Languages
+            },
+            { 
+              q: isAr ? 'لماذا أختار أكاديمية بنين وبنات لعائلتي؟' : 'Why should I choose BBA for my family?', 
+              a: isAr ? 'لأننا نجمع بين التميز الأكاديمي والقيم الإسلامية في بيئة آمنة ومرنة. نوفر مرشداً خاصاً لكل طالب، ونركز على تنمية الشخصية والارتباط بالهوية واللغة والدين جنباً إلى جنب مع التفوق الدراسي.' : 'Because we combine academic excellence with Islamic values in a safe, flexible environment. We provide a dedicated mentor for each student and focus on character development and identity alongside academic success.',
+              icon: Star
+            },
+            { 
+              q: isAr ? 'هل تتوفر الأكاديمية على وسائل التواصل الاجتماعي؟' : 'Is the academy available on social media?', 
+              a: isAr ? 'نعم، يسعدنا متابعتكم لنا على إنستغرام (@baneen_banaat_academy)، يوتيوب (@mybba_edu)، وفيسبوك (Baneen & Banaat Academy) لمتابعة آخر الأخبار والأنشطة.' : 'Yes, follow us on Instagram (@baneen_banaat_academy), YouTube (@mybba_edu), and Facebook (Baneen & Banaat Academy) for the latest news and activities.',
+              icon: Share2
+            },
+            // Operational FAQ Items
+            { q: isAr ? 'كم عدد الدورات التي سأكملها في العام الدراسي؟' : 'How many courses will I complete in a year?', a: isAr ? 'يتم تعيين 10 دورات لمعظم الطلاب لإكمالها خلال العام الدراسي (من سبتمبر حتى يونيو)، بمعدل دورة واحدة شهرياً تقريباً.' : 'Most students are assigned 10 courses to complete during the school year (Sept-June), averaging one course per month.', icon: ClipboardCheck },
+            { q: isAr ? 'هل يمكنني العمل على أكثر من دورة في وقت واحد؟' : 'Can I work on more than one course at a time?', a: isAr ? 'في معظم الحالات، لا. نفضل أن يركز الطالب على دورة واحدة في كل مرة لضمان الإتقان والتركيز، إلا في حالات استثنائية يوافق عليها المستشار.' : 'In most cases, NO. We prefer students focus on one course at a time for mastery, unless exceptionally approved by a counselor.', icon: Target },
+            { q: isAr ? 'هل مرشد الطالب متاح للإجابة على الأسئلة دائماً؟' : 'Is the student mentor always available?', a: isAr ? 'نعم، المرشد المخصص لك متاح خلال ساعات العمل الرسمية لمراقبة تقدمك والإجابة على استفساراتك وتقديم الدعم الأكاديمي والتحفيزي.' : 'Yes, your dedicated mentor is available during official working hours to monitor progress, answer questions, and provide academic support.', icon: UserCheck }
           ].map((faq, i) => (
-            <AccordionItem key={i} value={`faq-${i}`} className="border rounded-2xl px-5 sm:px-6 bg-white hover:border-secondary transition-all shadow-sm">
-              <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-sm sm:text-base py-4 sm:py-6 gap-3">
+            <AccordionItem key={i} value={`faq-${i}`} className="border rounded-2xl px-5 sm:px-6 bg-white hover:border-secondary transition-all shadow-sm group">
+              <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-sm sm:text-base py-5 sm:py-6 gap-4">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-slate-50 text-secondary flex items-center justify-center shrink-0 group-data-[state=open]:bg-secondary group-data-[state=open]:text-white transition-all">
+                  <faq.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
                 <span className="flex-1 leading-tight">{faq.q}</span>
               </AccordionTrigger>
               <AccordionContent className="text-slate-500 font-medium leading-relaxed pb-6 text-xs sm:text-sm border-t pt-4 opacity-90">
@@ -285,12 +258,12 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
         
         <div className="container-tight relative z-10 text-center space-y-6 px-4">
           <div className="space-y-2">
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+            <h1 className="text-3xl sm:text-6xl lg:text-5xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'دليل طالب BBA' : 'BBA Student Guide'}
             </h1>
-            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+            <div className="h-1 w-24 bg-secondary mx-auto rounded-full" />
           </div>
-          <p className="text-sm sm:text-xl text-white/80 font-bold max-w-3xl mx-auto leading-relaxed italic border-x-2 border-secondary/20 px-8">
+          <p className="text-xs sm:text-xl text-white/80 font-bold max-w-3xl mx-auto leading-relaxed italic border-x-2 border-secondary/20 px-8">
             {isAr 
               ? 'كل ما يحتاجه الطلاب وأولياء الأمور لمعرفته من أجل عام دراسي ناجح ومليء بالإنجازات.' 
               : 'Everything Students & Parents Need to Know for a Successful School Year.'}
@@ -307,7 +280,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
             <div className="space-y-6 text-slate-600 font-bold leading-relaxed text-sm sm:text-lg relative z-10">
                <div className="space-y-2">
                   <div className="text-[10px] font-black uppercase text-secondary tracking-widest mb-2">Introduction</div>
-                  <p className="text-primary font-black text-xl sm:text-3xl leading-tight border-l-4 border-secondary pl-6 py-1">
+                  <p className="text-primary font-black text-xl sm:text-2xl leading-tight border-l-4 border-secondary pl-6 py-1">
                     {isAr ? 'أهلاً بكم في دليل الطالب، نحن متحمسون لانضمامكم إلينا!' : 'Welcome to the BBA Student Guide. We are excited to have you join us!'}
                   </p>
                </div>
@@ -334,17 +307,17 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                   value={section.id}
                   className="bg-white border border-slate-100 rounded-2xl px-6 sm:px-10 shadow-sm overflow-hidden transition-all duration-300 data-[state=open]:shadow-xl data-[state=open]:border-secondary/30 group"
                 >
-                  <AccordionTrigger className="hover:no-underline py-8">
-                    <div className="flex items-center gap-6 text-start w-full">
-                      <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-slate-50 text-primary flex items-center justify-center shrink-0 transition-all group-data-[state=open]:bg-primary group-data-[state=open]:text-white">
-                        <section.icon className="h-6 w-6 sm:h-7 sm:w-7" />
+                  <AccordionTrigger className="hover:no-underline py-6 sm:py-8">
+                    <div className="flex items-center gap-4 sm:gap-6 text-start w-full">
+                      <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-slate-50 text-primary flex items-center justify-center shrink-0 transition-all group-data-[state=open]:bg-primary group-data-[state=open]:text-white">
+                        <section.icon className="h-5 w-5 sm:h-7 sm:w-7" />
                       </div>
                       <div className="flex-1 space-y-1">
-                        <h3 className="text-lg sm:text-2xl font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
+                        <h3 className="text-base sm:text-xl font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
                           {section.title}
                         </h3>
                       </div>
-                      <ChevronDown className="h-5 w-5 text-slate-300 transition-all group-data-[state=open]:rotate-180 group-data-[state=open]:text-secondary" />
+                      <ChevronDown className="h-4 w-4 text-slate-300 transition-all group-data-[state=open]:rotate-180 group-data-[state=open]:text-secondary" />
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pb-10 border-t border-slate-50 pt-8 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -366,14 +339,14 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                    </div>
                 </div>
                 <div className="space-y-4">
-                  <h2 className="text-3xl sm:text-5xl font-black leading-tight tracking-tight">{isAr ? 'نحن معك في كل خطوة' : 'With You Every Step'}</h2>
-                  <p className="text-sm sm:text-xl opacity-80 font-bold leading-relaxed italic max-w-lg mx-auto">
+                  <h2 className="text-2xl sm:text-4xl font-black leading-tight tracking-tight">{isAr ? 'نحن معك في كل خطوة' : 'With You Every Step'}</h2>
+                  <p className="text-sm sm:text-lg opacity-80 font-bold leading-relaxed italic max-w-lg mx-auto">
                      {isAr ? 'كل درس تكتمله وكل مهمة تنهيها تقربك خطوة واحدة من أهدافك الكبيرة.' : 'Every lesson completed and every task finished brings you one step closer to your big goals.'}
                   </p>
                 </div>
                 
                 <div className="pt-6 flex justify-center">
-                  <Button asChild className="bg-secondary hover:bg-white hover:text-secondary text-white font-black rounded-xl px-10 h-16 text-lg transition-all shadow-xl active:scale-95 border-2 border-transparent hover:border-secondary">
+                  <Button asChild className="bg-secondary hover:bg-white hover:text-secondary text-white font-black rounded-xl px-10 h-14 sm:h-16 text-sm sm:text-lg transition-all shadow-xl active:scale-95 border-2 border-transparent hover:border-secondary">
                     <Link href={`/${lang}/contact`} className="flex items-center gap-3">
                       {isAr ? 'تواصل معنا' : 'Contact us'}
                       {isAr ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
