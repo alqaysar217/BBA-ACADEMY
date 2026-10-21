@@ -27,7 +27,9 @@ import {
   MousePointer2,
   ArrowRight,
   ArrowLeft,
-  GraduationCap
+  GraduationCap,
+  AlertCircle,
+  Heart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -263,7 +265,7 @@ const getGuideSections = (isAr: boolean) => [
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 isAr ? 'تسجيل الدخول إلى Edgenuity بانتظام.' : 'Log into Edgenuity regularly.',
-                isAr ? 'إكمال ما يقرب من 5-7٪ من الدورات يومياً.' : 'Complete approximately 5–7% of courses daily.',
+                isAr ? 'إكمال ما يقرب من 5-7٪ من الدورات يومياً.' : 'Complete approximately 5–7% daily.',
                 isAr ? 'اتباع خطة الطالب وإكمال الدورات في وقتها.' : 'Follow your Student Plan and complete courses on time.',
                 isAr ? 'قراءة الرسائل من المرشد والرد عليها.' : 'Read and respond to messages from your mentor.',
                 isAr ? 'طلب المساعدة عند وجود أسئلة أو تحديات.' : 'Reach out for help whenever you have questions.',
