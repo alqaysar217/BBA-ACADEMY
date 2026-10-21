@@ -3,12 +3,12 @@
   "entities": {
     "Enrollment": {
       "title": "Student Enrollment",
-      "description": "Stores multi-step enrollment applications for the academy.",
+      "description": "Stores multi-step enrollment applications including parents, multiple students, and document files.",
       "type": "object",
       "properties": {
-        "userId": { "type": "string", "description": "The ID of the parent user." },
+        "userId": { "type": "string", "description": "The ID of the parent user or 'anonymous'." },
         "status": { "type": "string", "enum": ["draft", "submitted", "reviewed"], "description": "Current status of the application." },
-        "step": { "type": "number", "description": "Last completed step." },
+        "lang": { "type": "string", "description": "Language used during submission (en/ar)." },
         "parent1Name": { "type": "string" },
         "parent1Phone": { "type": "string" },
         "parent1Email": { "type": "string" },
@@ -27,25 +27,46 @@
             "zip": { "type": "string" }
           }
         },
-        "siblingCount": { "type": "number" },
-        "studentStatus": { "type": "string", "enum": ["New Student", "Returning Student"] },
-        "studentName": { "type": "string" },
-        "dob": { "type": "string", "format": "date" },
-        "gender": { "type": "string", "enum": ["Male", "Female"] },
-        "lastGrade": { "type": "string" },
-        "programFormat": { "type": "string" },
-        "programOption": { "type": "string" },
-        "paymentTier": { "type": "string" },
-        "files": {
-          "type": "object",
-          "properties": {
-            "reportCard": { "type": "string" },
-            "studentId": { "type": "string" },
-            "parentId": { "type": "string" }
+        "siblingCount": { "type": "string" },
+        "students": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string" },
+              "firstName": { "type": "string" },
+              "middleName": { "type": "string" },
+              "lastName": { "type": "string" },
+              "dob": { "type": "string", "format": "date" },
+              "gender": { "type": "string" },
+              "phone": { "type": "string" },
+              "email": { "type": "string" },
+              "lastGrade": { "type": "string" }
+            }
           }
-        }
+        },
+        "programFormat": { "type": "string", "default": "online" },
+        "programOption": { "type": "string" },
+        "languageOption": { "type": "string" },
+        "paymentTier": { "type": "string" },
+        "weekendSlot": { "type": "string" },
+        "weekendTerm": { "type": "string" },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "type": { "type": "string" },
+              "size": { "type": "number" },
+              "data": { "type": "string", "description": "Base64 encoded file data." }
+            }
+          }
+        },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "parent1Name", "studentName"]
+      "required": ["userId", "parent1Name", "students", "programOption", "status"]
     }
   },
   "auth": {
@@ -54,7 +75,7 @@
   "firestore": {
     "/enrollments/{enrollmentId}": {
       "schema": "Enrollment",
-      "description": "Collection of enrollment applications."
+      "description": "Collection of full student enrollment applications."
     }
   }
 }

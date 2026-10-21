@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, use, useMemo, useRef } from 'react';
@@ -202,7 +203,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       id: 'grades-3-5',
       title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program',
       desc: isAr ? 'تأسيس للمرحلة الابتدائية مع القرآن والعربية والمواد الأكاديمية.' : 'Elementary foundation building with Quran, Arabic and academics.',
-      image: '/program-1.png',
+      image: 'https://picsum.photos/seed/bba35/800/600',
       icon: BookOpen,
       color: 'secondary'
     },
@@ -210,7 +211,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       id: 'grades-6-12',
       title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program',
       desc: isAr ? 'أكاديميات المرحلة المتوسطة والثانوية مع تعليم مرن عبر الإنترنت.' : 'Middle and high school academics with flexible online learning.',
-      image: '/program-2.png',
+      image: 'https://picsum.photos/seed/bba612/800/600',
       icon: GraduationCap,
       color: 'primary'
     },
@@ -218,7 +219,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       id: 'weekend',
       title: isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)',
       desc: isAr ? 'إثراء أيام السبت والأحد لتعزيز الهوية الإسلامية واللغة.' : 'Saturday/Sunday enrichment to strengthen Islamic identity.',
-      image: '/program-3.png',
+      image: 'https://picsum.photos/seed/bbaweek/800/600',
       icon: Calendar,
       color: 'accent'
     }
