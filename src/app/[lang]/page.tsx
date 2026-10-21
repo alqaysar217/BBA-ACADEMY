@@ -105,7 +105,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         </div>
 
         <div className="container-tight relative z-10 flex flex-col flex-1 w-full px-4 h-full">
-          <div className="flex-1" />
+          {/* Spacer pushed to flex-1.5 to lower the title area and reveal more of the background top detail */}
+          <div className="flex-[1.5]" />
           
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-4 sm:space-y-6">
             <div className="relative inline-flex items-center gap-4 py-2 px-8">
@@ -113,14 +114,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               <span className="relative text-[10px] sm:text-xs font-black tracking-[0.3em] text-white uppercase drop-shadow-md">{t.hero.welcome}</span>
             </div>
             
-            <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl lg:text-4xl xl:text-5xl leading-tight uppercase drop-shadow-2xl">
+            <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl lg:text-3xl xl:text-4xl leading-tight uppercase drop-shadow-2xl">
               {t.hero.title}
             </h1>
           </div>
           
           <div className="flex-1" />
 
-          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto px-6 max-w-4xl mx-auto mb-10 md:mb-16">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 w-full sm:w-auto px-6 max-w-4xl mx-auto mb-6 md:mb-10">
             <Button asChild size="lg" className="h-16 sm:h-20 lg:h-16 px-12 sm:px-16 lg:px-12 text-xl sm:text-2xl lg:text-xl bg-secondary hover:bg-white hover:text-secondary text-white shadow-2xl rounded-full transition-all font-black border-4 border-transparent hover:border-secondary">
               <Link href={`/${lang}/enroll`}>{t.hero.apply}</Link>
             </Button>
@@ -144,8 +145,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
-            <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic leading-tight max-w-2xl mx-auto">{t.why.subtitle}</p>
+            <h2 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.why.title}</h2>
+            <p className="text-lg md:text-xl font-black text-secondary italic leading-tight max-w-2xl mx-auto">{t.why.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
             <p className="text-slate-500 max-w-3xl mx-auto font-bold text-sm md:text-lg leading-relaxed opacity-80">{t.why.intro}</p>
           </div>
@@ -153,7 +154,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
             {t.why.items.map((item, idx) => (
               <div key={idx} className="bg-white p-8 rounded-2xl shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
-                {/* Fixed Circular Icon Container with Primary Color */}
                 <div className="h-14 w-14 sm:h-16 sm:w-16 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shrink-0 group-hover:bg-secondary transition-all duration-700 group-hover:rotate-12">
                   <item.icon className="h-7 w-7 lg:h-8 lg:w-8" />
                 </div>
@@ -171,8 +171,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
-            <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic max-w-2xl mx-auto">{t.programs.subtitle}</p>
+            <h2 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.programs.title}</h2>
+            <p className="text-lg md:text-xl font-black text-secondary italic max-w-2xl mx-auto">{t.programs.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
 
@@ -213,8 +213,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
              </div>
              <div className="space-y-10 order-1 lg:order-2">
                 <div className="space-y-6 text-center lg:text-start">
-                   <h2 className="text-2xl md:text-3xl lg:text-3xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
-                   <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic leading-tight">{t.about.subtitle}</p>
+                   <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight leading-tight">{t.about.title}</h2>
+                   <p className="text-lg md:text-xl font-black text-secondary italic leading-tight">{t.about.subtitle}</p>
                    <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                 </div>
                 <div className="space-y-8 text-white/80 font-medium text-sm lg:text-lg leading-relaxed">
@@ -237,14 +237,15 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-slate-50 relative overflow-hidden">
         <div className="container-tight relative z-10 px-4">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
-            <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic max-w-2xl mx-auto">{t.planning.subtitle}</p>
+            <h2 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.planning.title}</h2>
+            <p className="text-lg md:text-xl font-black text-secondary italic max-w-2xl mx-auto">{t.planning.subtitle}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+            <p className="text-slate-500 max-w-3xl mx-auto font-bold text-sm md:text-lg leading-relaxed opacity-80">{t.planning.intro}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
             {t.planning.items.map((item, idx) => (
-              <div key={idx} className="bg-white rounded-[2rem] p-6 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center relative overflow-hidden hover:-translate-y-2">
+              <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center relative overflow-hidden hover:-translate-y-2">
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                     <pattern id={`grid-plan-${idx}`} width="15" height="15" patternUnits="userSpaceOnUse">
@@ -254,7 +255,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   </svg>
                 </div>
                 
-                {/* Fixed Circular Icon Container with Primary Color */}
                 <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg mb-6 shrink-0 group-hover:bg-secondary transition-all duration-700 group-hover:rotate-12 relative z-10">
                   <item.icon className="h-6 w-6 lg:h-8 lg:w-8" />
                 </div>
@@ -275,8 +275,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
       <section className="py-20 lg:py-40 bg-white relative overflow-hidden">
         <div className="container-tight px-4 relative z-10">
           <div className="text-center mb-16 lg:mb-24 space-y-4">
-            <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{isAr ? 'آراء أولياء الأمور' : 'What Parents Say'}</h2>
-            <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic max-w-2xl mx-auto">{isAr ? 'تجارب حقيقية من عائلات BBA' : 'Real Experiences from BBA Families'}</p>
+            <h2 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{isAr ? 'آراء أولياء الأمور' : 'What Parents Say'}</h2>
+            <p className="text-lg md:text-xl font-black text-secondary italic max-w-2xl mx-auto">{isAr ? 'تجارب حقيقية من عائلات BBA' : 'Real Experiences from BBA Families'}</p>
             <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
           </div>
 
@@ -286,7 +286,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               { s: 'A', student: 'Student 2', name: 'Ahmed K.', role: isAr ? 'ولي أمر (ميشيغان)' : 'Parent (Michigan)', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel.' },
               { s: 'N', student: 'Student 3', name: 'Noura H.', role: isAr ? 'ولي أمر (تكساس)' : 'Parent (Texas)', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication.' }
             ].map((test, idx) => (
-              <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative space-y-6 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
+              <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative space-y-4 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0">
                     {test.s}
@@ -311,8 +311,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
             <div className="space-y-8 text-center lg:text-start">
               <div className="space-y-4">
-                <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.faqs.title}</h2>
-                <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic leading-tight">{t.faqs.subtitle}</p>
+                <h2 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.faqs.title}</h2>
+                <p className="text-lg md:text-xl font-black text-secondary italic leading-tight">{t.faqs.subtitle}</p>
                 <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
               </div>
               <Button asChild size="lg" className="h-16 px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg">
@@ -339,8 +339,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row items-center group">
             <div className="p-10 lg:p-16 flex-1 space-y-10 text-center lg:text-start">
               <div className="space-y-4">
-                <h2 className="text-2xl md:text-3xl lg:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
-                <p className="text-lg md:text-xl lg:text-2xl font-black text-secondary italic">{t.cta.subtitle}</p>
+                <h2 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight leading-tight">{t.cta.title}</h2>
+                <p className="text-lg md:text-xl font-black text-secondary italic">{t.cta.subtitle}</p>
               </div>
               <p className="text-slate-500 font-bold text-sm lg:text-lg leading-relaxed max-w-2xl">{t.cta.text}</p>
               <div className="flex flex-col sm:flex-row gap-6 pt-8">
