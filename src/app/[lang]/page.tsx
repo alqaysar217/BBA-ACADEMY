@@ -79,21 +79,18 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program',
           desc: isAr ? 'بناء أسس أكاديمية قوية وتطوير الثقة في مهارات التعلم الأساسية.' : 'Build strong academic foundations and develop confidence in essential learning skills.',
           image: "/program-1.png",
-          color: 'bg-primary'
         },
         {
           id: 'grades-6-12',
           title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program',
           desc: isAr ? 'دعم التقدم الأكاديمي خلال سنوات المرحلة المتوسطة والثانوية مع الاستعداد للفرص المستقبلية.' : 'Support academic progress through the middle and high school years while preparing for future opportunities.',
           image: "/program-2.png",
-          color: 'bg-accent'
         },
         {
           id: 'weekend',
           title: isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)',
-          desc: isAr ? 'فرص إثراء مرنة يومي السبت والأحد للعائلات التي تبحث عن دعم تعليمي إضافي.' : 'Flexible Saturday and Sunday enrichment opportunities for families seeking additional learning support.',
+          desc: isAr ? 'إثراء أيام السبت والأحد لتعزيز الهوية الإسلامية واللغة.' : 'Flexible Saturday and Sunday enrichment opportunities for families seeking additional learning support.',
           image: "/program-3.png",
-          color: 'bg-secondary'
         }
       ],
       cta: isAr ? 'عرض جميع البرامج' : 'View All Programs'
@@ -115,8 +112,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
         { id: 'guidance', title: isAr ? 'التوجيه الشخصي' : 'Personal Guidance', desc: isAr ? 'تلقي إرشادات تعليمية تأخذ في الاعتبار احتياجات كل طالب الفردية وتقدمه وخططه المستقبلية.' : "Receive educational guidance that considers each student's individual needs, progress, and future plans.", icon: Target },
         { id: 'records', title: isAr ? 'السجلات الأكاديمية' : 'Academic Records', desc: isAr ? 'تعرف على سبب أهمية الاحتفاظ بكشوف الدرجات المنظمة، والدورات الدراسية، والحضور، والسجلات الأخرى.' : 'Learn why maintaining organized transcripts, grades, coursework, attendance, and other educational records matters.', icon: FileText },
         { id: 'college', title: isAr ? 'التحضير للكلية والمستقبل' : 'College & Future Preparation', desc: isAr ? 'استكشاف أهمية التخطيط المبكر للقبول في الجامعات، والتعليم المستقبلي، والفرص بعد التخرج.' : 'Explore the importance of early planning for college admissions, future education, and opportunities beyond graduation.', icon: Zap }
-      ],
-      details: isAr ? 'عرض التفاصيل' : 'View Details'
+      ]
     },
     testimonials: {
       title: isAr ? 'ماذا يقول أولياء الأمور' : 'What Parents Say',
@@ -254,13 +250,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
             {t.why.items.map((item, idx) => (
-              <div key={idx} className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-6 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
-                <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-[1.5rem] bg-secondary/10 text-secondary flex items-center justify-center shadow-inner group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
-                  <item.icon className="h-7 w-7 sm:h-10 sm:w-10" />
+              <div key={idx} className="bg-white p-6 sm:p-8 rounded-[3rem] shadow-premium border border-slate-100 flex flex-col items-center text-center space-y-4 hover:shadow-2xl transition-all duration-500 group relative overflow-hidden hover:-translate-y-2">
+                <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-[1.5rem] bg-secondary/10 text-secondary flex items-center justify-center shadow-inner group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
+                  <item.icon className="h-6 w-6 sm:h-8 sm:w-8" />
                 </div>
-                <div className="space-y-3">
-                  <h3 className="font-black text-base sm:text-xl text-primary uppercase leading-tight">{item.title}</h3>
-                  <p className="text-slate-500 font-medium text-[11px] sm:text-sm leading-relaxed">{item.desc}</p>
+                <div className="space-y-2">
+                  <h3 className="font-black text-sm sm:text-lg text-primary uppercase leading-tight">{item.title}</h3>
+                  <p className="text-slate-500 font-medium text-[10px] sm:text-xs leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -280,7 +276,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
             {t.programs.items.map((prog) => (
-              <div key={prog.id} className="group flex flex-col bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100 transition-all duration-700 hover:shadow-premium hover:-translate-y-3">
+              <div key={prog.id} className="group flex flex-col bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-slate-100 transition-all duration-700 hover:shadow-premium hover:-translate-y-3">
                 <div className="relative h-56 sm:h-80 overflow-hidden">
                   <Image src={prog.image} alt={prog.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent" />
@@ -309,7 +305,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
           </div>
 
           <div className="mt-16 text-center">
-            <Button asChild size="lg" className="h-16 sm:h-24 px-12 sm:px-24 rounded-[2rem] bg-primary hover:bg-secondary font-black transition-all shadow-2xl text-lg sm:text-2xl">
+            <Button asChild size="lg" className="h-16 sm:h-24 px-12 sm:px-24 rounded-full bg-primary hover:bg-secondary font-black transition-all shadow-2xl text-lg sm:text-2xl">
                <Link href={`/${lang}/programs`}>{t.programs.cta}</Link>
             </Button>
           </div>
@@ -344,14 +340,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                   <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight">{t.about.subtitle}</p>
                   <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                 </div>
-                <div className="space-y-8 text-white/80 font-medium text-sm sm:text-xl leading-relaxed">
-                   <p className="font-black text-white text-base sm:text-xl border-l-8 border-secondary pl-8 py-2 bg-white/5 rounded-r-[1.5rem] italic">
+                <div className="space-y-8 text-white/80 font-medium text-sm sm:text-lg leading-relaxed">
+                   <p className="font-black text-white text-sm sm:text-xl border-l-8 border-secondary pl-6 sm:pl-8 py-2 bg-white/5 rounded-r-[1.5rem] italic">
                      {t.about.text1}
                    </p>
                    <p className="opacity-90">{t.about.text2}</p>
                 </div>
                 <div className="pt-6">
-                  <Button asChild size="lg" className="h-16 sm:h-20 px-12 rounded-[1.5rem] bg-secondary hover:bg-white hover:text-secondary transition-all shadow-xl font-black text-lg sm:text-xl w-full sm:w-auto">
+                  <Button asChild size="lg" className="h-16 sm:h-20 px-12 rounded-full bg-secondary hover:bg-white hover:text-secondary transition-all shadow-xl font-black text-lg sm:text-xl w-full sm:w-auto">
                     <Link href={`/${lang}/about`}>{t.about.cta}</Link>
                   </Button>
                 </div>
@@ -371,20 +367,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-               {[
-                 { id: 'graduation', title: t.planning.items[0].title, desc: t.planning.items[0].desc, icon: GraduationCap },
-                 { id: 'course', title: t.planning.items[1].title, desc: t.planning.items[1].desc, icon: BookOpen },
-                 { id: 'guidance', title: t.planning.items[2].title, desc: t.planning.items[2].desc, icon: Target },
-                 { id: 'records', title: t.planning.items[3].title, desc: t.planning.items[3].desc, icon: FileText },
-                 { id: 'college', title: t.planning.items[4].title, desc: t.planning.items[4].desc, icon: Zap }
-               ].map((item, idx) => (
-                 <div key={idx} className="bg-white rounded-[2.5rem] p-8 sm:p-10 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center hover:-translate-y-2">
+               {t.planning.items.map((item, idx) => (
+                 <div key={idx} className="bg-white rounded-[3rem] p-8 sm:p-10 border border-slate-100 transition-all duration-500 group flex flex-col h-full hover:shadow-premium items-center text-center hover:-translate-y-2">
                     <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-[1.5rem] bg-secondary/10 text-secondary flex items-center justify-center shadow-inner mb-8 group-hover:bg-secondary group-hover:text-white transition-all duration-700 group-hover:rotate-12">
                        <item.icon className="h-8 w-8 sm:h-10 sm:w-10" />
                     </div>
                     <h3 className="font-black text-base sm:text-2xl mb-4 uppercase tracking-tight text-primary">{item.title}</h3>
                     <p className="text-slate-500 font-medium text-[11px] sm:text-base leading-relaxed mb-10 flex-1 opacity-80">{item.desc}</p>
-                    <Button asChild className="w-full h-14 rounded-[1.2rem] bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[10px] transition-all">
+                    <Button asChild className="w-full h-14 rounded-full bg-slate-50 hover:bg-primary hover:text-white text-primary font-black uppercase tracking-widest text-[10px] transition-all">
                        <Link href={`/${lang}/planning#${item.id}`}>
                           {isAr ? 'عرض التفاصيل' : 'View Details'}
                           {isAr ? <ChevronLeft className="mr-2 h-4 w-4" /> : <ChevronRight className="ml-2 h-4 w-4" />}
@@ -405,19 +395,19 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {t.testimonials.items.map((test, idx) => (
-                <div key={idx} className="bg-slate-50 p-8 sm:p-10 rounded-2xl border border-slate-100 relative space-y-6 group hover:bg-white hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
-                  <div className="flex flex-col items-center text-center gap-4">
-                    <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-primary text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-xl shrink-0">
+                <div key={idx} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4 group hover:bg-white hover:shadow-xl transition-all duration-500">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center text-lg font-black shadow-lg shrink-0">
                       {test.studentName[0]}
                     </div>
-                    <div>
-                      <div className="font-black text-primary text-base sm:text-lg">{test.studentName}</div>
-                      <div className="text-[10px] sm:text-xs font-black text-secondary uppercase tracking-[0.2em]">{test.parentName} — {test.role}</div>
+                    <div className="min-w-0">
+                      <div className="font-black text-primary text-sm sm:text-base truncate">{test.studentName}</div>
+                      <div className="text-[10px] font-bold text-secondary uppercase truncate">{test.parentName}</div>
                     </div>
                   </div>
-                  <p className="text-slate-700 font-bold italic leading-relaxed text-sm sm:text-base relative z-10 pt-6 border-t border-slate-200/60 text-center">
+                  <p className="text-slate-600 font-bold italic leading-relaxed text-xs sm:text-sm border-t border-slate-200/60 pt-4">
                     "{test.text}"
                   </p>
                 </div>
@@ -436,12 +426,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                      <p className="text-lg sm:text-3xl font-black text-secondary italic leading-tight">{t.faq.subtitle}</p>
                      <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
                   </div>
-                  <Button asChild size="lg" className="h-16 rounded-[1.5rem] px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg">
+                  <Button asChild size="lg" className="h-16 rounded-full px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg">
                      <Link href={`/${lang}/guide#courses-faqs`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
                   </Button>
                </div>
                
-               <div className="bg-white p-8 sm:p-12 rounded-[2.5rem] shadow-premium border border-slate-100">
+               <div className="bg-white p-8 sm:p-12 rounded-[3rem] shadow-premium border border-slate-100">
                   <Accordion type="single" collapsible className="w-full space-y-4">
                     {t.faq.items.map((item, idx) => (
                       <AccordionItem key={idx} value={`faq-${idx}`} className="border-none rounded-[1.5rem] px-6 bg-slate-50 hover:bg-white transition-all duration-500 shadow-sm">
@@ -480,7 +470,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                </div>
                
                <div className="hidden lg:block relative w-1/3 aspect-[4/5] overflow-hidden">
-                  <Image src="https://picsum.photos/seed/bba-cta/800/1200" alt="Academy Future" fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
+                  <Image src="https://picsum.photos/seed/bba-cta/800/1200" alt="Academy Future" fill className="object-cover transition-transform duration-1000 group-hover:scale-105" unoptimized />
                </div>
             </div>
          </div>
