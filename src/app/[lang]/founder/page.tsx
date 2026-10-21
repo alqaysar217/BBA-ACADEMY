@@ -14,7 +14,7 @@ export default async function FounderPage({ params }: { params: Promise<{ lang: 
         ? 'الدكتور مصطفى علي هو المؤسس ومدير أكاديمية بنين وبنات، حيث يقود مهمة الأكاديمية في توفير فرص تعليمية ذات مغزى تجمع بين التميز الأكاديمي والقيم الأخلاقية القوية.'
         : 'Dr. Mustafa Ali is the Founder and Academy Director of Baneen and Banaat Academy, where he leads the academy\'s mission of providing meaningful educational opportunities that combine academic excellence with strong moral values.',
       p2: isAr
-        ? 'بفضل خلفيته في التعليم والقيادة، قضى الدكتور علي سنوات في تطوير الرؤية التي أصبحت في نهاية المطاف أكاديمية بنين وبنات. لطالما كان اعتقاده هو أن التعليم يجب أن يعد الطلاب ليس فقط للتعليم العالي والوظائف المستقبلية، ولكن أيضاً لحياة متجذرة في النزاهة والمسؤولية والخدمة.'
+        ? 'بفضل خلفيته in التعليم والقيادة، قضى الدكتور علي سنوات في تطوير الرؤية التي أصبحت في نهاية المطاف أكاديمية بنين وبنات. لطالما كان اعتقاده هو أن التعليم يجب أن يعد الطلاب ليس فقط للتعليم العالي والوظائف المستقبلية، ولكن أيضاً لحياة متجذرة في النزاهة والمسؤولية والخدمة.'
         : 'With a background in education and leadership, Dr. Ali spent years developing the vision that would eventually become Baneen and Banaat Academy. His belief has always been that education should prepare students not only for higher education and future careers, but also for lives rooted in integrity, responsibility, and service.',
       p3: isAr
         ? 'منذ تأسيس الأكاديمية في عام 2019، قاد نموها من مؤسسة تعليمية محلية في ميشيغان إلى مجتمع تعليمي يخدم العائلات في جميع أنحاء الولايات المتحدة. تحت قيادته، وسعت الأكاديمية برامجها لتلبية الاحتياجات المتنوعة للطلاب مع الحفاظ على التزامها بالشراكة العائلية والدعم الشخصي والتميز الأكاديمي.'
@@ -62,13 +62,12 @@ export default async function FounderPage({ params }: { params: Promise<{ lang: 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border-4 border-white order-1 lg:order-none">
               <Image 
-                src="https://picsum.photos/seed/dr-mustafa/800/1000" 
+                src="/dr.mustafa_ali.png" 
                 alt="Dr. Mustafa Ali" 
                 fill 
                 className="object-cover"
                 priority
                 unoptimized
-                data-ai-hint="professional headshot"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent" />
             </div>
