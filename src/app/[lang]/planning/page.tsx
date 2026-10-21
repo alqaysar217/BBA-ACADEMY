@@ -148,9 +148,9 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
            <div key={section.id} id={section.id} className="scroll-mt-32">
               <Card className="rounded-2xl border-none shadow-premium overflow-hidden bg-slate-50/50 hover:shadow-xl transition-all duration-700 group">
                  <div className="flex flex-col md:flex-row items-stretch">
-                    <div className="md:w-1/4 bg-primary text-white p-8 lg:p-10 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden shrink-0 min-h-[200px]">
-                       {/* Background Image with lower opacity */}
-                       <div className="absolute inset-0 opacity-[0.08] group-hover:scale-110 transition-transform duration-1000">
+                    <div className="md:w-1/4 text-white p-8 lg:p-10 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden shrink-0 min-h-[220px]">
+                       {/* Background Image with Overlay */}
+                       <div className="absolute inset-0 z-0 group-hover:scale-110 transition-transform duration-1000">
                           <Image 
                             src={section.image} 
                             alt={section.title} 
@@ -158,7 +158,10 @@ export default async function PlanningPage({ params }: { params: Promise<{ lang:
                             className="object-cover"
                             unoptimized
                           />
+                          {/* Tint Layer: Reduced opacity (0.4) and increased blur for better image visibility */}
+                          <div className="absolute inset-0 bg-primary/40 backdrop-blur-[3px]" />
                        </div>
+                       
                        <section.icon className="h-10 w-10 lg:h-12 lg:w-12 text-secondary relative z-10 drop-shadow-lg" />
                        <h2 className="text-xl lg:text-2xl font-black uppercase tracking-tight relative z-10 leading-tight drop-shadow-md">{section.title}</h2>
                     </div>
