@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import {
   Save, 
   User, 
   GraduationCap, 
+  FileText, 
   Plus, 
   AlertCircle, 
   Loader2, 
@@ -31,15 +32,23 @@ import {
   Calendar as CalendarIcon, 
   ShieldCheck,
   Type,
+  Briefcase,
+  ArrowRight,
+  ArrowLeft,
   Send,
   BookOpen,
   Calendar,
-  Eye,
-  CreditCard,
+  Star,
+  Info,
+  Clock,
+  Languages,
+  CheckCircle2,
   X,
   FileCheck,
   WifiOff,
   FileUp,
+  Eye,
+  CreditCard,
   PencilLine
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -63,7 +72,7 @@ const usStates = [
   { en: "Alabama", ar: "ألاباما" }, { en: "Alaska", ar: "ألاسكا" }, { en: "Arizona", ar: "أريزونا" },
   { en: "Arkansas", ar: "أركنساس" }, { en: "California", ar: "كاليفورنيا" }, { en: "Colorado", ar: "كولورادو" },
   { en: "Connecticut", ar: "كونيتيكت" }, { en: "Delaware", ar: "ديلاوير" }, { en: "Florida", ar: "فلوريدا" },
-  { en: "Georgia", ar: "جورجيا" }, { en: "Hawaii", ar: "هواوي" }, { en: "Idaho", ar: "أيداهو" },
+  { en: "Georgia", ar: "جورجيا" }, { en: "Hawaii", ar: "هاواي" }, { en: "Idaho", ar: "أيداهو" },
   { en: "Illinois", ar: "إلينوي" }, { en: "Indiana", ar: "إنديانا" }, { en: "Iowa", ar: "أيوا" },
   { en: "Kansas", ar: "كانساس" }, { en: "Kentucky", ar: "كنتاكي" }, { en: "Louisiana", ar: "لويزيانا" },
   { en: "Maine", ar: "مين" }, { en: "Maryland", ar: "ماريلاند" }, { en: "Massachusetts", ar: "ماساتشوستس" },
@@ -113,13 +122,17 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submissionId, setSubmissionId] = useState<string>('');
+  const [submissionId, setSubmissionId] = useState('');
   const [isOnline, setIsOnline] = useState(true);
   const [mounted, setMounted] = useState(false);
   
   const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
   const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
+
+  // Validation State
   const [attemptedNext, setAttemptedNext] = useState(false);
+
+  // File Upload State
   const [isProcessingFile, setIsProcessingFile] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -165,25 +178,33 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
   useEffect(() => {
     setMounted(true);
     const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast({
+        variant: "destructive",
+        title: isAr ? "انقطع الاتصال بالإنترنت" : "Internet Connection Lost",
+        description: isAr ? "تم حفظ تقدمك تلقائياً في المتصفح. يرجى محاولة الاتصال بالإنترنت للمتابعة." : "Your progress is saved locally. Please check your connection to continue.",
+      });
+    };
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     setIsOnline(navigator.onLine);
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [isAr]);
 
-  // PERSISTENCE: Load from localStorage
   useEffect(() => {
     if (!mounted) return;
     const savedDraft = localStorage.getItem('bba_enrollment_draft');
+    const savedStep = localStorage.getItem('bba_enrollment_step');
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        setFormData(prev => ({ ...prev, ...parsed }));
-        const savedStep = localStorage.getItem('bba_last_step');
+        setFormData((prev: any) => ({ ...prev, ...parsed }));
         if (savedStep) setCurrentStep(parseInt(savedStep));
       } catch (e) {
         console.error("Failed to parse draft", e);
@@ -191,13 +212,39 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
     }
   }, [mounted]);
 
-  // PERSISTENCE: Save to localStorage
   useEffect(() => {
-    if (mounted) {
+    if (mounted && !isSubmitted) {
       localStorage.setItem('bba_enrollment_draft', JSON.stringify(formData));
-      localStorage.setItem('bba_last_step', currentStep.toString());
+      localStorage.setItem('bba_enrollment_step', currentStep.toString());
     }
-  }, [formData, currentStep, mounted]);
+  }, [formData, currentStep, mounted, isSubmitted]);
+
+  const availablePrograms = [
+    {
+      id: 'grades-3-5',
+      title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program',
+      desc: isAr ? 'تأسيس للمرحلة الابتدائية مع القرآن والعربية والمواد الأكاديمية.' : 'Elementary foundation building for Quran, Arabic and academics.',
+      image: '/program-1.png',
+      icon: BookOpen,
+      color: 'secondary'
+    },
+    {
+      id: 'grades-6-12',
+      title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program',
+      desc: isAr ? 'أكاديميات المرحلة المتوسطة والثانوية مع تعليم مرن عبر الإنترنت.' : 'Middle and high school academics with flexible online learning.',
+      image: '/program-2.png',
+      icon: GraduationCap,
+      color: 'primary'
+    },
+    {
+      id: 'weekend',
+      title: isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)',
+      desc: isAr ? 'إثراء أيام السبت والأحد لتعزيز الهوية الإسلامية واللغة.' : 'Saturday/Sunday enrichment to strengthen Islamic identity.',
+      image: '/program-3.png',
+      icon: Calendar,
+      color: 'accent'
+    }
+  ];
 
   const updateField = (field: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
@@ -216,12 +263,44 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
     setFormData((prev: any) => ({ ...prev, students: newStudents }));
   };
 
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = ('' + value).replace(/\D/g, '').slice(0, 10);
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return '(' + match[1] + ') ' + match[2] + '-' + match[3];
+    }
+    return cleaned;
+  };
+
+  const formatZipCode = (value: string) => {
+    return value.replace(/\D/g, '').slice(0, 5);
+  };
+
+  const getWeekendTuition = (count: string) => {
+    const n = parseInt(count) || 1;
+    if (n === 1) return { monthly: 75, term: 225 };
+    if (n === 2) return { monthly: 70, term: 420 };
+    if (n === 3) return { monthly: 65, term: 585 };
+    return { monthly: 60, term: 720 }; 
+  };
+
   const validateStep = (stepId: number) => {
     if (stepId === 1) {
-      const p1 = formData.parent1Name?.trim() && formData.parent1Phone?.trim() && formData.parent1Email?.trim() && formData.relationship1;
-      const p2 = formData.parent2Name?.trim() && formData.parent2Phone?.trim() && formData.parent2Email?.trim() && formData.relationship2;
-      const addr = formData.address.line1?.trim() && formData.address.city?.trim() && formData.address.state && formData.address.zip?.trim();
-      return !!(p1 && p2 && addr); // STRICT: Both parents mandatory
+      // STRICT VALIDATION: BOTH PARENTS REQUIRED
+      return (
+        formData.parent1Name?.trim() &&
+        formData.parent1Phone?.trim() &&
+        formData.parent1Email?.trim() &&
+        formData.relationship1 &&
+        formData.parent2Name?.trim() &&
+        formData.parent2Phone?.trim() &&
+        formData.parent2Email?.trim() &&
+        formData.relationship2 &&
+        formData.address.line1?.trim() &&
+        formData.address.city?.trim() &&
+        formData.address.state &&
+        formData.address.zip?.trim()
+      );
     }
     if (stepId === 2) {
       return formData.students.length > 0 && formData.students.every((st: any) => 
@@ -251,7 +330,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
     let newStudents = [...formData.students];
     
     if (n < newStudents.length) {
-      if (!confirm(isAr ? 'سيتم حذف بيانات الطلاب الإضافيين المسجلة، هل تود الاستمرار؟' : 'Data for extra students will be removed, do you want to continue?')) {
+      if (!confirm(isAr ? 'سيتم حذف بيانات الطلاب الإضافيين، هل تود الاستمرار؟' : 'Extra student data will be removed, do you want to continue?')) {
         return;
       }
       newStudents = newStudents.slice(0, n);
@@ -282,17 +361,18 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
       window.scrollTo(0, 0);
     } else {
       setAttemptedNext(true);
-      if (currentStep === 1) {
-        // Auto-open Parent 2 if 1 is valid but 2 is missing
-        const p1Valid = formData.parent1Name?.trim() && formData.parent1Phone?.trim() && formData.parent1Email?.trim() && formData.relationship1;
-        if (p1Valid) setOpenParent('p2');
-      }
       toast({
         variant: "destructive",
         title: isAr ? "بيانات ناقصة" : "Missing Information",
-        description: isAr ? "يرجى تعبئة كافة الحقول المطلوبة باللون الأحمر للمتابعة." : "Please fill in all required fields marked in red to continue.",
+        description: isAr ? "يرجى تعبئة كافة الحقول المطلوبة (بما في ذلك كلا الوالدين) للمتابعة." : "Please fill in all required fields (including both parents) to continue.",
       });
     }
+  };
+
+  const handleBack = () => {
+    setAttemptedNext(false);
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    window.scrollTo(0, 0);
   };
 
   const saveDraft = async () => {
@@ -323,11 +403,6 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
       });
     } catch (err) {
       console.error(err);
-      toast({
-        variant: "destructive",
-        title: isAr ? "خطأ في الحفظ" : "Save Error",
-        description: isAr ? "فشل حفظ المسودة سحابياً." : "Failed to save draft to cloud.",
-      });
     } finally {
       setIsSavingDraft(false);
     }
@@ -336,27 +411,43 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
   const handleSubmit = async () => {
     if (!firestore) return;
     if (!isOnline) {
-      toast({ variant: "destructive", title: isAr ? "لا يمكن الإرسال حالياً" : "Submission Unavailable" });
+      toast({
+        variant: "destructive",
+        title: isAr ? "لا يمكن الإرسال حالياً" : "Submission Unavailable",
+        description: isAr ? "يرجى التحقق من اتصالك بالإنترنت للمتابعة." : "Please check your internet connection to continue.",
+      });
       return;
     }
 
     if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) {
       setAttemptedNext(true);
-      toast({ variant: "destructive", title: isAr ? "خطأ في الإرسال" : "Submission Error" });
+      toast({
+        variant: "destructive",
+        title: isAr ? "خطأ في الإرسال" : "Submission Error",
+        description: isAr 
+          ? "يرجى التأكد من ملء كافة البيانات المطلوبة ورفع المستندات في جميع الخطوات." 
+          : "Please ensure all required data is filled and documents are uploaded in all steps.",
+      });
       return;
     }
 
     setIsSubmitting(true);
+
     try {
-      const finalData = { ...formData, status: 'submitted', submittedAt: serverTimestamp(), userId: user?.uid || 'anonymous', lang };
+      const finalData = {
+        ...formData,
+        status: 'submitted',
+        submittedAt: serverTimestamp(),
+        userId: user?.uid || 'anonymous',
+        lang
+      };
+
       const docRef = await addDoc(collection(firestore, 'enrollments'), finalData);
       setSubmissionId(docRef.id);
-      
-      // CLEAR ALL LOCAL DATA ON SUCCESS
+
       localStorage.removeItem('bba_enrollment_draft');
+      localStorage.removeItem('bba_enrollment_step');
       localStorage.removeItem('bba_draft_id');
-      localStorage.removeItem('bba_last_step');
-      
       setIsSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -394,69 +485,88 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
     }
   };
 
-  const getWeekendTuition = (count: string) => {
-    const n = parseInt(count) || 1;
-    if (n === 1) return { monthly: 75, term: 225 };
-    if (n === 2) return { monthly: 70, term: 420 };
-    if (n === 3) return { monthly: 65, term: 585 };
-    return { monthly: 60, term: 720 };
+  const removeFile = (index: number) => {
+    const updatedFiles = [...(formData.files || [])];
+    updatedFiles.splice(index, 1);
+    setFormData((prev: any) => ({ ...prev, files: updatedFiles }));
   };
 
   if (isSubmitted) return <SuccessView isAr={isAr} lang={lang} submissionId={submissionId} />;
 
-  const availablePrograms = [
-    { id: 'grades-3-5', title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program', desc: isAr ? 'تأسيس للمرحلة الابتدائية مع القرآن والعربية والمواد الأكاديمية.' : 'Elementary foundation building for Quran, Arabic and academics.', image: '/program-1.png', icon: BookOpen, color: 'secondary' },
-    { id: 'grades-6-12', title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program', desc: isAr ? 'أكاديميات المرحلة المتوسطة والثانوية مع تعليم مرن عبر الإنترنت.' : 'Middle and high school academics with flexible online learning.', image: '/program-2.png', icon: GraduationCap, color: 'primary' },
-    { id: 'weekend', title: isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)', desc: isAr ? 'إثراء أيام السبت والأحد لتعزيز الهوية الإسلامية واللغة.' : 'Saturday/Sunday enrichment to strengthen Islamic identity.', image: '/program-3.png', icon: Calendar, color: 'accent' }
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
       {mounted && !isOnline && (
-        <div className="bg-red-600 text-white py-2 px-4 flex items-center justify-center gap-3 sticky top-20 z-[55]">
+        <div className="bg-red-600 text-white py-2 px-4 flex items-center justify-center gap-3 sticky top-20 z-[55] animate-in slide-in-from-top duration-300">
           <WifiOff className="h-4 w-4" />
-          <span className="text-xs font-black uppercase tracking-widest">{isAr ? 'بدون اتصال' : 'Offline'}</span>
+          <span className="text-xs font-black uppercase tracking-widest">
+            {isAr ? 'أنت في وضع عدم الاتصال - تم تأمين البيانات محلياً' : 'Offline Mode - Data Secured Locally'}
+          </span>
         </div>
       )}
 
+      {/* Dynamic Geometric Header Section */}
       <section className="bg-primary pt-12 pb-16 relative overflow-hidden">
-        <div className="container-tight text-center space-y-4 px-4 relative z-10">
+        <div className="absolute inset-0">
+           <svg className="absolute inset-0 h-full w-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
+             <defs>
+               <pattern id="enroll-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+                 <path d="M 60 0 L 0 0 0 60" fill="none" stroke="white" strokeWidth="0.5" />
+                 <path d="M 0 60 L 60 0" fill="none" stroke="white" strokeWidth="0.5" />
+                 <circle cx="30" cy="30" r="1.5" fill="white" className="opacity-40" />
+               </pattern>
+             </defs>
+             <rect width="100%" height="100%" fill="url(#enroll-pattern)" />
+           </svg>
+           <div className="absolute top-0 right-0 w-[40%] h-full bg-secondary/20 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2 animate-pulse" />
+           <div className="absolute bottom-0 left-0 w-[50%] h-full bg-accent/15 blur-[120px] rounded-full -translate-x-1/4 translate-y-1/4" />
+        </div>
+
+        <div className="container-tight relative z-10 text-center space-y-4 px-4">
           <div className="space-y-2">
             <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
               {isAr ? 'تسجيل الطلاب الجدد' : 'Student Enrollment'}
             </h1>
-            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
+            <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full shadow-[0_0_25px_rgba(var(--secondary),0.7)]" />
           </div>
+          <p className="text-white/60 font-bold text-xs uppercase tracking-[0.3em]">
+             {isAr ? 'ابدأ رحلة طفلك التعليمية معنا اليوم' : 'Begin your child\'s journey with us today'}
+          </p>
         </div>
       </section>
 
       <div className="container-tight -mt-8 relative z-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto space-y-6">
-          <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-4 md:p-6">
+          <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-4 md:p-6 ring-1 ring-white/20">
             <div className="relative flex justify-between items-center px-4" dir={isAr ? 'rtl' : 'ltr'}>
               <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
               {steps.map((step) => (
-                <button key={step.id} onClick={() => { if(step.id < currentStep) setCurrentStep(step.id) }} className="relative z-10">
-                  <div className={cn(
-                    "w-10 h-10 md:w-14 md:h-14 rounded-2xl flex items-center justify-center border-2 transition-all",
-                    currentStep === step.id ? "bg-secondary border-secondary text-white scale-110 shadow-xl" : 
-                    currentStep > step.id ? "bg-primary border-primary text-white" : "bg-white border-slate-200 text-slate-400"
+                <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
+                  <button onClick={() => { if(step.id < currentStep) setCurrentStep(step.id) }} className={cn(
+                    "w-10 h-10 md:w-14 md:h-14 rounded-2xl flex items-center justify-center border-2 transition-all duration-500",
+                    currentStep === step.id ? "bg-secondary border-secondary text-white scale-110 shadow-xl shadow-secondary/30" : 
+                    currentStep > step.id ? "bg-primary border-primary text-white" : 
+                    "bg-white border-slate-200 text-slate-400"
                   )}>
-                    {currentStep > step.id ? <Check className="h-5 w-5" /> : <span className="font-black text-sm md:text-lg">{step.id}</span>}
-                  </div>
-                </button>
+                    {currentStep > step.id ? <Check className="h-5 w-5 md:h-7 md:w-7" /> : <span className="font-black text-sm md:text-lg">{step.id}</span>}
+                  </button>
+                </div>
               ))}
             </div>
           </Card>
 
-          <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white">
-            <CardHeader className="bg-slate-50 border-b border-slate-100 p-4 md:p-6">
-              <CardTitle className="text-sm md:text-2xl font-black text-primary uppercase">
-                {steps[currentStep-1].name[lang]}
-              </CardTitle>
+          <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white relative">
+            <CardHeader className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 p-4 md:p-6 relative z-10">
+              <div className="flex justify-between items-center">
+                <div className="space-y-0.5 overflow-hidden">
+                  <div className="text-secondary font-black uppercase tracking-[0.2em] text-[8px] md:text-[10px]">{isAr ? 'الخطوة الحالية' : 'Current Step'}</div>
+                  <CardTitle className="text-sm md:text-2xl font-black text-primary uppercase truncate leading-tight">
+                    {steps[currentStep-1].name[lang]}
+                  </CardTitle>
+                </div>
+              </div>
             </CardHeader>
 
-            <CardContent className="p-4 md:p-10">
+            <CardContent className="p-4 md:p-10 relative z-10">
               {currentStep === 1 && (
                 <div className="space-y-10">
                   <div className="space-y-4">
@@ -464,7 +574,10 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                       {isAr ? 'بيانات أولياء الأمور (كلاهما إلزامي)' : 'Parent Details (Both Required)'}
                     </h3>
                     
-                    <div className={cn("rounded-2xl border transition-all p-6", openParent === 'p1' ? "border-secondary bg-secondary/5" : "border-slate-100 cursor-pointer")} onClick={() => setOpenParent('p1')}>
+                    <div className={cn(
+                      "rounded-2xl border transition-all duration-300 p-6",
+                      openParent === 'p1' ? "border-secondary bg-secondary/5" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200"
+                    )} onClick={() => setOpenParent('p1')}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
                           <UserCircle2 className={cn("h-5 w-5", openParent === 'p1' ? "text-secondary" : "text-slate-400")} />
@@ -475,20 +588,20 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.parent1Name) ? "text-red-500" : ""}>{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
-                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className={isFieldInvalid(formData.parent1Name) ? "border-red-500" : ""} />
+                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent1Name) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.parent1Phone) ? "text-red-500" : ""}>{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
-                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', e.target.value)} className={isFieldInvalid(formData.parent1Phone) ? "border-red-500" : ""} />
+                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent1Phone) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.parent1Email) ? "text-red-500" : ""}>{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
-                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={isFieldInvalid(formData.parent1Email) ? "border-red-500" : ""} />
+                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent1Email) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.relationship1) ? "text-red-500" : ""}>{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
                             <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)}>
-                              <SelectTrigger className={isFieldInvalid(formData.relationship1) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
+                              <SelectTrigger className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.relationship1) && "border-red-500")}><SelectValue /></SelectTrigger>
                               <SelectContent>{relationships.map(r => <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>)}</SelectContent>
                             </Select>
                           </div>
@@ -496,31 +609,34 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                       )}
                     </div>
 
-                    <div className={cn("rounded-2xl border transition-all p-6", openParent === 'p2' ? "border-secondary bg-secondary/5" : "border-slate-100 cursor-pointer")} onClick={() => setOpenParent('p2')}>
+                    <div className={cn(
+                      "rounded-2xl border transition-all duration-300 p-6",
+                      openParent === 'p2' ? "border-secondary bg-secondary/5" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200"
+                    )} onClick={() => setOpenParent('p2')}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
                           <UserCircle2 className={cn("h-5 w-5", openParent === 'p2' ? "text-secondary" : "text-slate-400")} />
-                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني (إلزامي)' : 'Parent 2 (Required)'}</span>
+                          <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني' : 'Parent 2'}</span>
                         </div>
                       </div>
                       {openParent === 'p2' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.parent2Name) ? "text-red-500" : ""}>{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
-                            <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className={isFieldInvalid(formData.parent2Name) ? "border-red-500" : ""} />
+                            <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent2Name) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.parent2Phone) ? "text-red-500" : ""}>{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
-                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', e.target.value)} className={isFieldInvalid(formData.parent2Phone) ? "border-red-500" : ""} />
+                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent2Phone) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.parent2Email) ? "text-red-500" : ""}>{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
-                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={isFieldInvalid(formData.parent2Email) ? "border-red-500" : ""} />
+                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent2Email) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
                             <Label className={isFieldInvalid(formData.relationship2) ? "text-red-500" : ""}>{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
                             <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)}>
-                              <SelectTrigger className={isFieldInvalid(formData.relationship2) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
+                              <SelectTrigger className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.relationship2) && "border-red-500")}><SelectValue /></SelectTrigger>
                               <SelectContent>{relationships.map(r => <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>)}</SelectContent>
                             </Select>
                           </div>
@@ -530,27 +646,30 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                   </div>
 
                   <div className="space-y-6 pt-8 border-t border-slate-100">
-                    <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm mb-6">{isAr ? 'عنوان السكن (مطلوب)' : 'Home Address (Required)'}</h3>
+                    <h3 className="font-black text-primary border-l-4 border-secondary pl-4 uppercase tracking-widest text-sm flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-secondary" />
+                      {isAr ? 'عنوان السكن في الولايات المتحدة (مطلوب)' : 'USA Home Address (Required)'}
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2 space-y-2">
                         <Label className={isFieldInvalid(formData.address.line1) ? "text-red-500" : ""}>{isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}</Label>
-                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className={isFieldInvalid(formData.address.line1) ? "border-red-500" : ""} />
+                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.line1) && "border-red-500")} />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:col-span-2">
                         <div className="space-y-2">
                           <Label className={isFieldInvalid(formData.address.city) ? "text-red-500" : ""}>{isAr ? 'المدينة *' : 'City *'}</Label>
-                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className={isFieldInvalid(formData.address.city) ? "border-red-500" : ""} />
+                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.city) && "border-red-500")} />
                         </div>
                         <div className="space-y-2">
                           <Label className={isFieldInvalid(formData.address.state) ? "text-red-500" : ""}>{isAr ? 'الولاية *' : 'State *'}</Label>
                           <Select value={formData.address.state} onValueChange={(v) => updateAddress('state', v)}>
-                            <SelectTrigger className={isFieldInvalid(formData.address.state) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
-                            <SelectContent>{usStates.map(s => <SelectItem key={s.en} value={s.en}>{isAr ? s.ar : s.en}</SelectItem>)}</SelectContent>
+                            <SelectTrigger className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.state) && "border-red-500")}><SelectValue /></SelectTrigger>
+                            <SelectContent>{usStates.map(s => <SelectItem key={s.en} value={s.en}>{lang === 'ar' ? s.ar : s.en}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
                           <Label className={isFieldInvalid(formData.address.zip) ? "text-red-500" : ""}>{isAr ? 'الرمز البريدي *' : 'ZIP *'}</Label>
-                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', e.target.value)} className={isFieldInvalid(formData.address.zip) ? "border-red-500" : ""} maxLength={5} />
+                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', formatZipCode(e.target.value))} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.zip) && "border-red-500")} maxLength={5} />
                         </div>
                       </div>
                     </div>
@@ -560,7 +679,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
 
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center">
+                  <div className="bg-slate-50/80 p-6 rounded-2xl border border-slate-100 text-center">
                     <Label className="text-sm font-black text-primary uppercase tracking-widest mb-6 block">{isAr ? 'عدد الطلاب المسجلين' : 'Number of Students'}</Label>
                     <RadioGroup value={formData.siblingCount} onValueChange={handleSiblingCountChange} className="flex gap-4 justify-center">
                       {['1', '2', '3'].map((n) => (
@@ -599,7 +718,8 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                               <div className="space-y-2">
                                 <Label className={isFieldInvalid(student.gender) ? "text-red-500" : ""}>{isAr ? 'الجنس *' : 'Gender *'}</Label>
                                 <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
-                                  <SelectTrigger className={isFieldInvalid(student.gender) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>                                  <SelectContent><SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem><SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem></SelectContent>
+                                  <SelectTrigger className={isFieldInvalid(student.gender) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
+                                  <SelectContent><SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem><SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem></SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
@@ -709,7 +829,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                     {formData.files.map((f: any, i: number) => (
                       <div key={i} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100">
                         <span className="text-sm font-bold truncate">{f.name}</span>
-                        <button onClick={() => { const nf = [...formData.files]; nf.splice(i, 1); updateField('files', nf); }} className="text-red-500"><X className="h-5 w-5" /></button>
+                        <button onClick={() => removeFile(i)} className="text-red-500"><X className="h-5 w-5" /></button>
                       </div>
                     ))}
                   </div>
@@ -733,7 +853,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
               <div className="mt-12 pt-10 border-t border-slate-100 flex flex-col items-center gap-8">
                 <div className="flex w-full gap-4">
                   {currentStep > 1 && (
-                    <Button variant="outline" onClick={() => setCurrentStep(currentStep - 1)} disabled={isSubmitting} className="flex-1 h-14 md:h-16 rounded-2xl border-2 font-black">
+                    <Button variant="outline" onClick={handleBack} disabled={isSubmitting} className="flex-1 h-14 md:h-16 rounded-2xl border-2 font-black">
                       {isAr ? 'السابق' : 'Back'}
                     </Button>
                   )}
