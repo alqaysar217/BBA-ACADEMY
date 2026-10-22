@@ -21,7 +21,10 @@ import {
   MessageSquare,
   GraduationCap,
   Library,
-  HelpCircle
+  HelpCircle,
+  FileSignature,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
@@ -97,31 +100,37 @@ export function Header({ lang }: { lang: Locale }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
       <div className="container-tight flex h-20 items-center justify-between">
+        {/* Logo Section */}
         <div className="flex flex-1 items-center">
           <Link href={`/${lang}`} className="group flex items-center gap-3">
-            <Image src="/logo.png" alt="Logo" width={48} height={48} priority unoptimized />
+            <div className="bg-white p-1.5 rounded-xl shadow-sm border border-slate-100 transition-transform group-hover:scale-105 shrink-0">
+              <Image src="/logo.png" alt="BBA Logo" width={42} height={42} priority unoptimized />
+            </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-primary leading-none">BBA</span>
-              <span className="text-[9px] uppercase tracking-[0.2em] text-secondary font-bold">Academy</span>
+              <span className="text-xl font-black text-primary leading-none tracking-tight">BBA</span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-secondary font-black">Academy</span>
             </div>
           </Link>
         </div>
 
-        <nav className="hidden lg:flex items-center justify-center gap-8 px-4">
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center justify-center gap-6 px-4">
           {menuStructure.map((item, idx) => {
             if (item.subLinks) {
               return (
                 <DropdownMenu key={idx}>
-                  <DropdownMenuTrigger className="text-xs font-bold hover:text-secondary flex items-center gap-1.5 text-primary/70 outline-none">
+                  <DropdownMenuTrigger className="text-[11px] font-black uppercase tracking-widest hover:text-secondary flex items-center gap-2 text-primary/70 outline-none transition-colors">
                     <item.icon className="h-3.5 w-3.5 text-secondary/60" />
                     {item.name[lang]}
-                    <ChevronDown className="h-3 w-3 opacity-50" />
+                    <ChevronDown className="h-3 w-3 opacity-40" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align={isAr ? 'end' : 'start'} className="rounded-xl p-2 min-w-[200px]">
+                  <DropdownMenuContent align={isAr ? 'end' : 'start'} className="rounded-xl p-2 min-w-[220px] shadow-2xl border-slate-100">
                     {item.subLinks.map((sub, sIdx) => (
-                      <DropdownMenuItem key={sIdx} asChild>
-                        <Link href={`/${lang}${sub.href}`} className="flex items-center gap-3 py-2.5">
-                          <sub.icon className="h-4 w-4 text-secondary/70" />
+                      <DropdownMenuItem key={sIdx} asChild className="rounded-lg">
+                        <Link href={`/${lang}${sub.href}`} className="flex items-center gap-3 py-3 cursor-pointer">
+                          <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
+                            <sub.icon className="h-4 w-4 text-secondary" />
+                          </div>
                           <span className="text-xs font-bold text-primary/80">{sub.name[lang]}</span>
                         </Link>
                       </DropdownMenuItem>
@@ -132,35 +141,111 @@ export function Header({ lang }: { lang: Locale }) {
             }
             const active = isLinkActive(item.href!);
             return (
-              <Link key={idx} href={`/${lang}${item.href}`} className={cn("text-xs font-bold", active ? "text-secondary" : "text-primary/70")}>
+              <Link 
+                key={idx} 
+                href={`/${lang}${item.href}`} 
+                className={cn(
+                  "text-[11px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:text-secondary",
+                  active ? "text-secondary" : "text-primary/70"
+                )}
+              >
+                <item.icon className="h-3.5 w-3.5" />
                 {item.name[lang]}
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-4">
-          <Link href={redirectedPathname(otherLang)} className="text-xs font-black p-2 bg-slate-100 rounded-xl">
+        {/* Right Section: Language, Apply Button, Mobile Menu */}
+        <div className="flex flex-1 items-center justify-end gap-3 sm:gap-4">
+          <Link 
+            href={redirectedPathname(otherLang)} 
+            className="text-[10px] font-black px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200"
+          >
             {lang === 'en' ? 'AR' : 'EN'}
           </Link>
-          <Button asChild size="sm" className="hidden sm:inline-flex bg-primary rounded-full px-6">
-            <Link href={`/${lang}/enroll`}>{isAr ? 'سجل الآن' : 'Apply Now'}</Link>
+          
+          <Button asChild size="sm" className="hidden sm:inline-flex bg-primary hover:bg-secondary text-white rounded-xl px-6 h-10 font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 active:scale-95">
+            <Link href={`/${lang}/enroll`} className="flex items-center gap-2">
+              <FileSignature className="h-3.5 w-3.5" />
+              {isAr ? 'سجل الآن' : 'Apply Now'}
+            </Link>
           </Button>
+
+          {/* Mobile Menu Trigger */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden"><Menu className="h-6 w-6" /></Button>
+              <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10 rounded-xl bg-slate-50 border border-slate-100 text-primary">
+                <Menu className="h-6 w-6" />
+              </Button>
             </SheetTrigger>
-            <SheetContent side={isAr ? 'right' : 'left'} className="w-[320px] p-0 bg-primary text-white">
-              <SheetHeader className="p-8 border-b border-white/10">
-                <SheetTitle className="text-white">Menu</SheetTitle>
-              </SheetHeader>
-              <nav className="p-4 space-y-2">
-                {menuStructure.map((item, idx) => (
-                  <Link key={idx} href={`/${lang}${item.href || ''}`} onClick={() => setIsOpen(false)} className="block p-4 font-bold">
-                    {item.name[lang]}
-                  </Link>
-                ))}
+            <SheetContent side={isAr ? 'right' : 'left'} className="w-[320px] p-0 bg-white border-none">
+              {/* Sidebar Header with Logo */}
+              <div className="p-6 bg-primary text-white space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white p-1.5 rounded-xl">
+                    <Image src="/logo.png" alt="BBA Logo" width={40} height={40} unoptimized />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-black leading-none">BBA</span>
+                    <span className="text-[9px] uppercase tracking-widest text-secondary font-black">Academy</span>
+                  </div>
+                </div>
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              </div>
+
+              {/* Sidebar Navigation Links */}
+              <nav className="p-4 space-y-1">
+                {menuStructure.map((item, idx) => {
+                  if (item.subLinks) {
+                    return (
+                      <div key={idx} className="space-y-1">
+                        <div className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-50 mb-1">
+                          {item.name[lang]}
+                        </div>
+                        {item.subLinks.map((sub, sIdx) => (
+                          <Link 
+                            key={sIdx} 
+                            href={`/${lang}${sub.href}`} 
+                            onClick={() => setIsOpen(false)}
+                            className={cn(
+                              "flex items-center gap-4 p-4 rounded-xl font-bold text-sm transition-all hover:bg-slate-50",
+                              isLinkActive(sub.href!) ? "text-secondary bg-secondary/5" : "text-primary/70"
+                            )}
+                          >
+                            <sub.icon className="h-5 w-5 opacity-70" />
+                            {sub.name[lang]}
+                          </Link>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return (
+                    <Link 
+                      key={idx} 
+                      href={`/${lang}${item.href || ''}`} 
+                      onClick={() => setIsOpen(false)} 
+                      className={cn(
+                        "flex items-center gap-4 p-4 rounded-xl font-bold text-sm transition-all hover:bg-slate-50",
+                        isLinkActive(item.href!) ? "text-secondary bg-secondary/5" : "text-primary/70"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5 opacity-70" />
+                      {item.name[lang]}
+                    </Link>
+                  );
+                })}
               </nav>
+
+              {/* Sidebar Bottom Action */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-slate-50 bg-slate-50/50">
+                <Button asChild className="w-full h-14 bg-secondary hover:bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-secondary/20 group">
+                  <Link href={`/${lang}/enroll`} onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-3">
+                    {isAr ? 'ابدأ التسجيل' : 'Start Enrollment'}
+                    {isAr ? <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" /> : <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+                  </Link>
+                </Button>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
