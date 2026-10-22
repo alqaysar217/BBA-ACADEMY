@@ -211,42 +211,32 @@ export function Header({ lang }: { lang: Locale }) {
                   </div>
                 </div>
 
-                <nav className="flex-1 py-6 px-4 space-y-8">
+                <nav className="flex-1 py-6 px-4 space-y-2">
                   {menuStructure.map((item, idx) => {
                     if (item.subLinks) {
-                      return (
-                        <div key={idx} className="space-y-3">
-                          <div className="flex items-center gap-3 px-2 text-secondary/60">
-                             <item.icon className="h-4 w-4" />
-                             <span className="text-[10px] font-black uppercase tracking-[0.3em]">{item.name[lang]}</span>
-                          </div>
-                          <div className="space-y-2">
-                            {item.subLinks.map((sub, sIdx) => {
-                               const active = isLinkActive(sub.href!);
-                               const SubIcon = sub.icon;
-                               return (
-                                <Link
-                                  key={sIdx}
-                                  href={`/${lang}${sub.href}`}
-                                  onClick={() => setIsOpen(false)}
-                                  className={cn(
-                                    "flex items-center justify-between p-4 rounded-xl transition-all group",
-                                    active 
-                                      ? "bg-secondary text-white shadow-lg" 
-                                      : "hover:bg-white/5 text-white/70 hover:text-white"
-                                  )}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <SubIcon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
-                                    <span className="font-bold text-lg">{sub.name[lang]}</span>
-                                  </div>
-                                  {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
-                                </Link>
-                               );
-                            })}
-                          </div>
-                        </div>
-                      );
+                      return item.subLinks.map((sub, sIdx) => {
+                         const active = isLinkActive(sub.href!);
+                         const SubIcon = sub.icon;
+                         return (
+                          <Link
+                            key={`${idx}-${sIdx}`}
+                            href={`/${lang}${sub.href}`}
+                            onClick={() => setIsOpen(false)}
+                            className={cn(
+                              "flex items-center justify-between p-4 rounded-xl transition-all group",
+                              active 
+                                ? "bg-secondary text-white shadow-lg" 
+                                : "hover:bg-white/5 text-white/70 hover:text-white"
+                            )}
+                          >
+                            <div className="flex items-center gap-4">
+                              <SubIcon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
+                              <span className="font-bold text-lg">{sub.name[lang]}</span>
+                            </div>
+                            {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
+                          </Link>
+                         );
+                      });
                     }
 
                     const active = isLinkActive(item.href!);
