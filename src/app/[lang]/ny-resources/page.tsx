@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect } from 'react';
@@ -59,7 +58,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       title: isAr ? 'التعليم المنزلي في نيويورك' : 'Homeschooling in New York',
       supporting: isAr ? 'نساعدكم في التنقل بين المتطلبات بثقة.' : "Helping you navigate requirements with confidence.",
       content1: isAr
-        ? 'تمتلك نيويورك بعضاً من أكثر لوائح التعليم المنزلي شمولاً. وبينما قد تبدو العملية مرهقة في البداية، فإن التوجيه الصحيح يسهل كل شيء.'
+        ? 'تمتلك نيويورك بعضاً من أكثر لوائح التعليم المنزلي شمولاً. وبينما قد تبدو العملية مرهقة في البةاية، فإن التوجيه الصحيح يسهل كل شيء.'
         : "New York has comprehensive homeschool regulations. While the process may seem overwhelming at first, the right guidance simplifies everything.",
       content2: isAr
         ? 'في أكاديمية بنين وبنات (BBA)، قضينا سنوات في دعم العائلات في نيويورك. تم إنشاء هذا المركز لتوفير معلومات موثوقة طوال رحلتكم.'
@@ -93,7 +92,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
           id: 2,
           title: isAr ? '2. خطة IHIP' : '2. IHIP Plan',
           desc: isAr 
-            ? 'خطة تعليمية توضح المواد التي سيتم تدريسها وفق اللوائح.'
+            ? 'خطابة تعليمية توضح المواد التي سيتم تدريسها وفق اللوائح.'
             : "An educational plan outlining subjects to be taught per regulations.",
           extra: isAr
             ? 'نظرة عامة تثبت تغطية المواد المطلوبة طوال العام.'
@@ -291,7 +290,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
             </div>
             <div className="relative aspect-video lg:aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white group">
                <Image 
-                src="https://picsum.photos/seed/ny-city/800/800" 
+                src="/newyork.png" 
                 alt="New York" 
                 fill 
                 className="object-cover transition-transform duration-1000 group-hover:scale-105" 
