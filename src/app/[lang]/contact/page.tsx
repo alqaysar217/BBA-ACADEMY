@@ -1,5 +1,5 @@
 import { type Locale } from '@/lib/i18n/config';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     description: isAr 
       ? 'نحن هنا للإجابة على استفساراتكم ومساعدتكم في الانضمام لأكاديمية بنين وبنات.' 
       : 'We are here to answer your inquiries and help you join Baneen and Banaat Academy.',
+    openGraph: {
+      title: isAr ? 'تواصل معنا | بنين وبنات' : 'Contact Us | BBA Academy',
+      description: isAr ? 'فريق الدعم والقبول جاهز لمساعدتكم.' : 'Our support and admissions team is ready to help.',
+      images: ['/logo.png'],
+    }
   };
 }
 
@@ -33,7 +38,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
       phone: '(734) 645-3613',
       whatsapp: '(313) 655-5778',
       emails: ['info@baneenbanaat.org', 'banaatacademy@gmail.com'],
-      hours: isAr ? 'الإثنين – الجمعة | 9:00 صباحاً – 4:00 مساءً' : 'Monday – Friday | 9:00 AM – 4:00 PM',
+      hours: isAr ? 'الإثنين – الجمعة | 9:00 صباحاً – 4:00 مساءً' : 'Monday – Friday | 9:00 AM – 4:00 PM (ET)',
       location: isAr ? 'ميشيغان، الولايات المتحدة (نخدم العائلات في جميع أنحاء البلاد!)' : 'Michigan, United States (Serving Families Nationwide!)'
     },
     formTitle: isAr ? 'لنبدأ المحادثة' : 'Let\'s Start the Conversation',
@@ -96,7 +101,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
               </p>
             </div>
 
-            <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden">
+            <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white">
               <CardContent className="p-8 lg:p-12 space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -143,7 +148,6 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
             <h2 className="text-xl lg:text-2xl font-black text-primary uppercase tracking-widest">{t.contactInfoTitle}</h2>
             
             <div className="grid grid-cols-1 gap-6">
-              {/* Phone Card */}
               <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm group hover:shadow-xl transition-all duration-500 flex items-start gap-6">
                 <div className="h-14 w-14 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg shrink-0 group-hover:rotate-12 transition-transform">
                   <PhoneCall className="h-7 w-7" />
@@ -154,7 +158,6 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
                 </div>
               </div>
 
-              {/* WhatsApp Card */}
               <Link href={`https://wa.me/13136555778`} target="_blank" className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm group hover:shadow-xl hover:border-green-100 transition-all duration-500 flex items-start gap-6">
                 <div className="h-14 w-14 rounded-2xl bg-green-500 text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-110 transition-transform">
                   <MessageCircle className="h-7 w-7" />
@@ -162,11 +165,9 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
                 <div className="space-y-1">
                   <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">WhatsApp Support</p>
                   <p className="text-lg font-black text-green-600 font-mono" dir="ltr">{t.contactInfo.whatsapp}</p>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Instant Messaging available</p>
                 </div>
               </Link>
 
-              {/* Email Card */}
               <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm group hover:shadow-xl transition-all duration-500 flex items-start gap-6">
                 <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shrink-0 group-hover:rotate-12 transition-transform">
                   <Mail className="h-7 w-7" />
@@ -179,18 +180,6 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
                 </div>
               </div>
 
-              {/* Location Card */}
-              <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm group hover:shadow-xl transition-all duration-500 flex items-start gap-6">
-                <div className="h-14 w-14 rounded-2xl bg-slate-100 text-primary flex items-center justify-center shadow-inner shrink-0">
-                  <MapPin className="h-7 w-7" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">HQ Location</p>
-                  <p className="text-sm font-black text-primary leading-relaxed">{t.contactInfo.location}</p>
-                </div>
-              </div>
-
-              {/* Hours Card */}
               <div className="p-8 bg-slate-900 text-white rounded-2xl shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-125 transition-transform duration-1000">
                    <Clock className="h-32 w-32" />
@@ -221,7 +210,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
         </div>
       </section>
 
-      {/* Map or Bottom Support Section */}
+      {/* Support Section */}
       <section className="bg-primary py-20 lg:py-32 text-white relative overflow-hidden">
          <div className="absolute inset-0 opacity-5 pointer-events-none">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

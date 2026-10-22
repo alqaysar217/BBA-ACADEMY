@@ -1,4 +1,3 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -92,14 +91,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     openGraph: {
       title: data.name,
       description: data.intro,
-      images: [{ url: data.image, width: 800, height: 600 }],
+      images: [{ url: '/logo.png' }],
       type: 'article',
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: data.name,
-        description: data.intro,
-        images: [data.image],
     }
   };
 }
@@ -131,7 +124,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               {sectionLabel('Back to Programs', 'العودة للبرامج')}
             </Link>
-            <h1 className="text-2xl sm:text-5xl font-black text-white leading-tight drop-shadow-2xl">
+            <h1 className="text-2xl sm:text-5xl font-black text-white leading-tight drop-shadow-2xl uppercase">
               {data.name}
             </h1>
           </div>
@@ -152,7 +145,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             </section>
 
             <section className="space-y-6">
-              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
+              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4 uppercase">
                 <BookOpen className="h-6 w-6 text-secondary" />
                 {sectionLabel('What Students Learn', 'ما يتعلمه الطلاب')}
               </h3>
@@ -162,7 +155,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             </section>
 
             <section className="space-y-6">
-              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
+              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4 uppercase">
                 <Calendar className="h-6 w-6 text-secondary" />
                 {sectionLabel('Study Schedule', 'الجدول الدراسي')}
               </h3>
@@ -172,7 +165,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
             </section>
 
             <section className="space-y-6">
-              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4">
+              <h3 className="text-xl sm:text-2xl font-black text-primary flex items-center gap-4 border-b pb-4 uppercase">
                 <Users className="h-6 w-6 text-secondary" />
                 {sectionLabel('Experienced Teachers', 'المعلمون والمتابعة')}
               </h3>

@@ -1,6 +1,6 @@
 import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
-import { Target, Eye, CheckCircle2, Users, Heart, Star, MapPin, GraduationCap, Globe, Handshake } from 'lucide-react';
+import { CheckCircle2, MapPin, GraduationCap, Globe, Handshake, Target, Eye, Heart } from 'lucide-react';
 import { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
@@ -89,15 +89,16 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white">
+      {/* Hero Section */}
       <section className="py-16 lg:py-24 border-b border-slate-100">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-8">
               <div className="space-y-4">
-                <h1 className="text-2xl lg:text-4xl font-black text-primary tracking-tight leading-tight">
+                <h1 className="text-3xl lg:text-5xl font-black text-primary tracking-tight leading-tight uppercase">
                   {t.title}
                 </h1>
-                <p className="text-xl font-bold text-secondary italic">
+                <p className="text-xl lg:text-2xl font-bold text-secondary italic">
                   {t.tagline}
                 </p>
               </div>
@@ -116,6 +117,7 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
         </div>
       </section>
 
+      {/* Beliefs Section */}
       <section className="py-20 bg-slate-50/50">
         <div className="container-tight">
           <div className="mb-12">
@@ -129,6 +131,55 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
                   <CheckCircle2 className="h-6 w-6 text-secondary" />
                 </div>
                 <p className="text-lg text-primary font-bold leading-relaxed">{belief}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Approach Section */}
+      <section className="py-20">
+        <div className="container-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <h2 className="text-2xl lg:text-4xl font-black text-primary uppercase tracking-tight">{t.sections.approach.title}</h2>
+              <div className="space-y-6 text-slate-600 text-lg leading-relaxed font-medium">
+                <p>{t.sections.approach.content1}</p>
+                <div className="p-6 bg-slate-50 border-l-4 border-secondary rounded-r-xl italic">
+                  {t.sections.approach.content2}
+                </div>
+                <p>{t.sections.approach.content3}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="p-8 bg-primary text-white rounded-2xl shadow-xl space-y-4 relative overflow-hidden group">
+                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Target className="h-24 w-24" /></div>
+                 <h3 className="text-xl font-black uppercase tracking-widest text-secondary">{t.sections.mission.title}</h3>
+                 <p className="text-sm lg:text-base leading-relaxed opacity-90 relative z-10">{t.sections.mission.text}</p>
+              </div>
+              <div className="p-8 bg-slate-900 text-white rounded-2xl shadow-xl space-y-4 relative overflow-hidden group">
+                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Eye className="h-24 w-24" /></div>
+                 <h3 className="text-xl font-black uppercase tracking-widest text-secondary">{t.sections.vision.title}</h3>
+                 <p className="text-sm lg:text-base leading-relaxed opacity-90 relative z-10">{t.sections.vision.text}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Glance Stats Section */}
+      <section className="py-20 bg-primary text-white">
+        <div className="container-tight">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {t.sections.glance.items.map((stat, idx) => (
+              <div key={idx} className="text-center space-y-4 group">
+                <div className="h-16 w-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all shadow-xl">
+                  <stat.icon className="h-8 w-8" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/50">{stat.label}</p>
+                  <p className="text-xl font-black">{stat.value}</p>
+                </div>
               </div>
             ))}
           </div>

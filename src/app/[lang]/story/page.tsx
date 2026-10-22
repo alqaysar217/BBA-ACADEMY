@@ -13,6 +13,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     description: isAr 
       ? 'اكتشف كيف بدأت أكاديمية بنين وبنات وكيف تطورت لتصبح شريكاً تعليمياً موثوقاً.' 
       : 'Discover how Baneen and Banaat Academy started and evolved into a trusted educational partner.',
+    openGraph: {
+      title: isAr ? 'قصتنا | بنين وبنات' : 'Our Story | BBA Academy',
+      description: isAr ? 'رحلة الأكاديمية منذ التأسيس وحتى اليوم.' : 'The academy\'s journey from foundation to today.',
+      images: ['/logo.png'],
+    }
   };
 }
 
