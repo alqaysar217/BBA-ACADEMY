@@ -22,12 +22,14 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
   const { lang } = await params;
   const isAr = lang === 'ar';
-
+  
+  const siteName = isAr ? 'أكاديمية بنين وبنات' : 'BBA Academy';
   const title = isAr 
     ? 'أكاديمية بنين وبنات | تعليم يبني العقول وقيم تشكل الشخصية' 
     : 'Baneen & Banaat Academy | Education Builds Minds, Values Shape Character';
@@ -36,28 +38,32 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     ? 'شريك تعليمي موثوق يساعد الطلاب والعائلات على تحقيق النجاح الأكاديمي من خلال التعلم المرن عبر الإنترنت والتوجيه الشخصي والالتزام بالتميز.'
     : 'A trusted educational partner helping students and families achieve academic success through flexible online learning and personalized guidance.';
 
+  const baseUrl = 'https://bba-academic.farsel.app';
+
   return {
+    metadataBase: new URL(baseUrl),
     title: {
       default: title,
-      template: `%s | ${isAr ? 'أكاديمية بنين وبنات' : 'BBA Academy'}`,
+      template: `%s | ${siteName}`,
     },
     description,
     manifest: '/manifest.json',
     icons: {
       icon: '/favicon.ico',
+      shortcut: '/icon-192.png',
       apple: '/apple-touch-icon.png',
     },
     openGraph: {
       title,
       description,
-      url: 'https://baneenbanaat.org',
-      siteName: isAr ? 'أكاديمية بنين وبنات' : 'Baneen & Banaat Academy',
+      url: baseUrl,
+      siteName,
       images: [
         {
           url: '/og-image.jpg',
           width: 1200,
           height: 630,
-          alt: isAr ? 'شعار أكاديمية بنين وبنات' : 'BBA Academy Logo',
+          alt: siteName,
         },
       ],
       locale: lang === 'ar' ? 'ar_SA' : 'en_US',
@@ -72,7 +78,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',
-      title: 'BBA Academy',
+      title: siteName,
+    },
+    formatDetection: {
+      telephone: false,
     },
   };
 }
@@ -89,6 +98,10 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} dir={isRtl ? 'rtl' : 'ltr'} className={cn(inter.variable, notoArabic.variable)}>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body className={cn("min-h-screen font-sans antialiased", isRtl && "font-arabic")}>
         <FirebaseClientProvider>
           <FirebaseErrorListener />

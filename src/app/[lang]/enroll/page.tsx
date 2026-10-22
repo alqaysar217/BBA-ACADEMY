@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, use, useMemo, useRef } from 'react';
@@ -1364,11 +1365,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm relative z-10">
                           <div className="space-y-6">
                              <div>
-                                <div className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'البرنامج' : 'Program'}</div>
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'البرنامج' : 'Program'}</div>
                                 <div className="font-bold text-lg md:text-2xl leading-tight text-white/90">{availablePrograms.find(p => p.id === formData.programOption)?.title}</div>
                              </div>
                              <div>
-                                <div className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'خطة الدفع المختارة' : 'Payment Choice'}</div>
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'خطة الدفع المختارة' : 'Payment Choice'}</div>
                                 <div className="font-black text-secondary text-2xl md:text-4xl">
                                    {formData.programOption === 'weekend' ? `$${getWeekendTuition(formData.siblingCount).term}.00` : 
                                     formData.paymentTier === 'initial-3-5' || formData.paymentTier === 'initial-6-12' ? '$1,650.00' : '$2,850.00'}

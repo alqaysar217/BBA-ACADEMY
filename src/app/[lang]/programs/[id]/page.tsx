@@ -92,8 +92,15 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     openGraph: {
       title: data.name,
       description: data.intro,
-      images: [data.image],
+      images: [{ url: data.image, width: 800, height: 600 }],
+      type: 'article',
     },
+    twitter: {
+        card: 'summary_large_image',
+        title: data.name,
+        description: data.intro,
+        images: [data.image],
+    }
   };
 }
 
@@ -111,7 +118,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
   };
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white">
       <div className="relative h-[30vh] sm:h-[40vh] min-h-[200px]">
         <Image src={data.image} alt={data.name} fill className="object-cover" priority unoptimized />
         <div className="absolute inset-0 bg-primary/60 backdrop-blur-[2px]" />
