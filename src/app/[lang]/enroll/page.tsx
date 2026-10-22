@@ -83,7 +83,7 @@ const usStates = [
   { en: "Maine", ar: "مين" }, { en: "Maryland", ar: "ماريلاند" }, { en: "Massachusetts", ar: "ماساتشوستس" },
   { en: "Michigan", ar: "ميشيغان" }, { en: "Minnesota", ar: "مينيسوتا" }, { en: "Mississippi", ar: "ميسيسيبي" },
   { en: "Missouri", ar: "ميزوري" }, { en: "Montana", ar: "مونتانا" }, { en: "Nebraska", ar: "نبراسكا" },
-  { en: "Nevada", ar: "نيفادا" }, { en: "New Hampshire", ar: "نيو هامبشار" }, { en: "New Jersey", ar: "نيو جيرسي" },
+  { en: "Nevada", ar: "نيفادا" }, { en: "New Hampshire", ar: "نيو هامبشاير" }, { en: "New Jersey", ar: "نيو جيرسي" },
   { en: "New Mexico", ar: "نيو مكسيكو" }, { en: "New York", ar: "نيويورك" }, { en: "North Carolina", ar: "نورث كارولاينا" },
   { en: "North Dakota", ar: "نورث داكوتا" }, { en: "Ohio", ar: "أوهايو" }, { en: "Oklahoma", ar: "أوكلاهوما" },
   { en: "Oregon", ar: "أوريغون" }, { en: "Pennsylvania", ar: "بنسيلفانيا" }, { en: "Rhode Island", ar: "رود آيلاند" },
@@ -237,6 +237,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
+        // Ensure files exist, even if data was stripped to save space
         if (!parsed.files) parsed.files = [];
         setFormData((prev: any) => ({ ...prev, ...parsed }));
         if (savedStep) setCurrentStep(parseInt(savedStep));
@@ -246,10 +247,24 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
   }, [mounted]);
 
+  // Handle auto-save persistence (Fix for QuotaExceededError)
   useEffect(() => {
     if (mounted && !isSubmitted) {
-      localStorage.setItem('bba_enrollment_draft', JSON.stringify(formData));
-      localStorage.setItem('bba_enrollment_step', currentStep.toString());
+      try {
+        // Optimization: strip base64 data before saving to localStorage to prevent QuotaExceededError
+        const sanitizedFiles = (formData.files || []).map((f: any) => ({
+          name: f.name,
+          type: f.type,
+          size: f.size
+          // 'data' is excluded here
+        }));
+        
+        const dataToSave = { ...formData, files: sanitizedFiles };
+        localStorage.setItem('bba_enrollment_draft', JSON.stringify(dataToSave));
+        localStorage.setItem('bba_enrollment_step', currentStep.toString());
+      } catch (e) {
+        console.warn("Storage quota limit reached, saving minimal draft.");
+      }
     }
   }, [formData, currentStep, mounted, isSubmitted]);
 
@@ -799,8 +814,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <SelectContent>
                                 {relationships.map(r => (
                                   <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>                                ))}
-                              </SelectContent>
-                            </Select>
+                              </SelectContent>                             </Select>
                           </div>
                         </div>
                       )}
@@ -975,8 +989,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastName) && "text-red-500")}>
                                   <User className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأخير *' : 'Last Name *'}
-                                </Label>
-                                <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastName) && "border-red-500 ring-red-50")} />
+                                </Label>                                 <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastName) && "border-red-500 ring-red-50")} />
                               </div>
 
                               <div className="space-y-2">
@@ -1215,8 +1228,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <div className="flex items-center gap-4 relative z-10">
                                  <GraduationCap className="h-6 w-6 md:h-12 md:w-12 text-secondary" />
                                  <div className="min-w-0">
-                                    <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>
-                                 </div>
+                                    <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>                                  </div>
                               </div>
                            </CardHeader>
                            <CardContent className="p-4 md:p-12 space-y-10">
@@ -1278,8 +1290,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                          <RadioGroupItem value={slot} id={`slot-${slot}`} className="sr-only" />
                                          <span className="drop-shadow-sm">{slot}</span>
                                       </Label>                                   ))}
-                                </RadioGroup>
-                             </div>
+                                </RadioGroup>                             </div>
 
                              <div className="space-y-8">
                                 <h4 className="font-black text-primary uppercase text-xs md:text-base border-b-2 border-accent/20 pb-3 flex items-center gap-3 tracking-widest">
