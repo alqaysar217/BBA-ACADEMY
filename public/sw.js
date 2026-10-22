@@ -1,14 +1,18 @@
-// Minimal Service Worker to satisfy PWA install criteria
+/**
+ * Minimal Service Worker for PWA Support
+ * Handles basic installation and activation to meet PWA criteria.
+ */
+
 self.addEventListener('install', (event) => {
+  console.log('SW installed');
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  console.log('SW activated');
   event.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
-  // We can add caching logic here later if needed
-  // For now, it just lets requests pass through to satisfy installability
-  return;
+  // Required for PWA installability in Chrome
 });
