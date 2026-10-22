@@ -135,7 +135,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       howBbaHelps: isAr 
         ? 'تتلقى عائلات BBA توجيهاً شخصياً طوال سنوات المرحلة الثانوية للبقاء على المسار الصحيح وإعداد السجلات وفهم مسارات التخرج.'
         : 'BBA families receive personalized guidance throughout high school to stay on track, prepare records, and understand graduation pathways.',
-      image: 'https://picsum.photos/seed/gradny/800/600'
     },
     mistakes: {
       title: isAr ? 'أخطاء شائعة يجب تجنبها' : 'Common Mistakes to Avoid',
@@ -189,20 +188,8 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section - Simplified with no background image */}
       <section className="relative bg-primary text-white py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image 
-            src="https://picsum.photos/seed/nyhero/1920/1080" 
-            alt="New York Education" 
-            fill 
-            className="object-cover opacity-20 grayscale"
-            priority
-            unoptimized
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/80 to-transparent" />
-        </div>
-        
         <div className="container-tight relative z-10 text-center space-y-8 px-4">
           <div className="space-y-4">
              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] shadow-xl animate-in fade-in slide-in-from-top-4 duration-700">
@@ -253,22 +240,13 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                   ))}
                 </nav>
               </div>
-              
-              <div className="bg-primary text-white p-6 rounded-2xl shadow-xl relative overflow-hidden group">
-                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                    <ShieldCheck className="h-16 w-16" />
-                 </div>
-                 <p className="text-xs font-bold leading-relaxed relative z-10 italic">
-                    {isAr ? 'الأهالي مسؤولون عن الامتثال للوائح الولاية، ونحن هنا لتوفير كل الدعم اللازم.' : 'Parents are responsible for state compliance, and we are here to provide all necessary support.'}
-                 </p>
-              </div>
             </div>
           </aside>
 
           {/* Main Content Area */}
           <div className="flex-1 space-y-32">
             
-            {/* Section 1: Intro */}
+            {/* Section 1: Intro - USING ONLY newyork.png HERE */}
             <section id="homeschool-intro" className="space-y-10 scroll-mt-32 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                <div className="space-y-6">
                   <h2 className="text-3xl sm:text-4xl font-black text-primary uppercase border-l-8 border-secondary pl-6">
@@ -283,14 +261,14 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                           {t.introSection.footer}
                         </div>
                      </div>
-                     <div className="relative aspect-video md:aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
-                        <Image src="https://picsum.photos/seed/nyhomeschool/800/800" alt="NY Homeschooling" fill className="object-cover" unoptimized />
+                     <div className="relative aspect-video md:aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100">
+                        <Image src="/newyork.png" alt="New York Homeschooling" fill className="object-cover" unoptimized />
                      </div>
                   </div>
                </div>
             </section>
 
-            {/* Section 2: The 4 Steps */}
+            {/* Section 2: The 4 Steps - CLEANED UP (NO SIDE IMAGES) */}
             <section id="process-steps" className="space-y-12 scroll-mt-32">
                <div className="text-center space-y-4">
                   <h2 className="text-2xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.process.title}</h2>
@@ -298,9 +276,9 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                   <p className="text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">{t.process.desc}</p>
                </div>
 
-               <div className="grid grid-cols-1 gap-12">
+               <div className="grid grid-cols-1 gap-8">
                   {t.process.steps.map((step) => (
-                    <div key={step.id} id={step.id} className="group relative flex flex-col md:flex-row items-stretch bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                    <div key={step.id} id={step.id} className="group relative flex flex-col md:flex-row items-stretch bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
                        <div className="md:w-20 bg-primary text-white flex items-center justify-center font-black text-4xl p-6 md:p-0 shrink-0">
                           {step.num}
                        </div>
@@ -324,20 +302,13 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                              </p>
                           </div>
                        </div>
-                       <div className="hidden xl:block relative w-1/4 overflow-hidden border-l border-slate-100">
-                          <Image src={`https://picsum.photos/seed/nystep${step.num}/600/800`} alt={step.title} fill className="object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-1000" unoptimized />
-                       </div>
                     </div>
                   ))}
                </div>
             </section>
 
-            {/* Section 3: College Pathways */}
+            {/* Section 3: College Pathways - CLEANED UP (NO BG IMAGES) */}
             <section id="college-pathways" className="scroll-mt-32 bg-slate-900 text-white rounded-2xl overflow-hidden relative group">
-               <div className="absolute inset-0 opacity-10">
-                  <Image src="https://picsum.photos/seed/nygrad/1200/800" alt="NY Graduation" fill className="object-cover grayscale" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-transparent" />
-               </div>
                <div className="p-8 sm:p-16 lg:p-24 space-y-12 relative z-10">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                      <div className="space-y-8">
@@ -356,7 +327,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                         </div>
                      </div>
                      <div className="bg-white p-8 sm:p-12 rounded-2xl space-y-6 shadow-2xl border-b-8 border-secondary relative overflow-hidden group/card">
-                        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover/card:scale-110 transition-transform"><GraduationCap className="h-48 w-48 text-primary" /></div>
                         <div className="flex items-center gap-4 border-b border-slate-100 pb-6 relative z-10">
                            <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg">
                               <Target className="h-6 w-6" />
@@ -374,7 +344,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                </div>
             </section>
 
-            {/* Section 4: Common Mistakes */}
+            {/* Section 4: Common Mistakes - NO CHANGES TO CONTENT, JUST DESIGN */}
             <section id="common-mistakes" className="space-y-12 scroll-mt-32">
                <div className="text-center space-y-4">
                   <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase flex items-center justify-center gap-4 tracking-tighter">
@@ -398,7 +368,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                   </div>
                   
                   <div className="lg:col-span-2 bg-amber-50 p-8 sm:p-12 rounded-2xl border-2 border-amber-200 flex flex-col justify-center gap-8 relative overflow-hidden group shadow-premium">
-                     <div className="absolute top-0 right-0 w-48 h-48 bg-amber-200/20 blur-3xl rounded-full group-hover:scale-150 transition-transform duration-1000" />
                      <div className="flex items-center gap-4 relative z-10">
                         <div className="h-14 w-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
                            <Lightbulb className="h-8 w-8" />
@@ -414,7 +383,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
             {/* Section 5: Support Areas */}
             <section id="bba-support" className="scroll-mt-32 bg-slate-50 p-8 sm:p-16 lg:p-24 rounded-2xl border border-slate-200 space-y-16 shadow-inner relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/5 blur-[120px] rounded-full" />
                <div className="space-y-6 text-center relative z-10">
                   <h2 className="text-3xl sm:text-5xl font-black text-primary uppercase tracking-tight">{t.support.title}</h2>
                   <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
@@ -439,11 +407,8 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                </p>
             </section>
 
-            {/* Final Contact CTA */}
+            {/* Final Contact CTA - NO BG IMAGE */}
             <section className="text-center space-y-12 bg-primary text-white p-10 sm:p-20 rounded-2xl shadow-2xl relative overflow-hidden group border-b-[12px] border-secondary">
-               <div className="absolute inset-0 opacity-10 z-0">
-                  <Image src="https://picsum.photos/seed/contactny/1200/800" alt="Contact Support" fill className="object-cover" unoptimized />
-               </div>
                <div className="space-y-6 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                   <h2 className="text-3xl sm:text-6xl font-black uppercase tracking-tighter drop-shadow-2xl italic">
                     {isAr ? 'هل لديك أسئلة؟' : 'Have Questions?'}
