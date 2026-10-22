@@ -199,41 +199,42 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
             </pattern>
             <rect width="100%" height="100%" fill="url(#ny-grid)" />
           </svg>
+          <div className="absolute top-0 right-0 w-[40%] h-full bg-secondary/10 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3" />
         </div>
 
         <div className="container-tight relative z-10 text-center space-y-6 px-4">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white uppercase tracking-tight drop-shadow-xl">
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-white uppercase tracking-tight drop-shadow-2xl">
               {t.hero.title}
             </h1>
-            <h2 className="text-sm sm:text-xl text-secondary font-black uppercase tracking-[0.2em]">
+            <div className="inline-block px-4 py-1.5 bg-secondary text-white rounded-full font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] shadow-lg">
               {t.hero.subtitle}
-            </h2>
+            </div>
           </div>
-          <p className="text-xs sm:text-lg text-white/70 font-bold max-w-2xl mx-auto leading-relaxed italic border-l-4 border-secondary pl-6 text-start">
+          <p className="text-sm sm:text-xl text-white/70 font-bold max-w-3xl mx-auto leading-relaxed italic border-x-2 border-secondary/20 px-8 py-2">
             {t.hero.desc}
           </p>
-          <div className="pt-6">
+          <div className="pt-8">
             <Button 
               size="lg" 
               onClick={() => scrollTo('intro')}
-              className="bg-secondary hover:bg-white hover:text-secondary text-white font-black h-14 px-8 rounded-2xl shadow-xl transition-all border-2 border-transparent hover:border-secondary"
+              className="bg-secondary hover:bg-white hover:text-secondary text-white font-black h-16 px-10 rounded-2xl shadow-xl transition-all border-4 border-transparent hover:border-secondary active:scale-95"
             >
               {t.hero.cta}
-              {isAr ? <ArrowLeft className="mr-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
+              {isAr ? <ArrowLeft className="mr-3 h-6 w-6" /> : <ArrowRight className="ml-3 h-6 w-6" />}
             </Button>
           </div>
         </div>
       </section>
 
-      {/* MOBILE NAV: Horizontal Scrollable Strip */}
-      <nav className="md:hidden sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100">
-        <div className="flex overflow-x-auto py-4 px-4 no-scrollbar gap-4">
+      {/* MOBILE NAVIGATION STRIP */}
+      <nav className="lg:hidden sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+        <div className="flex overflow-x-auto py-4 px-4 no-scrollbar gap-4 items-center">
           {Object.entries(t.nav).map(([key, label]) => (
             <button
               key={key}
               onClick={() => scrollTo(key === 'overview' ? 'intro' : key)}
-              className="whitespace-nowrap text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 active:bg-secondary active:text-white transition-all"
+              className="whitespace-nowrap text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-100 active:bg-secondary active:text-white active:border-secondary transition-all"
             >
               {label}
             </button>
@@ -244,71 +245,79 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       <div className="container-tight py-12 lg:py-24 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
-          {/* DESKTOP SIDEBAR: Sticky TOC */}
-          <aside className="hidden lg:block lg:col-span-3 sticky top-32 space-y-6">
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-              <h3 className="text-xs font-black uppercase text-primary tracking-widest border-b border-slate-200 pb-3">
-                {isAr ? 'محتويات المركز' : 'Resource Guide'}
-              </h3>
-              <nav className="flex flex-col gap-1">
+          {/* DESKTOP SIDEBAR */}
+          <aside className="hidden lg:block lg:col-span-3 sticky top-32 space-y-8">
+            <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-slate-50/50">
+              <CardHeader className="bg-primary text-white p-6">
+                <CardTitle className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
+                   <LayoutDashboard className="h-4 w-4 text-secondary" />
+                   {isAr ? 'محتويات المركز' : 'Center Navigation'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 flex flex-col gap-1">
                 {Object.entries(t.nav).map(([key, label]) => (
                   <button
                     key={key}
                     onClick={() => scrollTo(key === 'overview' ? 'intro' : key)}
-                    className="flex items-center gap-3 text-start px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:text-primary hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 transition-all group"
+                    className="flex items-center gap-4 text-start px-5 py-4 rounded-xl text-xs font-black text-slate-500 hover:text-primary hover:bg-white hover:shadow-md border border-transparent hover:border-slate-100 transition-all group"
                   >
                     <div className="h-1.5 w-1.5 rounded-full bg-secondary group-hover:scale-150 transition-transform" />
                     {label}
                   </button>
                 ))}
-              </nav>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="bg-primary p-6 rounded-2xl text-white space-y-4 shadow-xl">
-               <ShieldCheck className="h-8 w-8 text-secondary" />
-               <p className="text-xs font-bold leading-relaxed opacity-80">
-                 {isAr ? 'نحن هنا لضمان رحلة تعليمية آمنة ومنظمة لطفلك.' : 'Ensuring a secure and organized educational journey.'}
+            <div className="bg-primary text-white p-8 rounded-2xl space-y-6 shadow-2xl relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="h-24 w-24" />
+               </div>
+               <h4 className="text-sm font-black uppercase tracking-widest border-b border-white/10 pb-3 relative z-10">{isAr ? 'بيئة آمنة' : 'Secure Environment'}</h4>
+               <p className="text-xs font-bold leading-relaxed opacity-80 relative z-10">
+                 {isAr ? 'نحن هنا لضمان رحلة تعليمية آمنة ومنظمة لطفلك وفق معايير ولاية نيويورك.' : 'Ensuring a secure and organized educational journey according to NY state standards.'}
                </p>
             </div>
           </aside>
 
-          {/* MAIN CONTENT AREA */}
-          <div className="lg:col-span-9 space-y-24">
+          {/* MAIN CONTENT */}
+          <div className="lg:col-span-9 space-y-24 md:space-y-32">
             
-            {/* SECTION 2 — INTRO */}
+            {/* SECTION 2 — OVERVIEW */}
             <section id="intro" className="scroll-mt-32">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
                 <div className="space-y-8">
                   <div className="space-y-4">
-                    <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">
+                    <div className="h-1 w-12 bg-secondary rounded-full" />
+                    <h2 className="text-2xl md:text-4xl font-black text-primary uppercase tracking-tight leading-tight">
                       {t.intro.title}
                     </h2>
-                    <p className="text-lg font-black text-secondary italic">
+                    <p className="text-lg md:text-2xl font-black text-secondary italic">
                       {t.intro.supporting}
                     </p>
                   </div>
-                  <div className="space-y-6 text-slate-600 font-medium text-sm lg:text-base leading-relaxed">
+                  <div className="space-y-6 text-slate-600 font-medium text-sm md:text-lg leading-relaxed">
                     <p>{t.intro.content1}</p>
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative">
-                      <div className="absolute top-0 left-0 w-1.5 h-full bg-secondary rounded-l-2xl" />
-                      <p className="text-primary font-black text-base lg:text-lg">
+                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 relative shadow-inner">
+                      <div className="absolute top-0 left-0 bottom-0 w-2 h-full bg-secondary rounded-l-2xl" />
+                      <p className="text-primary font-black text-base md:text-xl leading-relaxed italic">
                         {t.intro.content2}
                       </p>
                     </div>
-                    <p className="font-black text-primary flex items-center gap-3">
-                       <Target className="h-5 w-5 text-secondary shrink-0" />
+                    <p className="font-black text-primary flex items-center gap-4 text-base md:text-xl">
+                       <Target className="h-6 w-6 md:h-8 md:w-8 text-secondary shrink-0" />
                        {t.intro.content3}
                     </p>
                   </div>
                 </div>
-                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white group">
+                <div className="relative aspect-square md:aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border-8 border-white group">
                    <Image 
                     src="/newyork.png" 
-                    alt="New York" 
+                    alt="New York City" 
                     fill 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105" 
+                    className="object-cover transition-transform duration-1000 group-hover:scale-110" 
                     unoptimized
                    />
+                   <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors duration-500" />
                 </div>
               </div>
             </section>
@@ -316,32 +325,35 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
             {/* SECTION 3 — PROCESS */}
             <section id="process" className="scroll-mt-32">
               <div className="space-y-12">
-                <div className="space-y-4">
-                  <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">
+                <div className="text-center md:text-start space-y-4">
+                  <h2 className="text-2xl md:text-4xl font-black text-primary uppercase tracking-tight">
                     {t.process.title}
                   </h2>
-                  <p className="text-slate-500 font-bold text-sm lg:text-lg italic max-w-2xl">
+                  <p className="text-slate-500 font-bold text-sm md:text-xl italic max-w-2xl">
                     {t.process.intro}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   {t.process.steps.map((step) => (
-                    <Card key={step.id} className="rounded-2xl border border-slate-100 shadow-sm bg-white overflow-hidden group hover:shadow-xl transition-all duration-500">
-                      <CardHeader className="bg-primary p-6 text-white flex flex-row items-center gap-4">
-                         <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center font-black shadow-lg">
+                    <Card key={step.id} className="rounded-2xl border border-slate-100 shadow-sm bg-white overflow-hidden group hover:shadow-2xl transition-all duration-700 hover:-translate-y-2">
+                      <CardHeader className="bg-primary p-6 text-white flex flex-row items-center gap-5">
+                         <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center font-black text-xl shadow-xl transition-transform group-hover:rotate-12">
                             {step.id}
                          </div>
-                         <CardTitle className="text-sm lg:text-base font-black uppercase tracking-tight leading-tight">{step.title}</CardTitle>
+                         <CardTitle className="text-sm md:text-lg font-black uppercase tracking-tight leading-tight">{step.title}</CardTitle>
                       </CardHeader>
                       <CardContent className="p-8 space-y-6">
-                         <p className="text-slate-600 font-bold text-xs lg:text-sm leading-relaxed">{step.desc}</p>
-                         <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 space-y-3">
-                            <div className="flex items-center gap-3 text-secondary font-black text-[10px] uppercase tracking-widest">
-                               <ShieldCheck className="h-4 w-4" />
+                         <div className="space-y-2">
+                            <p className="text-slate-600 font-bold text-sm md:text-base leading-relaxed">{step.desc}</p>
+                            <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">{step.extra}</span>
+                         </div>
+                         <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4 shadow-inner">
+                            <div className="flex items-center gap-3 text-primary font-black text-[10px] md:text-xs uppercase tracking-widest">
+                               <ShieldCheck className="h-4 w-4 text-secondary" />
                                {t.process.bbaSupport}
                             </div>
-                            <p className="text-slate-600 text-xs font-bold leading-relaxed">
+                            <p className="text-slate-600 text-xs md:text-sm font-bold leading-relaxed italic border-l-2 border-secondary/30 pl-4">
                                {step.bba}
                             </p>
                          </div>
@@ -354,85 +366,96 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
             {/* SECTION 4 — COLLEGE */}
             <section id="college" className="scroll-mt-32">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start">
+                <div className="space-y-10">
                    <div className="space-y-4">
-                      <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">
+                      <h2 className="text-2xl md:text-4xl font-black text-primary uppercase tracking-tight">
                         {t.college.title}
                       </h2>
-                      <p className="text-lg font-black text-secondary italic">
+                      <p className="text-lg md:text-2xl font-black text-secondary italic">
                         {t.college.supporting}
                       </p>
                    </div>
 
-                   <div className="p-8 bg-slate-900 text-white rounded-2xl shadow-xl space-y-4 relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                         <GraduationCap className="h-24 w-24" />
+                   <div className="p-8 md:p-12 bg-slate-900 text-white rounded-2xl shadow-2xl space-y-6 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-125 transition-transform duration-1000">
+                         <GraduationCap className="h-48 w-48" />
                       </div>
-                      <h3 className="text-sm font-bold italic relative z-10">{t.college.question}</h3>
-                      <p className="text-xl lg:text-3xl font-black text-secondary uppercase relative z-10">{t.college.answer}</p>
+                      <h3 className="text-sm md:text-lg font-bold italic relative z-10 opacity-70">{t.college.question}</h3>
+                      <p className="text-2xl md:text-4xl font-black text-secondary uppercase relative z-10 leading-tight drop-shadow-md">{t.college.answer}</p>
                    </div>
 
-                   <div className="space-y-4 text-slate-600 font-medium text-sm leading-relaxed">
+                   <div className="space-y-6 text-slate-600 font-medium text-sm md:text-lg leading-relaxed">
                       <p>{t.college.p1}</p>
-                      <p className="p-4 bg-slate-50 rounded-xl border border-slate-100 italic">{t.college.p2}</p>
+                      <p className="p-6 bg-slate-50 rounded-2xl border border-slate-100 italic font-bold border-l-4 border-secondary">{t.college.p2}</p>
                    </div>
                 </div>
 
-                <div className="bg-slate-50/50 p-8 rounded-2xl border border-slate-100 shadow-inner space-y-6">
-                   <h4 className="text-xs font-black text-primary uppercase tracking-widest border-b border-slate-200 pb-3">{t.college.checklistTitle}</h4>
-                   <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50/50 p-8 md:p-12 rounded-2xl border border-slate-100 shadow-inner space-y-10 relative">
+                   <div className="absolute top-4 right-4 text-slate-200 opacity-20">
+                      <ClipboardCheck className="h-24 w-24" />
+                   </div>
+                   <h4 className="text-[10px] md:text-xs font-black text-primary uppercase tracking-[0.4em] border-b border-slate-200 pb-4 relative z-10">{t.college.checklistTitle}</h4>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
                      {t.college.checklist.map((item, idx) => (
-                       <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-slate-50">
-                         <CheckCircle2 className="h-4 w-4 text-secondary shrink-0" />
-                         <span className="font-black text-primary text-[10px]">{lang === 'ar' ? item.ar : item.en}</span>
+                       <div key={idx} className="flex items-center gap-4 p-5 bg-white rounded-xl shadow-sm border border-slate-50 group hover:shadow-md transition-all">
+                         <div className="h-8 w-8 rounded-lg bg-green-50 text-green-500 flex items-center justify-center shrink-0 shadow-inner">
+                            <CheckCircle2 className="h-4 w-4" />
+                         </div>
+                         <span className="font-black text-primary text-[10px] md:text-xs uppercase tracking-widest">{lang === 'ar' ? item.ar : item.en}</span>
                        </div>
                      ))}
                    </div>
-                   <div className="bg-primary text-white p-6 rounded-xl space-y-4">
-                      <div className="flex items-center gap-3">
-                         <Star className="h-4 w-4 text-secondary" />
-                         <span className="text-[10px] font-black uppercase tracking-widest">{isAr ? 'دعم الأكاديمية' : 'BBA Guidance'}</span>
+                   <Card className="bg-primary text-white p-8 rounded-2xl shadow-xl space-y-6 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4 opacity-10">
+                         <Star className="h-16 w-16 fill-secondary" />
                       </div>
-                      <p className="text-xs font-bold leading-relaxed">{t.college.bba}</p>
-                   </div>
+                      <div className="flex items-center gap-4 relative z-10">
+                         <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center shadow-lg">
+                            <Zap className="h-5 w-5 text-white" />
+                         </div>
+                         <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">{isAr ? 'دعم الأكاديمية' : 'BBA Strategic Guidance'}</span>
+                      </div>
+                      <p className="text-xs md:text-base font-bold leading-relaxed opacity-90 relative z-10">{t.college.bba}</p>
+                   </Card>
                 </div>
               </div>
             </section>
 
             {/* SECTION 5 — MISTAKES */}
             <section id="mistakes" className="scroll-mt-32">
-              <div className="space-y-12">
-                <div className="space-y-2">
-                  <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">
+              <div className="space-y-16">
+                <div className="text-center space-y-4">
+                  <h2 className="text-2xl md:text-4xl font-black text-primary uppercase tracking-tight">
                      {t.mistakes.title}
                   </h2>
-                  <p className="text-lg font-black text-secondary italic">
+                  <p className="text-lg md:text-2xl font-black text-secondary italic">
                      {t.mistakes.supporting}
                   </p>
+                  <div className="h-1 w-16 bg-secondary mx-auto rounded-full" />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 px-2">
                    {t.mistakes.list.map((mistake, idx) => (
-                      <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-8 flex items-start gap-6 group hover:shadow-lg transition-all">
-                         <div className="h-10 w-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                            <FileWarning className="h-5 w-5" />
+                      <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-8 flex items-start gap-8 group hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 shadow-sm">
+                         <div className="h-14 w-14 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center shrink-0 shadow-inner group-hover:rotate-6 transition-transform">
+                            <FileWarning className="h-7 w-7" />
                          </div>
-                         <p className="text-slate-700 font-black text-xs lg:text-sm leading-relaxed">
+                         <p className="text-slate-700 font-black text-sm md:text-lg leading-relaxed pt-2">
                             {mistake}
                          </p>
                       </div>
                    ))}
                 </div>
 
-                <div className="bg-primary text-white p-8 lg:p-12 rounded-2xl shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 group">
-                   <div className="h-14 w-14 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg shrink-0">
-                      <Lightbulb className="h-7 w-7" />
+                <div className="bg-primary text-white p-10 md:p-16 rounded-2xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-12 group mx-2">
+                   <div className="h-20 w-20 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-xl shrink-0 group-hover:scale-110 transition-transform">
+                      <Lightbulb className="h-10 w-10" />
                    </div>
-                   <div className="space-y-2 relative z-10">
-                      <h4 className="text-lg font-black uppercase text-secondary">{t.mistakes.tipTitle}</h4>
-                      <p className="text-sm lg:text-lg font-bold italic opacity-90">
-                         {t.mistakes.tipContent}
+                   <div className="space-y-4 text-center md:text-start relative z-10">
+                      <h4 className="text-xl md:text-2xl font-black uppercase text-secondary tracking-widest">{t.mistakes.tipTitle}</h4>
+                      <p className="text-base md:text-2xl font-bold italic opacity-90 leading-tight">
+                         "{t.mistakes.tipContent}"
                       </p>
                    </div>
                 </div>
@@ -441,58 +464,79 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
             {/* SECTION 6 — SUPPORT */}
             <section id="support" className="scroll-mt-32">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                 <div className="space-y-6">
-                    <h2 className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">
-                       {t.support.title}
-                    </h2>
-                    <div className="space-y-4 text-slate-600 font-medium text-sm leading-relaxed border-l-4 border-slate-100 pl-6 py-2">
-                       <p>{t.support.intro}</p>
-                       <p className="font-black text-primary italic text-base">{t.support.responsibility}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+                 <div className="space-y-10 text-center md:text-start">
+                    <div className="space-y-4">
+                       <div className="h-1 w-12 bg-secondary mx-auto md:mx-0 rounded-full" />
+                       <h2 className="text-2xl md:text-4xl font-black text-primary uppercase tracking-tight">
+                          {t.support.title}
+                       </h2>
+                    </div>
+                    <div className="space-y-6 text-slate-600 font-medium text-sm md:text-xl leading-relaxed border-l-8 border-slate-100 pl-8 py-4 bg-slate-50/50 rounded-r-2xl">
+                       <p className="opacity-80">{t.support.intro}</p>
+                       <p className="font-black text-primary italic leading-tight">{t.support.responsibility}</p>
                     </div>
                  </div>
 
-                 <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 space-y-6">
-                    <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-3">
-                       <CheckSquare className="h-4 w-4 text-secondary" />
+                 <div className="bg-slate-50 p-8 md:p-12 rounded-2xl border border-slate-100 space-y-10 shadow-premium">
+                    <h3 className="text-[10px] md:text-xs font-black text-primary uppercase tracking-[0.4em] flex items-center gap-4 justify-center md:justify-start">
+                       <CheckSquare className="h-5 w-5 text-secondary" />
                        {t.support.listIntro}
                     </h3>
-                    <div className="grid grid-cols-1 gap-2">
+                    <div className="grid grid-cols-1 gap-4">
                        {t.support.items.map((item, idx) => (
-                          <div key={idx} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-50 group">
-                             <div className="h-6 w-6 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center font-black text-[9px] group-hover:bg-secondary group-hover:text-white transition-colors">
+                          <div key={idx} className="flex items-center gap-5 p-5 bg-white rounded-2xl border border-slate-50 group shadow-sm hover:shadow-md transition-all">
+                             <div className="h-8 w-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center font-black text-[10px] group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
                                 {idx + 1}
                              </div>
-                             <span className="font-black text-primary text-xs">
+                             <span className="font-black text-primary text-xs md:text-sm uppercase tracking-tight">
                                 {item}
                              </span>
                           </div>
                        ))}
+                    </div>
+                    <div className="text-center pt-4">
+                       <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] bg-secondary/10 px-6 py-2 rounded-full ring-1 ring-secondary/20 shadow-sm">
+                          {t.support.closing}
+                       </span>
                     </div>
                  </div>
               </div>
             </section>
 
             {/* SECTION 7 — FOOTER CTA */}
-            <section id="contact" className="scroll-mt-32">
-              <Card className="rounded-2xl border border-slate-100 shadow-2xl bg-white p-8 lg:p-16 text-center space-y-10">
-                 <div className="space-y-4">
-                    <h2 className="text-2xl lg:text-4xl font-black text-primary uppercase tracking-tight">{t.footer.title}</h2>
-                    <p className="text-lg lg:text-xl font-black text-secondary italic">{t.footer.supporting}</p>
-                 </div>
-                 
-                 <div className="space-y-6 text-slate-600 font-bold text-sm lg:text-lg leading-relaxed">
-                    <p className="text-primary font-black text-lg">{t.footer.p1}</p>
-                    <p>{t.footer.p2}</p>
-                 </div>
+            <section id="contact" className="scroll-mt-32 pb-12">
+              <Card className="rounded-2xl border-none shadow-premium overflow-hidden bg-white group">
+                 <div className="p-10 md:p-24 text-center space-y-12 relative overflow-hidden">
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-1000">
+                       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                          <pattern id="cta-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+                             <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+                          </pattern>
+                          <rect width="100%" height="100%" fill="url(#cta-dots)" />
+                       </svg>
+                    </div>
 
-                 <div className="pt-6">
-                    <Button asChild size="lg" className="h-16 px-10 text-lg font-black bg-secondary hover:bg-primary text-white rounded-2xl shadow-xl transition-all border-4 border-transparent hover:border-secondary">
-                       <Link href={`/${lang}/contact`}>
-                          {t.footer.btn}
-                          {isAr ? <ArrowLeft className="mr-3 h-6 w-6" /> : <ArrowRight className="ml-3 h-6 w-6" />}
-                       </Link>
-                    </Button>
+                    <div className="space-y-6 relative z-10">
+                       <div className="h-1.5 w-16 bg-secondary mx-auto rounded-full mb-8" />
+                       <h2 className="text-3xl md:text-6xl font-black text-primary uppercase tracking-tight leading-none">{t.footer.title}</h2>
+                       <p className="text-xl md:text-3xl font-black text-secondary italic drop-shadow-sm">{t.footer.supporting}</p>
+                    </div>
+                    
+                    <div className="space-y-8 text-slate-600 font-bold text-sm md:text-xl leading-relaxed max-w-2xl mx-auto relative z-10 px-4">
+                       <p className="text-primary font-black text-lg md:text-2xl opacity-90">{t.footer.p1}</p>
+                       <p className="opacity-70">{t.footer.p2}</p>
+                    </div>
+
+                    <div className="pt-10 relative z-10">
+                       <Button asChild size="lg" className="h-16 md:h-20 px-12 md:px-20 text-lg md:text-2xl font-black bg-secondary hover:bg-primary text-white rounded-2xl shadow-premium transition-all border-8 border-white hover:scale-105 active:scale-95 group/btn">
+                          <Link href={`/${lang}/contact`} className="flex items-center gap-4">
+                             {t.footer.btn}
+                             {isAr ? <ArrowLeft className="mr-4 h-8 w-8 group-hover/btn:-translate-x-2 transition-transform" /> : <ArrowRight className="ml-4 h-8 w-8 group-hover/btn:translate-x-2 transition-transform" />}
+                          </Link>
+                       </Button>
+                    </div>
                  </div>
               </Card>
             </section>
