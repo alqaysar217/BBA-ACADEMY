@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -584,19 +585,31 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                       {openParent === 'p1' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.parent1Name) ? "text-red-500" : ""}>{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Name) && "text-red-500")}>
+                              <User className="h-3 w-3 text-secondary" />
+                              {isAr ? 'الاسم الكامل *' : 'Full Name *'}
+                            </Label>
                             <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent1Name) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.parent1Phone) ? "text-red-500" : ""}>{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Phone) && "text-red-500")}>
+                              <Phone className="h-3 w-3 text-secondary" />
+                              {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
+                            </Label>
                             <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent1Phone) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.parent1Email) ? "text-red-500" : ""}>{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Email) && "text-red-500")}>
+                              <Mail className="h-3 w-3 text-secondary" />
+                              {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
+                            </Label>
                             <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent1Email) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.relationship1) ? "text-red-500" : ""}>{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship1) && "text-red-500")}>
+                              <Users className="h-3 w-3 text-secondary" />
+                              {isAr ? 'صلة القرابة *' : 'Relationship *'}
+                            </Label>
                             <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)}>
                               <SelectTrigger className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.relationship1) && "border-red-500")}><SelectValue /></SelectTrigger>
                               <SelectContent>{relationships.map(r => <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>)}</SelectContent>
@@ -619,19 +632,31 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                       {openParent === 'p2' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in" onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.parent2Name) ? "text-red-500" : ""}>{isAr ? 'الاسم الكامل *' : 'Full Name *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Name) && "text-red-500")}>
+                              <User className="h-3 w-3 text-secondary" />
+                              {isAr ? 'الاسم الكامل *' : 'Full Name *'}
+                            </Label>
                             <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent2Name) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.parent2Phone) ? "text-red-500" : ""}>{isAr ? 'رقم الهاتف *' : 'Phone Number *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Phone) && "text-red-500")}>
+                              <Phone className="h-3 w-3 text-secondary" />
+                              {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
+                            </Label>
                             <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent2Phone) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.parent2Email) ? "text-red-500" : ""}>{isAr ? 'البريد الإلكتروني *' : 'Email Address *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Email) && "text-red-500")}>
+                              <Mail className="h-3 w-3 text-secondary" />
+                              {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
+                            </Label>
                             <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.parent2Email) && "border-red-500")} />
                           </div>
                           <div className="space-y-2">
-                            <Label className={isFieldInvalid(formData.relationship2) ? "text-red-500" : ""}>{isAr ? 'صلة القرابة *' : 'Relationship *'}</Label>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship2) && "text-red-500")}>
+                              <Users className="h-3 w-3 text-secondary" />
+                              {isAr ? 'صلة القرابة *' : 'Relationship *'}
+                            </Label>
                             <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)}>
                               <SelectTrigger className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.relationship2) && "border-red-500")}><SelectValue /></SelectTrigger>
                               <SelectContent>{relationships.map(r => <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>)}</SelectContent>
@@ -649,23 +674,35 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2 space-y-2">
-                        <Label className={isFieldInvalid(formData.address.line1) ? "text-red-500" : ""}>{isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}</Label>
+                        <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.line1) && "text-red-500")}>
+                          <Type className="h-3 w-3 text-secondary" />
+                          {isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}
+                        </Label>
                         <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.line1) && "border-red-500")} />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:col-span-2">
                         <div className="space-y-2">
-                          <Label className={isFieldInvalid(formData.address.city) ? "text-red-500" : ""}>{isAr ? 'المدينة *' : 'City *'}</Label>
+                          <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.city) && "text-red-500")}>
+                            <Building className="h-3 w-3 text-secondary" />
+                            {isAr ? 'المدينة *' : 'City *'}
+                          </Label>
                           <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.city) && "border-red-500")} />
                         </div>
                         <div className="space-y-2">
-                          <Label className={isFieldInvalid(formData.address.state) ? "text-red-500" : ""}>{isAr ? 'الولاية *' : 'State *'}</Label>
+                          <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.state) && "text-red-500")}>
+                            <MapPin className="h-3 w-3 text-secondary" />
+                            {isAr ? 'الولاية *' : 'State *'}
+                          </Label>
                           <Select value={formData.address.state} onValueChange={(v) => updateAddress('state', v)}>
                             <SelectTrigger className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.state) && "border-red-500")}><SelectValue /></SelectTrigger>
                             <SelectContent>{usStates.map(s => <SelectItem key={s.en} value={s.en}>{lang === 'ar' ? s.ar : s.en}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label className={isFieldInvalid(formData.address.zip) ? "text-red-500" : ""}>{isAr ? 'الرمز البريدي *' : 'ZIP *'}</Label>
+                          <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.zip) && "text-red-500")}>
+                            <Hash className="h-3 w-3 text-secondary" />
+                            {isAr ? 'الرمز البريدي *' : 'ZIP *'}
+                          </Label>
                           <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', formatZipCode(e.target.value))} className={cn("h-12 rounded-xl font-bold", isFieldInvalid(formData.address.zip) && "border-red-500")} maxLength={5} />
                         </div>
                       </div>
@@ -701,43 +738,74 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                           <div className="p-8 space-y-6" onClick={(e) => e.stopPropagation()}>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                               <div className="space-y-2">
-                                <Label className={isFieldInvalid(student.firstName) ? "text-red-500" : ""}>{isAr ? 'الاسم الأول *' : 'First Name *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.firstName) && "text-red-500")}>
+                                  <User className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الاسم الأول *' : 'First Name *'}
+                                </Label>
                                 <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className={isFieldInvalid(student.firstName) ? "border-red-500" : ""} />
                               </div>
                               <div className="space-y-2">
-                                <Label className={isFieldInvalid(student.lastName) ? "text-red-500" : ""}>{isAr ? 'الاسم الأخير *' : 'Last Name *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2")}>
+                                  <Type className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الاسم الأوسط' : 'Middle Name'}
+                                </Label>
+                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastName) && "text-red-500")}>
+                                  <User className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الاسم الأخير *' : 'Last Name *'}
+                                </Label>
                                 <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={isFieldInvalid(student.lastName) ? "border-red-500" : ""} />
                               </div>
                               <div className="space-y-2">
-                                <Label className={isFieldInvalid(student.dob) ? "text-red-500" : ""}>{isAr ? 'تاريخ الميلاد *' : 'DOB *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.dob) && "text-red-500")}>
+                                  <CalendarIcon className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'تاريخ الميلاد *' : 'DOB *'}
+                                </Label>
                                 <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={isFieldInvalid(student.dob) ? "border-red-500" : ""} />
                               </div>
                               <div className="space-y-2">
-                                <Label className={isFieldInvalid(student.gender) ? "text-red-500" : ""}>{isAr ? 'الجنس *' : 'Gender *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.gender) && "text-red-500")}>
+                                  <UserCircle2 className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'الجنس *' : 'Gender *'}
+                                </Label>
                                 <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
                                   <SelectTrigger className={isFieldInvalid(student.gender) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
                                   <SelectContent><SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem><SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem></SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
-                                <Label className={isFieldInvalid(student.lastGrade) ? "text-red-500" : ""}>{isAr ? 'آخر مرحلة *' : 'Last Grade *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastGrade) && "text-red-500")}>
+                                  <GraduationCap className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'آخر مرحلة *' : 'Last Grade *'}
+                                </Label>
                                 <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
                                   <SelectTrigger className={isFieldInvalid(student.lastGrade) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>                                  <SelectContent>{gradeLevels.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
-                                <Label className={isFieldInvalid(student.status) ? "text-red-500" : ""}>{isAr ? 'حالة الطالب *' : 'Status *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.status) && "text-red-500")}>
+                                  <ShieldCheck className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'حالة الطالب *' : 'Status *'}
+                                </Label>
                                 <Select value={student.status} onValueChange={(v) => updateStudent(idx, 'status', v)}>
                                   <SelectTrigger className={isFieldInvalid(student.status) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
                                   <SelectContent><SelectItem value="New Student">{isAr ? 'طالب جديد' : 'New Student'}</SelectItem><SelectItem value="Returning Student">{isAr ? 'عائد' : 'Returning'}</SelectItem></SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
-                                <Label className={isFieldInvalid(student.phone) ? "text-red-500" : ""}>{isAr ? 'هاتف الطالب *' : 'Student Phone *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.phone) && "text-red-500")}>
+                                  <Phone className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'هاتف الطالب *' : 'Student Phone *'}
+                                </Label>
                                 <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', e.target.value)} className={isFieldInvalid(student.phone) ? "border-red-500" : ""} />
                               </div>
                               <div className="md:col-span-2 space-y-2">
-                                <Label className={isFieldInvalid(student.email) ? "text-red-500" : ""}>{isAr ? 'البريد الإلكتروني *' : 'Student Email *'}</Label>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.email) && "text-red-500")}>
+                                  <Mail className="h-3 w-3 text-secondary" />
+                                  {isAr ? 'البريد الإلكتروني *' : 'Student Email *'}
+                                </Label>
                                 <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className={isFieldInvalid(student.email) ? "border-red-500" : ""} />
                               </div>
                             </div>
