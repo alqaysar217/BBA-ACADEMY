@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect } from 'react';
@@ -23,6 +22,7 @@ import {
   Clock 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
@@ -217,7 +217,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       <div className="container-tight py-12 lg:py-20 px-4">
         <div className="flex flex-col lg:flex-row gap-12 xl:gap-20">
           
-          {/* Narrow Sticky Navigation Sidebar - Improved for Laptop */}
+          {/* Narrow Sticky Navigation Sidebar */}
           <aside className="lg:w-64 shrink-0 hidden lg:block">
             <div className="sticky top-32 space-y-6">
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 shadow-sm ring-1 ring-slate-200/50">
@@ -249,7 +249,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
             </div>
           </aside>
 
-          {/* Main Content Area - Taking more space and balanced */}
+          {/* Main Content Area */}
           <div className="flex-1 space-y-24 lg:space-y-32">
             
             {/* Section 1: Intro */}
@@ -273,7 +273,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                   </div>
                </div>
 
-               {/* The 4 Steps Grid - More compact for Laptop */}
+               {/* The 4 Steps Grid */}
                <div className="pt-16 space-y-12">
                   <div className="text-center space-y-4">
                      <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-tight">{t.process.title}</h2>
@@ -384,7 +384,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
             </section>
 
             {/* Section 4: Support Areas */}
-            <section id="bba-support" className="scroll-mt-32 bg-slate-50 p-8 sm:p-12 lg:p-20 rounded-3xl border border-slate-200 space-y-12 shadow-inner relative">
+            <section id="bba-support" className="scroll-mt-32 bg-slate-50 p-8 sm:p-12 lg:p-20 rounded-3xl border border-slate-100 space-y-12 shadow-inner relative">
                <div className="space-y-4 text-center">
                   <h2 className="text-2xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.support.title}</h2>
                   <div className="h-1 w-16 bg-secondary mx-auto rounded-full" />
