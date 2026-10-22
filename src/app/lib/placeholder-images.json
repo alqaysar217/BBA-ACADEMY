@@ -6,6 +6,24 @@
       "description": "Academy students studying in a modern online learning environment",
       "imageUrl": "https://picsum.photos/seed/bbahero/1920/1080",
       "imageHint": "modern classroom"
+    },
+    {
+      "id": "ny-hero",
+      "description": "New York City skyline with educational theme",
+      "imageUrl": "https://picsum.photos/seed/nyedu/1200/800",
+      "imageHint": "new york skyline"
+    },
+    {
+      "id": "college-grad",
+      "description": "Student celebrating graduation",
+      "imageUrl": "https://picsum.photos/seed/grad/800/600",
+      "imageHint": "graduation student"
+    },
+    {
+      "id": "ny-office",
+      "description": "Educational records and paperwork organized in an office",
+      "imageUrl": "https://picsum.photos/seed/office/800/600",
+      "imageHint": "organized paperwork"
     }
   ]
 }
