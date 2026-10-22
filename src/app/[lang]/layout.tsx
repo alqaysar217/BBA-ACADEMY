@@ -39,7 +39,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     ? 'شريك تعليمي موثوق يساعد الطلاب والعائلات على تحقيق النجاح الأكاديمي من خلال التعلم المرن عبر الإنترنت والتوجيه الشخصي والالتزام بالتميز.'
     : 'A trusted educational partner helping students and families achieve academic success through flexible online learning and personalized guidance.';
 
-  const baseUrl = 'https://bba-academic.farsel.app';
+  // Base URL for metadata resolution
+  const baseUrl = 'https://bba-academy.vercel.app';
 
   return {
     metadataBase: new URL(baseUrl),
@@ -48,6 +49,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
       template: `%s | ${siteName}`,
     },
     description,
+    keywords: isAr 
+      ? ['أكاديمية بنين وبنات', 'تعليم عن بعد', 'قرآن كريم أونلاين', 'منهج أمريكي إسلامي', 'دراسة أونلاين أمريكا', 'BBA Academy'] 
+      : ['Baneen and Banaat Academy', 'Online Islamic School', 'Remote Learning USA', 'Quran Classes Online', 'BBA Academy', 'Arabic Language School'],
     manifest: '/manifest.json',
     icons: {
       icon: [
@@ -60,7 +64,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     openGraph: {
       title,
       description,
-      url: baseUrl,
+      url: `${baseUrl}/${lang}`,
       siteName,
       images: [
         {
@@ -78,6 +82,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
       title,
       description,
       images: ['/logo.png'],
+      creator: '@bba_academy',
     },
     appleWebApp: {
       capable: true,
@@ -86,6 +91,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     },
     formatDetection: {
       telephone: false,
+    },
+    alternates: {
+      canonical: `${baseUrl}/${lang}`,
+      languages: {
+        'en': `${baseUrl}/en`,
+        'ar': `${baseUrl}/ar`,
+      },
     },
   };
 }

@@ -1,4 +1,3 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -6,6 +5,18 @@ import { BookOpen, GraduationCap, Calendar, ArrowRight, ArrowLeft, CheckCircle2 
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
+  const { lang } = await params;
+  const isAr = lang === 'ar';
+  return {
+    title: isAr ? 'البرامج التعليمية' : 'Educational Programs',
+    description: isAr 
+      ? 'اكتشف برامجنا التعليمية المتميزة: برنامج الصفوف 3-5، برنامج الصفوف 6-12، وبرنامج عطلة نهاية الأسبوع.' 
+      : 'Explore our distinguished programs: Grades 3-5, Grades 6-12, and the Weekend Program.',
+  };
+}
 
 export default async function ProgramsPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;

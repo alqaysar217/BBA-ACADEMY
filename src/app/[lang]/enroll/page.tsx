@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, use, useMemo, useRef } from 'react';
@@ -1601,7 +1600,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </div>
                            </div>
                            <div className="flex flex-col justify-center bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-inner group">
-                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">{isAr ? 'المبلغ التقريبي المستحق' : 'Approximate Amount Due'}</div>
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">{isAr ? 'المبلغ المستحق للفصل' : 'Approximate Amount Due'}</div>
                               <div className="font-black text-secondary text-4xl md:text-6xl drop-shadow-sm group-hover:scale-110 transition-transform">
                                  {formData.programOption === 'weekend' ? `$${getWeekendTuition(formData.siblingCount).term}.00` : 
                                   formData.paymentTier === 'initial-3-5' || formData.paymentTier === 'initial-6-12' ? '$1,650.00' : '$2,850.00'}
