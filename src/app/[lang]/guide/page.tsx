@@ -149,7 +149,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                     { t: isAr ? 'أنجز 5-7% يومياً' : '5-7% Progress', d: 'Steady Growth', i: Zap },
                     { t: isAr ? 'أنهِ دورة كل شهر' : '1 Course Monthly', d: '10/10 Months', i: BookOpen },
                     { t: isAr ? 'التخرج أو الترقية' : 'Promotion/Grad', d: 'The Goal', i: GraduationCap },
-                  ].map((step, idx, arr) => (
+                  ].map((step, idx) => (
                     <div key={idx} className="flex flex-col items-center flex-1 gap-4">
                        <div className="h-16 w-16 rounded-2xl bg-slate-50 text-primary flex items-center justify-center shadow-inner group-hover:bg-primary group-hover:text-white transition-all">
                           <step.i className="h-8 w-8" />
@@ -206,9 +206,10 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                       <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-slate-50 text-primary flex items-center justify-center shrink-0 transition-all group-data-[state=open]:bg-primary group-data-[state=open]:text-white shadow-inner">
                         <faq.icon className="h-5 w-5 sm:h-7 sm:w-7" />
                       </div>
-                      <h3 className="text-sm sm:text-lg font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
+                      {/* Fixed: Use span instead of h3 to avoid nested heading violation in hydration */}
+                      <span className="text-sm sm:text-lg font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
                         {faq.q}
-                      </h3>
+                      </span>
                       <ChevronDown className="h-4 w-4 text-slate-300 transition-all group-data-[state=open]:rotate-180 group-data-[state=open]:text-secondary" />
                     </div>
                   </AccordionTrigger>

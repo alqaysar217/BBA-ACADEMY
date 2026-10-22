@@ -21,7 +21,8 @@ import {
   MapPin,
   MessageSquare,
   GraduationCap,
-  Library
+  Library,
+  FileSignature
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -31,13 +32,18 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 export function Header({ lang }: { lang: Locale }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const isAr = lang === 'ar';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const redirectedPathname = (locale: string) => {
     if (!pathname) return '/';
@@ -93,7 +99,7 @@ export function Header({ lang }: { lang: Locale }) {
   ];
 
   const isLinkActive = (href: string) => {
-    if (!pathname) return false;
+    if (!pathname || !mounted) return false;
     const fullHref = `/${lang}${href}`;
     if (href === '') return pathname === `/${lang}`;
     return pathname.startsWith(fullHref);
