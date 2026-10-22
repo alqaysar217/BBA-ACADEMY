@@ -15,7 +15,7 @@ import {
   BookOpen,
   GraduationCap,
   Info,
-  History,
+  History, 
   UserCheck,
   Map,
   MessageSquare,
@@ -43,7 +43,9 @@ export function Footer({ lang }: { lang: Locale }) {
       : `© ${currentYear} Baneen & Banaat Academy. All rights reserved.`,
     privacy: isAr ? 'سياسة الخصوصية' : 'Privacy Policy',
     terms: isAr ? 'شروط الخدمة' : 'Terms of Service',
-    locationSub: isAr ? '(نخدم جميع الولايات!)' : '(Serving Nationwide!)'
+    locationSub: isAr ? '(نخدم جميع الولايات!)' : '(Serving Nationwide!)',
+    days: isAr ? 'الإثنين - الجمعة' : 'Monday - Friday',
+    hours: isAr ? '9:00 صباحاً - 4:00 مساءً' : '9:00 AM - 4:00 PM (ET)'
   };
 
   const links = [
@@ -81,7 +83,7 @@ export function Footer({ lang }: { lang: Locale }) {
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tight leading-none">BBA</span>
-                <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-secondary">Academy</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary">Academy</span>
               </div>
             </Link>
             <p className="text-white/70 text-sm leading-relaxed font-medium italic max-w-sm">
@@ -154,18 +156,20 @@ export function Footer({ lang }: { lang: Locale }) {
               <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
                 {t.workingHours}
               </h4>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 justify-between">
-                <div className="flex items-center gap-4">
-                  <Clock className="h-5 w-5 text-secondary shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold">Monday - Friday</p>
-                    <p className="text-xs text-white/60 font-medium">9:00 AM - 4:00 PM (ET)</p>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10 shadow-inner">
+                    <Clock className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-[11px] font-black uppercase tracking-tight text-white/90">{t.days}</p>
+                    <p className="text-[10px] text-white/60 font-bold whitespace-nowrap">{t.hours}</p>
                   </div>
                 </div>
                 <Link 
                   href="https://wa.me/13136555778" 
                   target="_blank"
-                  className="flex items-center gap-2.5 px-5 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95 group shrink-0"
+                  className="flex items-center gap-2.5 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95 group shrink-0"
                 >
                   <MessageCircle className="h-4 w-4 transition-transform group-hover:rotate-12" />
                   {t.whatsapp}
