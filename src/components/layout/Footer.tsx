@@ -11,7 +11,6 @@ import {
   Instagram, 
   Youtube, 
   Facebook, 
-  Lock,
   Home,
   BookOpen,
   GraduationCap,
@@ -67,6 +66,7 @@ export function Footer({ lang }: { lang: Locale }) {
       <div className="container-tight relative z-10 px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16">
           
+          {/* Logo & Description */}
           <div className="lg:col-span-4 space-y-8">
             <Link href={`/${lang}`} className="flex items-center gap-3 group">
               <div className="bg-white p-2 rounded-xl transition-transform group-hover:scale-105 shrink-0">
@@ -95,11 +95,12 @@ export function Footer({ lang }: { lang: Locale }) {
             </div>
           </div>
 
+          {/* Quick Links */}
           <div className="lg:col-span-4">
             <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 mb-8 inline-block">
               {t.quickLinks}
             </h4>
-            <nav className="grid grid-cols-2 gap-x-6 gap-y-3">
+            <nav className="grid grid-cols-2 gap-x-4 gap-y-3">
               {links.map((link, idx) => {
                 const Icon = link.icon;
                 return (
@@ -116,6 +117,7 @@ export function Footer({ lang }: { lang: Locale }) {
             </nav>
           </div>
 
+          {/* Contact & Hours */}
           <div className="lg:col-span-4 space-y-10">
             <div className="space-y-6">
               <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
@@ -147,32 +149,33 @@ export function Footer({ lang }: { lang: Locale }) {
               </div>
             </div>
 
-            <div className="space-y-4">
+            {/* Hours & WhatsApp Combined */}
+            <div className="space-y-6">
               <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
                 {t.workingHours}
               </h4>
-              <div className="flex items-center gap-4">
-                <Clock className="h-5 w-5 text-secondary shrink-0" />
-                <div className="space-y-1">
-                  <p className="text-xs font-bold">Monday - Friday</p>
-                  <p className="text-xs text-white/60 font-medium">9:00 AM - 4:00 PM (ET)</p>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 justify-between">
+                <div className="flex items-center gap-4">
+                  <Clock className="h-5 w-5 text-secondary shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold">Monday - Friday</p>
+                    <p className="text-xs text-white/60 font-medium">9:00 AM - 4:00 PM (ET)</p>
+                  </div>
                 </div>
+                <Link 
+                  href="https://wa.me/13136555778" 
+                  target="_blank"
+                  className="flex items-center gap-2.5 px-5 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95 group shrink-0"
+                >
+                  <MessageCircle className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                  {t.whatsapp}
+                </Link>
               </div>
-            </div>
-
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Link 
-                href="https://wa.me/13136555778" 
-                target="_blank"
-                className="flex items-center gap-4 px-10 py-5 bg-green-500 hover:bg-green-600 text-white rounded-2xl text-sm sm:text-lg font-black uppercase tracking-widest transition-all shadow-xl shadow-green-500/30 active:scale-95 w-full sm:w-auto justify-center group"
-              >
-                <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8 transition-transform group-hover:rotate-12" />
-                {t.whatsapp}
-              </Link>
             </div>
           </div>
         </div>
 
+        {/* Copyright & Hidden Admin */}
         <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center md:text-start">
             {t.copyright}
@@ -182,7 +185,7 @@ export function Footer({ lang }: { lang: Locale }) {
             <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-secondary transition-colors">{t.terms}</Link>
             <Link 
               href={`/${lang}/admin`}
-              className="text-[10px] font-black uppercase tracking-widest text-white/10 hover:text-secondary transition-colors flex items-center gap-2"
+              className="text-[10px] font-black uppercase tracking-widest text-white/10 hover:text-secondary transition-colors"
             >
               {t.adminPanel}
             </Link>
