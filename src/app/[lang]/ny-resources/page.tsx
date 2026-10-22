@@ -15,21 +15,14 @@ import {
   MapPin, 
   GraduationCap, 
   XCircle, 
-  HelpCircle, 
   BookOpen, 
-  Calendar, 
   Search, 
   ChevronRight, 
   ChevronLeft, 
   ChevronDown,
-  MousePointer2, 
-  Clock, 
-  History, 
-  FileSignature 
+  Clock 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
@@ -74,8 +67,8 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
     process: {
       title: isAr ? 'عملية التعليم المنزلي في نيويورك' : 'The Homeschool Process in New York',
       desc: isAr 
-        ? 'يتبع التعليم المنزلي في نيويورك عملية منظمة مصممة لمساعدة العائلات على توفير تجربة تعليمية منظمة مع تلبية متطلبات الولاية.'
-        : 'Homeschooling in New York follows a structured process designed to help families provide an organized educational experience while meeting state requirements.',
+        ? 'يتبع التعليم المنزلي في نيويورك عملية منظمة مصممة لمساعدة العائلات على تلبية متطلبات الولاية.'
+        : 'Homeschooling in New York follows a structured process designed to help families meet state requirements.',
       howBbaHelps: isAr ? 'كيف تساعد BBA' : 'How BBA Helps',
       steps: [
         {
@@ -169,8 +162,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
   };
 
   const menuItems = [
-    { id: 'homeschool-intro', label: t.navigation.title, icon: BookOpen },
-    { id: 'process-steps', label: t.navigation.steps, icon: Clock },
+    { id: 'homeschool-intro', label: t.navigation.steps, icon: BookOpen },
     { id: 'college-pathways', label: t.navigation.college, icon: GraduationCap },
     { id: 'common-mistakes', label: t.navigation.mistakes, icon: AlertTriangle },
     { id: 'bba-support', label: t.navigation.support, icon: ShieldCheck },
@@ -179,8 +171,14 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
+      const offset = 100;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
       window.scrollTo({
-        top: element.offsetTop - 100,
+        top: offsetPosition,
         behavior: 'smooth'
       });
     }
@@ -188,8 +186,8 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Section - Simplified with no background image */}
-      <section className="relative bg-primary text-white py-20 lg:py-32 overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative bg-primary text-white py-16 lg:py-24 overflow-hidden">
         <div className="container-tight relative z-10 text-center space-y-8 px-4">
           <div className="space-y-4">
              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] shadow-xl animate-in fade-in slide-in-from-top-4 duration-700">
@@ -216,127 +214,131 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
       </section>
 
       {/* Main Content Layout */}
-      <div className="container-tight py-16 lg:py-24 px-4">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+      <div className="container-tight py-12 lg:py-20 px-4">
+        <div className="flex flex-col lg:flex-row gap-12 xl:gap-20">
           
-          {/* Sticky Navigation Sidebar */}
-          <aside className="lg:w-1/4 hidden lg:block">
+          {/* Narrow Sticky Navigation Sidebar - Improved for Laptop */}
+          <aside className="lg:w-64 shrink-0 hidden lg:block">
             <div className="sticky top-32 space-y-6">
-              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 shadow-sm">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                  <Search className="h-4 w-4" />
+              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 shadow-sm ring-1 ring-slate-200/50">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <Search className="h-3 w-3" />
                   {t.navigation.title}
                 </h3>
-                <nav className="space-y-2">
+                <nav className="space-y-1.5">
                   {menuItems.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => scrollToSection(item.id)}
-                      className="w-full text-start flex items-center gap-3 p-3 rounded-xl hover:bg-white hover:shadow-md hover:text-secondary font-black text-xs text-primary/60 transition-all group"
+                      className="w-full text-start flex items-center gap-3 p-3 rounded-xl hover:bg-white hover:shadow-md hover:text-secondary font-black text-[11px] text-primary/70 transition-all group"
                     >
-                      <item.icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                      {item.label}
+                      <item.icon className="h-4 w-4 opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+                      <span className="truncate">{item.label}</span>
                     </button>
                   ))}
                 </nav>
               </div>
+              
+              <div className="p-6 bg-primary rounded-2xl text-white space-y-4 shadow-lg shadow-primary/10">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-secondary">Need Help?</p>
+                 <p className="text-xs font-bold leading-relaxed opacity-80">Our team is ready to guide your family through the NY process.</p>
+                 <Button asChild variant="secondary" className="w-full h-10 rounded-lg font-black text-[10px] uppercase">
+                    <Link href={`/${lang}/contact`}>Contact Us</Link>
+                 </Button>
+              </div>
             </div>
           </aside>
 
-          {/* Main Content Area */}
-          <div className="flex-1 space-y-32">
+          {/* Main Content Area - Taking more space and balanced */}
+          <div className="flex-1 space-y-24 lg:space-y-32">
             
-            {/* Section 1: Intro - USING ONLY newyork.png HERE */}
-            <section id="homeschool-intro" className="space-y-10 scroll-mt-32 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-               <div className="space-y-6">
+            {/* Section 1: Intro */}
+            <section id="homeschool-intro" className="space-y-10 scroll-mt-32">
+               <div className="space-y-8">
                   <h2 className="text-3xl sm:text-4xl font-black text-primary uppercase border-l-8 border-secondary pl-6">
                     {t.introSection.title}
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-                     <div className="space-y-6 text-slate-600 font-medium text-sm sm:text-lg leading-relaxed">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center">
+                     <div className="space-y-6 text-slate-600 font-medium text-sm sm:text-lg leading-relaxed order-2 md:order-1">
                         <p className="text-primary font-black italic">{t.introSection.subtitle}</p>
                         <p>{t.introSection.content1}</p>
                         <p>{t.introSection.content2}</p>
-                        <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 font-bold text-slate-500 italic">
+                        <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 font-bold text-slate-500 italic text-sm">
                           {t.introSection.footer}
                         </div>
                      </div>
-                     <div className="relative aspect-video md:aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100">
+                     <div className="relative aspect-video md:aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100 order-1 md:order-2">
                         <Image src="/newyork.png" alt="New York Homeschooling" fill className="object-cover" unoptimized />
                      </div>
                   </div>
                </div>
-            </section>
 
-            {/* Section 2: The 4 Steps - CLEANED UP (NO SIDE IMAGES) */}
-            <section id="process-steps" className="space-y-12 scroll-mt-32">
-               <div className="text-center space-y-4">
-                  <h2 className="text-2xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.process.title}</h2>
-                  <div className="h-1.5 w-20 bg-secondary mx-auto rounded-full" />
-                  <p className="text-slate-500 font-bold max-w-2xl mx-auto leading-relaxed">{t.process.desc}</p>
-               </div>
+               {/* The 4 Steps Grid - More compact for Laptop */}
+               <div className="pt-16 space-y-12">
+                  <div className="text-center space-y-4">
+                     <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-tight">{t.process.title}</h2>
+                     <div className="h-1 w-16 bg-secondary mx-auto rounded-full" />
+                  </div>
 
-               <div className="grid grid-cols-1 gap-8">
-                  {t.process.steps.map((step) => (
-                    <div key={step.id} id={step.id} className="group relative flex flex-col md:flex-row items-stretch bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
-                       <div className="md:w-20 bg-primary text-white flex items-center justify-center font-black text-4xl p-6 md:p-0 shrink-0">
-                          {step.num}
-                       </div>
-                       <div className="flex-1 p-8 sm:p-12 space-y-8">
-                          <div className="space-y-4">
-                             <h3 className="text-xl sm:text-3xl font-black text-primary uppercase leading-tight group-hover:text-secondary transition-colors">{step.title}</h3>
-                             <p className="text-slate-600 font-medium text-sm sm:text-base leading-relaxed border-l-2 border-slate-100 pl-6 py-2">
-                                {step.content}
-                             </p>
+                  <div className="grid grid-cols-1 gap-6">
+                     {t.process.steps.map((step) => (
+                       <div key={step.id} className="group flex flex-col md:flex-row items-stretch bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
+                          <div className="md:w-16 bg-primary text-white flex items-center justify-center font-black text-2xl p-4 md:p-0 shrink-0">
+                             {step.num}
                           </div>
-                          
-                          <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200 space-y-4 relative group/bba">
-                             <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-lg bg-secondary text-white flex items-center justify-center shadow-lg group-hover/bba:scale-110 transition-transform">
-                                   <ShieldCheck className="h-4 w-4" />
-                                </div>
-                                <span className="font-black text-secondary uppercase tracking-widest text-xs">{t.process.howBbaHelps}</span>
+                          <div className="flex-1 p-6 sm:p-10 space-y-6">
+                             <div className="space-y-3">
+                                <h3 className="text-lg sm:text-2xl font-black text-primary uppercase leading-tight group-hover:text-secondary transition-colors">{step.title}</h3>
+                                <p className="text-slate-600 font-medium text-sm sm:text-base leading-relaxed opacity-90">
+                                   {step.content}
+                                </p>
                              </div>
-                             <p className="text-slate-700 font-bold text-xs sm:text-base italic leading-relaxed">
-                                {step.bba}
-                             </p>
+                             <div className="bg-slate-50/80 p-5 rounded-xl border-l-4 border-secondary space-y-2">
+                                <div className="flex items-center gap-2">
+                                   <ShieldCheck className="h-4 w-4 text-secondary" />
+                                   <span className="font-black text-secondary uppercase tracking-widest text-[10px]">{t.process.howBbaHelps}</span>
+                                </div>
+                                <p className="text-slate-700 font-bold text-xs sm:text-sm italic leading-relaxed">
+                                   {step.bba}
+                                </p>
+                             </div>
                           </div>
                        </div>
-                    </div>
-                  ))}
+                     ))}
+                  </div>
                </div>
             </section>
 
-            {/* Section 3: College Pathways - CLEANED UP (NO BG IMAGES) */}
-            <section id="college-pathways" className="scroll-mt-32 bg-slate-900 text-white rounded-2xl overflow-hidden relative group">
-               <div className="p-8 sm:p-16 lg:p-24 space-y-12 relative z-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Section 2: College Pathways */}
+            <section id="college-pathways" className="scroll-mt-32 bg-slate-900 text-white rounded-3xl overflow-hidden relative">
+               <div className="p-8 sm:p-12 lg:p-20 space-y-12">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                      <div className="space-y-8">
                         <div className="space-y-4">
-                           <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight">{t.college.title}</h2>
-                           <p className="text-secondary font-black italic text-lg sm:text-xl">{t.college.subtitle}</p>
-                           <div className="h-1.5 w-16 bg-secondary rounded-full" />
+                           <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight leading-tight">{t.college.title}</h2>
+                           <p className="text-secondary font-black italic text-lg">{t.college.subtitle}</p>
+                           <div className="h-1 w-12 bg-secondary rounded-full" />
                         </div>
                         
                         <div className="space-y-6">
-                           <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/10 space-y-4 shadow-2xl">
-                             <p className="text-lg sm:text-2xl font-black text-white leading-tight italic">"{t.college.q}"</p>
-                             <p className="text-2xl sm:text-5xl font-black text-secondary drop-shadow-lg">{t.college.a}</p>
+                           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 space-y-4">
+                             <p className="text-lg sm:text-xl font-black text-white leading-tight italic">"{t.college.q}"</p>
+                             <p className="text-2xl sm:text-4xl font-black text-secondary">{t.college.a}</p>
                            </div>
-                           <p className="text-white/70 font-medium text-sm sm:text-lg leading-relaxed">{t.college.desc}</p>
+                           <p className="text-white/70 font-medium text-sm sm:text-base leading-relaxed">{t.college.desc}</p>
                         </div>
                      </div>
-                     <div className="bg-white p-8 sm:p-12 rounded-2xl space-y-6 shadow-2xl border-b-8 border-secondary relative overflow-hidden group/card">
-                        <div className="flex items-center gap-4 border-b border-slate-100 pb-6 relative z-10">
-                           <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg">
-                              <Target className="h-6 w-6" />
+                     <div className="bg-white p-8 sm:p-10 rounded-2xl space-y-6 shadow-2xl border-b-8 border-secondary">
+                        <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+                           <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center">
+                              <Target className="h-5 w-5" />
                            </div>
-                           <span className="font-black text-primary uppercase tracking-widest text-sm">{t.process.howBbaHelps}</span>
+                           <span className="font-black text-primary uppercase tracking-widest text-xs">{t.process.howBbaHelps}</span>
                         </div>
-                        <p className="text-slate-600 font-bold text-sm sm:text-lg leading-relaxed relative z-10 italic">
+                        <p className="text-slate-600 font-bold text-sm sm:text-base leading-relaxed italic">
                            {t.college.howBbaHelps}
                         </p>
-                        <p className="text-secondary font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] relative z-10 text-center border-t border-slate-50 pt-6">
+                        <p className="text-secondary font-black text-[10px] uppercase tracking-[0.2em] text-center border-t border-slate-50 pt-4 opacity-60">
                            Planning ahead creates more opportunities.
                         </p>
                      </div>
@@ -344,88 +346,87 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                </div>
             </section>
 
-            {/* Section 4: Common Mistakes - NO CHANGES TO CONTENT, JUST DESIGN */}
+            {/* Section 3: Common Mistakes */}
             <section id="common-mistakes" className="space-y-12 scroll-mt-32">
                <div className="text-center space-y-4">
                   <h2 className="text-2xl sm:text-3xl font-black text-primary uppercase flex items-center justify-center gap-4 tracking-tighter">
-                     <XCircle className="h-8 w-8 text-red-500" />
+                     <XCircle className="h-6 w-6 text-red-500" />
                      {t.mistakes.title}
                   </h2>
-                  <p className="text-red-500 font-black italic">{t.mistakes.subtitle}</p>
-                  <div className="h-1 w-16 bg-red-100 mx-auto rounded-full" />
+                  <p className="text-red-500 font-black italic text-sm">{t.mistakes.subtitle}</p>
+                  <div className="h-1 w-12 bg-red-100 mx-auto rounded-full" />
                </div>
                
-               <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
-                  <div className="lg:col-span-3 space-y-4">
+               <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                  <div className="lg:col-span-3 space-y-3">
                      {t.mistakes.items.map((item, idx) => (
-                       <div key={idx} className="flex items-center gap-6 p-6 bg-red-50 rounded-2xl border border-red-100 transition-all hover:bg-white hover:shadow-xl hover:scale-[1.01] group">
-                          <div className="h-10 w-10 rounded-xl bg-red-500 text-white flex items-center justify-center font-black shadow-lg group-hover:rotate-12 transition-transform shrink-0">
+                       <div key={idx} className="flex items-center gap-4 p-5 bg-red-50/50 rounded-xl border border-red-100 transition-all hover:bg-white hover:shadow-lg group">
+                          <div className="h-8 w-8 rounded-lg bg-red-500 text-white flex items-center justify-center font-black text-sm shadow-md shrink-0">
                              {idx + 1}
                           </div>
-                          <span className="text-sm sm:text-lg font-bold text-slate-700 leading-snug">{item}</span>
+                          <span className="text-xs sm:text-base font-bold text-slate-700 leading-snug">{item}</span>
                        </div>
                      ))}
                   </div>
                   
-                  <div className="lg:col-span-2 bg-amber-50 p-8 sm:p-12 rounded-2xl border-2 border-amber-200 flex flex-col justify-center gap-8 relative overflow-hidden group shadow-premium">
-                     <div className="flex items-center gap-4 relative z-10">
-                        <div className="h-14 w-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-                           <Lightbulb className="h-8 w-8" />
+                  <div className="lg:col-span-2 bg-amber-50 p-8 rounded-2xl border-2 border-amber-200 flex flex-col justify-center gap-6 relative group shadow-sm">
+                     <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
+                           <Lightbulb className="h-6 w-6" />
                         </div>
-                        <h3 className="font-black text-amber-900 uppercase tracking-widest text-lg">{t.mistakes.tipTitle}</h3>
+                        <h3 className="font-black text-amber-900 uppercase tracking-widest text-base">{t.mistakes.tipTitle}</h3>
                      </div>
-                     <p className="text-sm sm:text-xl font-black text-amber-900 italic leading-relaxed relative z-10 border-l-4 border-amber-500/30 pl-6">
+                     <p className="text-sm sm:text-lg font-black text-amber-900 italic leading-relaxed border-l-4 border-amber-500/30 pl-4">
                         {t.mistakes.tipContent}
                      </p>
                   </div>
                </div>
             </section>
 
-            {/* Section 5: Support Areas */}
-            <section id="bba-support" className="scroll-mt-32 bg-slate-50 p-8 sm:p-16 lg:p-24 rounded-2xl border border-slate-200 space-y-16 shadow-inner relative overflow-hidden">
-               <div className="space-y-6 text-center relative z-10">
-                  <h2 className="text-3xl sm:text-5xl font-black text-primary uppercase tracking-tight">{t.support.title}</h2>
-                  <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full" />
-                  <p className="text-slate-500 font-bold text-sm sm:text-lg max-w-2xl mx-auto">
+            {/* Section 4: Support Areas */}
+            <section id="bba-support" className="scroll-mt-32 bg-slate-50 p-8 sm:p-12 lg:p-20 rounded-3xl border border-slate-200 space-y-12 shadow-inner relative">
+               <div className="space-y-4 text-center">
+                  <h2 className="text-2xl sm:text-4xl font-black text-primary uppercase tracking-tight">{t.support.title}</h2>
+                  <div className="h-1 w-16 bg-secondary mx-auto rounded-full" />
+                  <p className="text-slate-500 font-bold text-sm sm:text-base max-w-xl mx-auto">
                     {isAr ? 'نحن نؤمن بأن أولياء الأمور لا ينبغي أن يضطروا لاكتشاف كل شيء بمفردهم.' : 'We believe parents should never have to figure everything out on their own.'}
                   </p>
                </div>
                
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {t.support.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-5 p-5 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:border-secondary/20 group">
-                       <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary transition-all shadow-inner">
-                          <CheckCircle2 className="h-5 w-5 text-secondary group-hover:text-white" />
+                    <div key={idx} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-100 shadow-sm transition-all hover:shadow-md hover:border-secondary/20 group">
+                       <div className="h-8 w-8 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary transition-all">
+                          <CheckCircle2 className="h-4 w-4 text-secondary group-hover:text-white" />
                        </div>
-                       <span className="text-sm sm:text-base font-black text-primary/80 group-hover:text-primary transition-colors">{item}</span>
+                       <span className="text-xs sm:text-sm font-black text-primary/80 group-hover:text-primary transition-colors">{item}</span>
                     </div>
                   ))}
                </div>
 
-               <p className="text-center text-slate-400 font-bold text-[10px] sm:text-sm border-t border-slate-200 pt-12 leading-relaxed italic relative z-10">
+               <p className="text-center text-slate-400 font-bold text-[10px] sm:text-xs border-t border-slate-200 pt-8 leading-relaxed italic">
                  {isAr ? '* تذكر: يظل أولياء الأمور مسؤولين عن الامتثال للوائح التعليم المنزلي في ولاية نيويورك.' : '* Remember: Parents remain responsible for complying with New York State homeschool regulations.'}
                </p>
             </section>
 
-            {/* Final Contact CTA - NO BG IMAGE */}
-            <section className="text-center space-y-12 bg-primary text-white p-10 sm:p-20 rounded-2xl shadow-2xl relative overflow-hidden group border-b-[12px] border-secondary">
-               <div className="space-y-6 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                  <h2 className="text-3xl sm:text-6xl font-black uppercase tracking-tighter drop-shadow-2xl italic">
+            {/* Final Contact CTA */}
+            <section className="text-center space-y-10 bg-primary text-white p-10 sm:p-16 rounded-3xl shadow-2xl relative overflow-hidden group border-b-[10px] border-secondary">
+               <div className="space-y-4 relative z-10">
+                  <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tighter italic">
                     {isAr ? 'هل لديك أسئلة؟' : 'Have Questions?'}
                   </h2>
-                  <div className="h-1.5 w-32 bg-secondary mx-auto rounded-full shadow-lg" />
-                  <p className="text-lg sm:text-2xl font-bold text-white/90 max-w-3xl mx-auto leading-relaxed px-4">
+                  <p className="text-base sm:text-xl font-bold text-white/90 max-w-2xl mx-auto leading-relaxed opacity-80">
                     {isAr 
                       ? 'رحلة كل عائلة فريدة من نوعها. نحن هنا لنكون شريكك الموثوق في كل خطوة.' 
                       : 'Every family\'s journey is unique. We are here to be your trusted partner every step of the way.'}
                   </p>
                </div>
                
-               <div className="pt-8 relative z-10">
-                  <Button asChild size="lg" className="h-20 px-16 bg-secondary hover:bg-white hover:text-secondary text-white font-black text-lg sm:text-2xl rounded-2xl shadow-[0_20px_50px_rgba(200,84,46,0.3)] transition-all active:scale-95 group/btn border-4 border-transparent hover:border-secondary">
-                    <Link href={`/${lang}/contact`} className="flex items-center gap-4">
+               <div className="pt-4 relative z-10">
+                  <Button asChild size="lg" className="h-16 px-12 bg-secondary hover:bg-white hover:text-secondary text-white font-black text-lg rounded-xl shadow-2xl transition-all active:scale-95 group/btn">
+                    <Link href={`/${lang}/contact`} className="flex items-center gap-3">
                       {isAr ? 'تواصل مع BBA الآن' : 'Contact BBA Now'}
-                      {isAr ? <ChevronLeft className="h-8 w-8 group-hover/btn:-translate-x-2 transition-transform" /> : <ChevronRight className="h-8 w-8 group-hover/btn:translate-x-2 transition-transform" />}
+                      {isAr ? <ChevronLeft className="h-6 w-6 group-hover/btn:-translate-x-1 transition-transform" /> : <ChevronRight className="h-6 w-6 group-hover/btn:translate-x-1 transition-transform" />}
                     </Link>
                   </Button>
                </div>
