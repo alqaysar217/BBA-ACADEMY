@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Check, MessageCircle, Home, Copy, Share2 } from 'lucide-react';
+import { Check, MessageCircle, Home, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
