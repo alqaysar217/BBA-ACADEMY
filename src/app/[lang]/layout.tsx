@@ -49,8 +49,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     description,
     manifest: '/manifest.json',
     icons: {
-      icon: '/favicon.ico',
-      shortcut: '/icon-192.png',
+      icon: [
+        { url: '/favicon.ico' },
+        { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
+      ],
+      shortcut: '/web-app-manifest-192x192.png',
       apple: '/apple-touch-icon.png',
     },
     openGraph: {
@@ -60,9 +63,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
       siteName,
       images: [
         {
-          url: '/og-image.jpg',
-          width: 1200,
-          height: 630,
+          url: '/logo.png',
+          width: 800,
+          height: 600,
           alt: siteName,
         },
       ],
@@ -73,7 +76,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
       card: 'summary_large_image',
       title,
       description,
-      images: ['/og-image.jpg'],
+      images: ['/logo.png'],
     },
     appleWebApp: {
       capable: true,
@@ -100,6 +103,7 @@ export default async function RootLayout({
     <html lang={lang} dir={isRtl ? 'rtl' : 'ltr'} className={cn(inter.variable, notoArabic.variable)}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className={cn("min-h-screen font-sans antialiased", isRtl && "font-arabic")}>

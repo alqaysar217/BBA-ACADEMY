@@ -11,6 +11,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     description: isAr 
       ? 'تعرف على قصة ورؤية أكاديمية بنين وبنات وشريكك التعليمي في الولايات المتحدة.' 
       : 'Learn about the story and vision of Baneen and Banaat Academy, your educational partner in the US.',
+    openGraph: {
+      title: isAr ? 'حول الأكاديمية | بنين وبنات' : 'About BBA Academy',
+      description: isAr ? 'رؤيتنا ورسالتنا التعليمية للعائلات.' : 'Our educational vision and mission for families.',
+      images: ['/logo.png'],
+    }
   };
 }
 
@@ -111,7 +116,6 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
         </div>
       </section>
 
-      {/* Other sections unchanged... */}
       <section className="py-20 bg-slate-50/50">
         <div className="container-tight">
           <div className="mb-12">
@@ -130,7 +134,6 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
           </div>
         </div>
       </section>
-      {/* Continuing with the rest of the existing sections */}
     </div>
   );
 }

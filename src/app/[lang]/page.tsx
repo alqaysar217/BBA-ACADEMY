@@ -1,4 +1,3 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -11,17 +10,29 @@ import {
   Star, 
   BookOpen, 
   Globe,
-  FileText,
-  Target,
-  Zap,
   ChevronRight,
   ChevronLeft,
-  Clock,
   User
 } from 'lucide-react';
 import Image from 'next/image';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { cn } from '@/lib/utils';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
+  const { lang } = await params;
+  const isAr = lang === 'ar';
+  return {
+    title: isAr ? 'الرئيسية' : 'Home',
+    description: isAr 
+      ? 'مرحباً بكم في أكاديمية بنين وبنات - تعليم يبني العقول وقيم تشكل الشخصية.' 
+      : 'Welcome to Baneen & Banaat Academy - Education That Builds Minds, Values That Shape Character.',
+    openGraph: {
+      title: isAr ? 'أكاديمية بنين وبنات | الرئيسية' : 'BBA Academy | Home',
+      description: isAr ? 'اكتشف برامجنا التعليمية المتميزة عبر الإنترنت.' : 'Discover our distinguished online educational programs.',
+      images: ['/logo.png'],
+    }
+  };
+}
 
 export default async function HomePage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
@@ -95,7 +106,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
   const testimonials = [
     { name: isAr ? 'سارة' : 'Sarah', role: isAr ? 'ولي أمر - نيويورك' : 'Parent - New York', text: isAr ? 'لقد غيرت الأكاديمية حياة أطفالي تماماً. التوازن بين المواد الأكاديمية الأمريكية والقرآن الكريم رائع جداً. أشعر بالراحة لأن أطفالي يتعلمون في بيئة تحترم قيمنا.' : "The academy has completely changed my children's lives. The balance between American academics and the Holy Quran is wonderful. I feel at peace knowing my children learn in an environment that respects our values." },
     { name: isAr ? 'أحمد' : 'Ahmed', role: isAr ? 'ولي أمر - ميشيغان' : 'Parent - Michigan', text: isAr ? 'أفضل قرار اتخذته لعائلتي كان التسجيل في BBA. المرونة في الوقت وجودة التعليم ساعدت ابني على التميز والتفوق بشكل لم أكن أتوقعه.' : 'The best decision I made for my family was enrolling in BBA. Time flexibility and quality of education helped my son excel in ways I didn’t expect.' },
-    { name: isAr ? 'نورة' : 'Noura', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
+    { name: isAr ? 'أبو بكر' : 'Abubakar', role: isAr ? 'ولي أمر - تكساس' : 'Parent - Texas', text: isAr ? 'التعليم عبر الإنترنت هنا مختلف تماماً، تشعر أنك في مدرسة حقيقية بفضل التواصل المستمر مع المدرسين وإدارة محترفة تتابع كل صغيرة وكبيرة.' : 'Online education here is completely different; you feel like you are in a real school thanks to the constant communication with teachers and a professional administration.' }
   ];
 
   return (
@@ -338,8 +349,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
               <Accordion type="single" collapsible className="w-full space-y-4">
                 {t.faqs.items.map((faq, idx) => (
                   <AccordionItem key={idx} value={`faq-${idx}`} className="border-none rounded-xl px-6 bg-slate-50 hover:bg-white transition-all duration-500 shadow-sm">
-                    <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-xs sm:text-lg lg:text-sm py-6">{faq.q}</AccordionTrigger>
-                    <AccordionContent className="text-slate-600 font-bold leading-relaxed pb-8 pt-2 border-t border-slate-100 text-[11px] lg:text-sm opacity-80">{faq.a}</AccordionContent>
+                    <AccordionTrigger className="hover:no-underline font-black text-primary text-start text-xs sm:text-lg lg:text-sm py-6">
+                      <span className="text-sm sm:text-lg font-black">{faq.q}</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-slate-600 font-bold leading-relaxed pb-8 pt-2 border-t border-slate-100 text-[11px] lg:text-sm opacity-80">
+                      <span className="text-xs sm:text-base">{faq.a}</span>
+                    </AccordionContent>
                   </AccordionItem>
                 ))}
               </Accordion>
