@@ -119,10 +119,10 @@ export function Header({ lang }: { lang: Locale }) {
             if (item.subLinks) {
               return (
                 <DropdownMenu key={idx}>
-                  <DropdownMenuTrigger className="text-[11px] font-black uppercase tracking-widest hover:text-secondary flex items-center gap-2 text-primary/70 outline-none transition-colors">
-                    <item.icon className="h-3.5 w-3.5 text-secondary/60" />
+                  <DropdownMenuTrigger className="text-[11px] font-black uppercase tracking-widest hover:text-secondary flex items-center gap-2 text-primary/70 outline-none transition-colors group">
+                    <item.icon className="h-3.5 w-3.5 text-secondary" />
                     {item.name[lang]}
-                    <ChevronDown className="h-3 w-3 opacity-40" />
+                    <ChevronDown className="h-3 w-3 opacity-40 group-hover:opacity-100" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align={isAr ? 'end' : 'start'} className="rounded-xl p-2 min-w-[220px] shadow-2xl border-slate-100">
                     {item.subLinks.map((sub, sIdx) => (
@@ -149,7 +149,7 @@ export function Header({ lang }: { lang: Locale }) {
                   active ? "text-secondary" : "text-primary/70"
                 )}
               >
-                <item.icon className="h-3.5 w-3.5" />
+                <item.icon className="h-3.5 w-3.5 text-secondary" />
                 {item.name[lang]}
               </Link>
             );
@@ -160,14 +160,15 @@ export function Header({ lang }: { lang: Locale }) {
         <div className="flex flex-1 items-center justify-end gap-3 sm:gap-4">
           <Link 
             href={redirectedPathname(otherLang)} 
-            className="text-[10px] font-black px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200"
+            className="flex items-center gap-2 text-[10px] font-black px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200 text-primary"
           >
-            {lang === 'en' ? 'AR' : 'EN'}
+            <Languages className="h-3.5 w-3.5 text-secondary" />
+            {lang === 'en' ? 'العربية' : 'ENGLISH'}
           </Link>
           
           <Button asChild size="sm" className="hidden sm:inline-flex bg-primary hover:bg-secondary text-white rounded-xl px-6 h-10 font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 active:scale-95">
             <Link href={`/${lang}/enroll`} className="flex items-center gap-2">
-              <FileSignature className="h-3.5 w-3.5" />
+              <FileSignature className="h-3.5 w-3.5 text-white" />
               {isAr ? 'سجل الآن' : 'Apply Now'}
             </Link>
           </Button>
@@ -213,7 +214,7 @@ export function Header({ lang }: { lang: Locale }) {
                               isLinkActive(sub.href!) ? "text-secondary bg-secondary/5" : "text-primary/70"
                             )}
                           >
-                            <sub.icon className="h-5 w-5 opacity-70" />
+                            <sub.icon className="h-5 w-5 text-secondary" />
                             {sub.name[lang]}
                           </Link>
                         ))}
@@ -230,7 +231,7 @@ export function Header({ lang }: { lang: Locale }) {
                         isLinkActive(item.href!) ? "text-secondary bg-secondary/5" : "text-primary/70"
                       )}
                     >
-                      <item.icon className="h-5 w-5 opacity-70" />
+                      <item.icon className="h-5 w-5 text-secondary" />
                       {item.name[lang]}
                     </Link>
                   );
