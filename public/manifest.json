@@ -1,12 +1,11 @@
 {
   "name": "Baneen & Banaat Academy",
   "short_name": "BBA Academy",
-  "description": "Education That Builds Minds, Values That Shape Character. Online Islamic & Academic Excellence.",
+  "description": "Educational partner for academic success and Islamic identity.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
-  "theme_color": "#111827",
-  "orientation": "portrait",
+  "theme_color": "#1A73E8",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -17,7 +16,8 @@
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
+import { PWAScript } from '@/components/PWAScript';
 import { Metadata, Viewport } from 'next';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -17,7 +18,7 @@ export async function generateStaticParams() {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#111827',
+  themeColor: '#1A73E8',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -91,6 +92,7 @@ export default async function RootLayout({
       <body className={cn("min-h-screen font-sans antialiased", isRtl && "font-arabic")}>
         <FirebaseClientProvider>
           <FirebaseErrorListener />
+          <PWAScript />
           <div className="relative flex min-h-screen flex-col">
             <Header lang={lang} />
             <main className="flex-1">{children}</main>
@@ -98,19 +100,6 @@ export default async function RootLayout({
             <WhatsAppButton lang={lang} />
           </div>
         </FirebaseClientProvider>
-        
-        {/* Service Worker Registration for PWA */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
-          }}
-        />
       </body>
     </html>
   );
