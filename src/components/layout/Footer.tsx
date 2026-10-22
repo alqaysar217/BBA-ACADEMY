@@ -13,95 +13,76 @@ import {
   Instagram, 
   Youtube, 
   Facebook, 
-  Home,
-  BookOpen,
-  Info,
-  History,
-  Map,
-  PhoneCall,
-  GraduationCap,
   Lock,
-  UserCheck,
-  MessageSquare,
-  Library
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import Image from 'next/image';
 
 export function Footer({ lang }: { lang: Locale }) {
   const isAr = lang === 'ar';
-  const [currentYear, setCurrentYear] = useState<number>(2025);
+  const [currentYear, setCurrentYear] = useState<number>(2026);
 
   useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
+    // Keeping it 2026 as requested or dynamic
+    setCurrentYear(2026);
   }, []);
-  
-  const content = {
-    intro: isAr 
+
+  const t = {
+    description: isAr 
       ? 'شريك تعليمي موثوق يساعد الطلاب والعائلات على تحقيق النجاح الأكاديمي من خلال التعلم المرن عبر الإنترنت والتوجيه الشخصي والالتزام بالتميز.'
       : 'A trusted educational partner helping students and families achieve academic success through flexible online learning, personalized guidance, and a commitment to excellence.',
-    hours: isAr ? 'ساعات العمل' : 'Working Hours',
-    weekdays: isAr ? 'الإثنين - الجمعة' : 'Monday - Friday',
-    weekdaysTime: '9:00 AM - 4:00 PM (ET)',
-    contact: isAr ? 'تواصل معنا' : 'Contact Us',
-    location: isAr ? 'ميشيغان، الولايات المتحدة' : 'Michigan, United States',
-    serving: isAr ? '(نخدم جميع الولايات!)' : '(Serving Nationwide!)',
-    copyright: isAr ? 'جميع الحقوق محفوظة.' : 'All rights reserved.',
+    quickLinks: isAr ? 'روابط سريعة' : 'Quick Links',
+    contactUs: isAr ? 'اتصل بنا' : 'Contact Us',
+    workingHours: isAr ? 'ساعات العمل' : 'Working Hours',
+    whatsapp: isAr ? 'دعم واتساب' : 'WhatsApp Support',
+    adminPanel: isAr ? 'لوحة الإدارة' : 'Admin Panel',
+    copyright: isAr 
+      ? `© ${currentYear} أكاديمية بنين وبنات. جميع الحقوق محفوظة.`
+      : `© ${currentYear} Baneen & Banaat Academy. All rights reserved.`,
+    privacy: isAr ? 'سياسة الخصوصية' : 'Privacy Policy',
+    terms: isAr ? 'شروط الخدمة' : 'Terms of Service',
+    locationSub: isAr ? '(نخدم جميع الولايات!)' : '(Serving Nationwide!)'
   };
 
-  const sections = [
-    {
-      title: isAr ? 'المصادر' : 'Resources',
-      links: [
-        { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide', icon: GraduationCap },
-        { name: { en: 'NY Homeschool', ar: 'دليل التعليم المنزلي' }, href: '/ny-resources', icon: MapPin },
-      ]
-    },
-    {
-      title: isAr ? 'عن الأكاديمية' : 'About BBA',
-      links: [
-        { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
-        { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
-        { name: { en: 'Founder Message', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
-      ]
-    },
-    {
-      title: isAr ? 'التخطيط والمستقبل' : 'Planning',
-      links: [
-        { name: { en: 'College Pathways', ar: 'التخطيط والمسارات الجامعية' }, href: '/planning', icon: Map },
-        { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/guide', icon: MessageSquare },
-        { name: { en: 'Testimonials', ar: 'آراء أولياء الأمور' }, href: '/testimonials', icon: MessageSquare },
-      ]
-    }
+  const links = [
+    { name: { en: 'Home', ar: 'الرئيسية' }, href: '/' },
+    { name: { en: 'Founder Message', ar: 'كلمة المؤسس' }, href: '/founder' },
+    { name: { en: 'Testimonials', ar: 'آراء أولياء الأمور' }, href: '/testimonials' },
+    { name: { en: 'NY Resources', ar: 'دليل التعليم المنزلي' }, href: '/ny-resources' },
+    { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs' },
+    { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about' },
+    { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story' },
+    { name: { en: 'Planning', ar: 'التخطيط والمستقبل' }, href: '/planning' },
+    { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide' },
+    { name: { en: 'Contact Us', ar: 'تواصل معنا' }, href: '/contact' },
   ];
 
   return (
-    <footer className="bg-primary text-white border-t border-white/10 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
-
-      <div className="container-tight py-16 lg:py-24 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-16">
+    <footer className="bg-primary text-white pt-16 lg:pt-24 pb-8 relative overflow-hidden border-t border-white/10">
+      <div className="container-tight relative z-10 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16">
           
-          {/* Column 1: Intro */}
-          <div className="lg:col-span-2 space-y-8">
+          {/* Column 1: Logo & Brand */}
+          <div className="lg:col-span-4 space-y-8">
             <Link href={`/${lang}`} className="flex items-center gap-3 group">
-              <div className="flex h-12 w-12 items-center justify-center bg-white rounded-xl p-1.5 shrink-0 transition-transform group-hover:scale-105">
+              <div className="bg-white p-2 rounded-xl transition-transform group-hover:scale-105 shrink-0">
                 <Image 
                   src="/logo.png" 
                   alt="BBA Academy Logo" 
-                  width={40}
-                  height={40}
+                  width={48} 
+                  height={48} 
                   className="object-contain"
                   unoptimized
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight leading-none text-white">BBA</span>
+                <span className="text-2xl font-black tracking-tight leading-none">BBA</span>
                 <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-secondary">Academy</span>
               </div>
             </Link>
             <p className="text-white/70 text-sm leading-relaxed font-medium italic max-w-sm">
-              {content.intro}
+              {t.description}
             </p>
             <div className="flex items-center gap-4">
               <Link href="https://wa.me/13136555778" target="_blank" className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-green-500 transition-all border border-white/10 hover:border-green-500"><MessageCircle className="h-5 w-5" /></Link>
@@ -111,41 +92,98 @@ export function Footer({ lang }: { lang: Locale }) {
             </div>
           </div>
 
-          {/* Grouped Links Columns */}
-          {sections.map((section, idx) => (
-            <div key={idx} className="space-y-8">
+          {/* Column 2: Quick Links */}
+          <div className="lg:col-span-4">
+            <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 mb-8 inline-block">
+              {t.quickLinks}
+            </h4>
+            <nav className="grid grid-cols-2 gap-x-4 gap-y-3">
+              {links.map((link, idx) => (
+                <Link 
+                  key={idx} 
+                  href={`/${lang}${link.href}`}
+                  className="text-white/60 hover:text-secondary text-xs font-bold flex items-center gap-2 transition-colors group"
+                >
+                  {isAr ? <ChevronLeft className="h-3 w-3 opacity-30 group-hover:opacity-100" /> : <ChevronRight className="h-3 w-3 opacity-30 group-hover:opacity-100" />}
+                  {link.name[lang]}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Column 3: Contact & Info */}
+          <div className="lg:col-span-4 space-y-10">
+            <div className="space-y-6">
               <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
-                {section.title}
+                {t.contactUs}
               </h4>
-              <nav className="grid grid-cols-1 gap-4">
-                {section.links.map((link, lIdx) => (
-                  <Link 
-                    key={lIdx} 
-                    href={`/${lang}${link.href}`}
-                    className="text-white/60 hover:text-secondary text-xs font-bold flex items-center gap-3 transition-colors"
-                  >
-                    {link.name[lang]}
-                  </Link>
-                ))}
-              </nav>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <Mail className="h-5 w-5 text-secondary shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Email</p>
+                    <p className="text-xs font-bold">info@baneenbanaat.org</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <Phone className="h-5 w-5 text-secondary shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Phone</p>
+                    <p className="text-xs font-bold" dir="ltr">(734) 645-3613</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <MapPin className="h-5 w-5 text-secondary shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Location</p>
+                    <p className="text-xs font-bold">Michigan, United States</p>
+                    <p className="text-[9px] font-medium text-white/50">{t.locationSub}</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-        
-        {/* Footer Bottom */}
-        <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex flex-col md:flex-row items-center gap-6 text-[10px] font-black uppercase tracking-widest text-white/30">
-            <span>© <span suppressHydrationWarning>{currentYear}</span> BBA Academy. {content.copyright}</span>
-            <div className="flex items-center gap-4">
-               <span className="flex items-center gap-2"><MapPin className="h-3 w-3 text-secondary" /> {content.location}</span>
-               <span className="flex items-center gap-2"><Clock className="h-3 w-3 text-secondary" /> {content.weekdaysTime}</span>
+
+            <div className="space-y-4">
+              <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
+                {t.workingHours}
+              </h4>
+              <div className="flex items-center gap-4">
+                <Clock className="h-5 w-5 text-secondary shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-xs font-bold">Monday - Friday</p>
+                  <p className="text-xs text-white/60 font-medium">9:00 AM - 4:00 PM (ET)</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 pt-4">
+              <Link 
+                href="https://wa.me/13136555778" 
+                target="_blank"
+                className="flex items-center gap-2 px-4 py-2.5 bg-green-500/10 hover:bg-green-500/20 text-green-500 border border-green-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+              >
+                <MessageCircle className="h-4 w-4" />
+                {t.whatsapp}
+              </Link>
+              <Link 
+                href={`/${lang}/admin`}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+              >
+                <Lock className="h-4 w-4 text-secondary" />
+                {t.adminPanel}
+              </Link>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href={`/${lang}/admin`} className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition-all font-bold text-[8px] uppercase tracking-widest flex items-center gap-2">
-              <Lock className="h-3 w-3 text-secondary" />
-              Admin Portal
-            </Link>
+        </div>
+
+        {/* Footer Bottom Bar */}
+        <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center md:text-start">
+            {t.copyright}
+          </div>
+          <div className="flex items-center gap-8">
+            <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-secondary transition-colors">{t.privacy}</Link>
+            <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-secondary transition-colors">{t.terms}</Link>
           </div>
         </div>
       </div>
