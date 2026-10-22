@@ -342,7 +342,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: Loc
                 <div className="h-1.5 w-24 bg-secondary mx-auto lg:mx-0 rounded-full" />
               </div>
               <Button asChild size="lg" className="h-16 px-10 bg-primary hover:bg-secondary transition-all w-full sm:w-auto shadow-2xl font-black text-lg rounded-2xl">
-                <Link href={`/${lang}/guide`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
+                <Link href={`/${lang}/faq`}>{isAr ? 'عرض كافة الأسئلة' : 'View All FAQs'}</Link>
               </Button>
             </div>
             <div className="bg-white p-8 lg:p-10 rounded-2xl shadow-premium border border-slate-100">
