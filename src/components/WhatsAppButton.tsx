@@ -18,11 +18,11 @@ export function WhatsAppButton({ lang }: { lang: Locale }) {
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-[60] group flex items-center gap-3"
+      className="fixed bottom-6 left-6 z-[60] group flex flex-row-reverse items-center gap-3"
       aria-label="Contact us on WhatsApp"
     >
-      {/* Tooltip Label */}
-      <span className="hidden md:block bg-white text-primary font-bold px-4 py-2 rounded-xl shadow-xl border border-slate-100 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none">
+      {/* Tooltip Label - Now on the right of the button since it's on the left screen side */}
+      <span className="hidden md:block bg-white text-primary font-bold px-4 py-2 rounded-xl shadow-xl border border-slate-100 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none whitespace-nowrap">
         {isAr ? 'تحدث معنا الآن' : 'Chat with us'}
       </span>
       
