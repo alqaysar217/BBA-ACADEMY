@@ -26,7 +26,9 @@ import {
   MousePointer2,
   Info,
   Heart,
-  Video
+  Video,
+  LayoutDashboard,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,7 +36,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 export default function StudentGuidePage({ params }: { params: Promise<{ lang: Locale }> }) {
-  const { lang } = await params;
+  const { lang } = use(params);
   const isAr = lang === 'ar';
   const [mounted, setMounted] = useState(false);
 
@@ -42,20 +44,24 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return (
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   const t = {
     hero: {
       title: isAr ? 'دليل طالب BBA' : 'BBA Student Guide',
       subtitle: isAr ? 'كل ما يحتاجه الطلاب وأولياء الأمور لعام دراسي ناجح' : 'Everything Students & Parents Need to Know for a Successful School Year',
       welcome: isAr ? 'مرحباً بكم في دليل طالب BBA. نحن متحمسون لانضمامكم لمجتمعنا التعليمي ونتطلع لدعمكم طوال رحلتكم التعليمية.' : 'Welcome to the BBA Student Guide. We are excited to have you join our learning community and look forward to supporting you throughout your educational journey.',
-      intro: isAr 
+      p1: isAr 
         ? 'سواء كنت طالباً جديداً أو ولي أمر، تم تصميم هذا الدليل لمساعدتك على فهم كيفية عمل برنامج BBA، وما هو متوقع طوال العام الدراسي، وكيفية البقاء على المسار الصحيح لتحقيق النجاح.'
         : 'Whether you are a new student or a parent, this guide is designed to help you understand how the BBA program works, what is expected throughout the school year, and how to stay on track for success.',
-      flexibility: isAr
+      p2: isAr
         ? 'بما أن BBA تقدم مساراً تعليمياً عبر الإنترنت ذاتي الوتيرة، فإن الطلاب يمتلكون المرونة للتعلم من أي مكان مع التقدم وفقاً لجدولهم الأكاديمي. ومع ذلك، تأتي هذه المرونة مع المسؤولية.'
         : 'Because BBA offers an online, self-paced learning pathway, students have the flexibility to learn from anywhere while progressing according to their academic schedule. However, with that flexibility comes responsibility.',
-      success: isAr
+      p3: isAr
         ? 'يعتمد النجاح على الالتزام، واتباع خطة الطالب الخاصة بك، والتواصل مع مرشدك كلما احتجت إلى مساعدة.'
         : 'Success depends on staying consistent, following your Student Plan, and communicating with your mentor whenever you need assistance.',
       goal: isAr
@@ -68,35 +74,35 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
       steps: [
         {
           num: 1,
-          title: isAr ? 'تفقد بريدك الترحيبي' : 'Check Your Welcome Email',
+          title: isAr ? 'تفقد بريدك الترحيبي' : 'Step 1 — Check Your Welcome Email',
           desc: isAr 
             ? 'يحتوي بريدك الإلكتروني الترحيبي على المعلومات التي تحتاجها للبدء، بما في ذلك بيانات دخول Edgenuity، خطة الطالب المخصصة، ومعلومات التواصل مع مرشدك.' 
             : 'Your Welcome Email contains the information you need to get started, including Edgenuity login, Student Plan, and mentor contact info.'
         },
         {
           num: 2,
-          title: isAr ? 'سجل دخولك لمنصة Edgenuity' : 'Log Into Your Edgenuity Account',
+          title: isAr ? 'سجل دخولك لمنصة Edgenuity' : 'Step 2 — Log Into Your Edgenuity Account',
           desc: isAr
             ? 'Edgenuity هي المنصة التعليمية التي يكمل فيها الطلاب دروسهم ومهامهم واختباراتهم. راجع فيديو التوجه المتاح للتعرف على المنصة.'
             : 'Edgenuity is the online learning platform where students complete lessons and coursework. Review the orientation video to become familiar.'
         },
         {
           num: 3,
-          title: isAr ? 'راجع خطة الطالب الخاصة بك' : 'Review Your Student Plan',
+          title: isAr ? 'راجع خطة الطالب الخاصة بك' : 'Step 3 — Review Your Student Plan',
           desc: isAr
             ? 'يتلقى كل طالب خطة مخصصة توضح الدورات المتوقع إكمالها. في معظم الحالات، يتوقع إكمال 10 دورات بين سبتمبر ويونيو (بمعدل دورة شهرياً).'
             : 'Every student receives a personalized Student Plan. Typically, students complete 10 courses between September and June.'
         },
         {
           num: 4,
-          title: isAr ? 'تعرف على مرشدك' : 'Meet Your Mentor',
+          title: isAr ? 'تعرف على مرشدك' : 'Step 4 — Meet Your Mentor',
           desc: isAr
             ? 'يتم تعيين مرشد لكل طالب للمساعدة في الإجابة على الأسئلة، تقديم التوجيه التربوي، مراقبة التقدم، ودعمك عند مواجهة التحديات.'
             : 'Every student is assigned a BBA mentor to answer questions, provide guidance, monitor progress, and support you through challenges.'
         },
         {
           num: 5,
-          title: isAr ? 'ابدأ دورتك الأولى' : 'Start Your First Course',
+          title: isAr ? 'ابدأ دورتك الأولى' : 'Step 5 — Start Your First Course',
           desc: isAr
             ? 'ابدأ بدورتك الأولى المخصصة واعمل بانتظام كل يوم من أيام الأسبوع للبقاء على الجدول الزمني. بناء عادات دراسية جيدة مبكراً يجعل الأمر أسهل.'
             : 'Start with your first assigned course and work consistently each weekday. Building good habits early makes it easier to stay on track.'
@@ -134,18 +140,17 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
       anywhere: {
         title: isAr ? 'تعلم من أي مكان' : 'Learn From Anywhere',
         subtitle: isAr ? 'فصلك الدراسي يسافر معك' : 'Your Classroom Travels With You',
-        desc: isAr ? 'يمكنك الوصول للمنصة من المنزل أو أثناء السفر. تذكر أن فريق BBA يعمل بتوقيت شرق الولايات المتحدة (Eastern Time).' : 'Access coursework from home or while traveling. Remember BBA staff operate during US Eastern Time.'
-      },
-      team: isAr ? 'النجاح هو جهد جماعي بين الطالب، ولي الأمر، المرشد، والأكاديمية.' : 'Student Success Is a Team Effort between students, parents, mentors, and the academy.'
+        desc: isAr ? 'يمكنك الوصول للمنصة من المنزل أو أثناء السفر. تذكر أن فريق BBA يعمل بتوقيت شرق الولايات المتحدة (Eastern Time).' : 'Access online coursework from home or while traveling. Remember BBA staff operate during US Eastern Time.'
+      }
     },
     formula: {
       title: isAr ? 'معادلة النجاح في BBA' : 'The BBA Success Formula',
       subtitle: isAr ? 'ابنِ عادات قوية، وحقق تقدماً ثابتاً' : 'Build Strong Habits, Make Steady Progress',
       steps: [
         { t: isAr ? 'سجل دخولك' : 'Log In', d: isAr ? 'كل يوم من أيام الأسبوع' : 'Every Weekday' },
-        { t: isAr ? 'أنجز 5-7%' : 'Complete 5–7%', d: isAr ? 'تقدماً يومياً ثابتاً' : 'Daily progress' },
-        { t: isAr ? 'أنهِ دورة واحدة' : '1 Course', d: isAr ? 'تقريباً كل شهر' : 'Approximately monthly' },
-        { t: isAr ? 'أكمل كافة الدورات' : 'Complete 10 Courses', d: isAr ? 'خلال العام الدراسي' : 'Across the school year' },
+        { t: isAr ? 'أنجز 5-7%' : 'Complete 5–7%', d: isAr ? 'تقدماً يومياً ثابتاً' : 'Each Weekday' },
+        { t: isAr ? 'دورة واحدة شهرياً' : 'One Course Monthly', d: isAr ? 'تقريباً كل شهر' : 'Follow your schedule' },
+        { t: isAr ? 'أكمل كافة الدورات' : 'Complete All Courses', d: isAr ? '10 دورات في العام' : 'Sept – June' },
         { t: isAr ? 'حقق التخرج' : 'Graduation', d: isAr ? 'أو الترقية للصف التالي' : 'Promotion or Graduation' }
       ]
     },
@@ -204,10 +209,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
           isAr ? 'مراقبة التقدم الأكاديمي للطفل بانتظام.' : 'Monitor academic progress regularly.',
           isAr ? 'دعم تحفيز الطفل وتنظيمه لجدوله.' : 'Support their child\'s motivation, organization, and schedule.'
         ]
-      },
-      footer: isAr 
-        ? 'في BBA، نؤمن أن النجاح لا يبنى في يوم واحد، بل من خلال الجهد المستمر والتواصل المفتوح والشراكة القوية.' 
-        : 'At BBA, we believe success isn\'t built in a single day—it\'s built through consistent effort, open communication, and a strong partnership.'
+      }
     },
     courses: {
       title: isAr ? 'فهم الدورات الدراسية الخاصة بك' : 'Understanding Your Courses',
@@ -302,9 +304,9 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
              <p className="text-white font-bold text-lg italic border-l-4 border-secondary pl-6 py-2 bg-white/5 rounded-r-xl">
                {t.hero.welcome}
              </p>
-             <p>{t.hero.intro}</p>
-             <p>{t.hero.flexibility}</p>
-             <p className="text-secondary font-black">{t.hero.success}</p>
+             <p>{t.hero.p1}</p>
+             <p>{t.hero.p2}</p>
+             <p className="text-secondary font-black">{t.hero.p3}</p>
           </div>
         </div>
       </section>
@@ -367,7 +369,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
             ))}
           </div>
 
-          <Card className="bg-primary text-white rounded-[2rem] overflow-hidden border-none shadow-2xl relative">
+          <Card className="bg-primary text-white rounded-2xl overflow-hidden border-none shadow-2xl relative">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <MousePointer2 className="h-48 w-48 rotate-12" />
             </div>
@@ -381,7 +383,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
               </div>
               <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 text-center">
                  <p className="text-lg sm:text-xl font-black italic">
-                   "{t.howItWorks.team}"
+                   {isAr ? '"النجاح هو جهد جماعي بين الطالب، ولي الأمر، المرشد، والأكاديمية."' : '"Student Success Is a Team Effort between students, parents, mentors, and the academy."'}
                  </p>
               </div>
             </div>
@@ -402,7 +404,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
             <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-8">
               {t.formula.steps.map((step, idx) => (
                 <div key={idx} className="relative z-10 flex flex-col items-center text-center gap-4 group">
-                  <div className="h-16 w-16 rounded-[1.25rem] bg-white border-2 border-slate-200 text-primary flex items-center justify-center font-black text-2xl shadow-sm transition-all duration-500 group-hover:bg-secondary group-hover:border-secondary group-hover:text-white group-hover:scale-110 group-hover:rotate-6">
+                  <div className="h-16 w-16 rounded-2xl bg-white border-2 border-slate-200 text-primary flex items-center justify-center font-black text-2xl shadow-sm transition-all duration-500 group-hover:bg-secondary group-hover:border-secondary group-hover:text-white group-hover:scale-110 group-hover:rotate-6">
                     {idx + 1}
                   </div>
                   <div className="space-y-1">
@@ -447,9 +449,6 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                     <Video className="h-10 w-10 fill-current" />
                   </div>
                </div>
-               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                  <p className="text-white font-black text-xs uppercase tracking-widest">Platform Orientation Video</p>
-               </div>
             </div>
           </div>
 
@@ -477,29 +476,21 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-               <Card className="bg-white/5 border-white/10 text-white rounded-2xl h-full shadow-lg backdrop-blur-sm">
-                  <CardHeader className="border-b border-white/10"><CardTitle className="text-sm sm:text-lg font-black uppercase text-secondary">{t.agreement.bba.title}</CardTitle></CardHeader>
-                  <CardContent className="p-6 space-y-4 font-medium text-xs sm:text-sm">
-                    {t.agreement.bba.list.map((l, i) => <div key={i} className="flex gap-3"><CheckCircle2 className="h-4 w-4 text-secondary shrink-0" /><span>{l}</span></div>)}
-                  </CardContent>
-               </Card>
-               <Card className="bg-white/5 border-white/10 text-white rounded-2xl h-full shadow-lg backdrop-blur-sm">
-                  <CardHeader className="border-b border-white/10"><CardTitle className="text-sm sm:text-lg font-black uppercase text-secondary">{t.agreement.student.title}</CardTitle></CardHeader>
-                  <CardContent className="p-6 space-y-4 font-medium text-xs sm:text-sm">
-                    {t.agreement.student.list.map((l, i) => <div key={i} className="flex gap-3"><CheckCircle2 className="h-4 w-4 text-secondary shrink-0" /><span>{l}</span></div>)}
-                  </CardContent>
-               </Card>
-               <Card className="bg-white/5 border-white/10 text-white rounded-2xl h-full shadow-lg backdrop-blur-sm">
-                  <CardHeader className="border-b border-white/10"><CardTitle className="text-sm sm:text-lg font-black uppercase text-secondary">{t.agreement.parent.title}</CardTitle></CardHeader>
-                  <CardContent className="p-6 space-y-4 font-medium text-xs sm:text-sm">
-                    {t.agreement.parent.list.map((l, i) => <div key={i} className="flex gap-3"><CheckCircle2 className="h-4 w-4 text-secondary shrink-0" /><span>{l}</span></div>)}
-                  </CardContent>
-               </Card>
+               {[t.agreement.bba, t.agreement.student, t.agreement.parent].map((section, idx) => (
+                 <Card key={idx} className="bg-white/5 border-white/10 text-white rounded-2xl h-full shadow-lg backdrop-blur-sm">
+                    <CardHeader className="border-b border-white/10">
+                      <CardTitle className="text-sm sm:text-lg font-black uppercase text-secondary">{section.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-4 font-medium text-xs sm:text-sm">
+                      {section.list.map((l, i) => <div key={i} className="flex gap-3"><CheckCircle2 className="h-4 w-4 text-secondary shrink-0" /><span>{l}</span></div>)}
+                    </CardContent>
+                 </Card>
+               ))}
             </div>
 
             <div className="pt-10 text-center border-t border-white/10">
                <p className="text-lg sm:text-xl font-black italic text-white/90 max-w-4xl mx-auto">
-                 "{t.agreement.footer}"
+                 {isAr ? '"في BBA، نؤمن أن النجاح لا يبنى في يوم واحد، بل من خلال الجهد المستمر والتواصل المفتوح والشراكة القوية."' : '"At BBA, we believe success isn\'t built in a single day—it\'s built through consistent effort, open communication, and a strong partnership."'}
                </p>
             </div>
          </div>
@@ -523,7 +514,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
               ))}
            </div>
 
-           <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 text-center">
+           <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 text-center">
               <div className="flex justify-center mb-4"><Info className="h-8 w-8 text-secondary" /></div>
               <p className="text-primary font-black text-base sm:text-xl italic">
                 {isAr ? 'تذكير هام: خطة الطالب الخاصة بك مصممة لمساعدتك على النجاح. ركز على دورة واحدة في كل مرة، واعمل بانتظام، وتواصل مع مرشدك كلما احتجت إلى توجيه.' : 'Important Reminder: Your Student Plan is designed to help you succeed. Focus on one course at a time, work consistently, and communicate with your mentor whenever you need guidance.'}
@@ -534,7 +525,6 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
 
       {/* 8 & 9. Support and Help */}
       <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
-         <div className="absolute top-0 left-0 w-64 h-64 bg-secondary/10 blur-[100px] rounded-full -translate-x-1/2 -translate-y-1/2" />
          <div className="container-tight relative z-10 space-y-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                <div className="space-y-8">
@@ -547,24 +537,23 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                      <p className="text-white font-bold">{isAr ? 'نحن نؤمن بأن التعليم يكون في أقوى حالاته عندما يعمل الطلاب وأولياء الأمور والأكاديمية معاً.' : 'We believe education is strongest when students, parents, and the academy work together.'}</p>
                   </div>
                </div>
-               <div className="bg-white p-8 sm:p-12 rounded-[2.5rem] text-primary space-y-8 shadow-2xl relative group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 blur-2xl rounded-full" />
+               <div className="bg-white p-8 sm:p-12 rounded-2xl text-primary space-y-8 shadow-2xl relative group">
                   <div className="space-y-2">
                      <h3 className="text-2xl font-black uppercase tracking-tight">{t.support.help.title}</h3>
                      <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t.support.help.subtitle}</p>
                   </div>
                   <div className="space-y-4">
-                     <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white hover:border-secondary/20 transition-all">
+                     <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                         <Mail className="h-5 w-5 text-secondary" />
                         <span className="font-bold text-sm sm:text-base">{t.support.help.email}</span>
                      </div>
-                     <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white hover:border-secondary/20 transition-all">
+                     <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                         <Phone className="h-5 w-5 text-secondary" />
                         <span className="font-bold text-sm sm:text-base" dir="ltr">{t.support.help.phone}</span>
                      </div>
                   </div>
                   <p className="text-[10px] sm:text-xs text-slate-400 font-bold leading-relaxed">{t.support.help.response}</p>
-                  <Button asChild className="w-full h-16 bg-secondary hover:bg-primary text-white font-black rounded-2xl shadow-xl transition-all text-lg">
+                  <Button asChild className="w-full h-16 bg-secondary hover:bg-primary text-white font-black rounded-xl shadow-xl transition-all text-lg">
                     <Link href={`/${lang}/contact`}>{t.support.help.btn}</Link>
                   </Button>
                </div>
