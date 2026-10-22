@@ -32,6 +32,12 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { 
+  Accordion, 
+  AccordionContent, 
+  AccordionItem, 
+  AccordionTrigger 
+} from "@/components/ui/accordion";
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -82,7 +88,7 @@ export function Header({ lang }: { lang: Locale }) {
       icon: Map,
       subLinks: [
         { name: { en: 'College Pathways', ar: 'التخطيط والمسارات الجامعية' }, href: '/planning', icon: Map },
-        { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/guide', icon: GraduationCap }, // FAQs are in guide
+        { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/guide', icon: MessageSquare },
         { name: { en: 'Testimonials', ar: 'آراء أولياء الأمور' }, href: '/testimonials', icon: MessageSquare },
       ]
     },
@@ -211,55 +217,59 @@ export function Header({ lang }: { lang: Locale }) {
                   </div>
                 </div>
 
-                <nav className="flex-1 py-6 px-4 space-y-1">
-                  {menuStructure.map((item, idx) => {
-                    if (item.subLinks) {
+                <nav className="flex-1 py-6 px-2">
+                  <Accordion type="single" collapsible className="w-full border-none">
+                    {menuStructure.map((item, idx) => {
+                      if (item.subLinks) {
+                        return (
+                          <AccordionItem key={idx} value={`item-${idx}`} className="border-none">
+                            <AccordionTrigger className="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 text-white/70 hover:text-white transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                              <div className="flex items-center gap-4">
+                                <item.icon className="h-5 w-5 text-secondary" />
+                                <span className="font-bold text-lg">{item.name[lang]}</span>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-1 pb-2 px-4 space-y-1">
+                              {item.subLinks.map((sub, sIdx) => (
+                                <Link
+                                  key={sIdx}
+                                  href={`/${lang}${sub.href}`}
+                                  onClick={() => setIsOpen(false)}
+                                  className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 text-white/50 hover:text-secondary transition-all group"
+                                >
+                                  <sub.icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110" />
+                                  <span className="font-bold text-sm">{sub.name[lang]}</span>
+                                </Link>
+                              ))}
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      }
+
+                      const active = isLinkActive(item.href!);
+                      const Icon = item.icon;
                       return (
-                        <div key={idx} className="space-y-1 py-2">
-                           <div className="px-4 py-2 text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
-                              <Layers className="h-3 w-3" />
-                              {item.name[lang]}
-                           </div>
-                           {item.subLinks.map((sub, sIdx) => (
-                             <Link
-                                key={sIdx}
-                                href={`/${lang}${sub.href}`}
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 text-white/70 hover:text-white transition-all group"
-                              >
-                                <div className="flex items-center gap-4">
-                                  <sub.icon className="h-5 w-5 text-secondary group-hover:scale-110 transition-transform" />
-                                  <span className="font-bold text-base">{sub.name[lang]}</span>
-                                </div>
-                                {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
-                              </Link>
-                           ))}
+                        <div key={idx} className="px-2">
+                          <Link
+                            href={`/${lang}${item.href}`}
+                            onClick={() => setIsOpen(false)}
+                            className={cn(
+                              "flex items-center justify-between p-4 rounded-xl transition-all group my-1",
+                              active 
+                                ? "bg-secondary text-white shadow-lg" 
+                                : "hover:bg-white/5 text-white/70 hover:text-white"
+                            )}
+                          >
+                            <div className="flex items-center gap-4">
+                              <Icon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
+                              <span className="font-bold text-lg">{item.name[lang]}</span>
+                            </div>
+                            {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
+                          </Link>
                         </div>
                       );
-                    }
-
-                    const active = isLinkActive(item.href!);
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={idx}
-                        href={`/${lang}${item.href}`}
-                        onClick={() => setIsOpen(false)}
-                        className={cn(
-                          "flex items-center justify-between p-4 rounded-xl transition-all group",
-                          active 
-                            ? "bg-secondary text-white shadow-lg" 
-                            : "hover:bg-white/5 text-white/70 hover:text-white"
-                        )}
-                      >
-                        <div className="flex items-center gap-4">
-                          <Icon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
-                          <span className="font-bold text-lg">{item.name[lang]}</span>
-                        </div>
-                        {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
-                      </Link>
-                    );
-                  })}
+                    })}
+                  </Accordion>
                 </nav>
 
                 <div className="p-6 mt-auto border-t border-white/10">
