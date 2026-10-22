@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { type Locale } from '@/lib/i18n/config';
 import { 
@@ -29,11 +28,7 @@ import Image from 'next/image';
 
 export function Footer({ lang }: { lang: Locale }) {
   const isAr = lang === 'ar';
-  const [currentYear, setCurrentYear] = useState<number>(2026);
-
-  useEffect(() => {
-    setCurrentYear(2026);
-  }, []);
+  const currentYear = 2026;
 
   const t = {
     description: isAr 
@@ -54,7 +49,7 @@ export function Footer({ lang }: { lang: Locale }) {
 
   const links = [
     { name: { en: 'Home', ar: 'الرئيسية' }, href: '/', icon: Home },
-    { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs', icon: BookOpen },
+    { name: { en: 'Programs', ar: 'البرامج' }, href: '/programs', icon: BookOpen },
     { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide', icon: GraduationCap },
     { name: { en: 'NY Homeschool', ar: 'دليل التعليم المنزلي' }, href: '/ny-resources', icon: MapPin },
     { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
@@ -72,7 +67,6 @@ export function Footer({ lang }: { lang: Locale }) {
       <div className="container-tight relative z-10 px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16">
           
-          {/* Column 1: Logo & Brand */}
           <div className="lg:col-span-4 space-y-8">
             <Link href={`/${lang}`} className="flex items-center gap-3 group">
               <div className="bg-white p-2 rounded-xl transition-transform group-hover:scale-105 shrink-0">
@@ -101,12 +95,11 @@ export function Footer({ lang }: { lang: Locale }) {
             </div>
           </div>
 
-          {/* Column 2: Quick Links Mapped */}
           <div className="lg:col-span-4">
             <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 mb-8 inline-block">
               {t.quickLinks}
             </h4>
-            <nav className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+            <nav className="grid grid-cols-2 gap-x-6 gap-y-3">
               {links.map((link, idx) => {
                 const Icon = link.icon;
                 return (
@@ -123,7 +116,6 @@ export function Footer({ lang }: { lang: Locale }) {
             </nav>
           </div>
 
-          {/* Column 3: Contact & Info */}
           <div className="lg:col-span-4 space-y-10">
             <div className="space-y-6">
               <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
@@ -172,16 +164,15 @@ export function Footer({ lang }: { lang: Locale }) {
               <Link 
                 href="https://wa.me/13136555778" 
                 target="_blank"
-                className="flex items-center gap-3 px-8 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all shadow-xl shadow-green-500/20 active:scale-95 w-full sm:w-auto justify-center"
+                className="flex items-center gap-4 px-10 py-5 bg-green-500 hover:bg-green-600 text-white rounded-2xl text-sm sm:text-lg font-black uppercase tracking-widest transition-all shadow-xl shadow-green-500/30 active:scale-95 w-full sm:w-auto justify-center group"
               >
-                <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8 transition-transform group-hover:rotate-12" />
                 {t.whatsapp}
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Footer Bottom Bar */}
         <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center md:text-start">
             {t.copyright}
@@ -191,9 +182,8 @@ export function Footer({ lang }: { lang: Locale }) {
             <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-secondary transition-colors">{t.terms}</Link>
             <Link 
               href={`/${lang}/admin`}
-              className="text-[10px] font-black uppercase tracking-widest text-white/10 hover:text-secondary transition-colors flex items-center gap-2 group"
+              className="text-[10px] font-black uppercase tracking-widest text-white/10 hover:text-secondary transition-colors flex items-center gap-2"
             >
-              <Lock className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               {t.adminPanel}
             </Link>
           </div>

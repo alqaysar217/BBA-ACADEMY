@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useUser, useFirestore, useCollection } from '@/firebase';
@@ -8,7 +8,6 @@ import { collection, query, orderBy, where, Timestamp } from 'firebase/firestore
 import { 
   Users, 
   Search, 
-  Eye, 
   ChevronRight, 
   LogOut,
   LayoutDashboard,
@@ -31,17 +30,19 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
   const router = useRouter();
   const isAr = lang === 'ar';
 
-  const enrollmentsQuery = query(
-    collection(firestore!, 'enrollments'),
-    where('status', '==', 'submitted'),
-    orderBy('submittedAt', 'desc')
-  );
+  const enrollmentsQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(
+      collection(firestore, 'enrollments'),
+      where('status', '==', 'submitted'),
+      orderBy('submittedAt', 'desc')
+    );
+  }, [firestore]);
 
   const { data: enrollments, loading: dataLoading } = useCollection(enrollmentsQuery);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Access check: allow if Firebase user exists OR if test bypass flag is set
     const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
     if (!authLoading && !user && !isTestAdmin) {
       router.push(`/${lang}/admin/login`);
@@ -77,7 +78,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col">
-      {/* Admin Navbar */}
       <header className="h-20 bg-primary text-white flex items-center px-6 md:px-12 sticky top-0 z-30 shadow-xl">
         <div className="container-tight flex items-center justify-between w-full">
            <div className="flex items-center gap-4">
@@ -105,7 +105,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
       <main className="flex-1 py-10 px-4 md:px-8">
         <div className="container-tight space-y-10">
           
-          {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat, idx) => (
               <Card key={idx} className="border-none shadow-sm rounded-2xl">
@@ -122,7 +121,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
             ))}
           </div>
 
-          {/* List Section */}
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                <div>
@@ -213,7 +211,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
   );
 }
 
-// Minimal icons to avoid missing imports in this block
 function UserCircle2(props: any) {
   return (
     <svg

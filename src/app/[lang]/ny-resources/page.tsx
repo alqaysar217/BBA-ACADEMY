@@ -1,27 +1,18 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { 
   FileText, 
   CheckSquare, 
-  Info, 
-  AlertCircle, 
   GraduationCap, 
-  ChevronRight, 
-  ChevronDown, 
   CheckCircle2, 
-  BookOpen, 
-  ClipboardCheck, 
   Search, 
   ArrowRight, 
   ArrowLeft, 
-  Mail, 
   LayoutDashboard, 
   FileWarning, 
   Lightbulb,
-  Clock,
-  MapPin,
   ShieldCheck,
   Zap,
   Target,
@@ -29,23 +20,22 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import Image from 'next/image';
 
 export default function NyResourcesPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
   const isAr = lang === 'ar';
 
+  const navItems = [
+    { id: 'intro', label: isAr ? 'نظرة عامة' : 'Overview' },
+    { id: 'process', label: isAr ? 'العملية التعليمية' : 'Process' },
+    { id: 'college', label: isAr ? 'المسارات الجامعية' : 'College' },
+    { id: 'mistakes', label: isAr ? 'أخطاء شائعة' : 'Mistakes' },
+    { id: 'support', label: isAr ? 'دعم الأكاديمية' : 'Support' },
+    { id: 'contact', label: isAr ? 'تواصل معنا' : 'Contact' }
+  ];
+
   const t = {
-    nav: {
-      overview: isAr ? 'نظرة عامة' : 'Overview',
-      process: isAr ? 'العملية التعليمية' : 'Process',
-      college: isAr ? 'المسارات الجامعية' : 'College',
-      mistakes: isAr ? 'أخطاء شائعة' : 'Mistakes',
-      support: isAr ? 'دعم الأكاديمية' : 'Support',
-      contact: isAr ? 'تواصل معنا' : 'Contact'
-    },
     hero: {
       title: isAr ? 'مركز موارد نيويورك' : 'NY Homeschool Center',
       subtitle: isAr ? 'دليلك الشامل للتعليم المنزلي في نيويورك' : 'Your Comprehensive NY Guide',
@@ -190,7 +180,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white min-h-screen">
-      {/* SECTION 1 — HERO */}
       <section className="relative pt-20 pb-16 lg:pt-32 lg:pb-24 bg-primary overflow-hidden">
         <div className="absolute inset-0 z-0">
           <svg className="absolute inset-0 h-full w-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
@@ -227,16 +216,15 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
         </div>
       </section>
 
-      {/* MOBILE NAVIGATION STRIP */}
       <nav className="lg:hidden sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
         <div className="flex overflow-x-auto py-4 px-4 no-scrollbar gap-4 items-center">
-          {Object.entries(t.nav).map(([key, label]) => (
+          {navItems.map((item) => (
             <button
-              key={key}
-              onClick={() => scrollTo(key === 'overview' ? 'intro' : key)}
+              key={item.id}
+              onClick={() => scrollTo(item.id)}
               className="whitespace-nowrap text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-100 active:bg-secondary active:text-white active:border-secondary transition-all"
             >
-              {label}
+              {item.label}
             </button>
           ))}
         </div>
@@ -244,8 +232,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
       <div className="container-tight py-12 lg:py-24 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          
-          {/* DESKTOP SIDEBAR */}
           <aside className="hidden lg:block lg:col-span-3 sticky top-32 space-y-8">
             <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-slate-50/50">
               <CardHeader className="bg-primary text-white p-6">
@@ -255,14 +241,14 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 flex flex-col gap-1">
-                {Object.entries(t.nav).map(([key, label]) => (
+                {navItems.map((item) => (
                   <button
-                    key={key}
-                    onClick={() => scrollTo(key === 'overview' ? 'intro' : key)}
+                    key={item.id}
+                    onClick={() => scrollTo(item.id)}
                     className="flex items-center gap-4 text-start px-5 py-4 rounded-xl text-xs font-black text-slate-500 hover:text-primary hover:bg-white hover:shadow-md border border-transparent hover:border-slate-100 transition-all group"
                   >
                     <div className="h-1.5 w-1.5 rounded-full bg-secondary group-hover:scale-150 transition-transform" />
-                    {label}
+                    {item.label}
                   </button>
                 ))}
               </CardContent>
@@ -279,10 +265,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
             </div>
           </aside>
 
-          {/* MAIN CONTENT */}
           <div className="lg:col-span-9 space-y-24 md:space-y-32">
-            
-            {/* SECTION 2 — OVERVIEW */}
             <section id="intro" className="scroll-mt-32">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
                 <div className="space-y-8">
@@ -322,7 +305,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
               </div>
             </section>
 
-            {/* SECTION 3 — PROCESS */}
             <section id="process" className="scroll-mt-32">
               <div className="space-y-12">
                 <div className="text-center md:text-start space-y-4">
@@ -364,7 +346,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
               </div>
             </section>
 
-            {/* SECTION 4 — COLLEGE */}
             <section id="college" className="scroll-mt-32">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start">
                 <div className="space-y-10">
@@ -393,7 +374,7 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
 
                 <div className="bg-slate-50/50 p-8 md:p-12 rounded-2xl border border-slate-100 shadow-inner space-y-10 relative">
                    <div className="absolute top-4 right-4 text-slate-200 opacity-20">
-                      <ClipboardCheck className="h-24 w-24" />
+                      <CheckCircle2 className="h-24 w-24" />
                    </div>
                    <h4 className="text-[10px] md:text-xs font-black text-primary uppercase tracking-[0.4em] border-b border-slate-200 pb-4 relative z-10">{t.college.checklistTitle}</h4>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
@@ -422,7 +403,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
               </div>
             </section>
 
-            {/* SECTION 5 — MISTAKES */}
             <section id="mistakes" className="scroll-mt-32">
               <div className="space-y-16">
                 <div className="text-center space-y-4">
@@ -462,7 +442,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
               </div>
             </section>
 
-            {/* SECTION 6 — SUPPORT */}
             <section id="support" className="scroll-mt-32">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
                  <div className="space-y-10 text-center md:text-start">
@@ -504,11 +483,9 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
               </div>
             </section>
 
-            {/* SECTION 7 — FOOTER CTA */}
             <section id="contact" className="scroll-mt-32 pb-12">
               <Card className="rounded-2xl border-none shadow-premium overflow-hidden bg-white group">
                  <div className="p-10 md:p-24 text-center space-y-12 relative overflow-hidden">
-                    {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-1000">
                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                           <pattern id="cta-dots" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -540,7 +517,6 @@ export default function NyResourcesPage({ params }: { params: Promise<{ lang: Lo
                  </div>
               </Card>
             </section>
-
           </div>
         </div>
       </div>
