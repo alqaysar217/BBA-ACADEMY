@@ -1,5 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
-
 export interface Student {
   status: string;
   firstName: string;
@@ -37,9 +35,4 @@ export interface EnrollmentData {
   weekendTerm: string;
   weekendSlot: string;
   files: any[];
-  status?: 'draft' | 'submitted';
-  submittedAt?: Timestamp;
-  updatedAt?: Timestamp;
-  userId?: string;
-  lang?: string;
 }

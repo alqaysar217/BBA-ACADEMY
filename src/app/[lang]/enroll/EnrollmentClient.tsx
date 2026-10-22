@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -54,8 +53,6 @@ import {
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { SuccessView } from './SuccessView';
@@ -725,8 +722,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                               <div className="space-y-2">
                                 <Label className={isFieldInvalid(student.lastGrade) ? "text-red-500" : ""}>{isAr ? 'آخر مرحلة *' : 'Last Grade *'}</Label>
                                 <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
-                                  <SelectTrigger className={isFieldInvalid(student.lastGrade) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
-                                  <SelectContent>{gradeLevels.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+                                  <SelectTrigger className={isFieldInvalid(student.lastGrade) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>                                  <SelectContent>{gradeLevels.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
@@ -789,7 +785,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                   )}
 
                   {formData.programOption === 'grades-6-12' && (
-                    <div className="space-y-10 animate-in slide-in-from-top">
+                    <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Label className={cn("p-6 rounded-2xl border-2 cursor-pointer text-center font-black", formData.languageOption === 'english-arabic' ? "border-primary bg-primary/5" : "border-slate-100")} onClick={() => updateField('languageOption', 'english-arabic')}>English + Arabic</Label>
                         <Label className={cn("p-6 rounded-2xl border-2 cursor-pointer text-center font-black", formData.languageOption === 'english-esl' ? "border-primary bg-primary/5" : "border-slate-100")} onClick={() => updateField('languageOption', 'english-esl')}>English + ESL Support</Label>

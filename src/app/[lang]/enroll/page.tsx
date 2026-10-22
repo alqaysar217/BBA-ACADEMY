@@ -1,4 +1,3 @@
-
 import { type Locale } from '@/lib/i18n/config';
 import { EnrollmentClient } from './EnrollmentClient';
 
