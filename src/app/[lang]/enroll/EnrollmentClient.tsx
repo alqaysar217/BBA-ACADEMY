@@ -621,7 +621,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
 
                     <div className={cn(
                       "rounded-2xl border transition-all duration-300 p-6",
-                      openParent === 'p2' ? "border-secondary bg-secondary/5" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200"
+                      openParent === 'p2' ? "border-secondary bg-secondary/5" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
                     )} onClick={() => setOpenParent('p2')}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
@@ -748,8 +748,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2")}>
                                   <Type className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأوسط' : 'Middle Name'}
-                                </Label>
-                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} />
+                                </Label>                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} />
                               </div>
                               <div className="space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastName) && "text-red-500")}>
