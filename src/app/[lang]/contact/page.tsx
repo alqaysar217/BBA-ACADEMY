@@ -1,9 +1,9 @@
 import { type Locale } from '@/lib/i18n/config';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Mail, Phone, MessageCircle, MapPin, Clock, Instagram, Youtube, Facebook, CheckCircle2, Send, PhoneCall, Headphones } from 'lucide-react';
+import { Mail, Phone, MessageCircle, MapPin, Clock, Instagram, Youtube, Facebook, CheckCircle2, Send } from 'lucide-react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 
@@ -13,11 +13,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
   return {
     title: isAr ? 'تواصل معنا' : 'Contact Us',
     description: isAr 
-      ? 'نحن هنا للإجابة على استفساراتكم ومساعدتكم في الانضمام لأكاديمية بنين وبنات.' 
-      : 'We are here to answer your inquiries and help you join Baneen and Banaat Academy.',
+      ? 'سواء كنت تستكشف الخيارات التعليمية، أو لديك أسئلة حول برامجنا، أو كنت مستعداً لبدء الرحلة التعليمية لعائلتك، فإن فريقنا هنا للمساعدة.'
+      : 'Whether you are exploring educational options, have questions about our programs, or are ready to begin your family\'s educational journey, our team is here to help.',
     openGraph: {
-      title: isAr ? 'تواصل معنا | بنين وبنات' : 'Contact Us | BBA Academy',
-      description: isAr ? 'فريق الدعم والقبول جاهز لمساعدتكم.' : 'Our support and admissions team is ready to help.',
+      title: isAr ? 'تواصل معنا | أكاديمية بنين وبنات' : 'Contact Us | BBA Academy',
+      description: isAr ? 'نحن هنا للإجابة على استفساراتكم ومساعدتكم.' : 'We are here to answer your inquiries and help you.',
       images: ['/logo.png'],
     }
   };
@@ -31,31 +31,30 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
     title: isAr ? 'تواصل معنا' : 'Connect With Us',
     subtitle: isAr ? 'نود أن نسمع منك' : 'We\'d Love to Hear From You',
     intro: isAr 
-      ? 'سواء كنت تستكشف الخيارات التعليمية، أو لديك أسئلة حول برامجنا، أو كنت مستعداً لبدء الرحلة التعليمية لعائلتك، فإن فريقنا هنا للمساعدة.'
-      : 'Whether you are exploring educational options, have questions about our programs, or are ready to begin your family\'s educational journey, our team is here to help.',
+      ? 'سواء كنت تستكشف الخيارات التعليمية، أو لديك أسئلة حول برامجنا، أو كنت مستعداً لبدء الرحلة التعليمية لعائلتك، فإن فريقنا هنا للمساعدة. في أكاديمية بنين وبنات، نؤمن بأن كل عائلة تستحق توجيهاً شخصياً. يسعدنا الإجابة على أسئلتك، ومناقشة الأهداف التعليمية لطفلك، ومساعدتك في استكشاف المسار الذي يناسب احتياجات عائلتك بشكل أفضل. نحن نتطلع إلى التواصل معك ومستعدون دائماً للإجابة على أي أسئلة وتقديم الدعم الكامل.'
+      : 'Whether you are exploring educational options, have questions about our programs, or are ready to begin your family\'s educational journey, our team is help. At Baneen and Banaat Academy, we believe every family deserves personalized guidance. We are delighted to answer your questions, discuss your child\'s educational goals, and help you explore the path that best fits your family\'s needs. We look forward to connecting with you and are always ready to answer any questions and provide complete support.',
     contactInfoTitle: isAr ? 'معلومات التواصل' : 'Contact Information',
     contactInfo: {
-      phone: '(734) 645-3613',
-      whatsapp: '(313) 655-5778',
-      emails: ['info@baneenbanaat.org', 'banaatacademy@gmail.com'],
-      hours: isAr ? 'الإثنين – الجمعة | 9:00 صباحاً – 4:00 مساءً' : 'Monday – Friday | 9:00 AM – 4:00 PM (ET)',
+      phone: '+1 (734) 645-3613',
+      whatsapp: '+1 (313) 655-5778',
+      emails: ['banaatacademy@gmail.com', 'info@baneenbanaat.org'],
+      hours: isAr ? 'الإثنين – الجمعة | 9:00 صباحاً – 4:00 مساءً' : 'Monday – Friday | 9:00 AM – 4:00 PM',
       location: isAr ? 'ميشيغان، الولايات المتحدة (نخدم العائلات في جميع أنحاء البلاد!)' : 'Michigan, United States (Serving Families Nationwide!)'
     },
+    helpTitle: isAr ? 'كيف يمكننا المساعدة' : 'How We Can Help',
+    helpItems: [
+      isAr ? 'القبول والتسجيل' : 'Admissions and Enrollment',
+      isAr ? 'التخطيط التعليمي' : 'Educational Planning',
+      isAr ? 'إرشادات التعليم المنزلي' : 'Homeschool Guidance',
+      isAr ? 'معلومات البرنامج' : 'Program Information',
+      isAr ? 'سجلات الطلاب والنصوص' : 'Student Records and Transcripts',
+      isAr ? 'استفسارات عامة' : 'General Inquiries'
+    ],
     formTitle: isAr ? 'لنبدأ المحادثة' : 'Let\'s Start the Conversation',
     formText: isAr 
       ? 'تبدأ رحلة كل طالب بمحادثة واحدة. سواء كنت تبحث عن إجابات، أو تستكشف فرصاً تعليمية جديدة، أو مستعداً للتسجيل، يسعدنا مساعدتك في اتخاذ الخطوة التالية.'
       : 'Every student\'s journey begins with a single conversation. Whether you are looking for answers, exploring new educational opportunities, or ready to enroll, we are happy to help you take the next step.',
-    helpWith: {
-      title: isAr ? 'يمكننا مساعدتك في:' : 'We Can Help With:',
-      items: [
-        isAr ? 'القبول والتسجيل' : 'Admissions & Enrollment',
-        isAr ? 'التخطيط التعليمي' : 'Educational Planning',
-        isAr ? 'إرشادات التعليم المنزلي' : 'Homeschool Guidance',
-        isAr ? 'معلومات البرامج' : 'Program Information',
-        isAr ? 'سجلات الطلاب والشهادات' : 'Student Records & Transcripts',
-        isAr ? 'أسئلة عامة' : 'General Questions'
-      ]
-    },
+    socialTitle: isAr ? 'تابعنا على وسائل التواصل الاجتماعي' : 'Follow Us on Social Media',
     labels: {
       name: isAr ? 'الاسم الكامل' : 'Full Name',
       email: isAr ? 'البريد الإلكتروني' : 'Email Address',
@@ -65,174 +64,188 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
     }
   };
 
+  const socials = [
+    { icon: Instagram, href: 'https://www.instagram.com/baneen_banaat_academy/', label: 'Instagram' },
+    { icon: Youtube, href: 'https://www.youtube.com/@mybba_edu', label: 'YouTube' },
+    { icon: Facebook, href: 'https://www.facebook.com/mybba.edu.us', label: 'Facebook' },
+  ];
+
   return (
-    <div className="bg-white min-h-screen">
-      {/* Hero Section */}
-      <section className="py-20 lg:py-32 bg-slate-50 border-b border-slate-100 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <pattern id="contact-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                 <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
-              </pattern>
-              <rect width="100%" height="100%" fill="url(#contact-grid)" />
-           </svg>
-        </div>
-        <div className="container-tight relative z-10 text-center space-y-6">
-          <div className="space-y-4">
-            <h1 className="text-3xl lg:text-6xl font-black tracking-tight text-primary uppercase">{t.title}</h1>
-            <p className="text-xl lg:text-3xl font-black text-secondary italic">{t.subtitle}</p>
+    <div className="bg-white">
+      {/* Header Section - Improved: White background, clear text */}
+      <section className="py-20 lg:py-24 bg-white text-center">
+        <div className="container-tight space-y-6">
+          <div className="space-y-2">
+             <h1 className="text-3xl lg:text-5xl font-black tracking-tight text-primary uppercase">{t.title}</h1>
+             <div className="h-1.5 w-20 bg-secondary mx-auto rounded-full" />
           </div>
-          <p className="text-slate-500 max-w-4xl mx-auto leading-relaxed text-sm lg:text-xl font-bold italic px-4">
+          <p className="text-xl lg:text-2xl font-bold text-secondary">{t.subtitle}</p>
+          <p className="text-slate-600 max-w-4xl mx-auto leading-relaxed text-lg font-medium italic px-4">
             {t.intro}
           </p>
-          <div className="h-1.5 w-24 bg-secondary mx-auto rounded-full mt-8" />
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 container-tight">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+      <div className="container-tight py-16 px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
           
-          {/* Left Column: Form & Help List */}
-          <div className="lg:col-span-7 space-y-12">
-            <div className="space-y-6">
-              <h2 className="text-2xl lg:text-4xl font-black text-primary uppercase tracking-tight">{t.formTitle}</h2>
-              <p className="text-slate-600 font-medium text-sm lg:text-lg leading-relaxed">
-                {t.formText}
-              </p>
+          {/* Contact Details Column */}
+          <div className="lg:col-span-1 space-y-10">
+            {/* Contact Info Group */}
+            <div className="space-y-8">
+              <h2 className="text-2xl font-black text-primary uppercase tracking-tight border-b-4 border-secondary pb-2 inline-block">
+                {t.contactInfoTitle}
+              </h2>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
+                  <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Phone className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-primary text-sm">{isAr ? 'الهاتف' : 'Phone'}</h3>
+                    <p className="text-slate-600 font-bold">{t.contactInfo.phone}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
+                  <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+                    <MessageCircle className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-primary text-sm">WhatsApp</h3>
+                    <Link href="https://wa.me/13136555778" target="_blank" className="text-slate-600 font-bold hover:text-secondary underline decoration-secondary/30 underline-offset-4">
+                      {t.contactInfo.whatsapp}
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
+                  <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Mail className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-primary text-sm">{isAr ? 'البريد الإلكتروني' : 'Email'}</h3>
+                    {t.contactInfo.emails.map(email => (
+                      <p key={email} className="text-slate-600 font-bold truncate text-sm">{email}</p>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
+                  <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Clock className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-primary text-sm">{isAr ? 'ساعات العمل' : 'Office Hours'}</h3>
+                    <p className="text-slate-600 font-bold text-sm leading-relaxed">{t.contactInfo.hours}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-white hover:border-secondary/20">
+                  <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <MapPin className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-primary text-sm">{isAr ? 'الموقع' : 'Location'}</h3>
+                    <p className="text-slate-600 font-bold text-sm leading-relaxed">{t.contactInfo.location}</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white">
+            {/* Help Items Section */}
+            <div className="bg-primary text-white p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+                 <CheckCircle2 className="h-24 w-24" />
+              </div>
+              <h2 className="text-xl font-black uppercase tracking-tight border-b border-white/20 pb-4 mb-6 relative z-10">
+                {t.helpTitle}
+              </h2>
+              <ul className="space-y-4 relative z-10">
+                {t.helpItems.map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-secondary shrink-0" />
+                    <span className="font-bold text-sm opacity-90">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Form Column - Improved Input styling */}
+          <div className="lg:col-span-2 space-y-10">
+            <Card className="rounded-[2.5rem] border border-slate-100 shadow-2xl overflow-hidden bg-white">
+              <CardHeader className="bg-slate-50 p-8 lg:p-12 border-b border-slate-100">
+                <CardTitle className="text-2xl lg:text-3xl font-black text-primary uppercase tracking-tight">{t.formTitle}</CardTitle>
+                <p className="text-slate-500 font-bold leading-relaxed mt-4 max-w-xl">
+                  {t.formText}
+                </p>
+              </CardHeader>
               <CardContent className="p-8 lg:p-12 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">{t.labels.name}</label>
-                    <Input className="h-14 bg-slate-50 border-slate-100 rounded-xl font-bold focus:ring-secondary/20" placeholder="John Doe" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.name}</label>
+                    <Input 
+                      placeholder={isAr ? 'أدخل اسمك الكامل' : 'Enter your full name'} 
+                      className="h-14 bg-white border border-slate-200 rounded-xl font-bold transition-all focus:border-secondary focus:ring-secondary/10" 
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">{t.labels.email}</label>
-                    <Input className="h-14 bg-slate-50 border-slate-100 rounded-xl font-bold focus:ring-secondary/20" type="email" placeholder="example@mail.com" />
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.email}</label>
+                    <Input 
+                      type="email" 
+                      placeholder="email@example.com" 
+                      className="h-14 bg-white border border-slate-200 rounded-xl font-bold transition-all focus:border-secondary focus:ring-secondary/10" 
+                    />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">{t.labels.subject}</label>
-                  <Input className="h-14 bg-slate-50 border-slate-100 rounded-xl font-bold focus:ring-secondary/20" />
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.subject}</label>
+                  <Input 
+                    placeholder={isAr ? 'موضوع الرسالة' : 'Subject of message'} 
+                    className="h-14 bg-white border border-slate-200 rounded-xl font-bold transition-all focus:border-secondary focus:ring-secondary/10" 
+                  />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">{t.labels.message}</label>
-                  <Textarea className="min-h-[150px] bg-slate-50 border-slate-100 rounded-xl font-bold focus:ring-secondary/20 pt-4" />
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase tracking-widest text-primary/60">{t.labels.message}</label>
+                  <Textarea 
+                    placeholder={isAr ? 'كيف يمكننا مساعدتك؟ نحن مستعدون للرد على كافة أسئلتك.' : 'How can we help you? We are ready to answer all your questions.'} 
+                    className="min-h-[180px] bg-white border border-slate-200 rounded-xl font-bold p-6 transition-all focus:border-secondary focus:ring-secondary/10"
+                  />
                 </div>
-                <Button className="w-full h-16 bg-secondary hover:bg-primary text-white font-black text-lg rounded-xl shadow-xl transition-all gap-3">
-                  <Send className="h-5 w-5" />
+                <Button className="w-full bg-secondary hover:bg-primary text-white font-black h-16 text-lg rounded-2xl shadow-xl shadow-secondary/20 transition-all scale-100 hover:scale-[1.01] active:scale-[0.99] gap-3">
                   {t.labels.send}
+                  <Send className={isAr ? "h-5 w-5 rotate-180" : "h-5 w-5"} />
                 </Button>
               </CardContent>
             </Card>
 
-            <div className="space-y-6 pt-6">
-               <h3 className="text-lg font-black text-primary uppercase tracking-widest border-b-2 border-secondary/20 pb-3 inline-block">
-                 {t.helpWith.title}
-               </h3>
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {t.helpWith.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100 group hover:bg-white hover:shadow-md transition-all">
-                       <CheckCircle2 className="h-5 w-5 text-secondary shrink-0" />
-                       <span className="font-bold text-slate-700 text-sm">{item}</span>
+            {/* Social Links Footer */}
+            <div className="text-center space-y-10 pt-8 border-t border-slate-100">
+              <h2 className="text-xl font-black text-primary uppercase tracking-tight">
+                {t.socialTitle}
+              </h2>
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-10">
+                {socials.map((social, idx) => (
+                  <Link 
+                    key={idx} 
+                    href={social.href} 
+                    target="_blank" 
+                    className="group flex flex-col items-center gap-4"
+                  >
+                    <div className="h-16 w-16 rounded-3xl bg-white border border-slate-100 shadow-sm flex items-center justify-center transition-all group-hover:bg-secondary group-hover:border-secondary group-hover:-translate-y-2 group-hover:rotate-6">
+                      <social.icon className="h-7 w-7 text-primary group-hover:text-white transition-colors" />
                     </div>
-                  ))}
-               </div>
-            </div>
-          </div>
-
-          {/* Right Column: Contact Info Cards */}
-          <div className="lg:col-span-5 space-y-8">
-            <h2 className="text-xl lg:text-2xl font-black text-primary uppercase tracking-widest">{t.contactInfoTitle}</h2>
-            
-            <div className="grid grid-cols-1 gap-6">
-              <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm group hover:shadow-xl transition-all duration-500 flex items-start gap-6">
-                <div className="h-14 w-14 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg shrink-0 group-hover:rotate-12 transition-transform">
-                  <PhoneCall className="h-7 w-7" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Phone Support</p>
-                  <p className="text-lg font-black text-primary" dir="ltr">{t.contactInfo.phone}</p>
-                </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-secondary transition-colors">
+                      {social.label}
+                    </span>
+                  </Link>
+                ))}
               </div>
-
-              <Link href={`https://wa.me/13136555778`} target="_blank" className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm group hover:shadow-xl hover:border-green-100 transition-all duration-500 flex items-start gap-6">
-                <div className="h-14 w-14 rounded-2xl bg-green-500 text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-110 transition-transform">
-                  <MessageCircle className="h-7 w-7" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">WhatsApp Support</p>
-                  <p className="text-lg font-black text-green-600 font-mono" dir="ltr">{t.contactInfo.whatsapp}</p>
-                </div>
-              </Link>
-
-              <div className="p-8 bg-white border border-slate-100 rounded-2xl shadow-sm group hover:shadow-xl transition-all duration-500 flex items-start gap-6">
-                <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shrink-0 group-hover:rotate-12 transition-transform">
-                  <Mail className="h-7 w-7" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Email Inquiry</p>
-                  {t.contactInfo.emails.map((email, idx) => (
-                    <p key={idx} className="text-sm lg:text-base font-black text-primary break-all">{email}</p>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-8 bg-slate-900 text-white rounded-2xl shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-125 transition-transform duration-1000">
-                   <Clock className="h-32 w-32" />
-                </div>
-                <div className="flex items-start gap-6 relative z-10">
-                   <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg shrink-0">
-                      <Clock className="h-6 w-6" />
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Office Hours (ET)</p>
-                      <p className="text-base font-black text-white">{t.contactInfo.hours}</p>
-                   </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Social Links */}
-            <div className="pt-8 border-t border-slate-100 flex flex-col items-center gap-6">
-               <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em]">{isAr ? 'تابعنا على المنصات الاجتماعية' : 'Follow our community'}</h4>
-               <div className="flex items-center gap-6">
-                  <Link href="https://wa.me/13136555778" target="_blank" className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-green-500 hover:text-white transition-all shadow-sm border border-slate-100"><MessageCircle className="h-6 w-6" /></Link>
-                  <Link href="https://www.instagram.com/baneen_banaat_academy/" target="_blank" className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm border border-slate-100"><Instagram className="h-6 w-6" /></Link>
-                  <Link href="https://www.facebook.com/mybba.edu.us" target="_blank" className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-secondary hover:text-white transition-all shadow-sm border border-slate-100"><Facebook className="h-6 w-6" /></Link>
-                  <Link href="https://www.youtube.com/@mybba_edu" target="_blank" className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-red-600 hover:text-white transition-all shadow-sm border border-slate-100"><Youtube className="h-6 w-6" /></Link>
-               </div>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Support Section */}
-      <section className="bg-primary py-20 lg:py-32 text-white relative overflow-hidden">
-         <div className="absolute inset-0 opacity-5 pointer-events-none">
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-               <circle cx="20" cy="20" r="1.5" fill="white" />
-            </svg>
-         </div>
-         <div className="container-tight text-center space-y-8 relative z-10">
-            <div className="flex justify-center">
-               <div className="h-20 w-20 bg-white/10 rounded-3xl border border-white/20 flex items-center justify-center shadow-2xl backdrop-blur-md">
-                  <Headphones className="h-10 w-10 text-secondary" />
-               </div>
-            </div>
-            <div className="space-y-4">
-               <h2 className="text-2xl lg:text-5xl font-black uppercase tracking-tight">{isAr ? 'نحن هنا لخدمتكم دائماً' : 'Support is Always Ready'}</h2>
-               <p className="text-sm lg:text-2xl font-bold opacity-70 italic max-w-3xl mx-auto leading-relaxed">
-                  {isAr 
-                    ? 'فريق القبول والدعم الأكاديمي جاهز للرد على استفساراتكم خلال ساعات العمل الرسمية لضمان تجربة تعليمية متميزة لأطفالكم.'
-                    : 'Our admissions and support team is ready to respond to your inquiries during official hours to ensure a premium education for your children.'}
-               </p>
-            </div>
-         </div>
-      </section>
+      </div>
     </div>
   );
 }
