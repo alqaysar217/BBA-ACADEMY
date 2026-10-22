@@ -15,7 +15,18 @@ import {
   Facebook, 
   Lock,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Home,
+  BookOpen,
+  GraduationCap,
+  Info,
+  History,
+  UserCheck,
+  Map,
+  MessageSquare,
+  Star,
+  PhoneCall,
+  FileSignature
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -24,7 +35,6 @@ export function Footer({ lang }: { lang: Locale }) {
   const [currentYear, setCurrentYear] = useState<number>(2026);
 
   useEffect(() => {
-    // Keeping it 2026 as requested or dynamic
     setCurrentYear(2026);
   }, []);
 
@@ -46,16 +56,18 @@ export function Footer({ lang }: { lang: Locale }) {
   };
 
   const links = [
-    { name: { en: 'Home', ar: 'الرئيسية' }, href: '/' },
-    { name: { en: 'Founder Message', ar: 'كلمة المؤسس' }, href: '/founder' },
-    { name: { en: 'Testimonials', ar: 'آراء أولياء الأمور' }, href: '/testimonials' },
-    { name: { en: 'NY Resources', ar: 'دليل التعليم المنزلي' }, href: '/ny-resources' },
-    { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs' },
-    { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about' },
-    { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story' },
-    { name: { en: 'Planning', ar: 'التخطيط والمستقبل' }, href: '/planning' },
-    { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide' },
-    { name: { en: 'Contact Us', ar: 'تواصل معنا' }, href: '/contact' },
+    { name: { en: 'Home', ar: 'الرئيسية' }, href: '/', icon: Home },
+    { name: { en: 'Programs', ar: 'البرامج التعليمية' }, href: '/programs', icon: BookOpen },
+    { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide', icon: GraduationCap },
+    { name: { en: 'NY Homeschool', ar: 'دليل التعليم المنزلي' }, href: '/ny-resources', icon: MapPin },
+    { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
+    { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
+    { name: { en: 'Founder Message', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
+    { name: { en: 'Planning', ar: 'التخطيط والمسارات' }, href: '/planning', icon: Map },
+    { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/guide', icon: MessageSquare },
+    { name: { en: 'Testimonials', ar: 'آراء أولياء الأمور' }, href: '/testimonials', icon: Star },
+    { name: { en: 'Contact Us', ar: 'تواصل معنا' }, href: '/contact', icon: PhoneCall },
+    { name: { en: 'Enrollment Form', ar: 'استمارة التسجيل' }, href: '/enroll', icon: FileSignature },
   ];
 
   return (
@@ -92,22 +104,25 @@ export function Footer({ lang }: { lang: Locale }) {
             </div>
           </div>
 
-          {/* Column 2: Quick Links */}
+          {/* Column 2: Quick Links Mapped */}
           <div className="lg:col-span-4">
             <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 mb-8 inline-block">
               {t.quickLinks}
             </h4>
-            <nav className="grid grid-cols-2 gap-x-4 gap-y-3">
-              {links.map((link, idx) => (
-                <Link 
-                  key={idx} 
-                  href={`/${lang}${link.href}`}
-                  className="text-white/60 hover:text-secondary text-xs font-bold flex items-center gap-2 transition-colors group"
-                >
-                  {isAr ? <ChevronLeft className="h-3 w-3 opacity-30 group-hover:opacity-100" /> : <ChevronRight className="h-3 w-3 opacity-30 group-hover:opacity-100" />}
-                  {link.name[lang]}
-                </Link>
-              ))}
+            <nav className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+              {links.map((link, idx) => {
+                const Icon = link.icon;
+                return (
+                  <Link 
+                    key={idx} 
+                    href={`/${lang}${link.href}`}
+                    className="text-white/60 hover:text-secondary text-xs font-bold flex items-center gap-2.5 transition-colors group"
+                  >
+                    <Icon className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+                    {link.name[lang]}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
@@ -160,14 +175,14 @@ export function Footer({ lang }: { lang: Locale }) {
               <Link 
                 href="https://wa.me/13136555778" 
                 target="_blank"
-                className="flex items-center gap-2 px-4 py-2.5 bg-green-500/10 hover:bg-green-500/20 text-green-500 border border-green-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95"
               >
                 <MessageCircle className="h-4 w-4" />
                 {t.whatsapp}
               </Link>
               <Link 
                 href={`/${lang}/admin`}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
               >
                 <Lock className="h-4 w-4 text-secondary" />
                 {t.adminPanel}
