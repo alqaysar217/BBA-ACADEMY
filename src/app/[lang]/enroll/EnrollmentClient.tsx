@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,6 @@ import {
   User, 
   GraduationCap, 
   FileText, 
-  Plus, 
   AlertCircle, 
   Loader2, 
   ChevronDown, 
@@ -32,14 +31,12 @@ import {
   Calendar as CalendarIcon, 
   ShieldCheck,
   Type,
-  Briefcase,
   ArrowRight,
   ArrowLeft,
   Send,
   BookOpen,
   Calendar,
   Star,
-  Info,
   Clock,
   Languages,
   CheckCircle2,
@@ -57,7 +54,7 @@ import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/fires
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { SuccessView } from './SuccessView';
-import { EnrollmentData, Student } from './types';
+import { EnrollmentData } from './types';
 
 const steps = [
   { id: 1, name: { en: 'Parent Information', ar: 'بيانات ولي الأمر' } },
@@ -728,16 +725,28 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
               {currentStep === 2 && (
                 <div className="space-y-12">
                   <div className="bg-slate-50/80 p-6 rounded-2xl border border-slate-100 text-center">
-                    <Label className="text-sm font-black text-primary uppercase tracking-widest mb-6 block">{isAr ? 'عدد الطلاب المسجلين' : 'Number of Students'}</Label>
-                    <RadioGroup value={formData.siblingCount} onValueChange={handleSiblingCountChange} className="flex gap-4 justify-center">
+                    <Label className="text-sm font-black text-primary uppercase tracking-widest mb-6 block">
+                      {isAr ? 'عدد الطلاب المسجلين' : 'Number of Students'}
+                    </Label>
+                    <RadioGroup 
+                      value={formData.siblingCount} 
+                      onValueChange={handleSiblingCountChange} 
+                      className="flex gap-4 justify-center"
+                    >
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex flex-col items-center justify-center w-20 h-20 rounded-xl cursor-pointer transition-all border-2",
-                          formData.siblingCount === n ? "bg-primary border-primary text-white shadow-xl scale-110" : "bg-white border-slate-100 text-slate-500"
+                          "flex items-center justify-center p-4 rounded-xl cursor-pointer transition-all border-2",
+                          formData.siblingCount === n 
+                            ? "bg-primary border-primary text-white shadow-xl scale-110 gap-3 px-6" 
+                            : "bg-white border-slate-100 text-slate-500"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
                           <span className="text-2xl font-black">{n}</span>
-                          {n === '1' && <span className="text-[10px] font-bold uppercase">{isAr ? 'طالب' : 'Student'}</span>}
+                          {formData.siblingCount === n && (
+                            <span className="text-xs font-black uppercase tracking-widest animate-in fade-in slide-in-from-left-2 duration-300">
+                              {isAr ? 'طالب' : 'Student'}
+                            </span>
+                          )}
                         </Label>
                       ))}
                     </RadioGroup>
@@ -746,7 +755,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                     {formData.students.map((student: any, idx: number) => (
                       <div key={idx} className={cn("rounded-xl border overflow-hidden", openStudentIdx === idx ? "border-primary shadow-lg" : "border-slate-100 bg-white cursor-pointer")} onClick={() => setOpenStudentIdx(idx)}>
                         <div className={cn("p-5 flex justify-between", openStudentIdx === idx ? "bg-primary text-white" : "bg-white")}>
-                          <span className="font-black uppercase">{isAr ? `الطالب ${idx + 1}` : `Student ${idx + 1}`} {student.firstName && `- ${student.firstName}`}</span>
+                          <span className="font-black uppercase">{isAr ? `طالب ${idx + 1}` : `Student ${idx + 1}`} {student.firstName && `- ${student.firstName}`}</span>
                           <ChevronDown className={cn("h-5 w-5 transition-transform", openStudentIdx === idx && "rotate-180")} />
                         </div>
                         {openStudentIdx === idx && (
@@ -796,8 +805,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                                   {isAr ? 'آخر مرحلة *' : 'Last Grade *'}
                                 </Label>
                                 <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
-                                  <SelectTrigger className={isFieldInvalid(student.lastGrade) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
-                                  <SelectContent>{gradeLevels.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+                                  <SelectTrigger className={isFieldInvalid(student.lastGrade) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>                                  <SelectContent><SelectItem value="K">K</SelectItem>{gradeLevels.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
@@ -930,7 +938,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                         <button onClick={() => setCurrentStep(2)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary text-white p-5"><CardTitle className="text-sm font-black uppercase">{isAr ? 'الطلاب المسجلون' : 'Registered Students'}</CardTitle></CardHeader>
                         <CardContent className="p-8 space-y-4">
-                          {formData.students.map((st, idx) => (
+                          {formData.students.map((st: any, idx: number) => (
                              <div key={idx} className="flex justify-between items-center border-b border-slate-200 pb-2">
                                 <span className="font-bold text-primary">{st.firstName} {st.lastName}</span>
                                 <span className="text-xs font-bold text-secondary">Grade {st.lastGrade}</span>

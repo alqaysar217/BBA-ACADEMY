@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Check, MessageCircle, Home, Copy } from 'lucide-react';
+import { Check, MessageCircle, Home, Copy, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
@@ -38,11 +38,11 @@ export function SuccessView({ isAr, lang, submissionId }: SuccessViewProps) {
           {isAr ? 'تم استلام طلبكم بنجاح!' : 'Application Submitted!'}
         </h1>
         
-        <div className="p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 max-w-sm mx-auto">
+        <div className="p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 max-w-sm mx-auto group">
            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'رقم مرجع الطلب' : 'Application Reference ID'}</p>
            <div className="flex items-center justify-center gap-3">
               <p className="text-2xl font-black text-secondary select-all">{submissionId}</p>
-              <button onClick={copyId} className="p-2 hover:bg-white rounded-lg transition-colors"><Copy className="h-4 w-4 text-slate-400" /></button>
+              <button onClick={copyId} className="p-2 hover:bg-white rounded-lg transition-colors text-slate-400 hover:text-secondary"><Copy className="h-4 w-4" /></button>
            </div>
         </div>
 
@@ -54,11 +54,11 @@ export function SuccessView({ isAr, lang, submissionId }: SuccessViewProps) {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full max-w-md">
-        <Button onClick={notifyAdminWhatsapp} className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2">
+        <Button onClick={notifyAdminWhatsapp} className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95">
           <MessageCircle className="h-5 w-5" />
           {isAr ? 'إبلاغ عبر واتساب' : 'Notify via WhatsApp'}
         </Button>
-        <Button asChild variant="outline" className="flex-1 rounded-xl h-14 font-bold border-slate-200">
+        <Button asChild variant="outline" className="flex-1 rounded-xl h-14 font-bold border-slate-200 hover:bg-slate-50 transition-all">
           <Link href={`/${lang}`} className="flex items-center justify-center gap-2">
             <Home className="h-5 w-5" />
             {isAr ? 'الرئيسية' : 'Home'}
