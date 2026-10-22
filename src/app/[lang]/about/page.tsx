@@ -1,6 +1,6 @@
 import { type Locale } from '@/lib/i18n/config';
 import Image from 'next/image';
-import { CheckCircle2, MapPin, GraduationCap, Globe, Handshake, Target, Eye, Heart } from 'lucide-react';
+import { Target, Eye, CheckCircle2, Users, Heart, Star, MapPin, GraduationCap, Globe, Handshake } from 'lucide-react';
 import { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
@@ -89,19 +89,20 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
+      {/* Page Title & Intro */}
       <section className="py-16 lg:py-24 border-b border-slate-100">
         <div className="container-tight">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div className="space-y-8">
               <div className="space-y-4">
-                <h1 className="text-3xl lg:text-5xl font-black text-primary tracking-tight leading-tight uppercase">
+                <h1 className="text-2xl lg:text-4xl font-black text-primary tracking-tight leading-tight uppercase">
                   {t.title}
                 </h1>
-                <p className="text-xl lg:text-2xl font-bold text-secondary italic">
+                <p className="text-xl font-bold text-secondary italic">
                   {t.tagline}
                 </p>
               </div>
+              
               <div className="space-y-6 text-slate-600 leading-relaxed font-medium text-lg">
                 <p className="text-primary font-black text-xl leading-snug border-l-4 border-secondary pl-6">
                   {t.intro}
@@ -110,8 +111,15 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
                 <p>{t.serving}</p>
               </div>
             </div>
+            
             <div className="relative aspect-square lg:aspect-[4/5] rounded-xl overflow-hidden shadow-2xl border-4 border-white">
-              <Image src="/About.png" alt="Academy Foundation" fill className="object-cover" unoptimized />
+              <Image 
+                src="/About.png" 
+                alt="Academy Foundation" 
+                fill 
+                className="object-cover"
+                unoptimized
+              />
             </div>
           </div>
         </div>
@@ -140,45 +148,108 @@ export default async function AboutPage({ params }: { params: Promise<{ lang: Lo
       {/* Approach Section */}
       <section className="py-20">
         <div className="container-tight">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <div className="space-y-8">
-              <h2 className="text-2xl lg:text-4xl font-black text-primary uppercase tracking-tight">{t.sections.approach.title}</h2>
-              <div className="space-y-6 text-slate-600 text-lg leading-relaxed font-medium">
-                <p>{t.sections.approach.content1}</p>
-                <div className="p-6 bg-slate-50 border-l-4 border-secondary rounded-r-xl italic">
-                  {t.sections.approach.content2}
-                </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl lg:text-3xl font-black uppercase tracking-tight text-primary">
+                  {t.sections.approach.title}
+                </h2>
+                <div className="h-1 w-12 bg-secondary" />
+              </div>
+              <div className="space-y-4 text-lg font-medium leading-relaxed text-slate-600">
+                <p className="text-primary font-black text-xl">{t.sections.approach.content1}</p>
+                <p>{t.sections.approach.content2}</p>
                 <p>{t.sections.approach.content3}</p>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-6">
-              <div className="p-8 bg-primary text-white rounded-2xl shadow-xl space-y-4 relative overflow-hidden group">
-                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Target className="h-24 w-24" /></div>
-                 <h3 className="text-xl font-black uppercase tracking-widest text-secondary">{t.sections.mission.title}</h3>
-                 <p className="text-sm lg:text-base leading-relaxed opacity-90 relative z-10">{t.sections.mission.text}</p>
+            <div className="bg-primary p-10 rounded-lg text-white space-y-8 shadow-xl">
+              <div className="flex items-center gap-4">
+                <Users className="h-8 w-8 text-secondary" />
+                <h3 className="text-xl font-black uppercase tracking-widest">{isAr ? 'تركيزنا الأساسي' : 'Our Core Focus'}</h3>
               </div>
-              <div className="p-8 bg-slate-900 text-white rounded-2xl shadow-xl space-y-4 relative overflow-hidden group">
-                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Eye className="h-24 w-24" /></div>
-                 <h3 className="text-xl font-black uppercase tracking-widest text-secondary">{t.sections.vision.title}</h3>
-                 <p className="text-sm lg:text-base leading-relaxed opacity-90 relative z-10">{t.sections.vision.text}</p>
-              </div>
+              <ul className="space-y-4">
+                {[
+                  isAr ? 'فهم قصة كل طالب' : 'Understanding every student\'s story',
+                  isAr ? 'توجيه أكاديمي مستمر' : 'Ongoing academic guidance',
+                  isAr ? 'إعداد الطلاب للتخرج' : 'Preparing students for graduation',
+                  isAr ? 'قرارات تعليمية مدروسة' : 'Informed educational decisions'
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-4">
+                    <div className="h-2 w-2 bg-secondary" />
+                    <span className="font-bold text-lg">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Glance Stats Section */}
-      <section className="py-20 bg-primary text-white">
+      {/* Mission & Vision Section */}
+      <section className="py-20 bg-slate-50/50">
         <div className="container-tight">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white border border-slate-200 p-10 rounded-lg space-y-6 shadow-sm">
+              <Target className="h-10 w-10 text-primary" />
+              <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.mission.title}</h2>
+              <p className="text-slate-600 leading-relaxed font-bold text-lg">
+                {t.sections.mission.text}
+              </p>
+            </div>
+
+            <div className="bg-primary text-white p-10 rounded-lg space-y-6 shadow-xl">
+              <Eye className="h-10 w-10 text-secondary" />
+              <h2 className="text-2xl font-black uppercase tracking-tight text-white">{t.sections.vision.title}</h2>
+              <p className="text-white/80 leading-relaxed font-medium text-lg">
+                {t.sections.vision.text}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Commitment Section */}
+      <section className="py-20">
+        <div className="container-tight text-center max-w-4xl mx-auto space-y-12">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.commitment.title}</h2>
+            <div className="h-1 w-12 bg-secondary mx-auto" />
+          </div>
+          <div className="bg-white p-10 lg:p-16 rounded-lg shadow-sm border border-slate-200 space-y-8">
+            <div className="flex justify-center">
+              <div className="h-12 w-12 text-secondary flex items-center justify-center">
+                <Heart className="h-10 w-10 fill-secondary" />
+              </div>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-black text-primary">{t.sections.commitment.intro}</h3>
+            <div className="space-y-6">
+              <p className="text-lg text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                {t.sections.commitment.text}
+              </p>
+              <p className="text-xl sm:text-2xl font-black text-secondary leading-tight">
+                {t.sections.commitment.goal}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* At a Glance Section */}
+      <section className="py-20 bg-slate-50 border-t border-slate-100">
+        <div className="container-tight">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.sections.glance.title}</h2>
+            <div className="h-1 w-12 bg-secondary mx-auto mt-2" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {t.sections.glance.items.map((stat, idx) => (
-              <div key={idx} className="text-center space-y-4 group">
-                <div className="h-16 w-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all shadow-xl">
+              <div key={idx} className="bg-white p-8 rounded border border-slate-200 text-center space-y-4 shadow-sm hover:shadow-md transition-all">
+                <div className="mx-auto h-12 w-12 text-secondary flex items-center justify-center">
                   <stat.icon className="h-8 w-8" />
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/50">{stat.label}</p>
-                  <p className="text-xl font-black">{stat.value}</p>
+                <div>
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</div>
+                  <div className="text-lg font-black text-primary">{stat.value}</div>
                 </div>
               </div>
             ))}
