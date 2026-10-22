@@ -220,21 +220,30 @@ export function Header({ lang }: { lang: Locale }) {
                              <item.icon className="h-4 w-4" />
                              <span className="text-[10px] font-black uppercase tracking-[0.3em]">{item.name[lang]}</span>
                           </div>
-                          <div className="space-y-1">
-                            {item.subLinks.map((sub, sIdx) => (
-                               <Link
-                                key={sIdx}
-                                href={`/${lang}${sub.href}`}
-                                onClick={() => setIsOpen(false)}
-                                className={cn(
-                                  "flex items-center gap-4 p-3 rounded-xl transition-all group",
-                                  isLinkActive(sub.href!) ? "bg-secondary text-white" : "hover:bg-white/5 text-white/70"
-                                )}
-                              >
-                                <sub.icon className="h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
-                                <span className="font-bold text-sm">{sub.name[lang]}</span>
-                              </Link>
-                            ))}
+                          <div className="space-y-2">
+                            {item.subLinks.map((sub, sIdx) => {
+                               const active = isLinkActive(sub.href!);
+                               const SubIcon = sub.icon;
+                               return (
+                                <Link
+                                  key={sIdx}
+                                  href={`/${lang}${sub.href}`}
+                                  onClick={() => setIsOpen(false)}
+                                  className={cn(
+                                    "flex items-center justify-between p-4 rounded-xl transition-all group",
+                                    active 
+                                      ? "bg-secondary text-white shadow-lg" 
+                                      : "hover:bg-white/5 text-white/70 hover:text-white"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-4">
+                                    <SubIcon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
+                                    <span className="font-bold text-lg">{sub.name[lang]}</span>
+                                  </div>
+                                  {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
+                                </Link>
+                               );
+                            })}
                           </div>
                         </div>
                       );
