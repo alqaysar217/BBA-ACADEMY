@@ -21,8 +21,7 @@ import {
   MapPin,
   MessageSquare,
   GraduationCap,
-  Library,
-  FileSignature
+  Library
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -107,33 +106,36 @@ export function Header({ lang }: { lang: Locale }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-      <div className="container-tight relative flex h-20 items-center justify-between">
-        {/* Logo Side */}
-        <Link href={`/${lang}`} className="group flex items-center gap-3 shrink-0">
-          <div className="relative flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0">
-            <Image 
-              src="/logo.png" 
-              alt="BBA Academy Logo" 
-              width={48} 
-              height={48} 
-              className="object-contain"
-              priority
-              unoptimized
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-primary leading-none">BBA</span>
-            <span className="text-[9px] uppercase tracking-[0.2em] text-secondary font-bold">Academy</span>
-          </div>
-        </Link>
+      <div className="container-tight flex h-20 items-center justify-between">
+        
+        {/* Left Side: Logo (flex-1 ensures it pushes nav to center) */}
+        <div className="flex flex-1 items-center">
+          <Link href={`/${lang}`} className="group flex items-center gap-3 shrink-0">
+            <div className="relative flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0">
+              <Image 
+                src="/logo.png" 
+                alt="BBA Academy Logo" 
+                width={48} 
+                height={48} 
+                className="object-contain"
+                priority
+                unoptimized
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold tracking-tight text-primary leading-none">BBA</span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-secondary font-bold">Academy</span>
+            </div>
+          </Link>
+        </div>
 
-        {/* Desktop Navigation - Centered via Absolute Position */}
-        <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
+        {/* Center: Desktop Navigation (No longer absolute, fixed padding/gap) */}
+        <nav className="hidden lg:flex items-center justify-center gap-8 shrink-0 px-4">
           {menuStructure.map((item, idx) => {
             if (item.subLinks) {
               return (
                 <DropdownMenu key={idx}>
-                  <DropdownMenuTrigger className="text-xs font-bold transition-colors hover:text-secondary flex items-center gap-1.5 text-primary/70 outline-none">
+                  <DropdownMenuTrigger className="text-xs font-bold transition-colors hover:text-secondary flex items-center gap-1.5 text-primary/70 outline-none whitespace-nowrap">
                     <item.icon className="h-3.5 w-3.5 text-secondary/60" />
                     {item.name[lang]}
                     <ChevronDown className="h-3 w-3 opacity-50" />
@@ -159,7 +161,7 @@ export function Header({ lang }: { lang: Locale }) {
                 key={idx}
                 href={`/${lang}${item.href}`}
                 className={cn(
-                  "text-xs font-bold transition-colors hover:text-secondary flex items-center gap-1.5",
+                  "text-xs font-bold transition-colors hover:text-secondary flex items-center gap-1.5 whitespace-nowrap",
                   active ? "text-secondary" : "text-primary/70"
                 )}
               >
@@ -170,8 +172,8 @@ export function Header({ lang }: { lang: Locale }) {
           })}
         </nav>
 
-        {/* Action Buttons Side */}
-        <div className="flex items-center gap-4 shrink-0">
+        {/* Right Side: Action Buttons (flex-1 ensures it keeps nav in center) */}
+        <div className="flex flex-1 items-center justify-end gap-4 shrink-0">
           <Link
             href={redirectedPathname(otherLang)}
             title={lang === 'en' ? 'تبديل للعربية' : 'Switch to English'}
@@ -216,55 +218,36 @@ export function Header({ lang }: { lang: Locale }) {
                   </div>
                 </div>
 
-                <nav className="flex-1 py-6 px-4 space-y-2">
+                <nav className="flex-1 py-6 px-4 space-y-1">
                   {menuStructure.map((item, idx) => {
-                    if (item.subLinks) {
-                      return item.subLinks.map((sub, sIdx) => {
-                         const active = isLinkActive(sub.href!);
-                         const SubIcon = sub.icon;
-                         return (
-                          <Link
-                            key={`${idx}-${sIdx}`}
-                            href={`/${lang}${sub.href}`}
-                            onClick={() => setIsOpen(false)}
-                            className={cn(
-                              "flex items-center justify-between p-4 rounded-xl transition-all group",
-                              active 
-                                ? "bg-secondary text-white shadow-lg" 
-                                : "hover:bg-white/5 text-white/70 hover:text-white"
-                            )}
-                          >
-                            <div className="flex items-center gap-4">
-                              <SubIcon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
-                              <span className="font-bold text-lg">{sub.name[lang]}</span>
-                            </div>
-                            {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
-                          </Link>
-                         );
-                      });
-                    }
+                    const links = item.subLinks ? [
+                      // If it's a dropdown, we flatten it for mobile but still show icons
+                      ...item.subLinks
+                    ] : [item];
 
-                    const active = isLinkActive(item.href!);
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={idx}
-                        href={`/${lang}${item.href}`}
-                        onClick={() => setIsOpen(false)}
-                        className={cn(
-                          "flex items-center justify-between p-4 rounded-xl transition-all group",
-                          active 
-                            ? "bg-secondary text-white shadow-lg" 
-                            : "hover:bg-white/5 text-white/70 hover:text-white"
-                        )}
-                      >
-                        <div className="flex items-center gap-4">
-                          <Icon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
-                          <span className="font-bold text-lg">{item.name[lang]}</span>
-                        </div>
-                        {isAr ? <ChevronLeft className="h-4 w-4 opacity-50" /> : <ChevronRight className="h-4 w-4 opacity-50" />}
-                      </Link>
-                    );
+                    return links.map((link, lIdx) => {
+                      const active = isLinkActive(link.href!);
+                      const Icon = link.icon;
+                      return (
+                        <Link
+                          key={`${idx}-${lIdx}`}
+                          href={`/${lang}${link.href}`}
+                          onClick={() => setIsOpen(false)}
+                          className={cn(
+                            "flex items-center justify-between p-4 rounded-xl transition-all group",
+                            active 
+                              ? "bg-secondary text-white shadow-lg" 
+                              : "hover:bg-white/5 text-white/70 hover:text-white"
+                          )}
+                        >
+                          <div className="flex items-center gap-4">
+                            <Icon className={cn("h-5 w-5", active ? "text-white" : "text-secondary group-hover:scale-110 transition-transform")} />
+                            <span className="font-bold text-lg">{link.name[lang]}</span>
+                          </div>
+                          {isAr ? <ChevronLeft className="h-4 w-4 opacity-30" /> : <ChevronRight className="h-4 w-4 opacity-30" />}
+                        </Link>
+                      );
+                    });
                   })}
                 </nav>
 
