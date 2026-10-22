@@ -732,11 +732,12 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                     <RadioGroup value={formData.siblingCount} onValueChange={handleSiblingCountChange} className="flex gap-4 justify-center">
                       {['1', '2', '3'].map((n) => (
                         <Label key={n} htmlFor={`count-${n}`} className={cn(
-                          "flex items-center justify-center w-16 h-16 rounded-xl cursor-pointer transition-all border-2",
-                          formData.siblingCount === n ? "bg-primary border-primary text-white" : "bg-white border-slate-100 text-slate-500"
+                          "flex flex-col items-center justify-center w-20 h-20 rounded-xl cursor-pointer transition-all border-2",
+                          formData.siblingCount === n ? "bg-primary border-primary text-white shadow-xl scale-110" : "bg-white border-slate-100 text-slate-500"
                         )}>
                           <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
-                          <span className="text-xl font-black">{n}</span>
+                          <span className="text-2xl font-black">{n}</span>
+                          {n === '1' && <span className="text-[10px] font-bold uppercase">{isAr ? 'طالب' : 'Student'}</span>}
                         </Label>
                       ))}
                     </RadioGroup>
@@ -759,10 +760,11 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                                 <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className={isFieldInvalid(student.firstName) ? "border-red-500" : ""} />
                               </div>
                               <div className="space-y-2">
-                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2")}>
+                                <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                                   <Type className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأوسط' : 'Middle Name'}
-                                </Label>                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} />
+                                </Label>
+                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} />
                               </div>
                               <div className="space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastName) && "text-red-500")}>
@@ -794,7 +796,8 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                                   {isAr ? 'آخر مرحلة *' : 'Last Grade *'}
                                 </Label>
                                 <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)}>
-                                  <SelectTrigger className={isFieldInvalid(student.lastGrade) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>                                  <SelectContent>{gradeLevels.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
+                                  <SelectTrigger className={isFieldInvalid(student.lastGrade) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
+                                  <SelectContent>{gradeLevels.map(g => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}</SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
