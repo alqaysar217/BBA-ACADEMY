@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -21,7 +20,8 @@ import {
   MapPin,
   MessageSquare,
   GraduationCap,
-  Library
+  Library,
+  HelpCircle
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -86,7 +86,7 @@ export function Header({ lang }: { lang: Locale }) {
       icon: Map,
       subLinks: [
         { name: { en: 'College Pathways', ar: 'التخطيط والمسارات الجامعية' }, href: '/planning', icon: Map },
-        { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/guide', icon: MessageSquare },
+        { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/faq', icon: HelpCircle },
         { name: { en: 'Testimonials', ar: 'آراء أولياء الأمور' }, href: '/testimonials', icon: MessageSquare },
       ]
     },
@@ -108,7 +108,7 @@ export function Header({ lang }: { lang: Locale }) {
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
       <div className="container-tight flex h-20 items-center justify-between">
         
-        {/* Left Side: Logo (flex-1 ensures it pushes nav to center) */}
+        {/* Left Side: Logo */}
         <div className="flex flex-1 items-center">
           <Link href={`/${lang}`} className="group flex items-center gap-3 shrink-0">
             <div className="relative flex h-12 w-12 items-center justify-center transition-transform group-hover:scale-105 shrink-0">
@@ -129,7 +129,7 @@ export function Header({ lang }: { lang: Locale }) {
           </Link>
         </div>
 
-        {/* Center: Desktop Navigation (No longer absolute, fixed padding/gap) */}
+        {/* Center: Desktop Navigation */}
         <nav className="hidden lg:flex items-center justify-center gap-8 shrink-0 px-4">
           {menuStructure.map((item, idx) => {
             if (item.subLinks) {
@@ -172,7 +172,7 @@ export function Header({ lang }: { lang: Locale }) {
           })}
         </nav>
 
-        {/* Right Side: Action Buttons (flex-1 ensures it keeps nav in center) */}
+        {/* Right Side: Action Buttons */}
         <div className="flex flex-1 items-center justify-end gap-4 shrink-0">
           <Link
             href={redirectedPathname(otherLang)}
@@ -220,12 +220,9 @@ export function Header({ lang }: { lang: Locale }) {
 
                 <nav className="flex-1 py-6 px-4 space-y-1">
                   {menuStructure.map((item, idx) => {
-                    const links = item.subLinks ? [
-                      // If it's a dropdown, we flatten it for mobile but still show icons
-                      ...item.subLinks
-                    ] : [item];
+                    const itemsToRender = item.subLinks ? item.subLinks : [item];
 
-                    return links.map((link, lIdx) => {
+                    return itemsToRender.map((link, lIdx) => {
                       const active = isLinkActive(link.href!);
                       const Icon = link.icon;
                       return (

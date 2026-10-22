@@ -18,7 +18,7 @@ import {
   History, 
   UserCheck,
   Map,
-  MessageSquare,
+  HelpCircle,
   Star,
   PhoneCall,
   FileSignature
@@ -57,7 +57,7 @@ export function Footer({ lang }: { lang: Locale }) {
     { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
     { name: { en: 'Founder Message', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
     { name: { en: 'Planning', ar: 'التخطيط والمسارات' }, href: '/planning', icon: Map },
-    { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/guide', icon: MessageSquare },
+    { name: { en: 'FAQs', ar: 'الأسئلة الشائعة' }, href: '/faq', icon: HelpCircle },
     { name: { en: 'Testimonials', ar: 'آراء أولياء الأمور' }, href: '/testimonials', icon: Star },
     { name: { en: 'Contact Us', ar: 'تواصل معنا' }, href: '/contact', icon: PhoneCall },
     { name: { en: 'Enrollment Form', ar: 'استمارة التسجيل' }, href: '/enroll', icon: FileSignature },
@@ -151,7 +151,7 @@ export function Footer({ lang }: { lang: Locale }) {
               </div>
             </div>
 
-            {/* Hours & WhatsApp Combined */}
+            {/* Hours & WhatsApp */}
             <div className="space-y-6">
               <h4 className="text-sm font-black text-secondary uppercase tracking-widest border-b border-white/10 pb-4 inline-block">
                 {t.workingHours}
@@ -179,7 +179,7 @@ export function Footer({ lang }: { lang: Locale }) {
           </div>
         </div>
 
-        {/* Copyright & Hidden Admin */}
+        {/* Copyright */}
         <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-[10px] font-black uppercase tracking-widest text-white/30 text-center md:text-start">
             {t.copyright}
