@@ -14,8 +14,6 @@ import {
   PhoneCall,
   Home,
   ChevronDown,
-  ChevronRight,
-  ChevronLeft,
   UserCheck,
   MapPin,
   MessageSquare,
@@ -27,7 +25,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import Image from 'next/image';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -160,10 +158,10 @@ export function Header({ lang }: { lang: Locale }) {
         <div className="flex flex-1 items-center justify-end gap-3 sm:gap-4">
           <Link 
             href={redirectedPathname(otherLang)} 
-            className="flex items-center gap-2 text-[10px] font-black px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200 text-primary"
+            className="flex items-center gap-1.5 text-[11px] font-black px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all border border-slate-200 text-primary uppercase"
           >
             <Languages className="h-3.5 w-3.5 text-secondary" />
-            {lang === 'en' ? 'العربية' : 'ENGLISH'}
+            <span>{otherLang}</span>
           </Link>
           
           <Button asChild size="sm" className="hidden sm:inline-flex bg-primary hover:bg-secondary text-white rounded-xl px-6 h-10 font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 active:scale-95">
@@ -181,7 +179,6 @@ export function Header({ lang }: { lang: Locale }) {
               </Button>
             </SheetTrigger>
             <SheetContent side={isAr ? 'right' : 'left'} className="w-[320px] p-0 bg-white border-none">
-              {/* Sidebar Header with Logo */}
               <div className="p-6 bg-primary text-white space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="bg-white p-1.5 rounded-xl">
@@ -195,7 +192,6 @@ export function Header({ lang }: { lang: Locale }) {
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               </div>
 
-              {/* Sidebar Navigation Links */}
               <nav className="p-4 space-y-1">
                 {menuStructure.map((item, idx) => {
                   if (item.subLinks) {
@@ -238,7 +234,6 @@ export function Header({ lang }: { lang: Locale }) {
                 })}
               </nav>
 
-              {/* Sidebar Bottom Action */}
               <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-slate-50 bg-slate-50/50">
                 <Button asChild className="w-full h-14 bg-secondary hover:bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-secondary/20 group">
                   <Link href={`/${lang}/enroll`} onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-3">
