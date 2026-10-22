@@ -86,74 +86,11 @@ const getFaqs = (isAr: boolean) => [
     icon: Laptop
   },
   {
-    q: isAr ? 'أين أجد نموذج التسجيل وكيف أبدأ؟' : 'Where is the enrollment form and how to start?',
-    a: isAr 
-      ? 'يمكنك بدء عملية التسجيل عبر الضغط على زر "سجل الآن" الموجود في أعلى الصفحة أو في القائمة، حيث سيوجهك لنموذج تسجيل مكون من 4 خطوات بسيطة تبدأ ببيانات ولي الأمر.'
-      : 'You can start the enrollment process by clicking the "Apply Now" button at the top or in the menu. It will lead you to a 4-step form starting with parent information.',
-    icon: FileSignature
-  },
-  {
-    q: isAr ? 'أين أجد تفاصيل الرسوم الدراسية؟' : 'Where can I find tuition and fee details?',
-    a: isAr 
-      ? 'تفاصيل الرسوم موضحة بالكامل في صفحة البرامج التعليمية، كما تظهر لك بشكل مفصل ودقيق في الخطوة الثالثة من نموذج التسجيل بناءً على البرنامج الذي تختاره وعدد الطلاب.'
-      : 'Tuition details are fully explained on the Educational Programs page. They also appear in detail during Step 3 of the enrollment form based on your chosen program and number of students.',
-    icon: DollarSign
-  },
-  {
-    q: isAr ? 'ما هي المواد التي يدرسها الطلاب في البرنامج الصباحي (3-5)؟' : 'What subjects do students learn in the Grades 3-5 program?',
-    a: isAr 
-      ? 'يدرس الطلاب المنهج الأكاديمي الأمريكي (اللغة الإنجليزية والرياضيات) في الفترة الصباحية، تليها فترة مخصصة للقرآن الكريم (تلاوة وحفظ بالتجويد)، اللغة العربية، والدراسات الإسلامية.'
-      : 'Students study the American academic curriculum (English and Mathematics) in the morning, followed by Quran (recitation and memorization), Arabic language, and Islamic Studies.',
-    icon: BookOpen
-  },
-  {
-    q: isAr ? 'كيف يعمل برنامج المرحلة المتوسطة والثانوية (6-12)؟' : 'How does the Middle/High School (6-12) program work?',
-    a: isAr 
-      ? 'يستخدم الطلاب منصة Edgenuity العالمية لإكمال المناهج الأكاديمية تحت إشراف وتتبع أسبوعي من فريقنا، بالإضافة إلى دروس الدراسات الإسلامية والقرآن التي تتناسب مع مرحلتهم العمرية.'
-      : 'Students use the Edgenuity platform for academic courses with weekly tracking by our team, plus age-appropriate Islamic Studies and Quran lessons.',
-    icon: Monitor
-  },
-  {
-    q: isAr ? 'هل التعليم باللغة العربية أم الإنجليزية؟' : 'Is instruction in Arabic or English?',
-    a: isAr 
-      ? 'المواد الأكاديمية (رياضيات، علوم، لغة إنجليزية) تدرس باللغة الإنجليزية، بينما تدرس مواد الهوية (لغة عربية، قرآن، تربية إسلامية) باللغة العربية مع توفير الدعم اللازم.'
-      : 'Academic subjects are taught in English, while identity subjects (Arabic, Quran, Islamic Studies) are taught in Arabic with necessary support.',
-    icon: Languages
-  },
-  {
     q: isAr ? 'أين يقع مقر الأكاديمية وهل تخدمون جميع الولايات؟' : 'Where is the academy located and do you serve all states?',
     a: isAr 
       ? 'مقرنا الرئيسي في ولاية ميشيغان، ولكننا نخدم العائلات في جميع أنحاء الولايات المتحدة (Nationwide) من خلال نظامنا التعليمي المتقدم عبر الإنترنت.'
       : 'Our headquarters is in Michigan, but we serve families across the entire United States (Nationwide) through our advanced online learning system.',
     icon: MapPin
-  },
-  {
-    q: isAr ? 'كيف يمكنني التواصل مع الأكاديمية؟' : 'How can I contact the academy?',
-    a: isAr 
-      ? 'يمكنكم التواصل معنا عبر الهاتف (734) 645-3613، أو واتساب (313) 655-5778، أو البريد الإلكتروني info@baneenbanaat.org. نحن متاحون من الإثنين للجمعة، 9 صباحاً - 4 مساءً بتوقيت نيويورك.'
-      : 'Contact us via Phone at (734) 645-3613, WhatsApp at (313) 655-5778, or Email at info@baneenbanaat.org. We are available Mon-Fri, 9 AM - 4 PM ET.',
-    icon: MessageCircle
-  },
-  {
-    q: isAr ? 'كيف أبدأ في الأكاديمية بعد التسجيل؟' : 'How do I get started after enrollment?',
-    a: isAr 
-      ? 'بمجرد التسجيل، ستتلقى بريداً ترحيبياً يحتوي على بيانات دخول Edgenuity، خطة الطالب الخاصة بك، ومعلومات التواصل مع مرشدك الشخصي الذي سيوجهك في كل خطوة.'
-      : 'After enrollment, you will receive a Welcome Email with Edgenuity login details, your Student Plan, and contact info for your personal mentor.',
-    icon: Rocket
-  },
-  {
-    q: isAr ? 'هل يتوفر مرشد تعليمي لكل طالب؟' : 'Is there a mentor for every student?',
-    a: isAr 
-      ? 'نعم، كل طالب يتم تعيين مرشد مخصص له يراقب تقدمه، يجيب على أسئلته، ويساعده في التغلب على أي تحديات أكاديمية طوال العام الدراسي.'
-      : 'Yes, every student is assigned a dedicated mentor who monitors progress, answers questions, and helps overcome any academic challenges.',
-    icon: UserCheck
-  },
-  {
-    q: isAr ? 'ما هو عدد الدورات التي يجب إكمالها سنوياً؟' : 'How many courses must be completed annually?',
-    a: isAr 
-      ? 'يتوقع من معظم الطلاب إكمال 10 دورات دراسية بين سبتمبر ويونيو، بمعدل دورة واحدة تقريباً كل شهر لضمان البقاء في المسار الصحيح للتخرج.'
-      : 'Most students are expected to complete 10 courses between September and June, averaging one course per month to stay on track for graduation.',
-    icon: ClipboardCheck
   }
 ];
 
@@ -165,7 +102,7 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
   return (
     <div className="bg-white min-h-screen pb-20">
       {/* Header Section */}
-      <section className="bg-primary pt-24 pb-16 relative overflow-hidden">
+      <section className="bg-primary pt-24 pb-20 relative overflow-hidden">
         <div className="absolute inset-0">
            <svg className="absolute inset-0 h-full w-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
              <pattern id="guide-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
@@ -178,46 +115,86 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
         
         <div className="container-tight relative z-10 text-center space-y-6 px-4">
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
-              {isAr ? 'دليل طالب وأولياء أمور BBA' : 'BBA Student & Parent Guide'}
+            <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tighter drop-shadow-2xl">
+              {isAr ? 'دليل نجاح الطالب والأسرة' : 'Student & Parent Success Guide'}
             </h1>
             <div className="h-1 w-24 bg-secondary mx-auto rounded-full" />
           </div>
           <p className="text-xs sm:text-lg text-white/80 font-bold max-w-3xl mx-auto leading-relaxed italic border-x-2 border-secondary/20 px-8">
             {isAr 
-              ? 'إليك كافة الإجابات التي تحتاجها حول تاريخنا، برامجنا، وطرق التواصل والنجاح معنا.' 
-              : 'Find all the answers you need about our history, programs, communication, and success with us.'}
+              ? 'كل ما تحتاج معرفته لضمان عام دراسي متميز ونتائج أكاديمية قوية.' 
+              : 'Everything you need to know for a successful school year and strong academic results.'}
           </p>
         </div>
       </section>
 
-      <div className="container-tight -mt-8 relative z-20 px-4">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <div className="container-tight -mt-10 relative z-20 px-4">
+        <div className="max-w-4xl mx-auto space-y-12">
           
-          {/* Welcome Intro Card */}
+          {/* Success Formula Section */}
           <div className="bg-white p-8 sm:p-12 rounded-2xl border border-slate-100 shadow-premium relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 blur-2xl rounded-full" />
-            <div className="space-y-6 text-slate-600 font-bold leading-relaxed text-sm sm:text-lg relative z-10">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 blur-3xl rounded-full" />
+            <div className="space-y-8 relative z-10 text-center">
                <div className="space-y-2">
-                  <div className="text-[10px] font-black uppercase text-secondary tracking-widest mb-2">Knowledge Base</div>
-                  <p className="text-primary font-black text-xl sm:text-2xl leading-tight border-l-4 border-secondary pl-6 py-1">
-                    {isAr ? 'نحن هنا للإجابة على كافة استفساراتكم بوضوح.' : 'We are here to answer all your inquiries clearly.'}
-                  </p>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary/10 rounded-full text-secondary font-black text-[10px] uppercase tracking-widest">
+                    <Trophy className="h-3 w-3" />
+                    {isAr ? 'معادلة النجاح في BBA' : 'BBA Success Formula'}
+                  </div>
+                  <h2 className="text-2xl sm:text-4xl font-black text-primary uppercase">{isAr ? 'كيف تحقق التفوق؟' : 'How to Excel?'}</h2>
                </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 opacity-90 leading-relaxed text-slate-500">
-                  <p>{isAr ? 'يحتوي هذا الدليل على معلومات مفصلة عن الأكاديمية وكيفية سير العملية التعليمية لضمان عام دراسي متميز.' : 'This guide contains detailed information about the academy and the educational process to ensure an excellent school year.'}</p>
-                  <p>{isAr ? 'اضغط على أي سؤال أدناه لمعرفة الإجابة التفصيلية.' : 'Click on any question below to see the detailed answer.'}</p>
+               
+               <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-6 border-y border-slate-50">
+                  {[
+                    { t: isAr ? 'سجل دخولك يومياً' : 'Log in Daily', d: 'Mon - Fri', i: Laptop },
+                    { t: isAr ? 'أنجز 5-7% يومياً' : '5-7% Progress', d: 'Steady Growth', i: Zap },
+                    { t: isAr ? 'أنهِ دورة كل شهر' : '1 Course Monthly', d: '10/10 Months', i: BookOpen },
+                    { t: isAr ? 'التخرج أو الترقية' : 'Promotion/Grad', d: 'The Goal', i: GraduationCap },
+                  ].map((step, idx, arr) => (
+                    <div key={idx} className="flex flex-col items-center flex-1 gap-4">
+                       <div className="h-16 w-16 rounded-2xl bg-slate-50 text-primary flex items-center justify-center shadow-inner group-hover:bg-primary group-hover:text-white transition-all">
+                          <step.i className="h-8 w-8" />
+                       </div>
+                       <div className="text-center">
+                          <p className="font-black text-xs sm:text-sm text-primary uppercase leading-tight">{step.t}</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{step.d}</p>
+                       </div>
+                    </div>
+                  ))}
                </div>
+               <p className="text-slate-500 font-bold italic text-sm">
+                 {isAr ? '"النجاح لا يُبنى في يوم واحد، بل بالجهد المستمر والتواصل المفتوح."' : '"Success isn\'t built in a single day—it\'s built through consistent effort."'}
+               </p>
             </div>
           </div>
 
-          {/* Flat FAQ Accordion List */}
-          <div className="space-y-4">
-            <Accordion 
-              type="single" 
-              collapsible 
-              className="space-y-4"
-            >
+          {/* Getting Started Guide */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-primary uppercase tracking-tight flex items-center gap-4">
+              <Rocket className="h-6 w-6 text-secondary" />
+              {isAr ? 'خطوات البدء السريع' : 'Quick Start Steps'}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               {[
+                 { t: isAr ? '1. تفقد بريدك الترحيبي' : '1. Check Welcome Email', c: isAr ? 'يحتوي على بيانات دخول Edgenuity وخطتك الدراسية.' : 'Contains Edgenuity login and your student plan.' },
+                 { t: isAr ? '2. سجل دخولك للمنصة' : '2. Log Into Edgenuity', c: isAr ? 'هنا ستقضي معظم وقتك في التعلم وإنجاز المهام.' : 'Where you will spend most time learning.' },
+                 { t: isAr ? '3. راجع خطة الطالب' : '3. Review Student Plan', c: isAr ? 'خارطة طريقك لإنهاء 10 دورات خلال العام الدراسي.' : 'Your roadmap to finish 10 courses annually.' },
+                 { t: isAr ? '4. تعرف على مرشدك' : '4. Meet Your Mentor', c: isAr ? 'هو شريكك في النجاح ومستشارك الأول لأي تحدي.' : 'Your success partner and first point of contact.' }
+               ].map((step, i) => (
+                 <div key={i} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col gap-3 hover:bg-white hover:shadow-xl transition-all">
+                    <h3 className="font-black text-primary text-sm sm:text-lg">{step.t}</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 font-bold leading-relaxed">{step.c}</p>
+                 </div>
+               ))}
+            </div>
+          </div>
+
+          {/* FAQ Accordion */}
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black text-primary uppercase tracking-tight flex items-center gap-4">
+              <HelpCircle className="h-6 w-6 text-secondary" />
+              {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
+            </h2>
+            <Accordion type="single" collapsible className="space-y-4">
               {faqs.map((faq, idx) => (
                 <AccordionItem 
                   key={idx} 
@@ -229,11 +206,9 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                       <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-slate-50 text-primary flex items-center justify-center shrink-0 transition-all group-data-[state=open]:bg-primary group-data-[state=open]:text-white shadow-inner">
                         <faq.icon className="h-5 w-5 sm:h-7 sm:w-7" />
                       </div>
-                      <div className="flex-1 space-y-1">
-                        <h3 className="text-sm sm:text-lg font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
-                          {faq.q}
-                        </h3>
-                      </div>
+                      <h3 className="text-sm sm:text-lg font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
+                        {faq.q}
+                      </h3>
                       <ChevronDown className="h-4 w-4 text-slate-300 transition-all group-data-[state=open]:rotate-180 group-data-[state=open]:text-secondary" />
                     </div>
                   </AccordionTrigger>
@@ -244,13 +219,6 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
                               {faq.a}
                            </p>
                         </div>
-                        {faq.icon === FileSignature && (
-                          <div className="mt-6 flex justify-center">
-                            <Button asChild className="bg-secondary hover:bg-primary text-white font-black rounded-xl h-12 px-8">
-                              <Link href={`/${lang}/enroll`}>{isAr ? 'ابدأ التسجيل الآن' : 'Start Enrollment Now'}</Link>
-                            </Button>
-                          </div>
-                        )}
                      </div>
                   </AccordionContent>
                 </AccordionItem>

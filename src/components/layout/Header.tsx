@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   UserCheck,
   MapPin,
-  MessageSquare
+  MessageSquare,
+  GraduationCap
 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -32,9 +33,10 @@ const navigation = [
   { name: { en: 'Testimonials', ar: 'آراء الأهالي' }, href: '/testimonials', icon: MessageSquare },
   { name: { en: 'About Us', ar: 'عن الأكاديمية' }, href: '/about', icon: Info },
   { name: { en: 'Founder', ar: 'كلمة المؤسس' }, href: '/founder', icon: UserCheck },
-  { name: { en: 'NY Resources', ar: 'موارد نيويورك' }, href: '/ny-resources', icon: MapPin },
+  { name: { en: 'NY Resources', ar: 'دليل التعليم المنزلي' }, href: '/ny-resources', icon: MapPin },
   { name: { en: 'Our Story', ar: 'قصتنا' }, href: '/story', icon: History },
-  { name: { en: 'Planning', ar: 'التخطيط' }, href: '/planning', icon: Map },
+  { name: { en: 'Planning', ar: 'التخطيط الجامعي' }, href: '/planning', icon: Map },
+  { name: { en: 'Student Guide', ar: 'دليل الطالب' }, href: '/guide', icon: GraduationCap },
   { name: { en: 'Contact', ar: 'اتصل بنا' }, href: '/contact', icon: PhoneCall },
 ];
 
@@ -72,8 +74,8 @@ export function Header({ lang }: { lang: Locale }) {
               <Image 
                 src="/logo.png" 
                 alt="BBA Academy Logo" 
-                width={48}
-                height={48}
+                width={48} 
+                height={48} 
                 className="object-contain"
                 priority
                 unoptimized
@@ -86,7 +88,7 @@ export function Header({ lang }: { lang: Locale }) {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-6">
-            {navigation.filter(i => i.href !== '' && i.href !== '/planning' && i.href !== '/story').map((item) => {
+            {navigation.filter(i => i.href !== '' && i.href !== '/planning' && i.href !== '/story' && i.href !== '/guide' && i.href !== '/about' && i.href !== '/founder').map((item) => {
               const Icon = item.icon;
               const active = isLinkActive(item.href);
               return (
@@ -103,6 +105,12 @@ export function Header({ lang }: { lang: Locale }) {
                 </Link>
               );
             })}
+            
+            {/* More Menu Dropdown could go here, but for simplicity we show key links */}
+            <Link href={`/${lang}/guide`} className={cn("text-xs font-bold transition-colors hover:text-secondary flex items-center gap-2", isLinkActive('/guide') ? "text-secondary" : "text-primary/70")}>
+              <GraduationCap className="h-3.5 w-3.5 text-secondary/60" />
+              {lang === 'ar' ? 'دليل الطالب' : 'Guide'}
+            </Link>
           </nav>
         </div>
 
@@ -137,8 +145,8 @@ export function Header({ lang }: { lang: Locale }) {
                       <Image 
                         src="/logo.png" 
                         alt="BBA Academy Logo" 
-                        width={40}
-                        height={40}
+                        width={40} 
+                        height={40} 
                         className="object-contain"
                         unoptimized
                       />
