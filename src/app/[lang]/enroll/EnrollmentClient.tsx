@@ -284,7 +284,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
 
   const validateStep = (stepId: number) => {
     if (stepId === 1) {
-      // STRICT VALIDATION: BOTH PARENTS REQUIRED
+      // BOTH PARENTS REQUIRED
       return (
         formData.parent1Name?.trim() &&
         formData.parent1Phone?.trim() &&
@@ -355,21 +355,35 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setAttemptedNext(false);
-      if (currentStep < 4) setCurrentStep(currentStep + 1);
+      if (currentStep < 4) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        localStorage.setItem('bba_enrollment_step', nextStep.toString());
+      }
       window.scrollTo(0, 0);
     } else {
       setAttemptedNext(true);
+      let msg = "";
+      if (currentStep === 1) msg = isAr ? "يرجى تعبئة كافة بيانات الوالدين (كلاهما) والعنوان للمتابعة." : "Please fill in all parent details (both) and address to continue.";
+      if (currentStep === 2) msg = isAr ? "يرجى تعبئة كافة بيانات الطالب للمتابعة." : "Please fill in all student details to continue.";
+      if (currentStep === 3) msg = isAr ? "يرجى اختيار البرنامج وخطة الدفع للمتابعة." : "Please select a program and payment option to continue.";
+      if (currentStep === 4) msg = isAr ? "يرجى رفع المستندات المطلوبة للمتابعة." : "Please upload required documents to continue.";
+
       toast({
         variant: "destructive",
         title: isAr ? "بيانات ناقصة" : "Missing Information",
-        description: isAr ? "يرجى تعبئة كافة الحقول المطلوبة (بما في ذلك كلا الوالدين) للمتابعة." : "Please fill in all required fields (including both parents) to continue.",
+        description: msg,
       });
     }
   };
 
   const handleBack = () => {
     setAttemptedNext(false);
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep > 1) {
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      localStorage.setItem('bba_enrollment_step', prevStep.toString());
+    }
     window.scrollTo(0, 0);
   };
 
@@ -502,7 +516,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
         </div>
       )}
 
-      {/* Dynamic Geometric Header Section */}
+      {/* Header Section */}
       <section className="bg-primary pt-12 pb-16 relative overflow-hidden">
         <div className="absolute inset-0">
            <svg className="absolute inset-0 h-full w-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
@@ -621,7 +635,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
 
                     <div className={cn(
                       "rounded-2xl border transition-all duration-300 p-6",
-                      openParent === 'p2' ? "border-secondary bg-secondary/5" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200"
+                      openParent === 'p2' ? "border-secondary bg-secondary/5" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200"
                     )} onClick={() => setOpenParent('p2')}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
@@ -798,7 +812,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                                   <Phone className="h-3 w-3 text-secondary" />
                                   {isAr ? 'هاتف الطالب *' : 'Student Phone *'}
                                 </Label>
-                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', e.target.value)} className={isFieldInvalid(student.phone) ? "border-red-500" : ""} />
+                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className={isFieldInvalid(student.phone) ? "border-red-500" : ""} />
                               </div>
                               <div className="md:col-span-2 space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.email) && "text-red-500")}>
@@ -902,10 +916,32 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                     <div className="grid grid-cols-1 gap-6">
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden relative">
                         <button onClick={() => setCurrentStep(1)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
-                        <CardHeader className="bg-primary text-white p-5"><CardTitle className="text-sm font-black uppercase">{isAr ? 'بيانات أولياء الأمور' : 'Parents'}</CardTitle></CardHeader>
+                        <CardHeader className="bg-primary text-white p-5"><CardTitle className="text-sm font-black uppercase">{isAr ? 'بيانات أولياء الأمور والعنوان' : 'Parents & Address'}</CardTitle></CardHeader>
                         <CardContent className="p-8 space-y-2">
                           <p className="font-bold text-primary">{formData.parent1Name} | {formData.parent2Name}</p>
-                          <p className="text-xs text-slate-500">{formData.address.line1}, {formData.address.city}</p>
+                          <p className="text-xs text-slate-500">{formData.address.line1}, {formData.address.city}, {formData.address.state}</p>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden relative">
+                        <button onClick={() => setCurrentStep(2)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
+                        <CardHeader className="bg-primary text-white p-5"><CardTitle className="text-sm font-black uppercase">{isAr ? 'الطلاب المسجلون' : 'Registered Students'}</CardTitle></CardHeader>
+                        <CardContent className="p-8 space-y-4">
+                          {formData.students.map((st, idx) => (
+                             <div key={idx} className="flex justify-between items-center border-b border-slate-200 pb-2">
+                                <span className="font-bold text-primary">{st.firstName} {st.lastName}</span>
+                                <span className="text-xs font-bold text-secondary">Grade {st.lastGrade}</span>
+                             </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+
+                      <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden relative">
+                        <button onClick={() => setCurrentStep(3)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
+                        <CardHeader className="bg-primary text-white p-5"><CardTitle className="text-sm font-black uppercase">{isAr ? 'البرنامج المختار' : 'Selected Program'}</CardTitle></CardHeader>
+                        <CardContent className="p-8">
+                          <p className="font-black text-primary text-lg">{availablePrograms.find(p => p.id === formData.programOption)?.title}</p>
+                          <p className="text-secondary font-black mt-1 uppercase text-xs">{formData.paymentTier}</p>
                         </CardContent>
                       </Card>
                     </div>
