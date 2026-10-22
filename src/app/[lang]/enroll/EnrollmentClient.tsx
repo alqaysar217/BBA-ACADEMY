@@ -63,7 +63,7 @@ const usStates = [
   { en: "Alabama", ar: "ألاباما" }, { en: "Alaska", ar: "ألاسكا" }, { en: "Arizona", ar: "أريزونا" },
   { en: "Arkansas", ar: "أركنساس" }, { en: "California", ar: "كاليفورنيا" }, { en: "Colorado", ar: "كولورادو" },
   { en: "Connecticut", ar: "كونيتيكت" }, { en: "Delaware", ar: "ديلاوير" }, { en: "Florida", ar: "فلوريدا" },
-  { en: "Georgia", ar: "جورجيا" }, { en: "Hawaii", ar: "هاواي" }, { en: "Idaho", ar: "أيداهو" },
+  { en: "Georgia", ar: "جورجيا" }, { en: "Hawaii", ar: "هواوي" }, { en: "Idaho", ar: "أيداهو" },
   { en: "Illinois", ar: "إلينوي" }, { en: "Indiana", ar: "إنديانا" }, { en: "Iowa", ar: "أيوا" },
   { en: "Kansas", ar: "كانساس" }, { en: "Kentucky", ar: "كنتاكي" }, { en: "Louisiana", ar: "لويزيانا" },
   { en: "Maine", ar: "مين" }, { en: "Maryland", ar: "ماريلاند" }, { en: "Massachusetts", ar: "ماساتشوستس" },
@@ -257,7 +257,17 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
       newStudents = newStudents.slice(0, n);
     } else if (n > newStudents.length) {
       for (let i = newStudents.length; i < n; i++) {
-        newStudents.push({...initialFormData.students[0]});
+        newStudents.push({
+          status: '', 
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          dob: '',
+          gender: '',
+          phone: '',
+          email: '',
+          lastGrade: '',
+        });
       }
     }
     
@@ -282,6 +292,44 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
         title: isAr ? "بيانات ناقصة" : "Missing Information",
         description: isAr ? "يرجى تعبئة كافة الحقول المطلوبة باللون الأحمر للمتابعة." : "Please fill in all required fields marked in red to continue.",
       });
+    }
+  };
+
+  const saveDraft = async () => {
+    if (!firestore) return;
+    setIsSavingDraft(true);
+    
+    const draftData = {
+      ...formData,
+      status: 'draft',
+      updatedAt: serverTimestamp(),
+      userId: user?.uid || 'anonymous',
+      lastStep: currentStep,
+      lang
+    };
+
+    try {
+      const draftId = localStorage.getItem('bba_draft_id');
+      if (draftId) {
+        await setDoc(doc(firestore, 'enrollments', draftId), draftData, { merge: true });
+      } else {
+        const docRef = await addDoc(collection(firestore, 'enrollments'), draftData);
+        localStorage.setItem('bba_draft_id', docRef.id);
+      }
+      
+      toast({
+        title: isAr ? 'تم حفظ المسودة' : 'Draft Saved',
+        description: isAr ? 'تم تأمين بياناتك سحابياً ومحلياً.' : 'Your data is secured in the cloud and locally.',
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        variant: "destructive",
+        title: isAr ? "خطأ في الحفظ" : "Save Error",
+        description: isAr ? "فشل حفظ المسودة سحابياً." : "Failed to save draft to cloud.",
+      });
+    } finally {
+      setIsSavingDraft(false);
     }
   };
 
@@ -346,7 +394,21 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
     }
   };
 
+  const getWeekendTuition = (count: string) => {
+    const n = parseInt(count) || 1;
+    if (n === 1) return { monthly: 75, term: 225 };
+    if (n === 2) return { monthly: 70, term: 420 };
+    if (n === 3) return { monthly: 65, term: 585 };
+    return { monthly: 60, term: 720 };
+  };
+
   if (isSubmitted) return <SuccessView isAr={isAr} lang={lang} submissionId={submissionId} />;
+
+  const availablePrograms = [
+    { id: 'grades-3-5', title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program', desc: isAr ? 'تأسيس للمرحلة الابتدائية مع القرآن والعربية والمواد الأكاديمية.' : 'Elementary foundation building for Quran, Arabic and academics.', image: '/program-1.png', icon: BookOpen, color: 'secondary' },
+    { id: 'grades-6-12', title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program', desc: isAr ? 'أكاديميات المرحلة المتوسطة والثانوية مع تعليم مرن عبر الإنترنت.' : 'Middle and high school academics with flexible online learning.', image: '/program-2.png', icon: GraduationCap, color: 'primary' },
+    { id: 'weekend', title: isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)', desc: isAr ? 'إثراء أيام السبت والأحد لتعزيز الهوية الإسلامية واللغة.' : 'Saturday/Sunday enrichment to strengthen Islamic identity.', image: '/program-3.png', icon: Calendar, color: 'accent' }
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
@@ -537,8 +599,7 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                               <div className="space-y-2">
                                 <Label className={isFieldInvalid(student.gender) ? "text-red-500" : ""}>{isAr ? 'الجنس *' : 'Gender *'}</Label>
                                 <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)}>
-                                  <SelectTrigger className={isFieldInvalid(student.gender) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>
-                                  <SelectContent><SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem><SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem></SelectContent>
+                                  <SelectTrigger className={isFieldInvalid(student.gender) ? "border-red-500" : ""}><SelectValue /></SelectTrigger>                                  <SelectContent><SelectItem value="Male">{isAr ? 'ذكر' : 'Male'}</SelectItem><SelectItem value="Female">{isAr ? 'أنثى' : 'Female'}</SelectItem></SelectContent>
                                 </Select>
                               </div>
                               <div className="space-y-2">
@@ -579,18 +640,14 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                   </div>
 
                   <RadioGroup value={formData.programOption} onValueChange={(v) => { updateField('programOption', v); updateField('paymentTier', ''); updateField('languageOption', ''); }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                      { id: 'grades-3-5', title: isAr ? 'الصفوف 3-5' : 'Grades 3-5', img: '/program-1.png' },
-                      { id: 'grades-6-12', title: isAr ? 'الصفوف 6-12' : 'Grades 6-12', img: '/program-2.png' },
-                      { id: 'weekend', title: isAr ? 'عطلة نهاية الأسبوع' : 'Weekend', img: '/program-3.png' }
-                    ].map((prog) => (
+                    {availablePrograms.map((prog) => (
                       <Label key={prog.id} htmlFor={`opt-${prog.id}`} className={cn(
                         "relative rounded-[2rem] overflow-hidden border-2 cursor-pointer transition-all h-56",
                         formData.programOption === prog.id ? "border-secondary shadow-xl scale-[1.02]" : "border-slate-100 hover:border-slate-300"
                       )}>
                         <RadioGroupItem value={prog.id} id={`opt-${prog.id}`} className="sr-only" />
                         <div className="absolute inset-0 z-0">
-                          <Image src={prog.img} alt={prog.title} fill className="object-cover" unoptimized />
+                          <Image src={prog.image} alt={prog.title} fill className="object-cover" unoptimized />
                           <div className="absolute inset-0 bg-black/50" />
                         </div>
                         <div className="absolute inset-0 z-10 flex flex-col justify-end p-6 text-white text-lg font-black">{prog.title}</div>
@@ -668,7 +725,6 @@ export function EnrollmentClient({ lang }: { lang: Locale }) {
                           <p className="text-xs text-slate-500">{formData.address.line1}, {formData.address.city}</p>
                         </CardContent>
                       </Card>
-                      {/* Similar cards for students and programs could be added if space permits */}
                     </div>
                   </div>
                 </div>
