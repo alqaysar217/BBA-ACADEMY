@@ -1,3 +1,4 @@
+// Minimal Service Worker to satisfy PWA install criteria
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
@@ -7,5 +8,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Required for PWA installation criteria
+  // We can add caching logic here later if needed
+  // For now, it just lets requests pass through to satisfy installability
+  return;
 });

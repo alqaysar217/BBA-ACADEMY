@@ -4,20 +4,20 @@ import { useEffect } from 'react';
 
 /**
  * PWAScript Component
- * Safely registers the Service Worker with error handling to prevent
- * "SecurityError: The operation is insecure" in non-secure or restricted environments.
+ * Registers the Service Worker to enable PWA installability.
  */
 export function PWAScript() {
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       const registerSW = async () => {
         try {
-          // Register the service worker from the public folder
-          await navigator.serviceWorker.register('/sw.js');
+          // Register sw.js from the public folder
+          const registration = await navigator.serviceWorker.register('/sw.js', {
+            scope: '/',
+          });
+          console.log('SW registered successfully with scope:', registration.scope);
         } catch (error) {
-          // Silently fail in development if the origin is not secure
-          // This prevents the "SecurityError" from crashing the app
-          console.warn('Service Worker registration skipped or failed:', error);
+          console.warn('Service Worker registration failed:', error);
         }
       };
 

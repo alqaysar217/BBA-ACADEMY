@@ -64,8 +64,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
       images: [
         {
           url: '/logo.png',
-          width: 800,
-          height: 600,
+          width: 1200,
+          height: 630,
           alt: siteName,
         },
       ],
@@ -105,6 +105,8 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={cn("min-h-screen font-sans antialiased", isRtl && "font-arabic")}>
         <FirebaseClientProvider>
