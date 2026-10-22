@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, use, useMemo, useRef } from 'react';
@@ -84,7 +83,7 @@ const usStates = [
   { en: "Maine", ar: "مين" }, { en: "Maryland", ar: "ماريلاند" }, { en: "Massachusetts", ar: "ماساتشوستس" },
   { en: "Michigan", ar: "ميشيغان" }, { en: "Minnesota", ar: "مينيسوتا" }, { en: "Mississippi", ar: "ميسيسيبي" },
   { en: "Missouri", ar: "ميزوري" }, { en: "Montana", ar: "مونتانا" }, { en: "Nebraska", ar: "نبراسكا" },
-  { en: "Nevada", ar: "نيفادا" }, { en: "New Hampshire", ar: "نيو هامبشاير" }, { en: "New Jersey", ar: "نيو جيرسي" },
+  { en: "Nevada", ar: "نيفادا" }, { en: "New Hampshire", ar: "نيو هامبشار" }, { en: "New Jersey", ar: "نيو جيرسي" },
   { en: "New Mexico", ar: "نيو مكسيكو" }, { en: "New York", ar: "نيويورك" }, { en: "North Carolina", ar: "نورث كارولاينا" },
   { en: "North Dakota", ar: "نورث داكوتا" }, { en: "Ohio", ar: "أوهايو" }, { en: "Oklahoma", ar: "أوكلاهوما" },
   { en: "Oregon", ar: "أوريغون" }, { en: "Pennsylvania", ar: "بنسيلفانيا" }, { en: "Rhode Island", ar: "رود آيلاند" },
@@ -285,17 +284,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   };
 
   // VALIDATION LOGIC
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const validateStep = (stepId: number) => {
     if (stepId === 1) {
-      // STRICT REQUIREMENT: BOTH PARENTS
+      // BOTH PARENTS MANDATORY + EMAIL VALIDATION
       return (
         formData.parent1Name?.trim() &&
         formData.parent1Phone?.trim() &&
-        formData.parent1Email?.trim() &&
+        isValidEmail(formData.parent1Email) &&
         formData.relationship1 &&
         formData.parent2Name?.trim() &&
         formData.parent2Phone?.trim() &&
-        formData.parent2Email?.trim() &&
+        isValidEmail(formData.parent2Email) &&
         formData.relationship2 &&
         formData.address.line1?.trim() &&
         formData.address.city?.trim() &&
@@ -305,7 +308,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
     if (stepId === 2) {
       return formData.students.length > 0 && formData.students.every((st: any) => 
-        st.status && st.firstName?.trim() && st.lastName?.trim() && st.dob && st.gender && st.lastGrade && st.phone?.trim() && st.email?.trim()
+        st.status && st.firstName?.trim() && st.lastName?.trim() && st.dob && st.gender && st.lastGrade && st.phone?.trim() && isValidEmail(st.email)
       );
     }
     if (stepId === 3) {
@@ -322,8 +325,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     return true;
   };
 
-  const isFieldInvalid = (value: any) => {
-    return attemptedNext && (!value || (typeof value === 'string' && value.trim() === ''));
+  const isFieldInvalid = (value: any, isEmailField = false) => {
+    if (!attemptedNext) return false;
+    if (!value || (typeof value === 'string' && value.trim() === '')) return true;
+    if (isEmailField && typeof value === 'string' && !isValidEmail(value)) return true;
+    return false;
   };
 
   const handleSiblingCountChange = (count: string) => {
@@ -367,12 +373,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       window.scrollTo(0, 0);
     } else {
       setAttemptedNext(true);
-      let msg = isAr ? "يرجى تعبئة كافة الحقول المطلوبة باللون الأحمر للمتابعة." : "Please fill in all required fields marked in red to continue.";
-      if (currentStep === 1) msg = isAr ? "يرجى تعبئة بيانات كلا الوالدين (إلزامي) والعنوان للمتابعة." : "Please fill in BOTH parents details (Required) and address to continue.";
+      let msg = isAr ? "يرجى تعبئة كافة الحقول المطلوبة (وصيغة البريد الصحيحة) للمتابعة." : "Please fill in all required fields (and valid email format) to continue.";
+      if (currentStep === 1) msg = isAr ? "يرجى تعبئة بيانات كلا الوالدين بشكل صحيح (كلاهما إلزامي) للمتابعة." : "Please fill in BOTH parents details correctly (Both are mandatory) to continue.";
       
       toast({
         variant: "destructive",
-        title: isAr ? "بيانات ناقصة" : "Missing Information",
+        title: isAr ? "بيانات ناقصة" : "Missing/Invalid Information",
         description: msg,
       });
     }
@@ -431,26 +437,24 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       return;
     }
 
-    const step1Valid = validateStep(1);
-    const step2Valid = validateStep(2);
-    const step3Valid = validateStep(3);
-    const step4Valid = validateStep(4);
+    const s1 = validateStep(1);
+    const s2 = validateStep(2);
+    const s3 = validateStep(3);
+    const s4 = validateStep(4);
 
-    if (!step1Valid || !step2Valid || !step3Valid || !step4Valid) {
+    if (!s1 || !s2 || !s3 || !s4) {
       setAttemptedNext(true);
       toast({
         variant: "destructive",
         title: isAr ? "خطأ في الإرسال" : "Submission Error",
         description: isAr 
-          ? "يرجى التأكد من ملء كافة البيانات المطلوبة (بما في ذلك كلا الوالدين) ورفع المستندات." 
-          : "Please ensure all required data is filled (including BOTH parents) and documents are uploaded.",
+          ? "يرجى التأكد من ملء كافة البيانات المطلوبة لجميع الخطوات (بما في ذلك كلا الوالدين وصيغة البريد)." 
+          : "Please ensure all required data is filled correctly in all steps (including BOTH parents and valid emails).",
       });
-      
-      if (!step1Valid) setCurrentStep(1);
-      else if (!step2Valid) setCurrentStep(2);
-      else if (!step3Valid) setCurrentStep(3);
-      else if (!step4Valid) setCurrentStep(4);
-      
+      if (!s1) setCurrentStep(1);
+      else if (!s2) setCurrentStep(2);
+      else if (!s3) setCurrentStep(3);
+      else if (!s4) setCurrentStep(4);
       return;
     }
 
@@ -550,6 +554,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     window.open(`https://wa.me/13136555778?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  const notifyAdminEmail = () => {
+    const subject = isAr ? 'طلب تسجيل جديد' : 'New Enrollment Application';
+    const body = isAr 
+      ? `مرحباً أكاديمية BBA، لقد قمت بتقديم طلب تسجيل جديد برقم المرجع: ${submissionId}.`
+      : `Hello BBA Academy, I have submitted a new enrollment application with ID: ${submissionId}.`;
+    window.open(`mailto:info@baneenbanaat.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+  };
+
   if (isSubmitted) {
     return (
       <div className="container py-32 px-4 flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in duration-500">
@@ -576,10 +588,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full max-w-md">
+        <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full max-w-xl px-4">
           <Button onClick={notifyAdminWhatsapp} className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95">
             <MessageCircle className="h-5 w-5" />
             {isAr ? 'إبلاغ عبر واتساب' : 'Notify via WhatsApp'}
+          </Button>
+          <Button onClick={notifyAdminEmail} className="flex-1 bg-primary hover:bg-primary/90 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95">
+            <Mail className="h-5 w-5" />
+            {isAr ? 'إبلاغ عبر البريد' : 'Notify via Email'}
           </Button>
           <Button asChild variant="outline" className="flex-1 rounded-xl h-14 font-bold border-slate-200 hover:bg-slate-50 transition-all">
             <Link href={`/${lang}`} className="flex items-center justify-center gap-2">
@@ -655,17 +671,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </Card>
 
           <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white relative">
-            <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
-               <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern id="card-bg" width="30" height="30" patternUnits="userSpaceOnUse">
-                      <circle cx="1" cy="1" r="1" fill="currentColor" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#card-bg)" />
-               </svg>
-            </div>
-
             <CardHeader className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 p-4 md:p-6 relative z-10">
               <div className="flex justify-between items-center">
                 <div className="space-y-0.5 overflow-hidden">
@@ -688,7 +693,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <div className={cn(
                       "rounded-2xl border transition-all duration-300",
                       openParent === 'p1' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200",
-                      attemptedNext && (!formData.parent1Name || !formData.parent1Phone || !formData.parent1Email || !formData.relationship1) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                      attemptedNext && (!formData.parent1Name || !formData.parent1Phone || isFieldInvalid(formData.parent1Email, true) || !formData.relationship1) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                     )} onClick={() => setOpenParent('p1')}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
@@ -718,11 +723,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                           </div>
                           <div className="space-y-2">
-                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Email) && "text-red-500")}>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Email, true) && "text-red-500")}>
                               <Mail className="h-3 w-3 text-secondary" />
                               {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
                             </Label>
-                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Email) && "border-red-500 ring-red-50")} type="email" placeholder="example@mail.com" />
+                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Email, true) && "border-red-500 ring-red-50")} type="email" placeholder="example@mail.com" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship1) && "text-red-500")}>
@@ -747,7 +752,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <div className={cn(
                       "rounded-2xl border transition-all duration-300",
                       openParent === 'p2' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200",
-                      attemptedNext && (!formData.parent2Name || !formData.parent2Phone || !formData.parent2Email || !formData.relationship2) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                      attemptedNext && (!formData.parent2Name || !formData.parent2Phone || isFieldInvalid(formData.parent2Email, true) || !formData.relationship2) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                     )} onClick={() => setOpenParent('p2')}>
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
@@ -756,7 +761,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           </div>
                           <span className="font-black text-primary">{isAr ? 'ولي الأمر الثاني' : 'Parent 2'}</span>
                         </div>
-                        {isFieldInvalid(formData.parent2Name) && <AlertCircle className="h-4 w-4 text-red-500 animate-pulse" />}
                         {openParent !== 'p2' && <ChevronDown className="h-4 w-4 text-slate-400" />}
                       </div>
 
@@ -777,11 +781,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent2Phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                           </div>
                           <div className="space-y-2">
-                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Email) && "text-red-500")}>
+                            <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Email, true) && "text-red-500")}>
                               <Mail className="h-3 w-3 text-secondary" />
                               {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
                             </Label>
-                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent2Email) && "border-red-500 ring-red-50")} type="email" />
+                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent2Email, true) && "border-red-500 ring-red-50")} type="email" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship2) && "text-red-500")}>
@@ -794,8 +798,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </SelectTrigger>
                               <SelectContent>
                                 {relationships.map(r => (
-                                  <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>
-                                ))}
+                                  <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>                                ))}
                               </SelectContent>
                             </Select>
                           </div>
@@ -864,7 +867,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
               {currentStep === 2 && (
                 <div className="space-y-12">
                   <div className="bg-slate-50/80 p-4 md:p-8 rounded-2xl border border-slate-100 space-y-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 blur-2xl rounded-full" />
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest flex items-center justify-center gap-2">
                         <Users className="h-4 w-4 text-secondary" />
@@ -874,23 +876,23 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="flex w-full gap-2 bg-slate-200/50 p-1 rounded-xl"
+                      className="flex w-full gap-4 justify-center"
                       dir={isAr ? 'rtl' : 'ltr'}
                     >
                       {['1', '2', '3'].map((n) => {
                         const isSelected = formData.siblingCount === n;
                         return (
                           <Label key={n} htmlFor={`count-${n}`} className={cn(
-                            "flex items-center justify-center py-4 rounded-lg cursor-pointer transition-all duration-500 gap-2 min-w-0 overflow-hidden",
+                            "flex items-center justify-center p-6 rounded-2xl cursor-pointer transition-all duration-300 gap-3 border-2",
                             isSelected 
-                              ? "flex-[2.5] bg-white text-secondary shadow-lg ring-1 ring-slate-200" 
-                              : "flex-1 text-slate-500 hover:bg-white/50"
+                              ? "bg-secondary border-secondary text-white shadow-xl scale-110" 
+                              : "bg-white border-slate-100 text-slate-500 hover:border-secondary/30"
                           )}>
                             <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
-                            <span className={cn("text-xl font-black transition-transform", isSelected && "scale-110")}>{n}</span>
+                            <span className={cn("text-2xl font-black")}>{n}</span>
                             {isSelected && (
-                              <span className="text-[10px] font-black uppercase truncate animate-in fade-in slide-in-from-bottom-1 duration-500">
-                                {isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}
+                              <span className="text-sm font-black uppercase animate-in fade-in slide-in-from-bottom-1 duration-300">
+                                {isAr ? 'طالب' : 'Student'}
                               </span>
                             )}
                           </Label>
@@ -904,7 +906,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       <div key={idx} className={cn(
                         "rounded-xl border transition-all duration-300 overflow-hidden",
                         openStudentIdx === idx ? "border-primary shadow-xl ring-1 ring-primary/5" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200",
-                        attemptedNext && (!student.status || !student.firstName || !student.lastName || !student.dob || !student.gender || !student.lastGrade || !student.phone || !student.email) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                        attemptedNext && (!student.status || !student.firstName || !student.lastName || !student.dob || !student.gender || !student.lastGrade || !student.phone || isFieldInvalid(student.email, true)) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                       )} onClick={() => setOpenStudentIdx(idx)}>
                         <div className={cn("flex justify-between items-center p-5 transition-colors", openStudentIdx === idx ? "bg-primary text-white" : "bg-white")}>
                           <div className="flex items-center gap-3">
@@ -1024,11 +1026,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                               </div>
                               <div className="md:col-span-2 space-y-2">
-                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.email) && "text-red-500")}>
+                                <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.email, true) && "text-red-500")}>
                                   <Mail className="h-3 w-3 text-secondary" />
                                   {isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}
                                 </Label>
-                                <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.email) && "border-red-500 ring-red-50")} placeholder="student@example.com" />
+                                <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.email, true) && "border-red-500 ring-red-50")} placeholder="student@example.com" />
                               </div>
                             </div>
                           </div>
@@ -1100,14 +1102,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                       <Card className={cn("border-2 rounded-[2rem] overflow-hidden shadow-premium", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-secondary/20 bg-secondary/5")}>
                         <CardHeader className="bg-secondary text-white p-6 md:p-8 relative overflow-hidden">
-                          <div className="absolute inset-0 opacity-[0.1] pointer-events-none">
-                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                               <pattern id="grid-35" width="20" height="20" patternUnits="userSpaceOnUse">
-                                 <path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" strokeWidth="1" />
-                               </pattern>
-                               <rect width="100%" height="100%" fill="url(#grid-35)" />
-                             </svg>
-                          </div>
                           <div className="flex items-center gap-4 relative z-10">
                             <BookOpen className="h-6 w-6 md:h-10 md:w-10" />
                             <div className="min-w-0">
@@ -1218,15 +1212,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       {formData.languageOption && (
                         <Card className={cn("border-2 rounded-[2.5rem] overflow-hidden shadow-premium", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-primary/20 bg-primary/5")}>
                            <CardHeader className="bg-primary text-white p-6 md:p-10 relative overflow-hidden">
-                              <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
-                                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M0 0 L100 100 M-10 20 L20 -10" stroke="white" strokeWidth="1" />
-                                </svg>
-                              </div>
                               <div className="flex items-center gap-4 relative z-10">
                                  <GraduationCap className="h-6 w-6 md:h-12 md:w-12 text-secondary" />
                                  <div className="min-w-0">
-                                    <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>                                 </div>
+                                    <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>
+                                 </div>
                               </div>
                            </CardHeader>
                            <CardContent className="p-4 md:p-12 space-y-10">
@@ -1265,19 +1255,11 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                        <Card className={cn("border-2 rounded-[2.5rem] overflow-hidden shadow-premium", isFieldInvalid(formData.weekendSlot) ? "border-red-300" : "border-accent/20 bg-accent/5")}>
                           <CardHeader className="bg-accent text-white p-6 md:p-10 relative overflow-hidden">
-                             <div className="absolute inset-0 opacity-[0.1] pointer-events-none">
-                               <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                                 <defs>
-                                   <pattern id="weekend-tri" width="30" height="30" patternUnits="userSpaceOnUse">
-                                      <path d="M 15 0 L 30 30 L 0 30 Z" fill="none" stroke="white" strokeWidth="0.5" />
-                                   </pattern>                                 </defs>
-                                 <rect width="100%" height="100%" fill="url(#weekend-tri)" />
-                               </svg>
-                             </div>
                              <div className="flex items-center gap-4 relative z-10">
                                 <Calendar className="h-6 w-6 md:h-12 md:w-12 text-white" />
                                 <div className="min-w-0">
-                                   <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)'}</CardTitle>                                </div>
+                                   <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)'}</CardTitle>
+                                </div>
                              </div>
                           </CardHeader>
                           <CardContent className="p-4 md:p-12 space-y-12">
@@ -1295,8 +1277,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                       )}>
                                          <RadioGroupItem value={slot} id={`slot-${slot}`} className="sr-only" />
                                          <span className="drop-shadow-sm">{slot}</span>
-                                      </Label>
-                                   ))}
+                                      </Label>                                   ))}
                                 </RadioGroup>
                              </div>
 
@@ -1498,11 +1479,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
                         <button onClick={() => setCurrentStep(1)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4 relative overflow-hidden">
-                           <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
-                              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="10" cy="10" r="1" fill="white" />
-                              </svg>
-                           </div>
                            <UserCircle2 className="h-6 w-6 text-secondary relative z-10" />
                            <CardTitle className="text-xs md:text-lg font-black uppercase tracking-widest relative z-10">{isAr ? 'بيانات أولياء الأمور والعنوان' : 'Parents & Address'}</CardTitle>
                         </CardHeader>
@@ -1677,4 +1653,3 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     </div>
   );
 }
-
