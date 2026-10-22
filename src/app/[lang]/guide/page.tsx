@@ -1,7 +1,6 @@
-
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { 
   Rocket, 
@@ -98,6 +97,11 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
   const { lang } = use(params);
   const isAr = lang === 'ar';
   const faqs = getFaqs(isAr);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="bg-white min-h-screen pb-20">
@@ -189,43 +193,43 @@ export default function StudentGuidePage({ params }: { params: Promise<{ lang: L
           </div>
 
           {/* FAQ Accordion */}
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black text-primary uppercase tracking-tight flex items-center gap-4">
-              <HelpCircle className="h-6 w-6 text-secondary" />
-              {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
-            </h2>
-            <Accordion type="single" collapsible className="space-y-4">
-              {faqs.map((faq, idx) => (
-                <AccordionItem 
-                  key={idx} 
-                  value={`item-${idx}`}
-                  className="bg-white border border-slate-100 rounded-2xl px-6 sm:px-10 shadow-sm overflow-hidden transition-all duration-300 data-[state=open]:shadow-xl data-[state=open]:border-secondary/30 group"
-                >
-                  <AccordionTrigger className="hover:no-underline py-6 sm:py-8">
-                    <div className="flex items-center gap-4 sm:gap-6 text-start w-full">
-                      <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-slate-50 text-primary flex items-center justify-center shrink-0 transition-all group-data-[state=open]:bg-primary group-data-[state=open]:text-white shadow-inner">
-                        <faq.icon className="h-5 w-5 sm:h-7 sm:w-7" />
-                      </div>
-                      {/* Fixed: Use span instead of h3 to avoid nested heading violation in hydration */}
-                      <span className="text-sm sm:text-lg font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
-                        {faq.q}
+          {mounted && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-black text-primary uppercase tracking-tight flex items-center gap-4">
+                <HelpCircle className="h-6 w-6 text-secondary" />
+                {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
+              </h2>
+              <Accordion type="single" collapsible className="space-y-4">
+                {faqs.map((faq, idx) => (
+                  <AccordionItem 
+                    key={idx} 
+                    value={`item-${idx}`}
+                    className="bg-white border border-slate-100 rounded-2xl px-6 sm:px-10 shadow-sm overflow-hidden transition-all duration-300 data-[state=open]:shadow-xl data-[state=open]:border-secondary/30 group"
+                  >
+                    <AccordionTrigger className="hover:no-underline py-6 sm:py-8">
+                      <span className="flex items-center gap-4 sm:gap-6 text-start w-full">
+                        <span className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl bg-slate-50 text-primary flex items-center justify-center shrink-0 transition-all group-data-[state=open]:bg-primary group-data-[state=open]:text-white shadow-inner">
+                          <faq.icon className="h-5 w-5 sm:h-7 sm:w-7" />
+                        </span>
+                        <span className="text-sm sm:text-lg font-black text-primary leading-tight group-hover:text-secondary transition-colors tracking-tight">
+                          {faq.q}
+                        </span>
                       </span>
-                      <ChevronDown className="h-4 w-4 text-slate-300 transition-all group-data-[state=open]:rotate-180 group-data-[state=open]:text-secondary" />
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-10 border-t border-slate-50 pt-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                     <div className="max-w-3xl mx-auto">
-                        <div className="bg-slate-50/50 p-6 sm:p-8 rounded-xl border border-slate-100/50">
-                           <p className="text-slate-600 font-bold leading-relaxed text-xs sm:text-base">
-                              {faq.a}
-                           </p>
-                        </div>
-                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-10 border-t border-slate-50 pt-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                       <div className="max-w-3xl mx-auto">
+                          <div className="bg-slate-50/50 p-6 sm:p-8 rounded-xl border border-slate-100/50">
+                             <p className="text-slate-600 font-bold leading-relaxed text-xs sm:text-base">
+                                {faq.a}
+                             </p>
+                          </div>
+                       </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          )}
 
           {/* Encouragement Footer */}
           <div className="bg-primary text-white p-10 sm:p-16 rounded-2xl shadow-2xl relative overflow-hidden text-center space-y-8 border-b-8 border-secondary group">

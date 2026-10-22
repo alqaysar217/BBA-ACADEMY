@@ -29,6 +29,15 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
   const firestore = useFirestore();
   const router = useRouter();
   const isAr = lang === 'ar';
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
+    if (!authLoading && !user && !isTestAdmin) {
+      router.push(`/${lang}/admin/login`);
+    }
+  }, [user, authLoading, router, lang]);
 
   const enrollmentsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -42,19 +51,12 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
   const { data: enrollments, loading: dataLoading } = useCollection(enrollmentsQuery);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
-    if (!authLoading && !user && !isTestAdmin) {
-      router.push(`/${lang}/admin/login`);
-    }
-  }, [user, authLoading, router, lang]);
-
   const handleLogout = () => {
     localStorage.removeItem('bba_test_admin');
     router.push(`/${lang}`);
   };
 
-  if (authLoading || dataLoading) {
+  if (!mounted || authLoading || dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">

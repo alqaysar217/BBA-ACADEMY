@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, use, useMemo, useRef } from 'react';
@@ -127,6 +126,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [mounted, setMounted] = useState(false);
   
   const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
   const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
@@ -178,6 +178,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [formData, setFormData] = useState<any>(initialFormData);
 
   useEffect(() => {
+    setMounted(true);
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => {
       setIsOnline(false);
@@ -202,7 +203,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     {
       id: 'grades-3-5',
       title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program',
-      desc: isAr ? 'تأسيس للمرحلة الابتدائية مع القرآن والعربية والمواد الأكاديمية.' : 'Elementary foundation building with Quran, Arabic and academics.',
+      desc: isAr ? 'تأسيس للمرحلة الابتدائية مع القرآن والعربية والمواد الأكاديمية.' : 'Elementary foundation building for Quran, Arabic and academics.',
       image: 'https://picsum.photos/seed/bba35/800/600',
       icon: BookOpen,
       color: 'secondary'
@@ -226,22 +227,24 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   ];
 
   useEffect(() => {
+    if (!mounted) return;
     const savedDraft = localStorage.getItem('bba_enrollment_draft');
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        // Ensure files structure is correct even with old drafts
         if (!parsed.files) parsed.files = [];
         setFormData((prev: any) => ({ ...prev, ...parsed }));
       } catch (e) {
         console.error("Failed to parse draft", e);
       }
     }
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
-    localStorage.setItem('bba_enrollment_draft', JSON.stringify(formData));
-  }, [formData]);
+    if (mounted) {
+      localStorage.setItem('bba_enrollment_draft', JSON.stringify(formData));
+    }
+  }, [formData, mounted]);
 
   const updateField = (field: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
@@ -404,7 +407,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       return;
     }
 
-    // FINAL COMPREHENSIVE VALIDATION CHECK
     const step1Valid = validateStep(1);
     const step2Valid = validateStep(2);
     const step3Valid = validateStep(3);
@@ -420,7 +422,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           : "Please ensure all required data is filled and documents are uploaded in all steps.",
       });
       
-      // Navigate to the first invalid step
       if (!step1Valid) setCurrentStep(1);
       else if (!step2Valid) setCurrentStep(2);
       else if (!step3Valid) setCurrentStep(3);
@@ -602,7 +603,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24">
-      {!isOnline && (
+      {mounted && !isOnline && (
         <div className="bg-red-600 text-white py-2 px-4 flex items-center justify-center gap-3 sticky top-20 z-[55] animate-in slide-in-from-top duration-300">
           <WifiOff className="h-4 w-4" />
           <span className="text-xs font-black uppercase tracking-widest">
@@ -666,7 +667,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           </Card>
 
           <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white relative">
-            {/* Subtle card background pattern */}
             <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                   <defs>
