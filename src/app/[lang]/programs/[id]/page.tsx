@@ -5,78 +5,97 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, BookOpen, Calendar, Users, Star, CheckCircle2, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 const getProgramData = (id: string, isAr: boolean) => {
   const programs: Record<string, any> = {
     'grades-3-5': {
       name: isAr ? 'برنامج المرحلة الابتدائية (الصفوف 3-5)' : 'Grade 3–5 Remote Program',
       intro: isAr 
-        ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأسس الأكاديمية وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية. يتبع الطلاب جدولاً منظماً يجمع بين المواد الأكاديمية الأمريكية والتعليم الديني في بيئة تعلم تفاعلية.'
-        : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academic foundations, builds language skills, and nurtures a strong Islamic identity. Students attend live classes Monday through Thursday, following a structured schedule that combines American academic subjects with Quran, Arabic, and Islamic Studies.',
+        ? 'يوفر برنامجنا للصفوف 3-5 تجربة تعليمية متوازنة وجذابة عبر الإنترنت تعزز الأسس الأكاديمية وتبني المهارات اللغوية وتغذي الهوية الإسلامية القوية.'
+        : 'Our Grades 3–5 program provides a balanced and engaging online learning experience that strengthens academic foundations and builds language skills.',
       learn: isAr 
-        ? 'يدرس الطلاب المنهج الأكاديمي الأمريكي (اللغة الإنجليزية والرياضيات) مع التركيز على أسس القراءة والكتابة. تليها دروس اللغة العربية والقرآن الكريم (تلاوة وحفظ بالتجويد)، والدراسات الإسلامية التي تغطي العبادات والقيم والأخلاق.'
-        : 'Students study the American academic curriculum (English and Mathematics) focusing on reading, writing, and math foundations. This is followed by Arabic reading and writing, Quran recitation and memorization with Tajweed, and Islamic Studies on worship, values, and character.',
+        ? 'يدرس الطلاب المنهج الأكاديمي الأمريكي (اللغة الإنجليزية والرياضيات) مع التركيز على أسس القراءة والكتابة. تليها دروس اللغة العربية والقرآن الكريم.'
+        : 'Students study the American academic curriculum focusing on reading, writing, and math foundations, followed by Arabic and Quran.',
       schedule: isAr 
-        ? 'الأيام: من الإثنين إلى الخميس. الفترة الصباحية: الإنجليزية والرياضيات. الفترة التالية: العربية والقرآن والدراسات الإسلامية. الشكل: نظام تعليمي كامل عبر الإنترنت مع حصص مباشرة.'
-        : 'Days: Monday–Thursday. Morning Block: English and Mathematics. Following Block: Arabic, Quran, and Islamic Studies. Format: Fully online with live, structured classes from home.',
+        ? 'الأيام: من الإثنين إلى الخميس. الفترة الصباحية: الإنجليزية والرياضيات. الفترة التالية: العربية والقرآن والدراسات الإسلامية.'
+        : 'Days: Monday–Thursday. Morning Block: English and Mathematics. Following Block: Arabic, Quran, and Islamic Studies.',
       teachers: isAr 
-        ? 'يتم تقديم الدروس من خلال معلمين متخصصين يقودون حصصاً تفاعلية تهدف لبناء ثقة الطالب. يقوم المعلمون بمتابعة دقيقة لكل طالب لضمان التفاعل المستمر وتقديم المساعدة الشخصية، مع الحفاظ على تواصل دوري مع الإدارة والأهالي.'
-        : 'Interactive online lessons designed to build confidence. Teachers provide personalized attention and maintain communication with parents and administration about attendance, progress, and support needs.',
+        ? 'يتم تقديم الدروس من خلال معلمين متخصصين يقودون حصصاً تفاعلية تهدف لبناء ثقة الطالب ومتابعة دقيقة لكل طالب.'
+        : 'Interactive online lessons designed to build confidence. Teachers provide personalized attention and maintain communication.',
       features: isAr 
-        ? 'روتين تعليمي أسبوعي منظم، مزيج متكامل بين التعليم الأكاديمي والإسلامي، تدريس حي ومباشر عبر الإنترنت، تطوير مهارات اللغة العربية، ممارسة حفظ وتلاوة القرآن، تعلم إسلامي يتناسب مع الفئة العمرية.'
-        : 'Structured weekly learning routine, Academic and Islamic education combination, Live online instruction, Arabic language development, Quran recitation and memorization practice, Age-appropriate Islamic learning.',
+        ? 'روتين تعليمي أسبوعي منظم، مزيج متكامل بين التعليم الأكاديمي والإسلامي، تدريس حي ومباشر عبر الإنترنت، تطوير مهارات اللغة العربية.'
+        : 'Structured weekly learning routine, Academic and Islamic education combination, Live online instruction, Arabic language development.',
       outcomes: isAr 
-        ? 'مهارات قوية في القراءة والكتابة بالعربية، تحسين تلاوة وحفظ القرآن بالتجويد، فهم عميق للمفاهيم الإسلامية، جاهزية أكاديمية وفق المعايير الأمريكية، هوية واثقة متجذرة في اللغة والدين.'
-        : 'Stronger Arabic reading and writing, Improved Quran recitation and Tajweed, Meaningful understanding of core Islamic concepts, Academic readiness aligned with American standards, Confident identity rooted in faith.',
+        ? 'مهارات قوية في القراءة والكتابة بالعربية، تحسين تلاوة وحفظ القرآن بالتجويد، فهم عميق للمفاهيم الإسلامية، جاهزية أكاديمية.'
+        : 'Stronger Arabic reading and writing, Improved Quran recitation and Tajweed, Meaningful understanding of core Islamic concepts.',
       image: "/program-1.png"
     },
     'grades-6-12': {
       name: isAr ? 'المرحلة المتوسطة والثانوية (الصفوف 6-12)' : 'Grades 6–12 Remote Program',
       intro: isAr 
-        ? 'برنامج متكامل للمرحلة المتوسطة والثانوية مصمم لدعم الطلاب أكاديمياً وتعزيز مهاراتهم في اللغة الإنجليزية من خلال بيئة تعليمية منظمة ومرنة تساعدهم على البقاء في المسار الصحيح. يستخدم الطلاب منصة Edgenuity لإكمال المنهج.'
-        : 'Our Middle and High School program for Grades 6–12 is fully online and designed to support students academically, strengthen their English skills, and provide a structured learning environment. Students use the Edgenuity platform to complete their English curriculum.',
+        ? 'برنامج متكامل للمرحلة المتوسطة والثانوية مصمم لدعم الطلاب أكاديمياً وتعزيز مهاراتهم في اللغة الإنجليزية من خلال بيئة تعليمية منظمة.'
+        : 'Our Middle and High School program for Grades 6–12 is fully online and designed to support students academically and strengthen English skills.',
       learn: isAr 
-        ? 'منهج اللغة الإنجليزية عبر Edgenuity، بالإضافة إلى تعليم إسلامي عملي يشمل القرآن الكريم بالتجويد، آداب وقيم إسلامية، فقه مبسط للمراهقين، وقصص تربوية تشجع على بناء الشخصية.'
-        : 'English curriculum through Edgenuity, plus practical Islamic learning including Quran with Tajweed, Islamic manners, simple fiqh for teenagers, and character-building stories.',
+        ? 'منهج اللغة الإنجليزية عبر Edgenuity، بالإضافة إلى تعليم إسلامي عملي يشمل القرآن الكريم بالتجويد، آداب وقيم إسلامية، وفقه مبسط.'
+        : 'English curriculum through Edgenuity, plus practical Islamic learning including Quran with Tajweed and character-building stories.',
       schedule: isAr 
-        ? 'برنامج مرن عبر الإنترنت مع تتبع أسبوعي للتقدم. يقدم الفريق دعماً وتوجيهاً مستمراً لضمان بقاء الطالب في المسار الصحيح، مع إمكانية الوصول للمواد التعليمية في أي وقت مع الالتزام بجدول المتابعة.'
-        : 'Flexible online learning with weekly progress tracking. The team provides consistent support to keep students on track, with 24/7 access to materials while adhering to the monitoring schedule.',
+        ? 'برنامج مرن عبر الإنترنت مع تتبع أسبوعي للتقدم. يقدم الفريق دعماً وتوجيهاً مستمراً لضمان بقاء الطالب في المسار الصحيح.'
+        : 'Flexible online learning with weekly progress tracking. The team provides consistent support to keep students on track.',
       teachers: isAr 
-        ? 'يقوم الفريق بمراقبة التقدم أسبوعياً والتواصل مع الأهالي. يوفر المعلمون دعماً أكاديمياً فردياً (واحد لواحد) لمساعدة الطلاب في فهم الدروس، إكمال المهام، تنظيم المهام الأسبوعية، والتحضير للاختبارات والمشاريع.'
-        : 'Weekly monitoring of progress and grades, regular parent communication, and one-on-one assistance with lessons, assignments, reading, writing, organization, and exam preparation.',
+        ? 'يقوم الفريق بمراقبة التقدم أسبوعياً والتواصل مع الأهالي. يوفر المعلمون دعماً أكاديمياً فردياً لمساعدة الطلاب في فهم الدروس.'
+        : 'Weekly monitoring of progress and grades, regular parent communication, and one-on-one assistance with lessons and assignments.',
       features: isAr 
-        ? 'منهج إنجليزي عبر Edgenuity، تتبع أسبوعي للتقدم، تواصل دوري مع أولياء الأمور، تدخل مبكر عند تعثر الطالب، دعم أكاديمي فردي عند الحاجة، تعلم إسلامي يتناسب مع المرحلة العمرية، إرشاد لتشجيع الاستمرارية.'
-        : 'Online English via Edgenuity, Weekly monitoring, Regular parent communication, Early intervention, One-on-one assistance, Age-appropriate Islamic learning, Guidance for consistency and accountability.',
+        ? 'منهج إنجليزي عبر Edgenuity، تتبع أسبوعي للتقدم، تواصل دوري مع أولياء الأمور، تدخل مبكر عند تعثر الطالب، دعم أكاديمي فردي.'
+        : 'Online English via Edgenuity, Weekly monitoring, Regular parent communication, Early intervention, One-on-one assistance.',
       outcomes: isAr 
-        ? 'إكمال الدورات عبر الإنترنت بانتظام، مهارات تعلم مستقل وتنظيم قوية، تحسين القراءة والكتابة الأكاديمية، وعي أكبر بالمسؤوليات الدراسية، تطوير مستمر لتلاوة القرآن والمعرفة الإسلامية، فهم أعمق للقيم الشخصية.'
-        : 'Consistent course completion, Stronger independent learning and organization, Improved reading and writing, Greater awareness of academic goals, Continued Quran and Islamic development, Deeper understanding of values.',
+        ? 'إكمال الدورات عبر الإنترنت بانتظام، مهارات تعلم مستقل وتنظيم قوية، تحسين القراءة والكتابة الأكاديمية، وعي أكبر بالمسؤوليات.'
+        : 'Consistent course completion, Stronger independent learning and organization, Improved reading and writing, Greater academic awareness.',
       image: "/program-2.png"
     },
     'weekend': {
       name: isAr ? 'برنامج عطلة نهاية الأسبوع' : 'Weekend Remote Program',
       intro: isAr 
-        ? 'مصمم لمساعدة الأطفال المقيمين في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معارفهم في اللغة العربية والقرآن الكريم من خلال دروس حية وجذابة عبر الإنترنت من المنزل.'
-        : 'Designed to help children living abroad develop a confident Islamic identity while strengthening Arabic and Quranic knowledge through engaging live online lessons from home.',
+        ? 'مصمم لمساعدة الأطفال المقيمين في الخارج على تطوير هوية إسلامية واثقة مع تعزيز معارفهم في اللغة العربية والقرآن الكريم.'
+        : 'Designed to help children living abroad develop a confident Islamic identity while strengthening Arabic and Quranic knowledge.',
       learn: isAr 
-        ? 'القرآن الكريم والتجويد، قواعد اللغة العربية، مهارات الكتابة، وممارسة المحادثة. بالإضافة إلى دراسات إسلامية تتناول العبادات، القيم، وتطوير الشخصية وربط العقيدة بالحياة اليومية.'
-        : 'Quran and Tajweed, Arabic grammar, Writing skills, and Speaking practice. Plus Islamic Studies covering worship, values, character development, and connecting faith to everyday life.',
+        ? 'القرآن الكريم والتجويد، قواعد اللغة العربية، مهارات الكتابة، وممارسة المحادثة. بالإضافة إلى دراسات إسلامية تتناول العبادات والقيم.'
+        : 'Quran and Tajweed, Arabic grammar, Writing skills, and Speaking practice. Plus Islamic Studies covering worship and values.',
       schedule: isAr 
-        ? 'الأيام: السبت والأحد. الفترات المتاحة (بتوقيت شرق أمريكا): 8-10 صباحاً، 10-12 ظهراً، أو 12-2 ظهراً. يختار أولياء الأمور جلسة واحدة فقط.'
-        : 'Days: Saturday and Sunday. Available slots (Eastern Time): 8:00 AM–10:00 AM, 10:00 AM–12:00 PM, or 12:00 PM–2:00 PM. Parents choose one session.',
+        ? 'الأيام: السبت والأحد. الفترات المتاحة (بتوقيت شرق أمريكا): 8-10 صباحاً، 10-12 ظهراً، أو 12-2 ظهراً.'
+        : 'Days: Saturday and Sunday. Available slots (Eastern Time): 8:00 AM–10:00 AM, 10:00 AM–12:00 PM, or 12:00 PM–2:00 PM.',
       teachers: isAr 
-        ? 'معلمون مؤهلون وذوي خبرة واسعة في تعليم الأطفال المقيمين في الخارج. يقدم المعلمون اهتماماً شخصياً ويحرصون على التواصل مع الأهالي بشأن الحضور والتقدم والاحتياجات الإضافية للدعم.'
-        : 'Highly qualified and experienced teachers. They provide personalized attention and maintain open communication with parents about attendance, progress, and support needs.',
+        ? 'معلمون مؤهلون وذوي خبرة واسعة في تعليم الأطفال المقيمين في الخارج. يقدم المعلمون اهتماماً شخصياً وتواصلاً مستمراً مع الأهالي.'
+        : 'Highly qualified and experienced teachers. They provide personalized attention and maintain open communication with parents.',
       features: isAr 
-        ? 'دروس حية في عطلة نهاية الأسبوع، تعليم القرآن بالتجويد، تطوير قواعد وكتابة العربية، ممارسة المحادثة، دراسات إسلامية عملية، اهتمام شخصي بكل طالب، متابعة مستمرة للتقدم، دعم الهوية الإسلامية.'
-        : 'Live weekend lessons, Quran and Tajweed instruction, Arabic grammar and writing, Spoken Arabic practice, Practical Islamic Studies, Personalized attention, Progress monitoring, Identity and character support.',
+        ? 'دروس حية في عطلة نهاية الأسبوع، تعليم القرآن بالتجويد، تطوير قواعد وكتابة العربية، ممارسة المحادثة، دراسات إسلامية عملية.'
+        : 'Live weekend lessons, Quran and Tajweed instruction, Arabic grammar and writing, Spoken Arabic practice, Practical Islamic Studies.',
       outcomes: isAr 
-        ? 'تلاوة أكثر دقة للقرآن، إلمام أفضل بالتجويد، مهارات لغوية عربية قوية، تواصل وكتابة أفضل بالعربية، فهم أكبر للمعرفة والممارسات الإسلامية، شخصية إسلامية واثقة، ارتباط قوي بالدين واللغة.'
-        : 'More accurate Quranic recitation, Improved Tajweed familiarity, Stronger Arabic language skills, Better communication, Greater understanding of Islamic practices, Confident Islamic character, Stronger faith connection.',
+        ? 'تلاوة أكثر دقة للقرآن، إلمام أفضل بالتجويد، مهارات لغوية عربية قوية، تواصل وكتابة أفضل بالعربية، شخصية إسلامية واثقة.'
+        : 'More accurate Quranic recitation, Improved Tajweed familiarity, Stronger Arabic language skills, Confident Islamic character.',
       image: "/program-3.png"
     }
   };
   return programs[id];
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale, id: string }> }): Promise<Metadata> {
+  const { lang, id } = await params;
+  const isAr = lang === 'ar';
+  const data = getProgramData(id, isAr);
+
+  if (!data) return {};
+
+  return {
+    title: data.name,
+    description: data.intro,
+    openGraph: {
+      title: data.name,
+      description: data.intro,
+      images: [data.image],
+    },
+  };
+}
 
 export default async function ProgramDetailPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = await params;
