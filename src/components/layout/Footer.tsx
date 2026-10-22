@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -14,8 +13,6 @@ import {
   Youtube, 
   Facebook, 
   Lock,
-  ChevronRight,
-  ChevronLeft,
   Home,
   BookOpen,
   GraduationCap,
@@ -175,17 +172,10 @@ export function Footer({ lang }: { lang: Locale }) {
               <Link 
                 href="https://wa.me/13136555778" 
                 target="_blank"
-                className="flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20 active:scale-95"
+                className="flex items-center gap-3 px-8 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest transition-all shadow-xl shadow-green-500/20 active:scale-95 w-full sm:w-auto justify-center"
               >
-                <MessageCircle className="h-4 w-4" />
+                <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
                 {t.whatsapp}
-              </Link>
-              <Link 
-                href={`/${lang}/admin`}
-                className="flex items-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-              >
-                <Lock className="h-4 w-4 text-secondary" />
-                {t.adminPanel}
               </Link>
             </div>
           </div>
@@ -199,6 +189,13 @@ export function Footer({ lang }: { lang: Locale }) {
           <div className="flex items-center gap-8">
             <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-secondary transition-colors">{t.privacy}</Link>
             <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-secondary transition-colors">{t.terms}</Link>
+            <Link 
+              href={`/${lang}/admin`}
+              className="text-[10px] font-black uppercase tracking-widest text-white/10 hover:text-secondary transition-colors flex items-center gap-2 group"
+            >
+              <Lock className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              {t.adminPanel}
+            </Link>
           </div>
         </div>
       </div>
