@@ -8,6 +8,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { PWAScript } from '@/components/PWAScript';
+import { Toaster } from '@/components/ui/toaster';
 import { Metadata, Viewport } from 'next';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -118,6 +119,7 @@ export default async function RootLayout({
             <Footer lang={lang} />
             <WhatsAppButton lang={lang} />
           </div>
+          <Toaster />
         </FirebaseClientProvider>
       </body>
     </html>
