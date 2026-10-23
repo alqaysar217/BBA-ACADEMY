@@ -60,7 +60,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import Link from 'next/link';
@@ -251,12 +251,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   useEffect(() => {
     if (mounted && !isSubmitted) {
       try {
-        // Safe save without heavy base64 to avoid QuotaExceeded
-        const sanitizedData = { ...formData, files: (formData.files || []).map((f: any) => ({ name: f.name, type: f.type, size: f.size })) };
-        localStorage.setItem('bba_enrollment_draft', JSON.stringify(sanitizedData));
+        // Only save textual data localy to avoid QuotaExceeded
+        const dataToSave = { ...formData, files: [] };
+        localStorage.setItem('bba_enrollment_draft', JSON.stringify(dataToSave));
         localStorage.setItem('bba_enrollment_step', currentStep.toString());
       } catch (e) {
-        console.warn("Storage full");
+        console.warn("Storage quota exceeded");
       }
     }
   }, [formData, currentStep, mounted, isSubmitted]);
@@ -298,8 +298,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   // VALIDATION LOGIC
   const validateStep = (stepId: number) => {
     if (stepId === 1) {
-      // MANDATORY UNIQUE PARENTS
-      const basic = (
+      const basicValid = (
         formData.parent1Name?.trim() &&
         formData.parent1Phone?.trim() &&
         isValidEmail(formData.parent1Email) &&
@@ -314,9 +313,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         formData.address.zip?.trim()
       );
 
-      if (!basic) return false;
+      if (!basicValid) return false;
 
-      // UNIQUNESS CHECK
+      // Unique Parents Check
       const isDuplicate = 
         formData.parent1Email === formData.parent2Email || 
         formData.parent1Phone === formData.parent2Phone ||
@@ -428,9 +427,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     try {
       const draftId = localStorage.getItem('bba_draft_id');
       if (draftId) {
-        await setDoc(doc(firestore, 'enrollments', draftId), draftData, { merge: true });
+        setDoc(doc(firestore, 'enrollments', draftId), draftData, { merge: true });
       } else {
-        const docRef = await addDoc(collection(firestore, 'enrollments'), draftData);
+        const docRef = doc(collection(firestore, 'enrollments'));
+        setDoc(docRef, draftData);
         localStorage.setItem('bba_draft_id', docRef.id);
       }
       
@@ -480,26 +480,31 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       };
 
       const draftId = localStorage.getItem('bba_draft_id');
-      let docRef;
-      if (draftId) {
-        await setDoc(doc(firestore, 'enrollments', draftId), finalData);
-        setSubmissionId(draftId);
-      } else {
-        docRef = await addDoc(collection(firestore, 'enrollments'), finalData);
-        setSubmissionId(docRef.id);
-      }
+      const docRef = draftId 
+        ? doc(firestore, 'enrollments', draftId) 
+        : doc(collection(firestore, 'enrollments'));
 
+      setSubmissionId(docRef.id);
+
+      // Perform optimistic write
+      setDoc(docRef, finalData)
+        .catch(async (err) => {
+          const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'write',
+            requestResourceData: finalData,
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
+
+      // Clear local storage and transition immediately
       localStorage.removeItem('bba_enrollment_draft');
       localStorage.removeItem('bba_enrollment_step');
       localStorage.removeItem('bba_draft_id');
+      
       setIsSubmitted(true);
     } catch (err) {
-      const permissionError = new FirestorePermissionError({
-        path: 'enrollments',
-        operation: 'create',
-        requestResourceData: formData,
-      });
-      errorEmitter.emit('permission-error', permissionError);
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -900,8 +905,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <RadioGroupItem value={n} id={`count-${n}`} className="sr-only" />
                             <span className={cn("text-2xl font-black")}>{n}</span>
                             {isSelected && (
-                              <span className="text-sm font-black uppercase animate-in fade-in slide-in-from-bottom-1 duration-300">
-                                {isAr ? 'طالب' : 'Student'}
+                              <span className="text-sm font-black uppercase animate-in fade-in slide-in-from-bottom-1 duration-500">
+                                {isAr ? (n === '1' ? 'طالب' : 'طلاب') : (n === '1' ? 'Student' : 'Students')}
                               </span>
                             )}
                           </Label>
@@ -1021,8 +1026,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   </SelectTrigger>
                                   <SelectContent>
                                     {gradeLevels.map(g => (
-                                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>                                    ))}
-                                  </SelectContent>                                </Select>
+                                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
 
                               <div className="space-y-2">
@@ -1183,7 +1190,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 </Label>
                              </RadioGroup>
                           </div>
-                        </CardContent>                      </Card>                    </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   )}
 
                   {formData.programOption === 'grades-6-12' && (
@@ -1248,8 +1257,13 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                           <div className="font-black text-primary text-base md:text-xl tracking-tight transition-colors group-hover:text-secondary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
                                        </div>
                                        <div className="text-xl md:text-4xl font-black text-primary drop-shadow-sm">$1,650</div>
-                                    </Label>                                 </RadioGroup>                              </div>
-                           </CardContent>                        </Card>                      )}                    </div>
+                                    </Label>
+                                 </RadioGroup>
+                              </div>
+                           </CardContent>
+                        </Card>
+                      )}
+                    </div>
                   )}
 
                   {formData.programOption === 'weekend' && (
@@ -1278,8 +1292,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                       )}>
                                          <RadioGroupItem value={slot} id={`slot-${slot}`} className="sr-only" />
                                          <span className="drop-shadow-sm">{slot}</span>
-                                      </Label>                                   ))}
-                                </RadioGroup>                             </div>
+                                      </Label>
+                                   ))}
+                                </RadioGroup>
+                             </div>
 
                              <div className="space-y-8">
                                 <h4 className="font-black text-primary uppercase text-xs md:text-base border-b-2 border-accent/20 pb-3 flex items-center gap-3 tracking-widest">
@@ -1317,7 +1333,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                    </div>
                                 </div>
                              )}
-                          </CardContent>                       </Card>                    </div>
+                          </CardContent>
+                       </Card>
+                    </div>
                   )}
 
                   {validateStep(3) && (
