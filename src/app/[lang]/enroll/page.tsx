@@ -53,9 +53,10 @@ import {
   FileWarning,
   Eye,
   CreditCard,
+  PencilLine,
+  Search,
   Copy,
-  MessageCircle,
-  PencilLine
+  MessageCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useUser } from '@/firebase';
@@ -131,6 +132,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [submissionId, setSubmissionId] = useState('');
   const [isOnline, setIsOnline] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [stateSearch, setStateSearch] = useState('');
   
   const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
   const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
@@ -237,7 +239,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        // Ensure files exist, even if data was stripped to save space
         if (!parsed.files) parsed.files = [];
         setFormData((prev: any) => ({ ...prev, ...parsed }));
         if (savedStep) setCurrentStep(parseInt(savedStep));
@@ -247,23 +248,15 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
   }, [mounted]);
 
-  // Handle auto-save persistence (Fix for QuotaExceededError)
   useEffect(() => {
     if (mounted && !isSubmitted) {
       try {
-        // Optimization: strip base64 data before saving to localStorage to prevent QuotaExceededError
-        const sanitizedFiles = (formData.files || []).map((f: any) => ({
-          name: f.name,
-          type: f.type,
-          size: f.size
-          // 'data' is excluded here
-        }));
-        
-        const dataToSave = { ...formData, files: sanitizedFiles };
-        localStorage.setItem('bba_enrollment_draft', JSON.stringify(dataToSave));
+        // Safe save without heavy base64 to avoid QuotaExceeded
+        const sanitizedData = { ...formData, files: (formData.files || []).map((f: any) => ({ name: f.name, type: f.type, size: f.size })) };
+        localStorage.setItem('bba_enrollment_draft', JSON.stringify(sanitizedData));
         localStorage.setItem('bba_enrollment_step', currentStep.toString());
       } catch (e) {
-        console.warn("Storage quota limit reached, saving minimal draft.");
+        console.warn("Storage full");
       }
     }
   }, [formData, currentStep, mounted, isSubmitted]);
@@ -298,15 +291,15 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     return value.replace(/\D/g, '').slice(0, 5);
   };
 
-  // VALIDATION LOGIC
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  // VALIDATION LOGIC
   const validateStep = (stepId: number) => {
     if (stepId === 1) {
-      // BOTH PARENTS MANDATORY + EMAIL VALIDATION
-      return (
+      // MANDATORY UNIQUE PARENTS
+      const basic = (
         formData.parent1Name?.trim() &&
         formData.parent1Phone?.trim() &&
         isValidEmail(formData.parent1Email) &&
@@ -320,6 +313,24 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         formData.address.state &&
         formData.address.zip?.trim()
       );
+
+      if (!basic) return false;
+
+      // UNIQUNESS CHECK
+      const isDuplicate = 
+        formData.parent1Email === formData.parent2Email || 
+        formData.parent1Phone === formData.parent2Phone ||
+        formData.parent1Name === formData.parent2Name;
+
+      if (isDuplicate) {
+        toast({
+          variant: "destructive",
+          title: isAr ? "تكرار البيانات" : "Duplicate Data",
+          description: isAr ? "بيانات الوالد الثاني يجب أن تكون مختلفة عن الوالد الأول." : "Parent 2 details must be unique and different from Parent 1.",
+        });
+        return false;
+      }
+      return true;
     }
     if (stepId === 2) {
       return formData.students.length > 0 && formData.students.every((st: any) => 
@@ -340,10 +351,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     return true;
   };
 
-  const isFieldInvalid = (value: any, isEmailField = false) => {
+  const isFieldInvalid = (value: any, isEmail = false) => {
     if (!attemptedNext) return false;
     if (!value || (typeof value === 'string' && value.trim() === '')) return true;
-    if (isEmailField && typeof value === 'string' && !isValidEmail(value)) return true;
+    if (isEmail && !isValidEmail(value)) return true;
     return false;
   };
 
@@ -380,20 +391,17 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setAttemptedNext(false);
-      if (currentStep < 4) {
-        const nextStep = currentStep + 1;
-        setCurrentStep(nextStep);
-        localStorage.setItem('bba_enrollment_step', nextStep.toString());
-      }
+      if (currentStep < 4) setCurrentStep(currentStep + 1);
       window.scrollTo(0, 0);
     } else {
       setAttemptedNext(true);
-      let msg = isAr ? "يرجى تعبئة كافة الحقول المطلوبة (وصيغة البريد الصحيحة) للمتابعة." : "Please fill in all required fields (and valid email format) to continue.";
-      if (currentStep === 1) msg = isAr ? "يرجى تعبئة بيانات كلا الوالدين بشكل صحيح (كلاهما إلزامي) للمتابعة." : "Please fill in BOTH parents details correctly (Both are mandatory) to continue.";
+      const msg = currentStep === 1 
+        ? (isAr ? "يرجى تعبئة بيانات كلا الوالدين بشكل صحيح ومختلف للمتابعة." : "Please fill in both parent details correctly and uniquely to continue.")
+        : (isAr ? "يرجى تعبئة كافة الحقول المطلوبة باللون الأحمر للمتابعة." : "Please fill in all required fields marked in red to continue.");
       
       toast({
         variant: "destructive",
-        title: isAr ? "بيانات ناقصة" : "Missing/Invalid Information",
+        title: isAr ? "بيانات ناقصة" : "Missing Information",
         description: msg,
       });
     }
@@ -401,11 +409,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   const handleBack = () => {
     setAttemptedNext(false);
-    if (currentStep > 1) {
-      const prevStep = currentStep - 1;
-      setCurrentStep(prevStep);
-      localStorage.setItem('bba_enrollment_step', prevStep.toString());
-    }
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
     window.scrollTo(0, 0);
   };
 
@@ -452,24 +456,15 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       return;
     }
 
-    const s1 = validateStep(1);
-    const s2 = validateStep(2);
-    const s3 = validateStep(3);
-    const s4 = validateStep(4);
-
-    if (!s1 || !s2 || !s3 || !s4) {
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) {
       setAttemptedNext(true);
       toast({
         variant: "destructive",
         title: isAr ? "خطأ في الإرسال" : "Submission Error",
         description: isAr 
-          ? "يرجى التأكد من ملء كافة البيانات المطلوبة لجميع الخطوات (بما في ذلك كلا الوالدين وصيغة البريد)." 
-          : "Please ensure all required data is filled correctly in all steps (including BOTH parents and valid emails).",
+          ? "يرجى التأكد من ملء كافة البيانات المطلوبة ورفع المستندات في جميع الخطوات." 
+          : "Please ensure all required data is filled and documents are uploaded in all steps.",
       });
-      if (!s1) setCurrentStep(1);
-      else if (!s2) setCurrentStep(2);
-      else if (!s3) setCurrentStep(3);
-      else if (!s4) setCurrentStep(4);
       return;
     }
 
@@ -562,20 +557,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     return { monthly: 60, term: 720 }; 
   };
 
-  const notifyAdminWhatsapp = () => {
-    const msg = isAr 
-      ? `مرحباً أكاديمية BBA، لقد قمت بتقديم طلب تسجيل جديد برقم المرجع: ${submissionId}. يرجى مراجعته.` 
-      : `Hello BBA Academy, I have submitted a new enrollment application with ID: ${submissionId}. Please review it.`;
-    window.open(`https://wa.me/13136555778?text=${encodeURIComponent(msg)}`, '_blank');
-  };
-
-  const notifyAdminEmail = () => {
-    const subject = isAr ? 'طلب تسجيل جديد' : 'New Enrollment Application';
-    const body = isAr 
-      ? `مرحباً أكاديمية BBA، لقد قمت بتقديم طلب تسجيل جديد برقم المرجع: ${submissionId}.`
-      : `Hello BBA Academy, I have submitted a new enrollment application with ID: ${submissionId}.`;
-    window.open(`mailto:info@baneenbanaat.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-  };
+  const filteredStates = usStates.filter(s => 
+    s.en.toLowerCase().includes(stateSearch.toLowerCase()) || 
+    s.ar.includes(stateSearch)
+  );
 
   if (isSubmitted) {
     return (
@@ -604,19 +589,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full max-w-xl px-4">
-          <Button onClick={notifyAdminWhatsapp} className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95">
-            <MessageCircle className="h-5 w-5" />
-            {isAr ? 'إبلاغ عبر واتساب' : 'Notify via WhatsApp'}
+          <Button onClick={() => window.open(`https://wa.me/13136555778?text=${encodeURIComponent(isAr ? `مرحباً، لقد قدمت طلباً برقم: ${submissionId}` : `Hello, I submitted an app with ID: ${submissionId}`)}`)} className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2">
+            <MessageCircle className="h-5 w-5" /> {isAr ? 'واتساب' : 'WhatsApp'}
           </Button>
-          <Button onClick={notifyAdminEmail} className="flex-1 bg-primary hover:bg-primary/90 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95">
-            <Mail className="h-5 w-5" />
-            {isAr ? 'إبلاغ عبر البريد' : 'Notify via Email'}
+          <Button onClick={() => window.open(`mailto:info@baneenbanaat.org?subject=New Enrollment ${submissionId}`)} className="flex-1 bg-primary text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2">
+            <Mail className="h-5 w-5" /> {isAr ? 'بريد إلكتروني' : 'Email'}
           </Button>
-          <Button asChild variant="outline" className="flex-1 rounded-xl h-14 font-bold border-slate-200 hover:bg-slate-50 transition-all">
-            <Link href={`/${lang}`} className="flex items-center justify-center gap-2">
-              <ArrowLeft className={isAr ? "" : "rotate-180"} />
-              {isAr ? 'الرئيسية' : 'Home'}
-            </Link>
+          <Button asChild variant="outline" className="flex-1 rounded-xl h-14 font-bold border-slate-200">
+            <Link href={`/${lang}`}>{isAr ? 'الرئيسية' : 'Home'}</Link>
           </Button>
         </div>
       </div>
@@ -813,8 +793,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               </SelectTrigger>
                               <SelectContent>
                                 {relationships.map(r => (
-                                  <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>                                ))}
-                              </SelectContent>                             </Select>
+                                  <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       )}
@@ -859,9 +841,22 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <SelectValue placeholder={isAr ? 'الولاية' : 'State'} />
                             </SelectTrigger>
                             <SelectContent>
-                              {usStates.map(state => (
-                                <SelectItem key={state.en} value={state.en}>{lang === 'ar' ? state.ar : state.en}</SelectItem>
-                              ))}
+                              <div className="px-2 py-2 border-b">
+                                <div className="relative">
+                                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
+                                  <Input 
+                                    placeholder={isAr ? "بحث..." : "Search..."} 
+                                    className="h-8 pl-8 text-xs bg-slate-50 border-none rounded-lg"
+                                    value={stateSearch}
+                                    onChange={(e) => setStateSearch(e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              <div className="max-h-[200px] overflow-y-auto">
+                                {filteredStates.map(state => (
+                                  <SelectItem key={state.en} value={state.en}>{lang === 'ar' ? state.ar : state.en}</SelectItem>
+                                ))}
+                              </div>
                             </SelectContent>
                           </Select>
                         </div>
@@ -890,7 +885,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     <RadioGroup 
                       value={formData.siblingCount} 
                       onValueChange={handleSiblingCountChange}
-                      className="flex w-full gap-4 justify-center"
+                      className="flex gap-4 justify-center"
                       dir={isAr ? 'rtl' : 'ltr'}
                     >
                       {['1', '2', '3'].map((n) => {
@@ -989,7 +984,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastName) && "text-red-500")}>
                                   <User className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأخير *' : 'Last Name *'}
-                                </Label>                                 <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastName) && "border-red-500 ring-red-50")} />
+                                </Label>
+                                <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastName) && "border-red-500 ring-red-50")} />
                               </div>
 
                               <div className="space-y-2">
@@ -1025,10 +1021,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   </SelectTrigger>
                                   <SelectContent>
                                     {gradeLevels.map(g => (
-                                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>                                    ))}
+                                  </SelectContent>                                </Select>
                               </div>
 
                               <div className="space-y-2">
@@ -1079,9 +1073,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   >
                     {availablePrograms.map((prog) => (
                       <Label key={prog.id} htmlFor={`opt-${prog.id}`} className={cn(
-                        "relative group rounded-[2rem] overflow-hidden border-2 cursor-pointer transition-all duration-500 h-56 md:h-64",
-                        formData.programOption === prog.id ? `border-${prog.color} shadow-2xl scale-[1.02] z-10` : "border-slate-100 hover:border-slate-300",
-                        attemptedNext && !formData.programOption && "border-red-200 bg-red-50/5"
+                        "relative group rounded-[2rem] overflow-hidden border-4 cursor-pointer transition-all duration-500 h-56 md:h-64",
+                        formData.programOption === prog.id 
+                          ? "border-secondary shadow-[0_0_40px_rgba(var(--secondary),0.3)] scale-[1.05] z-10 bg-secondary/5" 
+                          : "border-slate-100 hover:border-slate-300"
                       )}>
                         <RadioGroupItem value={prog.id} id={`opt-${prog.id}`} className="sr-only" />
                         <div className="absolute inset-0 z-0">
@@ -1097,8 +1092,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <prog.icon className="h-4 w-4 md:h-6 md:w-6" />
                              </div>
                              {formData.programOption === prog.id && (
-                               <div className={cn("h-6 w-6 md:h-7 md:w-7 rounded-full flex items-center justify-center text-white border-2 border-white shadow-xl", `bg-${prog.color}`)}>
-                                 <Check className="h-3 w-3 md:h-4 md:w-4" />
+                               <div className="h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center text-white bg-green-500 border-4 border-white shadow-2xl animate-in zoom-in duration-300">
+                                 <Check className="h-5 w-5 md:h-6 md:w-6 stroke-[4px]" />
                                </div>
                              )}
                           </div>
@@ -1188,9 +1183,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 </Label>
                              </RadioGroup>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                        </CardContent>                      </Card>                    </div>
                   )}
 
                   {formData.programOption === 'grades-6-12' && (
@@ -1228,7 +1221,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <div className="flex items-center gap-4 relative z-10">
                                  <GraduationCap className="h-6 w-6 md:h-12 md:w-12 text-secondary" />
                                  <div className="min-w-0">
-                                    <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>                                  </div>
+                                    <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>
+                                 </div>
                               </div>
                            </CardHeader>
                            <CardContent className="p-4 md:p-12 space-y-10">
@@ -1254,13 +1248,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                           <div className="font-black text-primary text-base md:text-xl tracking-tight transition-colors group-hover:text-secondary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
                                        </div>
                                        <div className="text-xl md:text-4xl font-black text-primary drop-shadow-sm">$1,650</div>
-                                    </Label>
-                                 </RadioGroup>
-                              </div>
-                           </CardContent>
-                        </Card>
-                      )}
-                    </div>
+                                    </Label>                                 </RadioGroup>                              </div>
+                           </CardContent>                        </Card>                      )}                    </div>
                   )}
 
                   {formData.programOption === 'weekend' && (
@@ -1328,9 +1317,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                    </div>
                                 </div>
                              )}
-                          </CardContent>
-                       </Card>
-                    </div>
+                          </CardContent>                       </Card>                    </div>
                   )}
 
                   {validateStep(3) && (
