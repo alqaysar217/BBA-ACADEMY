@@ -732,7 +732,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 {relationships.map(r => (
                                   <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>
                                 ))}
-                              </SelectContent>                             </Select>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       )}
@@ -986,8 +987,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.dob) && "text-red-500")}>
                                   <CalendarIcon className="h-3 w-3 text-secondary" />
                                   {isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}
-                                </Label>
-                                <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.dob) && "border-red-500 ring-red-50")} />
+                                </Label>                                 <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.dob) && "border-red-500 ring-red-50")} />
                               </div>
                               <div className="space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.gender) && "text-red-500")}>
@@ -1074,7 +1074,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       )}>
                         <RadioGroupItem value={prog.id} id={`opt-${prog.id}`} className="sr-only" />
                         <div className="absolute inset-0 z-0">
-                          <Image src={prog.image} alt={prog.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" unoptimized />
+                          <Image 
+                            src={prog.image} 
+                            alt={prog.title} 
+                            fill 
+                            className={cn(
+                              "object-cover transition-all duration-700 group-hover:scale-110",
+                              formData.programOption === prog.id ? "grayscale-0" : "grayscale"
+                            )} 
+                            unoptimized 
+                          />
                           <div className={cn(
                             "absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity",
                             formData.programOption === prog.id ? "opacity-100" : "opacity-80"
