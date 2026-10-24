@@ -1,10 +1,10 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc, Timestamp } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import { 
   ArrowLeft, 
   User, 
@@ -25,7 +25,8 @@ import {
   Building,
   Hash,
   DownloadCloud,
-  FileCheck
+  FileCheck,
+  PencilLine
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +41,12 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
   const router = useRouter();
   const isAr = lang === 'ar';
 
-  const docRef = doc(firestore!, 'enrollments', id);
+  // تثبيت المرجع لمنع الدوران اللانهائي (Infinite Loop Fix)
+  const docRef = useMemo(() => {
+    if (!firestore || !id) return null;
+    return doc(firestore, 'enrollments', id);
+  }, [firestore, id]);
+
   const { data: app, loading: dataLoading } = useDoc(docRef);
 
   useEffect(() => {
@@ -52,13 +58,30 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
   if (authLoading || dataLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-4">
+           <div className="h-12 w-12 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
+           <p className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'جاري فتح الطلب...' : 'Opening Application...'}</p>
+        </div>
       </div>
     );
   }
 
-  if (!app) return <div className="p-20 text-center font-black">Application Not Found</div>;
+  if (!app) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-6">
+           <div className="h-20 w-20 bg-slate-200 rounded-full flex items-center justify-center mx-auto text-slate-400">
+              <FileText className="h-10 w-10" />
+           </div>
+           <h2 className="text-2xl font-black text-primary uppercase">{isAr ? 'الطلب غير موجود' : 'Application Not Found'}</h2>
+           <Button onClick={() => router.back()} className="bg-primary text-white rounded-xl h-12 px-8 font-black">
+              {isAr ? 'العودة للخلف' : 'Go Back'}
+           </Button>
+        </div>
+      </div>
+    );
+  }
 
   const downloadFile = (file: any) => {
     const link = document.createElement('a');
@@ -78,21 +101,26 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                 onClick={() => router.back()} 
                 className="inline-flex items-center gap-2 text-white/60 hover:text-secondary font-black text-xs uppercase tracking-widest transition-colors"
               >
-                <ArrowLeft className="h-4 w-4" />
+                {isAr ? <ArrowLeft className="h-4 w-4 rotate-180" /> : <ArrowLeft className="h-4 w-4" />}
                 {isAr ? 'العودة للقائمة' : 'Back to Dashboard'}
               </button>
               <h1 className="text-3xl font-black tracking-tight flex items-center gap-4">
                  {app.parent1Name}
                  <Badge className="bg-secondary text-white font-black uppercase text-[10px]">
-                    {app.programOption}
+                    {app.programOption === 'grades-3-5' ? (isAr ? 'تأسيس' : 'Grades 3-5') : 
+                     app.programOption === 'grades-6-12' ? (isAr ? 'متوسط/ثانوي' : 'Grades 6-12') : 
+                     (isAr ? 'عطلة الأسبوع' : 'Weekend')}
                  </Badge>
               </h1>
            </div>
            
            <div className="flex items-center gap-3">
-              <Badge className="h-10 px-4 rounded-xl bg-white/10 text-white border-white/20 font-black uppercase tracking-widest flex items-center gap-2">
-                 <Clock className="h-4 w-4 text-secondary" />
-                 {isAr ? 'بانتظار المراجعة' : 'Awaiting Review'}
+              <Badge className={cn(
+                "h-10 px-4 rounded-xl font-black uppercase tracking-widest flex items-center gap-2",
+                app.status === 'submitted' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-white/10 text-white border-white/20"
+              )}>
+                 {app.status === 'submitted' ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4 text-secondary" />}
+                 {app.status === 'submitted' ? (isAr ? 'تم الإرسال' : 'Submitted') : (isAr ? 'مسودة' : 'Draft')}
               </Badge>
            </div>
         </div>
@@ -104,8 +132,8 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
           {/* Left Column: Personal Data */}
           <div className="lg:col-span-2 space-y-8">
             {/* Parents Card */}
-            <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
-               <CardHeader className="bg-white border-b border-slate-100 p-6 flex flex-row items-center gap-4">
+            <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
+               <CardHeader className="border-b border-slate-100 p-6 flex flex-row items-center gap-4">
                   <div className="h-10 w-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
                      <Users className="h-5 w-5" />
                   </div>
@@ -141,6 +169,9 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                             <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
                                 <Mail className="h-4 w-4 text-secondary" /> {app.parent2Email}
                             </div>
+                            <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
+                                <ShieldCheck className="h-4 w-4 text-secondary" /> {app.relationship2}
+                            </div>
                           </div>
                       </div>
                     </div>
@@ -149,8 +180,8 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
             </Card>
 
             {/* Address Card */}
-            <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
-               <CardHeader className="bg-white border-b border-slate-100 p-6 flex flex-row items-center gap-4">
+            <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
+               <CardHeader className="border-b border-slate-100 p-6 flex flex-row items-center gap-4">
                   <div className="h-10 w-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
                      <MapPin className="h-5 w-5" />
                   </div>
@@ -190,11 +221,11 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
             {/* Students List */}
             <div className="space-y-6">
-              <h3 className="text-xl font-black text-primary uppercase tracking-tight px-2">{isAr ? 'قائمة الطلاب' : 'Registered Students'} ({app.students?.length})</h3>
+              <h3 className="text-xl font-black text-primary uppercase tracking-tight px-2">{isAr ? 'قائمة الطلاب' : 'Registered Students'} ({app.students?.length || 0})</h3>
               {app.students?.map((student: any, idx: number) => (
                 <Card key={idx} className="border-none shadow-sm rounded-3xl overflow-hidden group">
                   <div className="flex flex-col md:flex-row">
-                    <div className="w-full md:w-20 bg-primary text-white flex items-center justify-center font-black text-2xl p-6 md:p-0">
+                    <div className="w-full md:w-20 bg-primary text-white flex items-center justify-center font-black text-2xl p-6 md:p-0 shrink-0">
                       {idx + 1}
                     </div>
                     <div className="flex-1 p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -244,23 +275,25 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                   <div>
                     <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isAr ? 'البرنامج الأساسي' : 'Core Program'}</p>
                     <p className="text-xl font-black text-secondary uppercase leading-tight">
-                       {app.programOption === 'grades-3-5' ? 'Grades 3-5 Remote' : 
-                        app.programOption === 'grades-6-12' ? 'Grades 6-12 Remote' : 'Weekend Program'}
+                       {app.programOption === 'grades-3-5' ? (isAr ? 'تأسيس (3-5)' : 'Grades 3-5 Remote') : 
+                        app.programOption === 'grades-6-12' ? (isAr ? 'متوسط/ثانوي (6-12)' : 'Grades 6-12 Remote') : 
+                        (isAr ? 'برنامج عطلة الأسبوع' : 'Weekend Program')}
                     </p>
                   </div>
                   
                   {app.languageOption && (
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isAr ? 'مسار اللغة / البديل' : 'Variant / Path'}</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isAr ? 'مسار الدراسة' : 'Study Path'}</p>
                       <Badge className="bg-white/10 text-white font-black uppercase text-[11px] p-2 rounded-lg border-white/20">
-                         {app.languageOption === 'english-arabic' ? 'English + Arabic' : 'English + ESL Support'}
+                         {app.languageOption === 'english-arabic' ? (isAr ? 'الإنجليزية والعربية' : 'English + Arabic') : 
+                          (isAr ? 'الإنجليزية فقط' : 'English Only')}
                       </Badge>
                     </div>
                   )}
 
                   {app.weekendSlot && (
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isAr ? 'الفترة الزمنية المختارة' : 'Preferred Slot'}</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isAr ? 'الفترة الزمنية' : 'Time Slot'}</p>
                       <div className="flex items-center gap-2 font-black text-secondary italic">
                          <Clock className="h-4 w-4" />
                          {app.weekendSlot}
@@ -269,9 +302,13 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                   )}
 
                   <div className="pt-6 border-t border-white/10">
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isAr ? 'خطة الدفع' : 'Payment Choice'}</p>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isAr ? 'خطة الدفع المعتمدة' : 'Payment Plan'}</p>
                     <div className="flex items-center justify-between">
-                       <p className="font-bold text-sm text-white/80">{app.paymentTier}</p>
+                       <p className="font-bold text-sm text-white/80">
+                          {app.paymentTier === 'initial-3-5' ? (isAr ? 'الدفعة الأولية' : 'Initial Payment Plan') : 
+                           app.paymentTier === 'full-3-5' ? (isAr ? 'الدفع الكامل' : 'Full Tuition Plan') : 
+                           (isAr ? 'رسوم البرنامج' : 'Program Fees')}
+                       </p>
                        <CreditCard className="h-5 w-5 text-secondary" />
                     </div>
                   </div>
@@ -335,26 +372,4 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       </main>
     </div>
   );
-}
-
-// Manual icon component to ensure compatibility
-function UserCircle2(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 20a6 6 0 0 0-12 0" />
-      <circle cx="12" cy="10" r="4" />
-      <circle cx="12" cy="12" r="10" />
-    </svg>
-  )
 }
