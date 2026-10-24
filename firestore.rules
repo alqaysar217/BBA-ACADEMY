@@ -2,13 +2,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // السماح بالوصول الكامل لمجموعة طلبات التسجيل لدعم التطوير والاختبار
-    // هذا يسمح بجلب القوائم (list) والقراءة الفردية (get) دون قيود حالياً
-    match /enrollments/{enrollmentId} {
-      allow read, write: if true;
-    }
-
-    // قاعدة عامة للمسارات الأخرى لضمان عدم توقف النظام أثناء البرمجة
+    // السماح بالوصول الكامل لمجموعة طلبات التسجيل وكافة المسارات لدعم التشغيل الفوري
     match /{document=**} {
       allow read, write: if true;
     }
