@@ -31,11 +31,14 @@ import {
   Activity,
   Layers,
   Building2,
-  Globe
+  Globe,
+  Trash2,
+  FileSearch
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -105,19 +108,21 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     document.body.removeChild(link);
   };
 
-  const InfoRow = ({ label, value, icon: Icon, isBold = true }: { label: string, value: string, icon?: any, isBold?: boolean }) => (
-    <div className="flex items-center justify-between py-4 border-b border-slate-50 last:border-0 group px-2 hover:bg-slate-50/50 transition-colors">
-      <div className="flex items-center gap-3">
-        {Icon && <Icon className="h-4 w-4 text-slate-400 group-hover:text-secondary transition-colors" />}
-        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+  const SectionTitle = ({ icon: Icon, title, subtitle, color = "bg-primary" }: { icon: any, title: string, subtitle: string, color?: string }) => (
+    <div className="flex items-center gap-4 mb-6">
+      <div className={cn("h-12 w-12 rounded-2xl text-white flex items-center justify-center shadow-lg", color)}>
+        <Icon className="h-6 w-6" />
       </div>
-      <span className={cn("text-sm text-primary", isBold ? "font-black" : "font-medium")}>{value || '-'}</span>
+      <div>
+        <h2 className="text-xl font-black text-primary uppercase tracking-tight leading-none">{title}</h2>
+        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">{subtitle}</p>
+      </div>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-slate-50/30 pb-24">
-      {/* HEADER */}
+      {/* 1. TOP STICKY HEADER */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 h-24 flex items-center justify-between">
            <div className="flex items-center gap-6">
@@ -139,15 +144,15 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                    <Clock className="h-3 w-3" />
-                   {isAr ? 'آخر تحديث:' : 'Updated:'} {app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy · HH:mm') : '-'}
+                   {isAr ? 'تاريخ التحديث:' : 'Last Update:'} {app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy · HH:mm') : '-'}
                 </p>
               </div>
            </div>
            
            <div className="flex items-center gap-3">
               <Button variant="outline" className="hidden md:flex rounded-2xl h-12 border-slate-200 font-black text-xs text-slate-500 uppercase tracking-widest hover:bg-slate-50">
-                <FileText className="h-4 w-4 mr-2" />
-                {isAr ? 'تصدير PDF' : 'Export'}
+                <FileSearch className="h-4 w-4 mr-2" />
+                {isAr ? 'معاينة سريعة' : 'Quick View'}
               </Button>
               <Button className="rounded-2xl h-12 bg-primary hover:bg-secondary text-white font-black px-6 shadow-xl shadow-primary/10 transition-all">
                 {isAr ? 'اعتماد الطلب' : 'Approve Application'}
@@ -156,255 +161,287 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 mt-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
-          {/* MAIN COLUMN (LEFT) */}
-          <div className="lg:col-span-8 space-y-12">
-            
-            {/* 1. GUARDIANS SECTION - Structured Rows/Cols */}
-            <div className="space-y-6">
-               <div className="flex items-center gap-3 px-2">
-                  <div className="h-10 w-10 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg">
-                    <Users className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-primary uppercase tracking-tight leading-none">{isAr ? 'سجل أولياء الأمور' : 'Guardians Registry'}</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">{isAr ? 'بيانات التواصل والصلة' : 'Contact & Relationship Data'}</p>
-                  </div>
-               </div>
+      <main className="max-w-7xl mx-auto px-4 mt-12 space-y-16">
+        
+        {/* SECTION 1: GUARDIANS TABLES */}
+        <section>
+          <SectionTitle 
+            icon={Users} 
+            title={isAr ? 'سجل أولياء الأمور' : 'Guardians Information'} 
+            subtitle={isAr ? 'بيانات التواصل والصلة بالأكاديمية' : 'Contact Details & Family Relations'}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Parent 1 Table */}
+            <Card className="border-none shadow-premium rounded-3xl overflow-hidden">
+              <div className="bg-primary p-4 px-6 flex justify-between items-center">
+                <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Primary Guardian</span>
+                <Badge className="bg-white/10 text-white border-none text-[8px] font-black uppercase">P01</Badge>
+              </div>
+              <Table>
+                <TableBody>
+                  <TableRow className="hover:bg-transparent border-slate-50">
+                    <TableCell className="w-1/3 bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'الاسم بالكامل' : 'Full Name'}</TableCell>
+                    <TableCell className="font-black text-primary py-4">{app.parent1Name}</TableCell>
+                  </TableRow>
+                  <TableRow className="hover:bg-transparent border-slate-50">
+                    <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'رقم الهاتف' : 'Phone'}</TableCell>
+                    <TableCell className="font-bold text-slate-600 py-4" dir="ltr">{app.parent1Phone}</TableCell>
+                  </TableRow>
+                  <TableRow className="hover:bg-transparent border-slate-50">
+                    <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'البريد الإلكتروني' : 'Email'}</TableCell>
+                    <TableCell className="font-bold text-slate-600 py-4">{app.parent1Email}</TableCell>
+                  </TableRow>
+                  <TableRow className="hover:bg-transparent border-none">
+                    <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'صلة القرابة' : 'Relationship'}</TableCell>
+                    <TableCell className="font-black text-secondary py-4 uppercase">{app.relationship1}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Card>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Primary Guardian Table */}
-                  <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
-                    <CardHeader className="bg-slate-50/50 p-8 border-b border-slate-100">
-                       <Badge variant="outline" className="bg-white text-slate-400 font-black uppercase text-[8px] tracking-widest border-slate-200">Guardian 01</Badge>
-                       <CardTitle className="text-2xl font-black text-primary mt-4">{app.parent1Name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                       <div className="flex flex-col">
-                          <InfoRow icon={User} label={isAr ? 'الاسم بالكامل' : 'Full Name'} value={app.parent1Name} />
-                          <InfoRow icon={Phone} label={isAr ? 'رقم الهاتف' : 'Phone'} value={app.parent1Phone} />
-                          <InfoRow icon={Mail} label={isAr ? 'البريد الإلكتروني' : 'Email'} value={app.parent1Email} isBold={false} />
-                          <InfoRow icon={ShieldCheck} label={isAr ? 'صلة القرابة' : 'Relationship'} value={app.relationship1} />
-                       </div>
-                    </CardContent>
-                  </Card>
+            {/* Parent 2 Table */}
+            {app.parent2Name ? (
+              <Card className="border-none shadow-premium rounded-3xl overflow-hidden">
+                <div className="bg-slate-900 p-4 px-6 flex justify-between items-center">
+                  <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Secondary Guardian</span>
+                  <Badge className="bg-white/10 text-white border-none text-[8px] font-black uppercase">P02</Badge>
+                </div>
+                <Table>
+                  <TableBody>
+                    <TableRow className="hover:bg-transparent border-slate-50">
+                      <TableCell className="w-1/3 bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'الاسم بالكامل' : 'Full Name'}</TableCell>
+                      <TableCell className="font-black text-primary py-4">{app.parent2Name}</TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-transparent border-slate-50">
+                      <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'رقم الهاتف' : 'Phone'}</TableCell>
+                      <TableCell className="font-bold text-slate-600 py-4" dir="ltr">{app.parent2Phone}</TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-transparent border-slate-50">
+                      <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'البريد الإلكتروني' : 'Email'}</TableCell>
+                      <TableCell className="font-bold text-slate-600 py-4">{app.parent2Email}</TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-transparent border-none">
+                      <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-4 pl-6">{isAr ? 'صلة القرابة' : 'Relationship'}</TableCell>
+                      <TableCell className="font-black text-secondary py-4 uppercase">{app.relationship2}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Card>
+            ) : (
+              <div className="h-full rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-12 text-center bg-slate-50/30">
+                 <User className="h-10 w-10 text-slate-200 mb-4" />
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
+                    {isAr ? 'لم يتم إدراج ولي أمر ثانٍ' : 'No Secondary Guardian Provided'}
+                 </p>
+              </div>
+            )}
+          </div>
+        </section>
 
-                  {/* Secondary Guardian Table */}
-                  {app.parent2Name ? (
-                    <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
-                      <CardHeader className="bg-slate-50/50 p-8 border-b border-slate-100">
-                         <Badge variant="outline" className="bg-white text-slate-400 font-black uppercase text-[8px] tracking-widest border-slate-200">Guardian 02</Badge>
-                         <CardTitle className="text-2xl font-black text-primary mt-4">{app.parent2Name}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-8">
-                        <div className="flex flex-col">
-                           <InfoRow icon={User} label={isAr ? 'الاسم بالكامل' : 'Full Name'} value={app.parent2Name} />
-                           <InfoRow icon={Phone} label={isAr ? 'رقم الهاتف' : 'Phone'} value={app.parent2Phone} />
-                           <InfoRow icon={Mail} label={isAr ? 'البريد الإلكتروني' : 'Email'} value={app.parent2Email} isBold={false} />
-                           <InfoRow icon={ShieldCheck} label={isAr ? 'صلة القرابة' : 'Relationship'} value={app.relationship2} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <div className="h-full rounded-[2.5rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-12 text-center bg-slate-50/30">
-                       <Info className="h-10 w-10 text-slate-200 mb-4" />
-                       <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-relaxed">
-                          {isAr ? 'لا يوجد ولي أمر ثانٍ مسجل' : 'No Secondary Guardian Registered'}
-                       </p>
-                    </div>
-                  )}
-               </div>
-            </div>
-
-            {/* 2. STUDENTS GRID - Structured Columns */}
-            <div className="space-y-6">
-               <div className="flex items-center justify-between px-2">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg">
-                      <GraduationCap className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-black text-primary uppercase tracking-tight leading-none">{isAr ? 'قائمة الطلاب المشمولين' : 'Student Roster'}</h2>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">{isAr ? 'التفاصيل الأكاديمية والشخصية' : 'Academic & Personal Profiles'}</p>
-                    </div>
-                  </div>
-                  <div className="h-10 w-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black shadow-xl ring-4 ring-white">{app.students?.length || 0}</div>
-               </div>
-
-               <div className="space-y-6">
+        {/* SECTION 2: STUDENTS DATA TABLE */}
+        <section>
+           <SectionTitle 
+              icon={GraduationCap} 
+              title={isAr ? 'قائمة الطلاب المشمولين' : 'Student Roster'} 
+              subtitle={isAr ? 'التفاصيل الأكاديمية والشخصية للطلاب' : 'Comprehensive Profiles for Enrolled Siblings'}
+              color="bg-secondary"
+            />
+            <Card className="border-none shadow-premium rounded-3xl overflow-hidden bg-white">
+              <Table>
+                <TableHeader className="bg-slate-50 border-b border-slate-100">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-16 text-center font-black text-[10px] uppercase text-slate-400">#</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 px-6">{isAr ? 'الاسم الثلاثي' : 'Student Full Name'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'الجنس' : 'Gender'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'تاريخ الميلاد' : 'D.O.B'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'المرحلة' : 'Grade'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'التواصل' : 'Contact'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-right pr-8">{isAr ? 'الحالة' : 'Status'}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {app.students?.map((student: any, idx: number) => (
-                    <Card key={idx} className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden group">
-                      <div className="flex flex-col md:flex-row items-stretch">
-                         <div className="w-full md:w-32 bg-primary text-white flex flex-col items-center justify-center p-8 md:p-0 relative">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/60 mb-2 relative z-10">Entry</span>
-                            <span className="text-5xl font-black relative z-10">{String(idx + 1).padStart(2, '0')}</span>
-                         </div>
-                         <div className="flex-1 p-8 md:p-12">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-12">
-                               <div className="space-y-2">
-                                  <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">{isAr ? 'الاسم الثلاثي' : 'Full Name'}</p>
-                                  <h3 className="text-xl font-black text-primary leading-tight">{student.firstName} {student.middleName} {student.lastName}</h3>
-                                  <Badge className="bg-secondary/10 text-secondary text-[9px] font-black rounded-lg border-none">{student.gender}</Badge>
-                               </div>
-                               <div className="space-y-2">
-                                  <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">{isAr ? 'الحالة والمرحلة' : 'Status & Level'}</p>
-                                  <div className="font-bold text-slate-600 flex flex-col gap-1">
-                                     <span className="text-sm flex items-center gap-2"><Activity className="h-3 w-3 text-green-500" /> {student.status}</span>
-                                     <span className="text-sm flex items-center gap-2"><Layers className="h-3 w-3 text-secondary" /> Grade {student.lastGrade}</span>
-                                  </div>
-                               </div>
-                               <div className="space-y-2">
-                                  <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">{isAr ? 'المعلومات الحيوية' : 'Personal Specs'}</p>
-                                  <div className="space-y-3">
-                                     <div className="flex items-center gap-3">
-                                        <div className="h-7 w-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400"><Calendar className="h-3 w-3" /></div>
-                                        <span className="text-xs font-bold text-slate-600">{student.dob}</span>
-                                     </div>
-                                     <div className="flex items-center gap-3">
-                                        <div className="h-7 w-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400"><Phone className="h-3 w-3" /></div>
-                                        <span className="text-xs font-bold text-slate-600" dir="ltr">{student.phone}</span>
-                                     </div>
-                                  </div>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                    </Card>
+                    <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-50 group">
+                      <TableCell className="text-center font-black text-slate-300 py-6">{idx + 1}</TableCell>
+                      <TableCell className="px-6">
+                        <div className="space-y-0.5">
+                          <p className="font-black text-primary text-base">{student.firstName} {student.middleName} {student.lastName}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment Entry</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-slate-50 text-slate-500 font-black text-[9px] uppercase border-none">{student.gender}</Badge>
+                      </TableCell>
+                      <TableCell className="font-bold text-slate-600 text-xs">{student.dob}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                           <Layers className="h-3 w-3 text-secondary" />
+                           <span className="font-black text-primary text-xs">Grade {student.lastGrade}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-slate-600 flex items-center gap-2"><Phone className="h-3 w-3 text-slate-300" /> {student.phone}</p>
+                          <p className="text-xs font-bold text-slate-600 flex items-center gap-2"><Mail className="h-3 w-3 text-slate-300" /> {student.email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-8">
+                        <Badge className="bg-secondary text-white font-black text-[9px] uppercase rounded-lg border-none shadow-sm">{student.status}</Badge>
+                      </TableCell>
+                    </TableRow>
                   ))}
-               </div>
-            </div>
+                </TableBody>
+              </Table>
+            </Card>
+        </section>
 
-            {/* 3. ADDRESS TABLE */}
-            <div className="space-y-6">
-               <div className="flex items-center gap-3 px-2">
-                  <div className="h-10 w-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-primary uppercase tracking-tight leading-none">{isAr ? 'العنوان الجغرافي' : 'Residence Address'}</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">{isAr ? 'موقع السكن الحالي' : 'Current Living Location'}</p>
-                  </div>
-               </div>
+        {/* SECTION 3: PROGRAM & FINANCIAL TABLE + ADDRESS */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
+          <div className="lg:col-span-8 space-y-12">
+             {/* Program Data Table */}
+             <section>
+                <SectionTitle 
+                  icon={Briefcase} 
+                  title={isAr ? 'تفاصيل البرنامج التعليمي' : 'Program Selection'} 
+                  subtitle={isAr ? 'المسار الأكاديمي والخيارات اللغوية' : 'Academic Track & Language Settings'}
+                />
+                <Card className="border-none shadow-premium rounded-3xl overflow-hidden bg-white">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-transparent border-slate-50">
+                        <TableCell className="w-1/3 bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'البرنامج الأساسي' : 'Academic Program'}</TableCell>
+                        <TableCell className="font-black text-primary text-lg py-6">
+                           {app.programOption === 'grades-3-5' ? (isAr ? 'برنامج التأسيس (3-5)' : 'Foundation 3-5') : 
+                            app.programOption === 'grades-6-12' ? (isAr ? 'البرنامج الأكاديمي (6-12)' : 'Academics 6-12') : 
+                            (isAr ? 'برنامج عطلة الأسبوع' : 'Weekend Remote')}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-transparent border-slate-50">
+                        <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'مسار اللغة' : 'Language Option'}</TableCell>
+                        <TableCell className="font-bold text-slate-600 py-6 flex items-center gap-3">
+                          <Globe className="h-4 w-4 text-secondary" />
+                          {app.languageOption === 'english-arabic' ? (isAr ? 'الإنجليزية والعربية' : 'English & Arabic') : (isAr ? 'الإنجليزية فقط' : 'English Only')}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-transparent border-slate-50">
+                        <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'خطة الدفع' : 'Payment Plan'}</TableCell>
+                        <TableCell className="font-bold text-slate-600 py-6">
+                           {app.paymentTier === 'full-3-5' ? (isAr ? 'دفع كامل - خصم 10%' : 'Full Tuition (Prepaid)') : (isAr ? 'دفعة أولية + أقساط' : 'Standard Installments')}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-transparent border-none">
+                        <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'المبلغ الإجمالي' : 'Tuition Amount'}</TableCell>
+                        <TableCell className="font-black text-secondary text-3xl py-6">
+                           {app.programOption === 'weekend' ? '$75' : app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650'}
+                           <span className="text-[10px] text-slate-300 font-bold ml-2 uppercase tracking-widest">USD Projected</span>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Card>
+             </section>
 
-               <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
-                 <CardContent className="p-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2">
-                       <div className="p-8 border-b md:border-b-0 md:border-r border-slate-100 space-y-6">
-                          <InfoRow icon={Building2} label={isAr ? 'العنوان الرئيسي' : 'Primary Line'} value={app.address?.line1} />
-                          <InfoRow icon={Hash} label={isAr ? 'السطر الثاني' : 'Secondary Line'} value={app.address?.line2 || '-'} />
-                       </div>
-                       <div className="p-8 space-y-6">
-                          <div className="grid grid-cols-2 gap-8">
-                             <InfoRow icon={Globe} label={isAr ? 'المدينة' : 'City'} value={app.address?.city} />
-                             <InfoRow icon={MapPin} label={isAr ? 'الولاية' : 'State'} value={app.address?.state} />
-                          </div>
-                          <InfoRow icon={Hash} label={isAr ? 'الرمز البريدي' : 'ZIP Code'} value={app.address?.zip} />
-                       </div>
-                    </div>
-                 </CardContent>
-               </Card>
-            </div>
+             {/* Address Data Table */}
+             <section>
+                <SectionTitle 
+                  icon={MapPin} 
+                  title={isAr ? 'العنوان الجغرافي' : 'Residence Data'} 
+                  subtitle={isAr ? 'موقع السكن الحالي في الولايات المتحدة' : 'Primary Living Location (USA)'}
+                  color="bg-slate-900"
+                />
+                <Card className="border-none shadow-premium rounded-3xl overflow-hidden bg-white">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-transparent border-slate-50">
+                        <TableCell className="w-1/3 bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-5 pl-8">{isAr ? 'العنوان الرئيسي' : 'Primary Line'}</TableCell>
+                        <TableCell className="font-bold text-primary py-5">{app.address?.line1}</TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-transparent border-slate-50">
+                        <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-5 pl-8">{isAr ? 'السطر الثاني' : 'Secondary'}</TableCell>
+                        <TableCell className="font-medium text-slate-400 py-5">{app.address?.line2 || '-'}</TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-transparent border-none">
+                        <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-5 pl-8">{isAr ? 'المدينة / الولاية' : 'Location'}</TableCell>
+                        <TableCell className="font-black text-primary py-5">
+                          {app.address?.city}, {app.address?.state} {app.address?.zip}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Card>
+             </section>
           </div>
 
-          {/* SIDEBAR COLUMN (RIGHT) */}
-          <aside className="lg:col-span-4 space-y-10 sticky top-28">
-            
-            {/* PROGRAM & FINANCE CARD */}
-            <Card className="border-none shadow-2xl rounded-[3rem] bg-primary text-white overflow-hidden relative group">
-               <div className="absolute top-0 right-0 p-8 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-1000"><Briefcase className="h-40 w-40" /></div>
-               <CardHeader className="p-10 pb-0 relative z-10">
-                  <Badge className="bg-secondary text-white font-black uppercase text-[8px] tracking-[0.2em] h-6 px-3 border-none">Active Enrollment</Badge>
-                  <CardTitle className="text-3xl font-black text-secondary uppercase leading-tight mt-6">
-                    {app.programOption === 'grades-3-5' ? (isAr ? 'برنامج التأسيس' : 'Foundation 3-5') : 
-                     app.programOption === 'grades-6-12' ? (isAr ? 'الأكاديمي' : 'Academics 6-12') : 
-                     (isAr ? 'عطلة الأسبوع' : 'Weekend Remote')}
-                  </CardTitle>
-               </CardHeader>
-               <CardContent className="p-10 space-y-10 relative z-10">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-[10px] font-black uppercase text-white/40 tracking-widest">
-                       <span>{isAr ? 'مسار اللغة' : 'Language Path'}</span>
-                       <Globe className="h-3 w-3" />
-                    </div>
-                    <p className="text-lg font-bold text-white/90">
-                       {app.languageOption === 'english-arabic' ? (isAr ? 'الإنجليزية والعربية' : 'English & Arabic') : (isAr ? 'الإنجليزية فقط' : 'English Only')}
-                    </p>
-                  </div>
-
-                  <div className="pt-10 border-t border-white/10 space-y-6">
-                     <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{isAr ? 'خطة الدفع والرسوم' : 'Financial Breakdown'}</span>
-                        <CreditCard className="h-4 w-4 text-secondary" />
-                     </div>
-                     <div className="flex items-end justify-between gap-4">
-                        <div className="space-y-1">
-                          <p className="text-[9px] font-black text-secondary uppercase tracking-[0.2em]">{isAr ? 'الإجمالي المتوقع' : 'Projected Total'}</p>
-                          <div className="text-6xl font-black text-white tracking-tighter">
-                             {app.programOption === 'weekend' ? '$75' : 
-                              app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650'}
-                          </div>
-                        </div>
-                        <Badge className="bg-white/10 text-white/60 mb-2 border-none font-bold text-[8px] uppercase">USD</Badge>
-                     </div>
-                  </div>
-               </CardContent>
-            </Card>
-
-            {/* ATTACHMENTS TABLE */}
-            <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
-               <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-3">
-                     <div className="h-8 w-8 rounded-xl bg-slate-50 flex items-center justify-center text-primary"><FileText className="h-4 w-4" /></div>
-                     <CardTitle className="text-base font-black uppercase tracking-tight text-primary">{isAr ? 'المرفقات' : 'Attachments'}</CardTitle>
-                  </div>
-                  <Badge className="bg-slate-900 text-white font-black h-6 w-6 rounded-full flex items-center justify-center p-0 text-[10px]">{app.files?.length || 0}</Badge>
-               </CardHeader>
-               <CardContent className="p-8 pt-4">
-                  {app.files && app.files.length > 0 ? (
-                    <div className="space-y-3">
-                       {app.files.map((file: any, idx: number) => (
-                         <div key={idx} className="group flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50 hover:bg-white hover:shadow-lg transition-all duration-300">
-                            <div className="flex items-center gap-4 min-w-0">
-                               <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-secondary shrink-0 relative overflow-hidden group-hover:scale-110 transition-transform">
-                                  {file.type?.includes('image') ? (
-                                    <Image src={file.data} alt="file" fill className="object-cover" unoptimized />
-                                  ) : (
-                                    <FileText className="h-4 w-4" />
-                                  )}
+          {/* SIDEBAR: DOCUMENTS TABLE */}
+          <aside className="lg:col-span-4 space-y-12">
+             <section>
+                <SectionTitle 
+                  icon={FileCheck} 
+                  title={isAr ? 'المرفقات والمستندات' : 'Attachments'} 
+                  subtitle={isAr ? 'الوثائق الرسمية المرفوعة' : 'Uploaded PDF & Image Files'}
+                  color="bg-secondary"
+                />
+                <Card className="border-none shadow-premium rounded-3xl overflow-hidden bg-white">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow className="hover:bg-transparent border-slate-100">
+                        <TableHead className="font-black text-[9px] uppercase text-slate-400 py-4 px-6">{isAr ? 'اسم الملف' : 'File Name'}</TableHead>
+                        <TableHead className="font-black text-[9px] uppercase text-slate-400 py-4 text-right pr-6">{isAr ? 'الإجراء' : 'Action'}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {app.files && app.files.length > 0 ? (
+                        app.files.map((file: any, idx: number) => (
+                          <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-50 group">
+                            <TableCell className="py-4 px-6">
+                               <div className="flex items-center gap-3 min-w-0">
+                                  <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-secondary shrink-0 group-hover:bg-secondary group-hover:text-white transition-all">
+                                     <FileText className="h-4 w-4" />
+                                  </div>
+                                  <div className="min-w-0">
+                                     <p className="text-[10px] font-black text-primary truncate max-w-[120px]">{file.name}</p>
+                                     <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">{(file.size / 1024).toFixed(0)} KB</p>
+                                  </div>
                                </div>
-                               <div className="min-w-0">
-                                  <p className="text-[10px] font-black text-primary truncate leading-tight">{file.name}</p>
-                                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{(file.size / 1024).toFixed(0)} KB</p>
+                            </TableCell>
+                            <TableCell className="py-4 text-right pr-6">
+                               <div className="flex justify-end gap-2">
+                                  <button onClick={() => window.open(file.data, '_blank')} className="h-8 w-8 rounded-lg bg-slate-50 text-slate-400 hover:text-secondary hover:bg-white hover:shadow-md transition-all flex items-center justify-center border border-slate-100"><ExternalLink className="h-3.5 w-3.5" /></button>
+                                  <button onClick={() => downloadFile(file)} className="h-8 w-8 rounded-lg bg-secondary text-white shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all"><DownloadCloud className="h-3.5 w-3.5" /></button>
                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                               <button onClick={() => window.open(file.data, '_blank')} className="h-9 w-9 rounded-xl bg-white text-slate-400 hover:text-secondary shadow-sm flex items-center justify-center transition-all border border-slate-100"><ExternalLink className="h-3.5 w-3.5" /></button>
-                               <button onClick={() => downloadFile(file)} className="h-9 w-9 rounded-xl bg-secondary text-white shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all"><DownloadCloud className="h-3.5 w-3.5" /></button>
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                  ) : (
-                    <div className="py-10 bg-slate-50/30 rounded-[2rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-4">
-                       <FileCheck className="h-8 w-8 text-slate-200 mb-3" />
-                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'لم يتم إرفاق ملفات' : 'Zero Files Found'}</p>
-                    </div>
-                  )}
-               </CardContent>
-            </Card>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={2} className="py-12 text-center">
+                             <FileCheck className="h-8 w-8 text-slate-200 mx-auto mb-3" />
+                             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد مستندات' : 'Zero Files'}</p>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </Card>
+             </section>
 
-            {/* ADMIN ACTIONS */}
-            <div className="pt-4 grid grid-cols-1 gap-4 px-2">
-               <Button className="w-full h-16 rounded-[1.5rem] bg-green-500 hover:bg-green-600 text-white font-black shadow-xl shadow-green-500/20 gap-3 text-lg transition-all active:scale-[0.98]">
-                  <CheckCircle2 className="h-6 w-6" />
-                  {isAr ? 'اعتماد هذا الطلب' : 'Approve Enrollment'}
-               </Button>
-               <Button variant="outline" className="w-full h-14 rounded-[1.5rem] border-2 border-slate-100 text-slate-400 font-black hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all">
-                  {isAr ? 'رفض الطلب' : 'Reject Application'}
-               </Button>
-            </div>
+             {/* ADMIN ACTIONS */}
+             <div className="space-y-4">
+                <Button className="w-full h-16 rounded-2xl bg-green-500 hover:bg-green-600 text-white font-black shadow-xl shadow-green-500/20 gap-3 text-lg transition-all active:scale-[0.98]">
+                   <CheckCircle2 className="h-6 w-6" />
+                   {isAr ? 'اعتماد الطلب' : 'Approve Enrollment'}
+                </Button>
+                <div className="grid grid-cols-2 gap-4">
+                   <Button variant="outline" className="h-14 rounded-2xl border-slate-200 text-slate-400 font-black hover:bg-white hover:text-primary transition-all">
+                      {isAr ? 'تعديل' : 'Modify'}
+                   </Button>
+                   <Button variant="outline" className="h-14 rounded-2xl border-slate-100 text-slate-300 font-black hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      {isAr ? 'رفض' : 'Reject'}
+                   </Button>
+                </div>
+             </div>
           </aside>
         </div>
       </main>
