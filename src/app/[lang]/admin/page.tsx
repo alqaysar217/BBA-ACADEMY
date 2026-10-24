@@ -1,245 +1,295 @@
 
 'use client';
 
-import { useEffect, useState, use, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { use, useMemo } from 'react';
 import { type Locale } from '@/lib/i18n/config';
-import { useUser, useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy, where, Timestamp } from 'firebase/firestore';
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { 
   Users, 
-  Search, 
-  ChevronRight, 
-  LogOut,
-  LayoutDashboard,
-  FileText,
-  Clock,
+  FileText, 
+  TrendingUp, 
+  Clock, 
+  CheckCircle2, 
+  AlertCircle,
+  MapPin,
   Calendar,
-  Mail
+  ArrowUpRight,
+  ArrowDownRight,
+  Plus
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Cell,
+  PieChart,
+  Pie,
+  LineChart,
+  Line,
+  AreaChart,
+  Area
+} from 'recharts';
 import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
-export default function AdminDashboard({ params }: { params: Promise<{ lang: Locale }> }) {
+export default function AdminOverview({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
-  const { user, loading: authLoading } = useUser();
-  const firestore = useFirestore();
-  const router = useRouter();
   const isAr = lang === 'ar';
-  const [mounted, setMounted] = useState(false);
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    setMounted(true);
-    const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
-    if (!authLoading && !user && !isTestAdmin) {
-      router.push(`/${lang}/admin/login`);
-    }
-  }, [user, authLoading, router, lang]);
-
-  // التغيير الجوهري: الترتيب حسب updatedAt ليظهر كل شيء (مسودات + طلبات مرسلة)
   const enrollmentsQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(
-      collection(firestore, 'enrollments'),
-      orderBy('updatedAt', 'desc')
-    );
+    return query(collection(firestore, 'enrollments'), orderBy('updatedAt', 'desc'));
   }, [firestore]);
 
-  const { data: enrollments, loading: dataLoading, error: firestoreError } = useCollection(enrollmentsQuery);
-  const [searchTerm, setSearchTerm] = useState('');
+  const { data: enrollments, loading } = useCollection(enrollmentsQuery);
 
-  const handleLogout = () => {
-    localStorage.removeItem('bba_test_admin');
-    router.push(`/${lang}`);
-  };
+  // Statistics Calculation
+  const stats = useMemo(() => {
+    const total = enrollments?.length || 0;
+    const submitted = enrollments?.filter(e => e.status === 'submitted').length || 0;
+    const drafts = enrollments?.filter(e => e.status === 'draft').length || 0;
+    const reviewed = enrollments?.filter(e => e.status === 'reviewed').length || 0;
+    const students = enrollments?.reduce((acc, curr) => acc + (curr.students?.length || 0), 0) || 0;
+    
+    return { total, submitted, drafts, reviewed, students };
+  }, [enrollments]);
 
-  if (!mounted || authLoading || (dataLoading && !firestoreError)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center gap-4">
-           <div className="h-12 w-12 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
-           <p className="text-sm font-black text-primary uppercase tracking-widest">{isAr ? 'جاري التحميل...' : 'System Loading...'}</p>
-        </div>
-      </div>
-    );
-  }
+  // Chart Data: Programs
+  const programData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    enrollments?.forEach(e => {
+      const p = e.programOption || (isAr ? 'غير محدد' : 'Not Set');
+      counts[p] = (counts[p] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [enrollments, isAr]);
 
-  if (firestoreError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="max-w-md space-y-6">
-          <div className="h-20 w-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-             <Clock className="h-10 w-10" />
-          </div>
-          <h2 className="text-2xl font-black text-primary uppercase">{isAr ? 'خطأ في الاتصال' : 'Connection Error'}</h2>
-          <p className="text-slate-500 font-bold">{isAr ? 'يرجى التأكد من تفعيل Firestore في لوحة تحكم فيربايس وتطبيق القواعد.' : 'Please ensure Firestore is enabled and rules are deployed in Firebase Console.'}</p>
-          <Button onClick={() => window.location.reload()} className="bg-primary text-white font-black rounded-xl h-12 px-8">
-             {isAr ? 'تحديث الصفحة' : 'Retry Connection'}
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // Chart Data: States
+  const regionData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    enrollments?.forEach(e => {
+      const s = e.address?.state || (isAr ? 'أخرى' : 'Other');
+      counts[s] = (counts[s] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, count]) => ({ name, count })).slice(0, 5);
+  }, [enrollments, isAr]);
 
-  const filteredEnrollments = (enrollments || []).filter(e => 
-    e.parent1Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.students?.some((s: any) => s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()))
+  const COLORS = ['#1A73E8', '#0FB9B1', '#F7B731', '#EB3B5A', '#A55EEA'];
+
+  if (loading) return (
+    <div className="p-8 space-y-8 animate-pulse">
+       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[1,2,3,4].map(i => <div key={i} className="h-32 bg-white rounded-2xl border border-slate-100" />)}
+       </div>
+       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 h-96 bg-white rounded-2xl border border-slate-100" />
+          <div className="h-96 bg-white rounded-2xl border border-slate-100" />
+       </div>
+    </div>
   );
 
-  const stats = [
-    { label: isAr ? 'إجمالي السجلات' : 'Total Records', value: enrollments?.length || 0, icon: FileText, color: 'text-primary' },
-    { label: isAr ? 'إجمالي الطلاب' : 'Total Students', value: enrollments?.reduce((acc, curr) => acc + (curr.students?.length || 0), 0) || 0, icon: Users, color: 'text-secondary' },
-    { label: isAr ? 'طلبات مكتملة' : 'Submitted Apps', value: enrollments?.filter(e => e.status === 'submitted').length || 0, icon: Clock, color: 'text-amber-500' },
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-50/50 flex flex-col">
-      <header className="h-20 bg-primary text-white flex items-center px-6 md:px-12 sticky top-0 z-30 shadow-xl">
-        <div className="container-tight flex items-center justify-between w-full">
-           <div className="flex items-center gap-4">
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center">
-                 <LayoutDashboard className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                 <h1 className="text-lg font-black uppercase tracking-tight">{isAr ? 'لوحة التحكم' : 'Admin Console'}</h1>
-                 <p className="text-[9px] text-secondary font-bold uppercase tracking-widest">Management System</p>
-              </div>
-           </div>
-           
-           <div className="flex items-center gap-4">
-             <div className="hidden md:block text-right">
-                <p className="text-xs font-black">{user?.email || 'Test Administrator'}</p>
-                <p className="text-[9px] text-white/50 font-bold uppercase">Administrator</p>
-             </div>
-             <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white hover:bg-white/10">
-                <LogOut className="h-5 w-5" />
-             </Button>
-           </div>
-        </div>
-      </header>
+    <div className="p-8 space-y-10 max-w-7xl mx-auto">
+      {/* 1. Header & Quick Actions */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+         <div>
+            <h1 className="text-3xl font-black text-primary uppercase tracking-tight">{isAr ? 'نظرة عامة' : 'System Overview'}</h1>
+            <p className="text-slate-500 font-bold text-sm">{isAr ? 'تحليلات وإحصائيات طلبات الالتحاق بالأكاديمية' : 'Real-time analytics and application performance'}</p>
+         </div>
+         <div className="flex items-center gap-3">
+            <Button asChild className="rounded-xl bg-primary text-white font-black px-6 h-12 shadow-xl shadow-primary/10">
+               <Link href={`/${lang}/admin/enrollments`}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  {isAr ? 'عرض كافة الطلبات' : 'View All Applications'}
+               </Link>
+            </Button>
+         </div>
+      </div>
 
-      <main className="flex-1 py-10 px-4 md:px-8">
-        <div className="container-tight space-y-10">
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {stats.map((stat, idx) => (
-              <Card key={idx} className="border-none shadow-sm rounded-2xl">
-                <CardContent className="p-6 flex items-center gap-6">
-                  <div className={cn("h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center", stat.color)}>
-                     <stat.icon className="h-7 w-7" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                    <p className="text-3xl font-black text-primary">{stat.value}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-               <div>
-                  <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{isAr ? 'قائمة الطلبات والمسودات' : 'Enrollments & Drafts'}</h2>
-                  <p className="text-xs text-slate-500 font-bold">{isAr ? 'عرض ومراجعة كافة البيانات المحفوظة في النظام' : 'Review all saved records in the system'}</p>
-               </div>
-               
-               <div className="flex items-center gap-3 w-full md:w-auto">
-                 <div className="relative flex-1 md:w-80">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input 
-                      placeholder={isAr ? 'بحث بالاسم...' : 'Search names...'} 
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-12 h-12 rounded-xl bg-white border-none shadow-sm font-bold"
-                    />
+      {/* 2. Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+         {[
+           { label: isAr ? 'إجمالي الطلبات' : 'Total Applications', value: stats.total, icon: FileText, color: 'bg-primary', trend: '+12%' },
+           { label: isAr ? 'طلبات مكتملة' : 'Submitted Apps', value: stats.submitted, icon: CheckCircle2, color: 'bg-green-500', trend: '+8%' },
+           { label: isAr ? 'المسودات' : 'Current Drafts', value: stats.drafts, icon: Clock, color: 'bg-amber-500', trend: '-2%' },
+           { label: isAr ? 'إجمالي الطلاب' : 'Total Students', value: stats.students, icon: Users, color: 'bg-secondary', trend: '+15%' },
+         ].map((stat, i) => (
+           <Card key={i} className="border-none shadow-sm rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                 <div className="flex justify-between items-start">
+                    <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center text-white", stat.color)}>
+                       <stat.icon className="h-6 w-6" />
+                    </div>
+                    <Badge variant="outline" className={cn(
+                       "font-black text-[10px] border-none",
+                       stat.trend.startsWith('+') ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50"
+                    )}>
+                       {stat.trend} {stat.trend.startsWith('+') ? <ArrowUpRight className="h-3 w-3 ml-1 inline" /> : <ArrowDownRight className="h-3 w-3 ml-1 inline" />}
+                    </Badge>
                  </div>
+                 <div className="mt-6">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                    <h3 className="text-3xl font-black text-primary mt-1">{stat.value}</h3>
+                 </div>
+              </CardContent>
+           </Card>
+         ))}
+      </div>
+
+      {/* 3. Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+         {/* Main Chart: Regional Distribution */}
+         <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl bg-white overflow-hidden">
+            <CardHeader className="p-8">
+               <CardTitle className="text-xl font-black text-primary uppercase">{isAr ? 'التوزيع الجغرافي' : 'Regional Distribution'}</CardTitle>
+               <CardDescription className="font-bold">{isAr ? 'أكثر 5 ولايات تقديماً للطلبات' : 'Top 5 states by application volume'}</CardDescription>
+            </CardHeader>
+            <CardContent className="px-4 pb-8">
+               <div className="h-80 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                     <BarChart data={regionData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 700}} />
+                        <Tooltip 
+                           cursor={{fill: '#f8fafc'}}
+                           contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: 700}}
+                        />
+                        <Bar dataKey="count" radius={[8, 8, 0, 0]} barSize={40}>
+                           {regionData.map((_, index) => (
+                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                           ))}
+                        </Bar>
+                     </BarChart>
+                  </ResponsiveContainer>
                </div>
-            </div>
+            </CardContent>
+         </Card>
 
-            <div className="grid grid-cols-1 gap-4">
-              {filteredEnrollments.map((app: any) => (
-                <div key={app.id} className="group bg-white rounded-2xl border border-slate-100 p-5 md:p-6 shadow-sm hover:shadow-xl transition-all duration-300">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div className="flex items-start gap-5">
-                       <div className="h-14 w-14 rounded-2xl bg-secondary/5 text-secondary flex items-center justify-center shrink-0 border border-secondary/10">
-                          <UserCircle2 className="h-7 w-7" />
+         {/* Side Chart: Programs */}
+         <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
+            <CardHeader className="p-8">
+               <CardTitle className="text-xl font-black text-primary uppercase">{isAr ? 'توزيع البرامج' : 'Program Distribution'}</CardTitle>
+               <CardDescription className="font-bold">{isAr ? 'نسبة الإقبال على البرامج التعليمية' : 'Applications by educational track'}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center pb-8">
+               <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                     <PieChart>
+                        <Pie
+                           data={programData}
+                           innerRadius={60}
+                           outerRadius={80}
+                           paddingAngle={5}
+                           dataKey="value"
+                        >
+                           {programData.map((_, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                           ))}
+                        </Pie>
+                        <Tooltip contentStyle={{borderRadius: '12px', fontWeight: 700}} />
+                     </PieChart>
+                  </ResponsiveContainer>
+               </div>
+               <div className="w-full space-y-3 mt-4">
+                  {programData.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full" style={{backgroundColor: COLORS[idx % COLORS.length]}} />
+                          <span className="text-[10px] font-black text-slate-500 uppercase truncate max-w-[120px]">{item.name}</span>
                        </div>
-                       <div className="space-y-1">
-                          <div className="flex items-center gap-3">
-                             <h3 className="text-lg font-black text-primary">{app.parent1Name}</h3>
-                             <Badge variant={app.status === 'submitted' ? 'default' : 'secondary'} className="text-[9px] uppercase font-black">
-                                {app.status === 'submitted' ? (isAr ? 'تم الإرسال' : 'Submitted') : (isAr ? 'مسودة' : 'Draft')}
-                             </Badge>
-                             <Badge variant="outline" className="text-[9px] uppercase font-black bg-slate-50 text-slate-500 border-none">
-                                {app.lang === 'ar' ? 'العربية' : 'English'}
-                             </Badge>
-                          </div>
-                          <p className="text-xs font-bold text-slate-500 flex items-center gap-2">
-                             <Mail className="h-3.5 w-3.5" /> {app.parent1Email}
-                          </p>
-                          <div className="flex flex-wrap gap-2 pt-1">
-                             {app.students?.map((s: any, idx: number) => (
-                               <Badge key={idx} variant="outline" className="text-[9px] font-black uppercase border-slate-200 text-primary bg-slate-50">
-                                 {s.firstName} - Grade {s.lastGrade}
-                               </Badge>
-                             ))}
-                          </div>
-                       </div>
+                       <span className="text-xs font-black text-primary">{Math.round((item.value / stats.total) * 100)}%</span>
                     </div>
+                  ))}
+               </div>
+            </CardContent>
+         </Card>
+      </div>
 
-                    <div className="flex flex-col md:items-end gap-3 w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0">
-                       <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                          <Calendar className="h-3 w-3" />
-                          {(app.submittedAt || app.updatedAt) && format(((app.submittedAt || app.updatedAt) as Timestamp).toDate(), 'MMM dd, yyyy HH:mm')}
-                       </div>
-                       <div className="flex items-center gap-3">
-                          <div className="text-right hidden sm:block">
-                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'البرنامج المختار' : 'Program Selection'}</p>
-                             <p className="text-xs font-black text-secondary uppercase">
-                                {app.programOption === 'grades-3-5' ? 'Grade 3-5' : 
-                                 app.programOption === 'grades-6-12' ? 'Grade 6-12' : 'Weekend'}
-                             </p>
-                          </div>
-                          <Button 
-                            className="bg-primary hover:bg-secondary text-white rounded-xl h-12 px-6 gap-2 font-black transition-all group-hover:scale-105"
-                            onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}
-                          >
-                             {isAr ? 'عرض التفاصيل' : 'Review Details'}
-                             <ChevronRight className="h-4 w-4" />
-                          </Button>
-                       </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {(!filteredEnrollments || filteredEnrollments.length === 0) && (
-                <div className="py-20 text-center space-y-4 bg-white rounded-2xl border-2 border-dashed border-slate-100">
-                   <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-200">
-                      <FileText className="h-10 w-10" />
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-lg font-black text-primary uppercase">{isAr ? 'لا توجد طلبات حالياً' : 'No Applications Yet'}</p>
-                      <p className="text-slate-400 font-bold text-sm max-w-xs mx-auto">
-                        {isAr ? 'بمجرد قيام أولياء الأمور بتعبئة الاستمارة، ستظهر هنا فوراً.' : 'Once parents fill out the form, applications will appear here instantly.'}
-                      </p>
-                   </div>
-                </div>
-              )}
+      {/* 4. Recent Applications List */}
+      <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
+         <CardHeader className="p-8 flex flex-row items-center justify-between">
+            <div>
+               <CardTitle className="text-xl font-black text-primary uppercase">{isAr ? 'آخر الطلبات' : 'Recent Applications'}</CardTitle>
+               <CardDescription className="font-bold">{isAr ? 'أحدث 5 طلبات مسجلة في النظام' : 'Last 5 records added to database'}</CardDescription>
             </div>
-          </div>
-        </div>
-      </main>
+            <Button variant="ghost" asChild className="text-secondary font-black">
+               <Link href={`/${lang}/admin/enrollments`}>{isAr ? 'مشاهدة الكل' : 'View All'}</Link>
+            </Button>
+         </CardHeader>
+         <CardContent className="p-0">
+            <div className="overflow-x-auto">
+               <table className="w-full">
+                  <thead>
+                     <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-y border-slate-100">
+                        <th className="px-8 py-4 text-left">{isAr ? 'ولي الأمر' : 'Guardian'}</th>
+                        <th className="px-8 py-4 text-left">{isAr ? 'البرنامج' : 'Program'}</th>
+                        <th className="px-8 py-4 text-left">{isAr ? 'الحالة' : 'Status'}</th>
+                        <th className="px-8 py-4 text-left">{isAr ? 'التاريخ' : 'Date'}</th>
+                        <th className="px-8 py-4 text-right"></th>
+                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                     {enrollments?.slice(0, 5).map((app: any) => (
+                        <tr key={app.id} className="hover:bg-slate-50/50 transition-colors group">
+                           <td className="px-8 py-5">
+                              <div className="flex items-center gap-4">
+                                 <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary font-black uppercase">
+                                    {app.parent1Name?.charAt(0)}
+                                 </div>
+                                 <div className="space-y-0.5">
+                                    <p className="text-sm font-black text-primary">{app.parent1Name}</p>
+                                    <p className="text-[10px] text-slate-400 font-bold">{app.parent1Email}</p>
+                                 </div>
+                              </div>
+                           </td>
+                           <td className="px-8 py-5">
+                              <Badge variant="outline" className="text-[9px] font-black uppercase border-slate-200">
+                                 {app.programOption === 'grades-3-5' ? 'Foundation' : app.programOption === 'grades-6-12' ? 'Academics' : 'Weekend'}
+                              </Badge>
+                           </td>
+                           <td className="px-8 py-5">
+                              <Badge className={cn(
+                                 "text-[9px] font-black uppercase border-none rounded-lg",
+                                 app.status === 'submitted' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
+                              )}>
+                                 {app.status}
+                              </Badge>
+                           </td>
+                           <td className="px-8 py-5">
+                              <div className="flex flex-col">
+                                 <span className="text-xs font-bold text-slate-600">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</span>
+                                 <span className="text-[10px] text-slate-400">{app.updatedAt ? format(app.updatedAt.toDate(), 'HH:mm') : ''}</span>
+                              </div>
+                           </td>
+                           <td className="px-8 py-5 text-right">
+                              <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-white hover:shadow-md">
+                                 <Link href={`/${lang}/admin/enrollments/${app.id}`}>
+                                    <ChevronRight className={cn("h-4 w-4 text-slate-300 group-hover:text-primary transition-colors", isAr && "rotate-180")} />
+                                 </Link>
+                              </Button>
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
+         </CardContent>
+      </Card>
     </div>
   );
 }
 
-function UserCircle2(props: any) {
+function ChevronRight(props: any) {
   return (
     <svg
       {...props}
@@ -253,9 +303,7 @@ function UserCircle2(props: any) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M18 20a6 6 0 0 0-12 0" />
-      <circle cx="12" cy="10" r="4" />
-      <circle cx="12" cy="12" r="10" />
+      <path d="m9 18 6-6-6-6" />
     </svg>
   )
 }
