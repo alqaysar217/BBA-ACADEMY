@@ -2,10 +2,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // فتح الوصول الكامل لجميع المسارات لضمان نجاح الربط مع المشروع الحقيقي
-    // ملاحظة: تم تحديث القواعد لكسر خطأ Permission Denied في الاستمارة
-    // التاريخ: 2024-05-21
-    
+    // السماح بالوصول الكامل لمجموعة enrollments لضمان نجاح التسجيل
+    match /enrollments/{enrollmentId} {
+      allow read, write: if true;
+    }
+
+    // السماح بالوصول العام لكافة المسارات الأخرى (لأغراض التطوير)
     match /{document=**} {
       allow read, write: if true;
     }

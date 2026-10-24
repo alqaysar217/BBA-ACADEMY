@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, use, useMemo, useRef } from 'react';
@@ -137,10 +138,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const [openParent, setOpenParent] = useState<'p1' | 'p2'>('p1');
   const [openStudentIdx, setOpenStudentIdx] = useState<number>(0);
 
-  // Validation State
   const [attemptedNext, setAttemptedNext] = useState(false);
-
-  // File Upload State
   const [isProcessingFile, setIsProcessingFile] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -294,7 +292,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  // VALIDATION LOGIC
   const validateStep = (stepId: number) => {
     if (stepId === 1) {
       const basicValid = (
@@ -426,13 +423,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
     try {
       const draftId = localStorage.getItem('bba_draft_id');
-      if (draftId) {
-        setDoc(doc(firestore, 'enrollments', draftId), draftData, { merge: true });
-      } else {
-        const docRef = doc(collection(firestore, 'enrollments'));
-        setDoc(docRef, draftData);
-        localStorage.setItem('bba_draft_id', docRef.id);
-      }
+      const docRef = draftId 
+        ? doc(firestore, 'enrollments', draftId) 
+        : doc(collection(firestore, 'enrollments'));
+
+      setDoc(docRef, draftData, { merge: true })
+        .catch(async (err) => {
+           const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'write',
+            requestResourceData: draftData,
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
+
+      if (!draftId) localStorage.setItem('bba_draft_id', docRef.id);
       
       toast({
         title: isAr ? 'تم حفظ المسودة' : 'Draft Saved',
@@ -475,6 +480,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         ...formData,
         status: 'submitted',
         submittedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         userId: user?.uid || 'anonymous',
         lang
       };
@@ -487,6 +493,12 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       setSubmissionId(docRef.id);
 
       setDoc(docRef, finalData)
+        .then(() => {
+          localStorage.removeItem('bba_enrollment_draft');
+          localStorage.removeItem('bba_enrollment_step');
+          localStorage.removeItem('bba_draft_id');
+          setIsSubmitted(true);
+        })
         .catch(async (err) => {
           const permissionError = new FirestorePermissionError({
             path: docRef.path,
@@ -494,16 +506,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
             requestResourceData: finalData,
           });
           errorEmitter.emit('permission-error', permissionError);
+          setIsSubmitting(false);
         });
-
-      localStorage.removeItem('bba_enrollment_draft');
-      localStorage.removeItem('bba_enrollment_step');
-      localStorage.removeItem('bba_draft_id');
-      
-      setIsSubmitted(true);
     } catch (err) {
       console.error(err);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -987,7 +993,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.dob) && "text-red-500")}>
                                   <CalendarIcon className="h-3 w-3 text-secondary" />
                                   {isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}
-                                </Label>                                 <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.dob) && "border-red-500 ring-red-50")} />
+                                </Label>
+                                <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.dob) && "border-red-500 ring-red-50")} />
                               </div>
                               <div className="space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.gender) && "text-red-500")}>
@@ -1365,7 +1372,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
 
                     <div className="grid grid-cols-1 gap-8">
-                      {/* Parents Section */}
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
                         <button onClick={() => setCurrentStep(1)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4 relative overflow-hidden">
@@ -1398,7 +1404,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
-                      {/* Students Section */}
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
                         <button onClick={() => setCurrentStep(2)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4">
@@ -1430,7 +1435,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
-                      {/* Program Section */}
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
                         <button onClick={() => setCurrentStep(3)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4">
