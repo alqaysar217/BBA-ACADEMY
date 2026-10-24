@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useMemo } from 'react';
@@ -31,14 +30,11 @@ import {
   Cell,
   PieChart,
   Pie,
-  LineChart,
-  Line,
-  AreaChart,
-  Area
 } from 'recharts';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function AdminOverview({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -207,7 +203,7 @@ export default function AdminOverview({ params }: { params: Promise<{ lang: Loca
                           <div className="h-2 w-2 rounded-full" style={{backgroundColor: COLORS[idx % COLORS.length]}} />
                           <span className="text-[10px] font-black text-slate-500 uppercase truncate max-w-[120px]">{item.name}</span>
                        </div>
-                       <span className="text-xs font-black text-primary">{Math.round((item.value / stats.total) * 100)}%</span>
+                       <span className="text-xs font-black text-primary">{stats.total > 0 ? Math.round((item.value / stats.total) * 100) : 0}%</span>
                     </div>
                   ))}
                </div>
@@ -227,62 +223,71 @@ export default function AdminOverview({ params }: { params: Promise<{ lang: Loca
             </Button>
          </CardHeader>
          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-               <table className="w-full">
-                  <thead>
-                     <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-y border-slate-100">
-                        <th className="px-8 py-4 text-left">{isAr ? 'ولي الأمر' : 'Guardian'}</th>
-                        <th className="px-8 py-4 text-left">{isAr ? 'البرنامج' : 'Program'}</th>
-                        <th className="px-8 py-4 text-left">{isAr ? 'الحالة' : 'Status'}</th>
-                        <th className="px-8 py-4 text-left">{isAr ? 'التاريخ' : 'Date'}</th>
-                        <th className="px-8 py-4 text-right"></th>
-                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                     {enrollments?.slice(0, 5).map((app: any) => (
-                        <tr key={app.id} className="hover:bg-slate-50/50 transition-colors group">
-                           <td className="px-8 py-5">
-                              <div className="flex items-center gap-4">
-                                 <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary font-black uppercase">
-                                    {app.parent1Name?.charAt(0)}
-                                 </div>
-                                 <div className="space-y-0.5">
-                                    <p className="text-sm font-black text-primary">{app.parent1Name}</p>
-                                    <p className="text-[10px] text-slate-400 font-bold">{app.parent1Email}</p>
-                                 </div>
-                              </div>
-                           </td>
-                           <td className="px-8 py-5">
-                              <Badge variant="outline" className="text-[9px] font-black uppercase border-slate-200">
-                                 {app.programOption === 'grades-3-5' ? 'Foundation' : app.programOption === 'grades-6-12' ? 'Academics' : 'Weekend'}
-                              </Badge>
-                           </td>
-                           <td className="px-8 py-5">
-                              <Badge className={cn(
-                                 "text-[9px] font-black uppercase border-none rounded-lg",
-                                 app.status === 'submitted' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
-                              )}>
-                                 {app.status}
-                              </Badge>
-                           </td>
-                           <td className="px-8 py-5">
-                              <div className="flex flex-col">
-                                 <span className="text-xs font-bold text-slate-600">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</span>
-                                 <span className="text-[10px] text-slate-400">{app.updatedAt ? format(app.updatedAt.toDate(), 'HH:mm') : ''}</span>
-                              </div>
-                           </td>
-                           <td className="px-8 py-5 text-right">
-                              <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-white hover:shadow-md">
-                                 <Link href={`/${lang}/admin/enrollments/${app.id}`}>
-                                    <ChevronRight className={cn("h-4 w-4 text-slate-300 group-hover:text-primary transition-colors", isAr && "rotate-180")} />
-                                 </Link>
-                              </Button>
-                           </td>
+            {(!enrollments || enrollments.length === 0) ? (
+               <div className="p-20 text-center space-y-4">
+                  <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto text-slate-200">
+                     <FileText className="h-8 w-8" />
+                  </div>
+                  <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">{isAr ? 'لا توجد طلبات مسجلة حتى الآن' : 'No applications found yet'}</p>
+               </div>
+            ) : (
+               <div className="overflow-x-auto">
+                  <table className="w-full">
+                     <thead>
+                        <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-y border-slate-100">
+                           <th className="px-8 py-4 text-left">{isAr ? 'ولي الأمر' : 'Guardian'}</th>
+                           <th className="px-8 py-4 text-left">{isAr ? 'البرنامج' : 'Program'}</th>
+                           <th className="px-8 py-4 text-left">{isAr ? 'الحالة' : 'Status'}</th>
+                           <th className="px-8 py-4 text-left">{isAr ? 'التاريخ' : 'Date'}</th>
+                           <th className="px-8 py-4 text-right"></th>
                         </tr>
-                     ))}
-                  </tbody>
-               </table>
-            </div>
+                     </thead>
+                     <tbody className="divide-y divide-slate-100">
+                        {enrollments?.slice(0, 5).map((app: any) => (
+                           <tr key={app.id} className="hover:bg-slate-50/50 transition-colors group">
+                              <td className="px-8 py-5">
+                                 <div className="flex items-center gap-4">
+                                    <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary font-black uppercase">
+                                       {app.parent1Name?.charAt(0)}
+                                    </div>
+                                    <div className="space-y-0.5">
+                                       <p className="text-sm font-black text-primary">{app.parent1Name}</p>
+                                       <p className="text-[10px] text-slate-400 font-bold">{app.parent1Email}</p>
+                                    </div>
+                                 </div>
+                              </td>
+                              <td className="px-8 py-5">
+                                 <Badge variant="outline" className="text-[9px] font-black uppercase border-slate-200">
+                                    {app.programOption || 'N/A'}
+                                 </Badge>
+                              </td>
+                              <td className="px-8 py-5">
+                                 <Badge className={cn(
+                                    "text-[9px] font-black uppercase border-none rounded-lg",
+                                    app.status === 'submitted' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
+                                 )}>
+                                    {app.status}
+                                 </Badge>
+                              </td>
+                              <td className="px-8 py-5">
+                                 <div className="flex flex-col">
+                                    <span className="text-xs font-bold text-slate-600">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</span>
+                                    <span className="text-[10px] text-slate-400">{app.updatedAt ? format(app.updatedAt.toDate(), 'HH:mm') : ''}</span>
+                                 </div>
+                              </td>
+                              <td className="px-8 py-5 text-right">
+                                 <Button asChild size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-white hover:shadow-md">
+                                    <Link href={`/${lang}/admin/enrollments/${app.id}`}>
+                                       <ChevronRight className={cn("h-4 w-4 text-slate-300 group-hover:text-primary transition-colors", isAr && "rotate-180")} />
+                                    </Link>
+                                 </Button>
+                              </td>
+                           </tr>
+                        ))}
+                     </tbody>
+                  </table>
+               </div>
+            )}
          </CardContent>
       </Card>
     </div>
