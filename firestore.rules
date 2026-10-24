@@ -2,8 +2,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // تحديث القواعد لضمان التزامن مع المشروع الحقيقي - تم الفتح للوصول الكامل
-    // ملاحظة: تأكد من إنشاء قاعدة البيانات في Firebase Console أولاً
+    // السماح بالوصول الكامل لجميع المجموعات لدعم التطوير والاختبار مع المشروع الحقيقي
+    // ملاحظة: تأكد من تفعيل Firestore في لوحة تحكم Firebase للمشروع الجديد (studio-2654552044-6b576)
     match /{document=**} {
       allow read, write: if true;
     }
