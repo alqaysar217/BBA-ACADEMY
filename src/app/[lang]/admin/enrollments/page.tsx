@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -18,7 +17,8 @@ import {
   Calendar,
   GraduationCap,
   ArrowUpDown,
-  X
+  X,
+  Users // تم إضافة الاستيراد المفقود هنا
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
