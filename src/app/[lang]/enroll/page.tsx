@@ -53,8 +53,8 @@ import {
   FileWarning,
   Eye,
   CreditCard,
-  PencilLine,
   Search,
+  PencilLine,
   Copy,
   MessageCircle
 } from 'lucide-react';
@@ -208,24 +208,24 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   const availablePrograms = [
     {
       id: 'grades-3-5',
-      title: isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program',
-      desc: isAr ? 'تأسيس للمرحلة الابتدائية مع القرآن والعربية والمواد الأكاديمية.' : 'Elementary foundation building for Quran, Arabic and academics.',
+      title: isAr ? 'برنامج التأسيس (الصفوف 3-5)' : 'Foundation Program (Grades 3–5)',
+      desc: isAr ? 'تأسيس للمرحلة الابتدائية | الدراسة عبر الإنترنت بالكامل.' : 'Elementary foundation | Fully online learning.',
       image: '/program-1.png',
       icon: BookOpen,
       color: 'secondary'
     },
     {
       id: 'grades-6-12',
-      title: isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program',
-      desc: isAr ? 'أكاديميات المرحلة المتوسطة والثانوية مع تعليم مرن عبر الإنترنت.' : 'Middle and high school academics with flexible online learning.',
+      title: isAr ? 'برنامج المرحلة المتوسطة والثانوية (6-12)' : 'Middle & High School (6-12)',
+      desc: isAr ? 'أكاديميات شاملة | الدراسة عبر الإنترنت بالكامل.' : 'Comprehensive academics | Fully online learning.',
       image: '/program-2.png',
       icon: GraduationCap,
       color: 'primary'
     },
     {
       id: 'weekend',
-      title: isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)',
-      desc: isAr ? 'إثراء أيام السبت والأحد لتعزيز الهوية الإسلامية واللغة.' : 'Saturday/Sunday enrichment to strengthen Islamic identity.',
+      title: isAr ? 'برنامج نهاية الأسبوع (عن بُعد)' : 'Weekend Program (Remote)',
+      desc: isAr ? 'الأعمار من 11 إلى 18 عامًا | الدراسة عبر الإنترنت بالكامل.' : 'Ages 11 to 18 | Fully online learning.',
       image: '/program-3.png',
       icon: Calendar,
       color: 'accent'
@@ -251,7 +251,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
   useEffect(() => {
     if (mounted && !isSubmitted) {
       try {
-        // Only save textual data localy to avoid QuotaExceeded
         const dataToSave = { ...formData, files: [] };
         localStorage.setItem('bba_enrollment_draft', JSON.stringify(dataToSave));
         localStorage.setItem('bba_enrollment_step', currentStep.toString());
@@ -315,7 +314,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
       if (!basicValid) return false;
 
-      // Unique Parents Check
       const isDuplicate = 
         formData.parent1Email === formData.parent2Email || 
         formData.parent1Phone === formData.parent2Phone ||
@@ -340,8 +338,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       const basic = !!formData.programOption;
       if (!basic) return false;
       if (formData.programOption === 'grades-3-5') return !!formData.paymentTier;
-      if (formData.programOption === 'grades-6-12') return !!formData.languageOption && !!formData.paymentTier;
-      if (formData.programOption === 'weekend') return !!formData.weekendSlot;
+      if (formData.programOption === 'grades-6-12') return !!formData.languageOption;
+      if (formData.programOption === 'weekend') return true;
       return true;
     }
     if (stepId === 4) {
@@ -396,6 +394,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       setAttemptedNext(true);
       const msg = currentStep === 1 
         ? (isAr ? "يرجى تعبئة بيانات كلا الوالدين بشكل صحيح ومختلف للمتابعة." : "Please fill in both parent details correctly and uniquely to continue.")
+        : currentStep === 2 
+        ? (isAr ? "يرجى تعبئة كافة بيانات الطلاب المطلوبة للمتابعة." : "Please fill in all student information to continue.")
         : (isAr ? "يرجى تعبئة كافة الحقول المطلوبة باللون الأحمر للمتابعة." : "Please fill in all required fields marked in red to continue.");
       
       toast({
@@ -486,7 +486,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
       setSubmissionId(docRef.id);
 
-      // Perform optimistic write
       setDoc(docRef, finalData)
         .catch(async (err) => {
           const permissionError = new FirestorePermissionError({
@@ -497,7 +496,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           errorEmitter.emit('permission-error', permissionError);
         });
 
-      // Clear local storage and transition immediately
       localStorage.removeItem('bba_enrollment_draft');
       localStorage.removeItem('bba_enrollment_step');
       localStorage.removeItem('bba_draft_id');
@@ -552,14 +550,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     const updatedFiles = [...(formData.files || [])];
     updatedFiles.splice(index, 1);
     setFormData((prev: any) => ({ ...prev, files: updatedFiles }));
-  };
-
-  const getWeekendTuition = (count: string) => {
-    const n = parseInt(count) || 1;
-    if (n === 1) return { monthly: 75, term: 225 };
-    if (n === 2) return { monthly: 70, term: 420 };
-    if (n === 3) return { monthly: 65, term: 585 };
-    return { monthly: 60, term: 720 }; 
   };
 
   const filteredStates = usStates.filter(s => 
@@ -742,8 +732,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 {relationships.map(r => (
                                   <SelectItem key={r.value} value={r.value}>{r.label[lang]}</SelectItem>
                                 ))}
-                              </SelectContent>
-                            </Select>
+                              </SelectContent>                             </Select>
                           </div>
                         </div>
                       )}
@@ -1073,8 +1062,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       updateField('programOption', v); 
                       updateField('paymentTier', '');
                       updateField('languageOption', '');
-                      updateField('weekendTerm', '');
-                      updateField('weekendSlot', '');
                     }}
                     dir={isAr ? 'rtl' : 'ltr'}
                   >
@@ -1113,106 +1100,74 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     ))}
                   </RadioGroup>
 
+                  {/* Program Details: Grades 3-5 */}
                   {formData.programOption === 'grades-3-5' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                       <Card className={cn("border-2 rounded-[2rem] overflow-hidden shadow-premium", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-secondary/20 bg-secondary/5")}>
                         <CardHeader className="bg-secondary text-white p-6 md:p-8 relative overflow-hidden">
-                          <div className="flex items-center gap-4 relative z-10">
-                            <BookOpen className="h-6 w-6 md:h-10 md:w-10" />
-                            <div className="min-w-0">
-                              <CardTitle className="text-xl md:text-3xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 3-5 (عن بعد)' : 'Grades 3–5 Remote Program'}</CardTitle>
-                              <div className="text-[10px] md:text-sm font-bold opacity-80">{isAr ? 'خطة التعلم عبر الإنترنت - لجميع الطلاب' : 'Online Learning Plan - Audience: All Students'}</div>
-                            </div>
-                          </div>
+                          <CardTitle className="text-xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-4">
+                            <BookOpen className="h-8 w-8" />
+                            {isAr ? 'خيارات الدفع للمرحلة الابتدائية' : 'Payment Options (Elementary)'}
+                          </CardTitle>
                         </CardHeader>
                         <CardContent className="p-5 md:p-10 space-y-10">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                             <div className="space-y-4">
-                                <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-secondary/20 pb-2 tracking-widest">{isAr ? 'التسجيل والرسوم' : 'Registration and Tuition'}</h4>
-                                <div className="space-y-3">
-                                   <div className="flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100 transition-all hover:border-secondary/30">
-                                      <span className="font-bold text-slate-600 text-xs md:text-sm">{isAr ? 'التسجيل + الكتب' : 'Registration + Books'}</span>
-                                      <span className="font-black text-secondary text-sm md:text-lg">$150.00</span>
-                                   </div>
-                                   <div className="flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100 transition-all hover:border-secondary/30">
-                                      <span className="font-bold text-slate-600 text-xs md:text-sm">{isAr ? 'الرسوم السنوية' : 'Annual Tuition'}</span>
-                                      <span className="font-black text-secondary text-sm md:text-lg">$3,000.00</span>
-                                   </div>
+                          <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Label htmlFor="pay-3-5-a" className={cn(
+                              "relative flex flex-col p-6 md:p-8 rounded-[2rem] border-2 cursor-pointer transition-all bg-white group",
+                              formData.paymentTier === 'initial-3-5' ? "border-secondary shadow-2xl scale-[1.02] bg-secondary/5" : "border-slate-100 hover:border-secondary/30",
+                              isFieldInvalid(formData.paymentTier) && "border-red-100"
+                            )}>
+                              <RadioGroupItem value="initial-3-5" id="pay-3-5-a" className="absolute top-6 right-6" />
+                              <div className="flex items-center gap-4 mb-4">
+                                <div className="h-12 w-12 rounded-xl bg-slate-100 text-primary flex items-center justify-center shadow-inner group-hover:bg-secondary/10 transition-colors">
+                                  <CreditCard className="h-6 w-6" />
                                 </div>
-                             </div>
-                             <div className="bg-amber-50/80 backdrop-blur-sm p-6 md:p-8 rounded-[2rem] border border-amber-200 space-y-4 relative group overflow-hidden">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-2xl rounded-full" />
-                                <div className="flex items-center gap-3 text-amber-800 relative z-10">
-                                   <div className="h-10 w-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                      <Star className="h-5 w-5 fill-white" />
-                                   </div>
-                                   <span className="font-black uppercase text-xs md:text-base tracking-widest">{isAr ? 'عرض خاص' : 'Special Offer'}</span>
+                                <div className="font-black text-primary text-base md:text-xl uppercase">{isAr ? 'خطة الدفع الأولية' : 'Initial Payment Plan'}</div>
+                              </div>
+                              <p className="text-xs text-slate-500 font-bold mb-4">{isAr ? 'رسوم التسجيل + الدفعة الأولية للمتابعة.' : 'Registration fee + initial payment to start.'}</p>
+                              <div className="text-3xl md:text-5xl font-black text-secondary">$1,650</div>
+                            </Label>
+
+                            <Label htmlFor="pay-3-5-b" className={cn(
+                              "relative flex flex-col p-6 md:p-8 rounded-[2rem] border-2 cursor-pointer transition-all bg-white group",
+                              formData.paymentTier === 'full-3-5' ? "border-secondary shadow-2xl scale-[1.02] bg-secondary/5" : "border-slate-100 hover:border-secondary/30",
+                              isFieldInvalid(formData.paymentTier) && "border-red-100"
+                            )}>
+                              <RadioGroupItem value="full-3-5" id="pay-3-5-b" className="absolute top-6 right-6" />
+                              <div className="flex items-center gap-4 mb-4">
+                                <div className="h-12 w-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shadow-inner">
+                                  <Star className="h-6 w-6 fill-amber-600" />
                                 </div>
-                                <p className="text-xs md:text-lg font-bold text-amber-900 leading-relaxed relative z-10 italic">
-                                   {isAr ? 'وفر 300 دولار عند دفع الرسوم الدراسية الكاملة مقدماً!' : 'Save $300 when paying full tuition upfront!'}
-                                </p>
-                             </div>
-                          </div>
-
-                          <div className="space-y-6">
-                             <h4 className={cn("text-center font-black uppercase tracking-widest text-xs md:text-sm", isFieldInvalid(formData.paymentTier) ? "text-red-500" : "text-primary")}>
-                               {isAr ? 'اختر خطة الدفع المناسبة' : 'Select a Payment Option'}
-                             </h4>
-                             <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <Label htmlFor="pay-3-5-a" className={cn(
-                                   "relative flex flex-col p-6 md:p-8 rounded-[2rem] border-2 cursor-pointer transition-all bg-white group",
-                                   formData.paymentTier === 'initial-3-5' ? "border-secondary shadow-2xl scale-[1.02] bg-secondary/5" : "border-slate-100 hover:border-secondary/30 hover:shadow-lg",
-                                   isFieldInvalid(formData.paymentTier) && "border-red-100"
-                                )}>
-                                   <RadioGroupItem value="initial-3-5" id="pay-3-5-a" className="absolute top-6 right-6" />
-                                   <div className="flex flex-col h-full space-y-4">
-                                      <div>
-                                         <div className="font-black text-primary text-lg md:text-2xl tracking-tight leading-tight transition-colors group-hover:text-secondary">{isAr ? 'خطة الدفعتين' : '2 Payment Plan'}</div>
-                                         <div className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
-                                      </div>
-                                      <div className="text-3xl md:text-5xl font-black text-secondary drop-shadow-sm">$1,650</div>
-                                   </div>
-                                </Label>
-
-                                <Label htmlFor="pay-3-5-b" className={cn(
-                                   "relative flex flex-col p-6 md:p-8 rounded-[2rem] border-2 cursor-pointer transition-all bg-white group",
-                                   formData.paymentTier === 'full-3-5' ? "border-secondary shadow-2xl scale-[1.02] bg-secondary/5" : "border-slate-100 hover:border-secondary/30 hover:shadow-lg",
-                                   isFieldInvalid(formData.paymentTier) && "border-red-100"
-                                )}>
-                                   <RadioGroupItem value="full-3-5" id="pay-3-5-b" className="absolute top-6 right-6" />
-                                   <div className="flex flex-col h-full space-y-4">
-                                      <div>
-                                         <div className="font-black text-primary text-lg md:text-2xl tracking-tight leading-tight transition-colors group-hover:text-secondary">{isAr ? 'دفع كامل الرسوم' : 'Pay All at Once'}</div>
-                                         <div className="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">{isAr ? 'وفر 10% على التعليم' : 'Save 10% on Tuition'}</div>
-                                      </div>
-                                      <div className="text-3xl md:text-5xl font-black text-secondary drop-shadow-sm">$2,850</div>
-                                   </div>
-                                </Label>
-                             </RadioGroup>
-                          </div>
+                                <div className="font-black text-primary text-base md:text-xl uppercase">{isAr ? 'الدفع الكامل مقدماً' : 'Full Tuition Upfront'}</div>
+                              </div>
+                              <p className="text-xs text-slate-500 font-bold mb-4">{isAr ? 'خصم 10% عند دفع الرسوم كاملة الآن.' : 'Save 10% by paying full tuition now.'}</p>
+                              <div className="text-3xl md:text-5xl font-black text-secondary">$2,850</div>
+                            </Label>
+                          </RadioGroup>
                         </CardContent>
                       </Card>
                     </div>
                   )}
 
+                  {/* Program Details: Grades 6-12 */}
                   {formData.programOption === 'grades-6-12' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
                       <div className="text-center space-y-4 px-4">
                         <h4 className={cn("font-black uppercase tracking-widest text-xs md:text-sm px-4", isFieldInvalid(formData.languageOption) ? "text-red-500" : "text-primary")}>
-                          {isAr ? 'اختر مسار البرنامج' : 'Select Program Variant'}
+                          {isAr ? 'يرجى اختيار مسار الدراسة المطلوب' : 'Please select your preferred study path'}
                         </h4>
                         <RadioGroup 
                            value={formData.languageOption} 
-                           onValueChange={(v) => { updateField('languageOption', v); updateField('paymentTier', ''); }} 
+                           onValueChange={(v) => updateField('languageOption', v)} 
                            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto"
                            dir={isAr ? 'rtl' : 'ltr'}
                         >
                            {[
-                              { id: 'english-arabic', label: isAr ? 'إنجليزي + عربي' : 'English + Arabic', icon: Languages },
-                              { id: 'english-esl', label: isAr ? 'إنجليزي + دعم ESL' : 'English + ESL Support', icon: GraduationCap }
+                              { id: 'english-only', label: isAr ? 'الدراسة باللغة الإنجليزية فقط' : 'Study in English Only', icon: Languages },
+                              { id: 'english-arabic', label: isAr ? 'الدراسة بالإنجليزية والعربية' : 'Study in English & Arabic', icon: BookOpen }
                            ].map(opt => (
                               <Label key={opt.id} htmlFor={`var-${opt.id}`} className={cn(
-                                 "flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 text-center transition-all cursor-pointer shadow-sm group hover:scale-[1.02]",
+                                 "flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 text-center transition-all cursor-pointer shadow-premium group hover:scale-[1.02]",
                                  formData.languageOption === opt.id ? "bg-primary text-white border-primary shadow-2xl" : "bg-white border-slate-100 hover:border-primary/20 text-primary",
                                  isFieldInvalid(formData.languageOption) && "border-red-100"
                               )}>
@@ -1225,141 +1180,50 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </div>
 
                       {formData.languageOption && (
-                        <Card className={cn("border-2 rounded-[2.5rem] overflow-hidden shadow-premium", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-primary/20 bg-primary/5")}>
-                           <CardHeader className="bg-primary text-white p-6 md:p-10 relative overflow-hidden">
-                              <div className="flex items-center gap-4 relative z-10">
-                                 <GraduationCap className="h-6 w-6 md:h-12 md:w-12 text-secondary" />
-                                 <div className="min-w-0">
-                                    <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج الصفوف 6-12 (عن بعد)' : 'Grades 6–12 Remote Program'}</CardTitle>
-                                 </div>
+                        <Card className="border-2 border-primary/20 bg-primary/5 rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in duration-500">
+                           <CardContent className="p-8 md:p-12 text-center space-y-6">
+                              <div className="h-20 w-20 rounded-3xl bg-primary text-white flex items-center justify-center mx-auto shadow-xl">
+                                <DollarSign className="h-10 w-10 text-secondary" />
                               </div>
-                           </CardHeader>
-                           <CardContent className="p-4 md:p-12 space-y-10">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                 <div className="space-y-4">
-                                    <h4 className="font-black text-primary uppercase text-xs md:text-sm border-b-2 border-primary/20 pb-2 tracking-widest">{isAr ? 'جدول الدفع' : 'Payment Schedule'}</h4>
-                                    <div className="p-6 bg-white rounded-3xl shadow-sm space-y-4 text-xs md:text-base border border-slate-100">
-                                       <div className="flex justify-between items-center"><span className="font-bold text-slate-500">{isAr ? 'رسوم التسجيل' : 'Registration Fee'}</span><span className="font-black text-primary">$150.00</span></div>
-                                       <div className="flex justify-between items-center"><span className="font-bold text-slate-500">{isAr ? 'الدفعة الأولى' : 'First Payment'}</span><span className="font-black text-primary">$1,500.00</span></div>
-                                    </div>
-                                 </div>
+                              <div className="space-y-2">
+                                <h3 className="text-xl md:text-2xl font-black text-primary uppercase">{isAr ? 'رسوم التسجيل + الدفعة الأولية' : 'Reg Fee + Initial Payment'}</h3>
+                                <p className="text-slate-500 font-bold text-sm max-w-md mx-auto">{isAr ? 'المبلغ المطلوب دفعه حالياً للبدء في البرنامج المختار.' : 'Amount due now to start the selected program path.'}</p>
                               </div>
-
-                              <div className="pt-8 border-t border-primary/10">
-                                 <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)} className="max-w-xl mx-auto">
-                                    <Label htmlFor="pay-6-12" className={cn(
-                                       "flex items-center justify-between p-6 md:p-8 rounded-[2rem] border-2 cursor-pointer transition-all bg-white group",
-                                       formData.paymentTier === 'initial-6-12' ? "border-primary shadow-2xl scale-[1.01] bg-primary/5" : "border-slate-100 hover:border-primary/30",
-                                       isFieldInvalid(formData.paymentTier) && "border-red-100"
-                                    )}>
-                                       <RadioGroupItem value="initial-6-12" id="pay-6-12" />
-                                       <div className="flex flex-col text-center flex-1 px-4">
-                                          <div className="font-black text-primary text-base md:text-xl tracking-tight transition-colors group-hover:text-secondary">{isAr ? 'رسوم التسجيل + الدفعة الأولى' : 'Reg Fee + Initial Payment'}</div>
-                                       </div>
-                                       <div className="text-xl md:text-4xl font-black text-primary drop-shadow-sm">$1,650</div>
-                                    </Label>
-                                 </RadioGroup>
-                              </div>
+                              <div className="text-4xl md:text-7xl font-black text-primary tracking-tighter">$1,650</div>
                            </CardContent>
                         </Card>
                       )}
                     </div>
                   )}
 
+                  {/* Program Details: Weekend */}
                   {formData.programOption === 'weekend' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
-                       <Card className={cn("border-2 rounded-[2.5rem] overflow-hidden shadow-premium", isFieldInvalid(formData.weekendSlot) ? "border-red-300" : "border-accent/20 bg-accent/5")}>
-                          <CardHeader className="bg-accent text-white p-6 md:p-10 relative overflow-hidden">
-                             <div className="flex items-center gap-4 relative z-10">
-                                <Calendar className="h-6 w-6 md:h-12 md:w-12 text-white" />
-                                <div className="min-w-0">
-                                   <CardTitle className="text-xl md:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md">{isAr ? 'برنامج عطلة نهاية الأسبوع (عن بعد)' : 'Weekend Program (Remote)'}</CardTitle>
-                                </div>
+                       <Card className="border-2 border-accent/20 bg-accent/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+                          <CardContent className="p-8 md:p-16 text-center space-y-8">
+                             <div className="h-20 w-20 rounded-3xl bg-accent text-white flex items-center justify-center mx-auto shadow-xl">
+                               <Clock className="h-10 w-10" />
                              </div>
-                          </CardHeader>
-                          <CardContent className="p-4 md:p-12 space-y-12">
-                             <div className="space-y-6">
-                                <h4 className={cn("font-black uppercase text-xs md:text-base border-b-2 pb-3 flex items-center gap-3 tracking-widest", isFieldInvalid(formData.weekendSlot) ? "text-red-500 border-red-200" : "text-primary border-accent/20")}>
-                                   <Clock className="h-5 w-5 text-accent" />
-                                   {isAr ? 'الفترات الزمنية المتاحة (بتوقيت نيويورك)' : 'Available Time Slots (New York Time)'}
-                                </h4>
-                                <RadioGroup value={formData.weekendSlot} onValueChange={(v) => updateField('weekendSlot', v)} className="grid grid-cols-1 md:grid-cols-3 gap-6" dir="ltr">
-                                   {['8:00 AM – 10:00 AM', '10:00 AM – 12:00 PM', '12:00 PM – 2:00 PM'].map(slot => (
-                                      <Label key={slot} htmlFor={`slot-${slot}`} className={cn(
-                                         "p-6 rounded-2xl border-2 text-center font-black cursor-pointer transition-all text-xs md:text-lg group hover:scale-[1.02]",
-                                         formData.weekendSlot === slot ? "bg-accent text-white border-accent shadow-2xl" : "bg-white border-slate-100 hover:border-accent/30 text-accent",
-                                         isFieldInvalid(formData.weekendSlot) && "border-red-100"
-                                      )}>
-                                         <RadioGroupItem value={slot} id={`slot-${slot}`} className="sr-only" />
-                                         <span className="drop-shadow-sm">{slot}</span>
-                                      </Label>
-                                   ))}
-                                </RadioGroup>
+                             <div className="space-y-2">
+                                <h3 className="text-xl md:text-3xl font-black text-primary uppercase">{isAr ? 'الرسوم الدراسية الشهرية' : 'Monthly Tuition Fee'}</h3>
+                                <div className="text-4xl md:text-8xl font-black text-accent tracking-tighter">$75 <span className="text-base md:text-2xl text-slate-400 font-bold uppercase tracking-widest">{isAr ? 'شهرياً' : '/ Monthly'}</span></div>
+                                <p className="text-slate-400 font-black uppercase text-[10px] md:text-xs tracking-[0.2em]">{isAr ? 'لكل طالب مسجل' : 'Per Registered Student'}</p>
                              </div>
-
-                             <div className="space-y-8">
-                                <h4 className="font-black text-primary uppercase text-xs md:text-base border-b-2 border-accent/20 pb-3 flex items-center gap-3 tracking-widest">
-                                   <Users className="h-5 w-5 text-accent" />
-                                   {isAr ? 'رسوم البرنامج لكل فصل (3 أشهر)' : 'Program Tuition — Per Term (3 Months)'}
-                                </h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                   {[
-                                      { count: '1', total: '225' },
-                                      { count: '2', total: '420' },
-                                      { count: '3', total: '585' }
-                                   ].map(tier => {
-                                      const isMatched = formData.siblingCount === tier.count;
-                                      return (
-                                         <div key={tier.count} className={cn(
-                                            "p-6 rounded-[2rem] border-2 text-center space-y-3 transition-all duration-500",
-                                            isMatched ? "bg-accent border-accent text-white shadow-2xl scale-110" : "bg-white border-slate-100 opacity-50"
-                                         )}>
-                                            <div className="text-[10px] md:text-xs font-black uppercase tracking-widest">{isAr ? (tier.count === '1' ? 'طالب واحد' : 'طلاب') : tier.count + ' Student(s)'}</div>
-                                            <div className="text-xl md:text-4xl font-black drop-shadow-md">${tier.total}</div>
-                                         </div>
-                                      );
-                                   })}
-                                </div>
+                             
+                             <div className="max-w-md mx-auto p-6 bg-white rounded-2xl border-2 border-dashed border-accent/30 shadow-inner">
+                               <div className="flex items-start gap-4 text-start">
+                                 <div className="h-10 w-10 rounded-full bg-accent/10 text-accent flex items-center justify-center shrink-0">
+                                   <Info className="h-5 w-5" />
+                                 </div>
+                                 <p className="text-xs md:text-sm font-bold text-slate-600 leading-relaxed">
+                                   {isAr 
+                                     ? 'بعد إكمال التسجيل، سيتواصل أحد المسؤولين مع ولي الأمر لترتيب الدفع وإعداد الاشتراك الشهري.' 
+                                     : 'After completing registration, an administrator will contact the parent to arrange payment and set up the monthly subscription.'}
+                                 </p>
+                               </div>
                              </div>
-
-                             {formData.weekendSlot && (
-                                <div className="pt-10 border-t border-accent/10">
-                                   <div className="bg-accent text-white p-6 md:p-10 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden group">
-                                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl rounded-full group-hover:scale-150 transition-transform" />
-                                      <div className="space-y-1 text-center md:text-start relative z-10">
-                                         <div className="text-[10px] md:text-sm font-black uppercase tracking-[0.3em] opacity-80">{isAr ? 'المبلغ المستحق للفصل' : 'Total Due per Term'}</div>
-                                         <div className="text-3xl md:text-6xl font-black drop-shadow-xl">${getWeekendTuition(formData.siblingCount).term}.00</div>
-                                      </div>
-                                   </div>
-                                </div>
-                             )}
                           </CardContent>
                        </Card>
-                    </div>
-                  )}
-
-                  {validateStep(3) && (
-                    <div className="bg-slate-900 text-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl space-y-8 animate-in fade-in duration-700 mx-1 relative overflow-hidden">
-                       <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 blur-3xl rounded-full" />
-                       <div className="flex items-center gap-4 border-b border-white/10 pb-6 relative z-10">
-                          <CheckCircle2 className="h-6 w-6 md:h-8 md:w-8 text-secondary" />
-                          <h4 className="text-base md:text-2xl font-black uppercase tracking-tight">{isAr ? 'ملخص البرنامج المختار' : 'Selection Summary'}</h4>
-                       </div>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm relative z-10">
-                          <div className="space-y-6">
-                             <div>
-                                <div className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'البرنامج' : 'Program'}</div>
-                                <div className="font-bold text-lg md:text-2xl leading-tight text-white/90">{availablePrograms.find(p => p.id === formData.programOption)?.title}</div>
-                             </div>
-                             <div>
-                                <div className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'خطة الدفع المختارة' : 'Payment Choice'}</div>
-                                <div className="font-black text-secondary text-2xl md:text-4xl">
-                                   {formData.programOption === 'weekend' ? `$${getWeekendTuition(formData.siblingCount).term}.00` : 
-                                    formData.paymentTier === 'initial-3-5' || formData.paymentTier === 'initial-6-12' ? '$1,650.00' : '$2,850.00'}
-                                </div>
-                             </div>
-                          </div>
-                       </div>
                     </div>
                   )}
                 </div>
@@ -1492,6 +1356,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
 
                     <div className="grid grid-cols-1 gap-8">
+                      {/* Parents Section */}
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
                         <button onClick={() => setCurrentStep(1)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4 relative overflow-hidden">
@@ -1524,6 +1389,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
+                      {/* Students Section */}
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
                         <button onClick={() => setCurrentStep(2)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4">
@@ -1555,6 +1421,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
+                      {/* Program Section */}
                       <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
                         <button onClick={() => setCurrentStep(3)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4">
@@ -1570,25 +1437,20 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                  </div>
                                  {formData.languageOption && (
                                    <div className="mt-3 px-3 py-1 inline-block bg-secondary/10 text-secondary rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest ring-1 ring-secondary/20">
-                                     {formData.languageOption === 'english-arabic' ? (isAr ? 'إنجليزي + عربي' : 'English + Arabic') : (isAr ? 'دعم ESL' : 'ESL Support')}
-                                   </div>
-                                 )}
-                                 {formData.weekendSlot && (
-                                   <div className="mt-3 flex items-center gap-2 text-slate-500 font-black text-xs md:text-sm">
-                                      <Clock className="h-4 w-4 text-secondary" />
-                                      {isAr ? 'الفترة:' : 'Time Slot:'} {formData.weekendSlot}
+                                     {formData.languageOption === 'english-only' ? (isAr ? 'الإنجليزية فقط' : 'English Only') : 
+                                      formData.languageOption === 'english-arabic' ? (isAr ? 'الإنجليزية والعربية' : 'English & Arabic') : ''}
                                    </div>
                                  )}
                               </div>
                            </div>
                            <div className="flex flex-col justify-center bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-inner group">
-                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">{isAr ? 'المبلغ التقريبي المستحق' : 'Approximate Amount Due'}</div>
+                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">{isAr ? 'المبلغ المستحق' : 'Amount Due'}</div>
                               <div className="font-black text-secondary text-4xl md:text-6xl drop-shadow-sm group-hover:scale-110 transition-transform">
-                                 {formData.programOption === 'weekend' ? `$${getWeekendTuition(formData.siblingCount).term}.00` : 
-                                  formData.paymentTier === 'initial-3-5' || formData.paymentTier === 'initial-6-12' ? '$1,650.00' : '$2,850.00'}
+                                 {formData.programOption === 'weekend' ? '$75' : 
+                                  formData.paymentTier === 'full-3-5' ? '$2,850' : '$1,650'}
                               </div>
                               <div className="text-[9px] md:text-xs text-slate-400 font-bold italic mt-4 leading-relaxed opacity-70">
-                                {isAr ? '* سيتم تأكيد الرسوم النهائية وأي خصومات أشقاء بعد مراجعة الإدارة.' : '* Final fees and sibling discounts will be confirmed after review.'}
+                                {isAr ? '* سيتم تأكيد التفاصيل النهائية بعد مراجعة الإدارة.' : '* Final details will be confirmed after review.'}
                               </div>
                            </div>
                         </CardContent>
