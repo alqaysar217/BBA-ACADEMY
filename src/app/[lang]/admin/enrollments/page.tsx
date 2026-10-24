@@ -18,7 +18,8 @@ import {
   GraduationCap,
   ArrowUpDown,
   X,
-  Users // تم إضافة الاستيراد المفقود هنا
+  Users,
+  FileText
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
