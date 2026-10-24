@@ -26,8 +26,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Info,
-  Clock,
-  Layout
+  Clock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -266,10 +265,10 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                                   </div>
                                   <div>
                                      <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">{isAr ? 'الحالة' : 'Status'}</p>
-                                     <p className="font-bold text-slate-600 flex items-center gap-2">
+                                     <div className="font-bold text-slate-600 flex items-center gap-2">
                                         <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                        {student.status}
-                                     </p>
+                                        <span>{student.status}</span>
+                                     </div>
                                   </div>
                                </div>
                                <div className="space-y-6">
@@ -325,11 +324,11 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                      <div className="flex-1 p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-2">
                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'العنوان الرئيسي والمدينة' : 'Street & City'}</p>
-                           <p className="text-xl font-bold text-primary leading-relaxed">
+                           <div className="text-xl font-bold text-primary leading-relaxed">
                               {app.address?.line1}
                               {app.address?.line2 && <span className="block text-slate-400 text-sm">{app.address?.line2}</span>}
                               <span className="block text-secondary mt-1">{app.address?.city}</span>
-                           </p>
+                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-8">
                            <div className="space-y-2">
