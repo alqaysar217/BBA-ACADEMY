@@ -40,12 +40,12 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     }
   }, [user, authLoading, router, lang]);
 
-  // تبسيط الاستعلام لتجنب مشاكل الفهارس (Indexes) في البداية
+  // التغيير الجوهري: الترتيب حسب updatedAt ليظهر كل شيء (مسودات + طلبات مرسلة)
   const enrollmentsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(
       collection(firestore, 'enrollments'),
-      orderBy('submittedAt', 'desc')
+      orderBy('updatedAt', 'desc')
     );
   }, [firestore]);
 
@@ -68,7 +68,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     );
   }
 
-  // في حال وجود خطأ في الصلاحيات رغم التحديث، نعرض رسالة واضحة
   if (firestoreError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
@@ -92,9 +91,9 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
   );
 
   const stats = [
-    { label: isAr ? 'إجمالي الطلبات' : 'Total Apps', value: enrollments?.length || 0, icon: FileText, color: 'text-primary' },
+    { label: isAr ? 'إجمالي السجلات' : 'Total Records', value: enrollments?.length || 0, icon: FileText, color: 'text-primary' },
     { label: isAr ? 'إجمالي الطلاب' : 'Total Students', value: enrollments?.reduce((acc, curr) => acc + (curr.students?.length || 0), 0) || 0, icon: Users, color: 'text-secondary' },
-    { label: isAr ? 'قيد المراجعة' : 'In Review', value: enrollments?.filter(e => e.status === 'submitted').length || 0, icon: Clock, color: 'text-amber-500' },
+    { label: isAr ? 'طلبات مكتملة' : 'Submitted Apps', value: enrollments?.filter(e => e.status === 'submitted').length || 0, icon: Clock, color: 'text-amber-500' },
   ];
 
   return (
@@ -145,8 +144,8 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                <div>
-                  <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{isAr ? 'طلبات التسجيل الأخيرة' : 'Recent Enrollments'}</h2>
-                  <p className="text-xs text-slate-500 font-bold">{isAr ? 'إدارة ومراجعة الطلبات الواردة من الموقع' : 'Review and manage incoming registrations'}</p>
+                  <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{isAr ? 'قائمة الطلبات والمسودات' : 'Enrollments & Drafts'}</h2>
+                  <p className="text-xs text-slate-500 font-bold">{isAr ? 'عرض ومراجعة كافة البيانات المحفوظة في النظام' : 'Review all saved records in the system'}</p>
                </div>
                
                <div className="flex items-center gap-3 w-full md:w-auto">
@@ -173,7 +172,10 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                        <div className="space-y-1">
                           <div className="flex items-center gap-3">
                              <h3 className="text-lg font-black text-primary">{app.parent1Name}</h3>
-                             <Badge variant="secondary" className="text-[9px] uppercase font-black bg-slate-100 text-slate-500 border-none">
+                             <Badge variant={app.status === 'submitted' ? 'default' : 'secondary'} className="text-[9px] uppercase font-black">
+                                {app.status === 'submitted' ? (isAr ? 'تم الإرسال' : 'Submitted') : (isAr ? 'مسودة' : 'Draft')}
+                             </Badge>
+                             <Badge variant="outline" className="text-[9px] uppercase font-black bg-slate-50 text-slate-500 border-none">
                                 {app.lang === 'ar' ? 'العربية' : 'English'}
                              </Badge>
                           </div>
@@ -193,7 +195,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                     <div className="flex flex-col md:items-end gap-3 w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0">
                        <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
                           <Calendar className="h-3 w-3" />
-                          {app.submittedAt && format((app.submittedAt as Timestamp).toDate(), 'MMM dd, yyyy HH:mm')}
+                          {(app.submittedAt || app.updatedAt) && format(((app.submittedAt || app.updatedAt) as Timestamp).toDate(), 'MMM dd, yyyy HH:mm')}
                        </div>
                        <div className="flex items-center gap-3">
                           <div className="text-right hidden sm:block">
