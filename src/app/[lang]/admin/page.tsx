@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, use, useMemo } from 'react';
@@ -39,16 +40,16 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     }
   }, [user, authLoading, router, lang]);
 
+  // تبسيط الاستعلام لتجنب مشاكل الفهارس (Indexes) في البداية
   const enrollmentsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(
       collection(firestore, 'enrollments'),
-      where('status', '==', 'submitted'),
       orderBy('submittedAt', 'desc')
     );
   }, [firestore]);
 
-  const { data: enrollments, loading: dataLoading } = useCollection(enrollmentsQuery);
+  const { data: enrollments, loading: dataLoading, error: firestoreError } = useCollection(enrollmentsQuery);
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = () => {
@@ -56,7 +57,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     router.push(`/${lang}`);
   };
 
-  if (!mounted || authLoading || dataLoading) {
+  if (!mounted || authLoading || (dataLoading && !firestoreError)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
@@ -67,15 +68,33 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     );
   }
 
-  const filteredEnrollments = enrollments.filter(e => 
+  // في حال وجود خطأ في الصلاحيات رغم التحديث، نعرض رسالة واضحة
+  if (firestoreError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
+        <div className="max-w-md space-y-6">
+          <div className="h-20 w-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+             <Clock className="h-10 w-10" />
+          </div>
+          <h2 className="text-2xl font-black text-primary uppercase">{isAr ? 'خطأ في الاتصال' : 'Connection Error'}</h2>
+          <p className="text-slate-500 font-bold">{isAr ? 'يرجى التأكد من تفعيل Firestore في لوحة تحكم فيربايس وتطبيق القواعد.' : 'Please ensure Firestore is enabled and rules are deployed in Firebase Console.'}</p>
+          <Button onClick={() => window.location.reload()} className="bg-primary text-white font-black rounded-xl h-12 px-8">
+             {isAr ? 'تحديث الصفحة' : 'Retry Connection'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const filteredEnrollments = (enrollments || []).filter(e => 
     e.parent1Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     e.students?.some((s: any) => s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const stats = [
-    { label: isAr ? 'إجمالي الطلبات' : 'Total Apps', value: enrollments.length, icon: FileText, color: 'text-primary' },
-    { label: isAr ? 'إجمالي الطلاب' : 'Total Students', value: enrollments.reduce((acc, curr) => acc + (curr.students?.length || 0), 0), icon: Users, color: 'text-secondary' },
-    { label: isAr ? 'قيد المراجعة' : 'In Review', value: enrollments.filter(e => e.status === 'submitted').length, icon: Clock, color: 'text-amber-500' },
+    { label: isAr ? 'إجمالي الطلبات' : 'Total Apps', value: enrollments?.length || 0, icon: FileText, color: 'text-primary' },
+    { label: isAr ? 'إجمالي الطلاب' : 'Total Students', value: enrollments?.reduce((acc, curr) => acc + (curr.students?.length || 0), 0) || 0, icon: Users, color: 'text-secondary' },
+    { label: isAr ? 'قيد المراجعة' : 'In Review', value: enrollments?.filter(e => e.status === 'submitted').length || 0, icon: Clock, color: 'text-amber-500' },
   ];
 
   return (
@@ -144,7 +163,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-              {filteredEnrollments.map((app) => (
+              {filteredEnrollments.map((app: any) => (
                 <div key={app.id} className="group bg-white rounded-2xl border border-slate-100 p-5 md:p-6 shadow-sm hover:shadow-xl transition-all duration-300">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div className="flex items-start gap-5">
@@ -197,12 +216,17 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                 </div>
               ))}
               
-              {filteredEnrollments.length === 0 && (
-                <div className="py-20 text-center space-y-4">
-                   <div className="h-20 w-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
-                      <Search className="h-10 w-10 text-slate-300" />
+              {(!filteredEnrollments || filteredEnrollments.length === 0) && (
+                <div className="py-20 text-center space-y-4 bg-white rounded-2xl border-2 border-dashed border-slate-100">
+                   <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-200">
+                      <FileText className="h-10 w-10" />
                    </div>
-                   <p className="text-slate-400 font-bold">{isAr ? 'لا توجد طلبات تطابق بحثك' : 'No matching applications found'}</p>
+                   <div className="space-y-1">
+                      <p className="text-lg font-black text-primary uppercase">{isAr ? 'لا توجد طلبات حالياً' : 'No Applications Yet'}</p>
+                      <p className="text-slate-400 font-bold text-sm max-w-xs mx-auto">
+                        {isAr ? 'بمجرد قيام أولياء الأمور بتعبئة الاستمارة، ستظهر هنا فوراً.' : 'Once parents fill out the form, applications will appear here instantly.'}
+                      </p>
+                   </div>
                 </div>
               )}
             </div>
