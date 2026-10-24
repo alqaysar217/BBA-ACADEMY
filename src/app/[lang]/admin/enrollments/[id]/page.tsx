@@ -24,6 +24,7 @@ import {
   FileCheck,
   ExternalLink,
   ChevronRight,
+  ChevronLeft,
   Info,
   Clock,
   Layout
@@ -393,7 +394,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                </CardContent>
             </Card>
 
-            {/* DOCUMENTS CARD - FIXED VISIBILITY */}
+            {/* DOCUMENTS CARD */}
             <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
                <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between">
                   <div className="flex items-center gap-3">
