@@ -2,7 +2,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // السماح بالوصول الكامل لمجموعة طلبات التسجيل وكافة المسارات لدعم التشغيل الفوري
+    // تحديث القواعد لضمان التزامن مع المشروع الحقيقي - تم الفتح للوصول الكامل
+    // ملاحظة: تأكد من إنشاء قاعدة البيانات في Firebase Console أولاً
     match /{document=**} {
       allow read, write: if true;
     }
