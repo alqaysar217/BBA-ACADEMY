@@ -4,14 +4,13 @@
 import { use, useState, useMemo } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy, doc, updateDoc, serverTimestamp, where } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   Search, UserPlus, ShieldCheck, Mail, Calendar, 
-  Trash2, Ban, CheckCircle2, ChevronRight, Filter,
-  MoreVertical, ShieldAlert, UserCog, PencilLine,
-  AlertCircle, Archive, ArrowUpRight, X
+  Trash2, Ban, ChevronRight, Archive, PencilLine,
+  UserCog, AlertCircle
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -47,26 +46,27 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToArchive, setUserToArchive] = useState<any>(null);
 
+  // استعلام بسيط لتجنب مشاكل الفهارس (Failing Permissions due to missing composite index)
   const usersQuery = useMemo(() => {
     if (!firestore) return null;
-    // نفلتر المستخدمين بحيث لا نعرض المؤرشفين (سلة المهملات) في السجل الرئيسي
     return query(
       collection(firestore, 'admin_users'), 
-      where('status', '!=', 'archived'),
-      orderBy('status'), // Firestore requires ordering by the filtered field first
       orderBy('createdAt', 'desc')
     );
   }, [firestore]);
 
-  const { data: users, loading } = useCollection(usersQuery);
+  const { data: rawUsers, loading } = useCollection(usersQuery);
 
+  // تصفية البيانات في المتصفح بدلاً من قاعدة البيانات لضمان السرعة وتجنب أخطاء الصلاحيات
   const filteredUsers = useMemo(() => {
-    if (!users) return [];
-    return users.filter(u => 
-      u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [users, searchTerm]);
+    if (!rawUsers) return [];
+    return rawUsers
+      .filter(u => u.status !== 'archived') // إخفاء المؤرشفين برمجياً
+      .filter(u => 
+        u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  }, [rawUsers, searchTerm]);
 
   const toggleUserStatus = async (user: any) => {
     if (!firestore) return;
@@ -205,7 +205,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                          </td>
                          <td className="px-10 py-6 text-right">
                             <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                               {/* Edit Data & Permissions Button */}
+                               {/* Edit Data Button */}
                                <Tooltip>
                                   <TooltipTrigger asChild>
                                      <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md" asChild>
@@ -215,7 +215,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                                      </Button>
                                   </TooltipTrigger>
                                   <TooltipContent className="bg-primary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
-                                     {isAr ? 'تعديل البيانات والصلاحيات' : 'Edit Data & Access'}
+                                     {isAr ? 'تعديل البيانات' : 'Edit Profile'}
                                   </TooltipContent>
                                </Tooltip>
 
