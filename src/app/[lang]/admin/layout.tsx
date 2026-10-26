@@ -28,7 +28,6 @@ import {
   BarChart3,
   Mail,
   UserPlus,
-  UserCheck,
   XCircle,
   FileSearch,
   History,
@@ -190,48 +189,71 @@ export default function AdminLayout({
 
       {/* 2. Navigation */}
       <nav className="flex-1 py-8 px-3 space-y-2 overflow-y-auto custom-scrollbar">
-        {menuGroups.map((group, gIdx) => (
-          <Collapsible 
-            key={gIdx} 
-            open={openGroups.includes(group.title) || !isSidebarOpen} 
-            onOpenChange={() => toggleGroup(group.title)}
-            className="space-y-1"
-          >
-            {(isSidebarOpen || isMobile) && (
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
-                <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">{group.title}</p>
-                <ChevronRight className={cn("h-3 w-3 text-white/20 transition-transform", openGroups.includes(group.title) && "rotate-90")} />
-              </CollapsibleTrigger>
-            )}
-            
-            <div className="space-y-0.5">
-              {group.items.map((item) => {
-                const active = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => isMobile && setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-4 p-3 rounded-2xl transition-all group relative",
-                      active 
-                        ? "bg-secondary text-white shadow-xl shadow-secondary/30 scale-[1.02]" 
-                        : "hover:bg-white/5 text-white/60 hover:text-white",
-                      !isSidebarOpen && !isMobile ? "justify-center" : ""
-                    )}
-                  >
-                    <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
-                    {(isSidebarOpen || isMobile) && (
-                      <span className="font-black text-[13px] tracking-tight truncate animate-in fade-in duration-300">
-                        {item.label}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </Collapsible>
-        ))}
+        {menuGroups.map((group, gIdx) => {
+          const isGroupOpen = openGroups.includes(group.title);
+          
+          return (
+            <Collapsible 
+              key={gIdx} 
+              open={isGroupOpen} 
+              onOpenChange={() => toggleGroup(group.title)}
+              className="space-y-1"
+            >
+              {(isSidebarOpen || isMobile) ? (
+                <>
+                  <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">{group.title}</p>
+                    <ChevronRight className={cn("h-3 w-3 text-white/20 transition-transform duration-300", isGroupOpen && "rotate-90")} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-0.5 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                    {group.items.map((item) => {
+                      const active = pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => isMobile && setMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center gap-4 p-3 rounded-2xl transition-all group relative",
+                            active 
+                              ? "bg-secondary text-white shadow-xl shadow-secondary/30 scale-[1.02]" 
+                              : "hover:bg-white/5 text-white/60 hover:text-white"
+                          )}
+                        >
+                          <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
+                          <span className="font-black text-[13px] tracking-tight truncate">
+                            {item.label}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </CollapsibleContent>
+                </>
+              ) : (
+                /* In mini mode, we just show icons of all items directly */
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center justify-center p-3 rounded-2xl transition-all group relative",
+                          active 
+                            ? "bg-secondary text-white shadow-xl shadow-secondary/30" 
+                            : "hover:bg-white/5 text-white/60 hover:text-white"
+                        )}
+                      >
+                        <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </Collapsible>
+          );
+        })}
       </nav>
 
       {/* 3. Bottom Actions */}
