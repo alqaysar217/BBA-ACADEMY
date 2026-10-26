@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ReactNode, useState, useEffect, use } from 'react';
@@ -36,7 +35,8 @@ import {
   Users2,
   UserCog,
   LockKeyhole,
-  Archive
+  Archive,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -93,6 +93,14 @@ export default function AdminLayout({
       ]
     },
     {
+      title: isAr ? 'إدارة المستخدمين' : 'User Management',
+      items: [
+        { label: isAr ? 'سجل المستخدمين' : 'Active Registry', href: `/${lang}/admin/users`, icon: Users2 },
+        { label: isAr ? 'إضافة مستخدم' : 'New User', href: `/${lang}/admin/users/new`, icon: UserPlus },
+        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2 },
+      ]
+    },
+    {
       title: isAr ? 'القبول والتسجيل' : 'Admissions',
       items: [
         { label: isAr ? 'كافة الطلبات' : 'All Applications', href: `/${lang}/admin/enrollments`, icon: FileText },
@@ -107,14 +115,6 @@ export default function AdminLayout({
         { label: isAr ? 'سجل الطلاب' : 'Active Roster', href: `/${lang}/admin/students`, icon: Users },
         { label: isAr ? 'المستندات والسجلات' : 'Docs & Transcripts', href: `/${lang}/admin/students/documents`, icon: ShieldCheck },
         { label: isAr ? 'سجل التغييرات' : 'Change History', href: `/${lang}/admin/students/history`, icon: History },
-      ]
-    },
-    {
-      title: isAr ? 'إدارة المستخدمين' : 'User Management',
-      items: [
-        { label: isAr ? 'سجل المستخدمين' : 'All Accounts', href: `/${lang}/admin/users`, icon: Users2 },
-        { label: isAr ? 'تفعيل حساب جديد' : 'New Account', href: `/${lang}/admin/users/new`, icon: UserPlus },
-        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Archive },
       ]
     },
     {
