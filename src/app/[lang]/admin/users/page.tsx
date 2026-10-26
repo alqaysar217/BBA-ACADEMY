@@ -46,7 +46,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToArchive, setUserToArchive] = useState<any>(null);
 
-  // استعلام بسيط لتجنب مشاكل الفهارس (Failing Permissions due to missing composite index)
+  // استعلام بسيط لتجنب مشاكل الفهارس
   const usersQuery = useMemo(() => {
     if (!firestore) return null;
     return query(
@@ -57,11 +57,11 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
 
   const { data: rawUsers, loading } = useCollection(usersQuery);
 
-  // تصفية البيانات في المتصفح بدلاً من قاعدة البيانات لضمان السرعة وتجنب أخطاء الصلاحيات
+  // تصفية البيانات في المتصفح
   const filteredUsers = useMemo(() => {
     if (!rawUsers) return [];
     return rawUsers
-      .filter(u => u.status !== 'archived') // إخفاء المؤرشفين برمجياً
+      .filter(u => u.status !== 'archived')
       .filter(u => 
         u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -120,7 +120,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
          </Button>
       </div>
 
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-6 flex flex-col lg:flex-row justify-between items-center gap-6">
+      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-6">
          <div className="relative w-full lg:max-w-md group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-secondary transition-colors" />
             <Input 
@@ -129,11 +129,6 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
             />
-         </div>
-         <div className="flex gap-3 w-full lg:w-auto">
-            <Button variant="outline" className="h-14 rounded-2xl px-6 border-slate-100 font-black gap-2">
-               <Archive className="h-4 w-4" /> {isAr ? 'سلة المهملات' : 'Trash Bin'}
-            </Button>
          </div>
       </Card>
 
@@ -204,17 +199,17 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                             </div>
                          </td>
                          <td className="px-10 py-6 text-right">
-                            <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <div className="flex justify-end gap-2">
                                {/* Edit Data Button */}
                                <Tooltip>
                                   <TooltipTrigger asChild>
-                                     <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md" asChild>
+                                     <Button size="icon" variant="outline" className="h-9 w-9 rounded-lg border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" asChild>
                                         <Link href={`/${lang}/admin/users/${user.id}`}>
-                                           <PencilLine className="h-4.5 w-4.5 text-slate-400 hover:text-primary transition-colors" />
+                                           <PencilLine className="h-4 w-4" />
                                         </Link>
                                      </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent className="bg-primary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                  <TooltipContent className="bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
                                      {isAr ? 'تعديل البيانات' : 'Edit Profile'}
                                   </TooltipContent>
                                </Tooltip>
@@ -222,11 +217,11 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                                {/* Block/Activate Button */}
                                <Tooltip>
                                   <TooltipTrigger asChild>
-                                     <Button onClick={() => toggleUserStatus(user)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md">
-                                        <Ban className={cn("h-4.5 w-4.5 transition-colors", user.status === 'active' ? "text-amber-500" : "text-green-500")} />
+                                     <Button onClick={() => toggleUserStatus(user)} size="icon" variant="outline" className="h-9 w-9 rounded-lg border-amber-100 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all shadow-sm">
+                                        <Ban className="h-4 w-4" />
                                      </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent className="bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                  <TooltipContent className="bg-amber-600 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
                                      {user.status === 'active' ? (isAr ? 'حظر الدخول' : 'Restrict Access') : (isAr ? 'إعادة التنشيط' : 'Reactivate User')}
                                   </TooltipContent>
                                </Tooltip>
@@ -237,13 +232,13 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                                      <Button 
                                        onClick={() => { setUserToArchive(user); setIsDeleteDialogOpen(true); }} 
                                        size="icon" 
-                                       variant="ghost" 
-                                       className="h-10 w-10 rounded-xl hover:bg-secondary/10"
+                                       variant="outline" 
+                                       className="h-9 w-9 rounded-lg border-red-100 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm"
                                      >
-                                        <Trash2 className="h-4.5 w-4.5 text-secondary" />
+                                        <Trash2 className="h-4 w-4" />
                                      </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent className="bg-secondary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                  <TooltipContent className="bg-red-600 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
                                      {isAr ? 'نقل لسلة المهملات' : 'Move to Trash'}
                                   </TooltipContent>
                                </Tooltip>

@@ -35,7 +35,8 @@ import {
   CheckCircle2,
   Users2,
   UserCog,
-  LockKeyhole
+  LockKeyhole,
+  Archive
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -112,7 +113,8 @@ export default function AdminLayout({
       title: isAr ? 'إدارة المستخدمين' : 'User Management',
       items: [
         { label: isAr ? 'سجل المستخدمين' : 'All Accounts', href: `/${lang}/admin/users`, icon: Users2 },
-        { label: isAr ? 'إنشاء حساب جديد' : 'New Account', href: `/${lang}/admin/users/new`, icon: UserPlus },
+        { label: isAr ? 'تفعيل حساب جديد' : 'New Account', href: `/${lang}/admin/users/new`, icon: UserPlus },
+        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Archive },
       ]
     },
     {
@@ -385,4 +387,3 @@ export default function AdminLayout({
     </div>
   );
 }
-
