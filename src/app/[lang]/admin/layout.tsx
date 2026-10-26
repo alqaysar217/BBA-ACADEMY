@@ -20,13 +20,31 @@ import {
   Sun,
   Moon,
   Languages,
-  Settings
+  Settings,
+  BookOpen,
+  ClipboardCheck,
+  Briefcase,
+  Target,
+  BarChart3,
+  Mail,
+  UserPlus,
+  UserCheck,
+  XCircle,
+  FileSearch,
+  History,
+  ShieldCheck,
+  CheckCircle2
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export default function AdminLayout({
   children,
@@ -41,12 +59,11 @@ export default function AdminLayout({
   const pathname = usePathname();
   const isAr = lang === 'ar';
   
-  // States
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [openGroups, setOpenGroups] = useState<string[]>([]);
 
-  // Load theme preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('bba_admin_theme');
     if (savedTheme === 'dark') setIsDarkMode(true);
@@ -74,29 +91,71 @@ export default function AdminLayout({
     return segments.join('/');
   };
 
+  const toggleGroup = (title: string) => {
+    setOpenGroups(prev => 
+      prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
+    );
+  };
+
   const menuGroups = [
     {
-      title: isAr ? 'الرئيسية' : 'Core',
+      title: isAr ? 'الرئيسية' : 'Main',
       items: [
-        { label: isAr ? 'لوحة القيادة' : 'Dashboard', href: `/${lang}/admin`, icon: LayoutDashboard },
+        { label: isAr ? 'لوحة المعلومات' : 'Executive Overview', href: `/${lang}/admin`, icon: LayoutDashboard },
       ]
     },
     {
       title: isAr ? 'القبول والتسجيل' : 'Admissions',
       items: [
-        { label: isAr ? 'طلبات الالتحاق' : 'Applications', href: `/${lang}/admin/enrollments`, icon: FileText },
+        { label: isAr ? 'كافة الطلبات' : 'All Applications', href: `/${lang}/admin/enrollments`, icon: FileText },
+        { label: isAr ? 'طلبات جديدة' : 'New Submissions', href: `/${lang}/admin/admissions/new`, icon: UserPlus },
+        { label: isAr ? 'بانتظار المراجعة' : 'Pending Review', href: `/${lang}/admin/admissions/pending`, icon: FileSearch },
+        { label: isAr ? 'نواقص مستندات' : 'Missing Documents', href: `/${lang}/admin/admissions/missing`, icon: ClipboardCheck },
+      ]
+    },
+    {
+      title: isAr ? 'إدارة الطلاب' : 'Students',
+      items: [
+        { label: isAr ? 'سجل الطلاب' : 'Active Roster', href: `/${lang}/admin/students`, icon: Users },
+        { label: isAr ? 'المستندات والسجلات' : 'Docs & Transcripts', href: `/${lang}/admin/students/documents`, icon: ShieldCheck },
+        { label: isAr ? 'سجل التغييرات' : 'Change History', href: `/${lang}/admin/students/history`, icon: History },
       ]
     },
     {
       title: isAr ? 'الأكاديميين' : 'Academics',
       items: [
-        { label: isAr ? 'قائمة الطلاب' : 'Students Registry', href: `/${lang}/admin/students`, icon: Users },
+        { label: isAr ? 'الخطط الدراسية' : 'Study Plans', href: `/${lang}/admin/academic/plans`, icon: Target },
+        { label: isAr ? 'المواد المقررة' : 'Course Catalog', href: `/${lang}/admin/academic/courses`, icon: BookOpen },
+        { label: isAr ? 'متابعة التقدم' : 'Progress Tracking', href: `/${lang}/admin/academic/progress`, icon: CheckCircle2 },
       ]
     },
     {
       title: isAr ? 'المالية' : 'Finances',
       items: [
         { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard },
+        { label: isAr ? 'سجل الدفعات' : 'Payment Ledger', href: `/${lang}/admin/finances/payments`, icon: Layers },
+        { label: isAr ? 'المتأخرون' : 'Overdue Accounts', icon: XCircle, href: `/${lang}/admin/finances/overdue` },
+      ]
+    },
+    {
+      title: isAr ? 'التواصل' : 'Communications',
+      items: [
+        { label: isAr ? 'إرسال رسائل' : 'Send Message', href: `/${lang}/admin/communication`, icon: Mail },
+        { label: isAr ? 'قوالب الرسائل' : 'Templates', href: `/${lang}/admin/communication/templates`, icon: MessageSquare },
+      ]
+    },
+    {
+      title: isAr ? 'إدارة المحتوى' : 'Platform CMS',
+      items: [
+        { label: isAr ? 'إدارة البرامج' : 'Programs Management', href: `/${lang}/admin/cms`, icon: Briefcase },
+        { label: isAr ? 'محتوى الموقع' : 'Site Content', href: `/${lang}/admin/cms/content`, icon: FileSearch },
+      ]
+    },
+    {
+      title: isAr ? 'التقارير والإعدادات' : 'Tools',
+      items: [
+        { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3 },
+        { label: isAr ? 'المستخدمون' : 'Staff Accounts', href: `/${lang}/admin/users`, icon: Settings },
       ]
     }
   ];
@@ -130,13 +189,22 @@ export default function AdminLayout({
       </div>
 
       {/* 2. Navigation */}
-      <nav className="flex-1 py-8 px-3 space-y-8 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 py-8 px-3 space-y-2 overflow-y-auto custom-scrollbar">
         {menuGroups.map((group, gIdx) => (
-          <div key={gIdx} className="space-y-3">
+          <Collapsible 
+            key={gIdx} 
+            open={openGroups.includes(group.title) || !isSidebarOpen} 
+            onOpenChange={() => toggleGroup(group.title)}
+            className="space-y-1"
+          >
             {(isSidebarOpen || isMobile) && (
-              <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] px-4">{group.title}</p>
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
+                <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">{group.title}</p>
+                <ChevronRight className={cn("h-3 w-3 text-white/20 transition-transform", openGroups.includes(group.title) && "rotate-90")} />
+              </CollapsibleTrigger>
             )}
-            <div className="space-y-1.5">
+            
+            <div className="space-y-0.5">
               {group.items.map((item) => {
                 const active = pathname === item.href;
                 return (
@@ -145,76 +213,64 @@ export default function AdminLayout({
                     href={item.href}
                     onClick={() => isMobile && setMobileMenuOpen(false)}
                     className={cn(
-                      "flex items-center gap-4 p-3.5 rounded-2xl transition-all group relative",
+                      "flex items-center gap-4 p-3 rounded-2xl transition-all group relative",
                       active 
                         ? "bg-secondary text-white shadow-xl shadow-secondary/30 scale-[1.02]" 
                         : "hover:bg-white/5 text-white/60 hover:text-white",
                       !isSidebarOpen && !isMobile ? "justify-center" : ""
                     )}
                   >
-                    <item.icon className={cn("h-6 w-6 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
+                    <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
                     {(isSidebarOpen || isMobile) && (
-                      <span className="font-black text-sm tracking-tight truncate animate-in fade-in duration-300">
+                      <span className="font-black text-[13px] tracking-tight truncate animate-in fade-in duration-300">
                         {item.label}
                       </span>
-                    )}
-                    {/* Tooltip for collapsed state */}
-                    {!isSidebarOpen && !isMobile && (
-                      <div className={cn(
-                        "absolute invisible group-hover:visible bg-slate-800 text-white text-xs font-black py-2 px-4 rounded-xl shadow-2xl z-50 whitespace-nowrap",
-                        isAr ? "right-full mr-4" : "left-full ml-4"
-                      )}>
-                        {item.label}
-                      </div>
                     )}
                   </Link>
                 );
               })}
             </div>
-          </div>
+          </Collapsible>
         ))}
       </nav>
 
-      {/* 3. Bottom Actions (Theme, Lang, Logout) */}
+      {/* 3. Bottom Actions */}
       <div className={cn(
-        "p-4 space-y-3 border-t",
+        "p-4 space-y-2 border-t",
         isDarkMode ? "border-white/5" : "border-white/10"
       )}>
-        {/* Theme Toggle */}
         <button 
           onClick={toggleTheme}
           className={cn(
-            "w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all font-black text-xs uppercase tracking-widest",
+            "w-full flex items-center gap-4 p-3 rounded-2xl transition-all font-black text-xs uppercase tracking-widest",
             isDarkMode ? "bg-white/5 text-amber-400" : "bg-white/5 text-white/60 hover:text-white",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
           )}
         >
-          {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
-          {(isSidebarOpen || isMobile) && <span>{isDarkMode ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الليلي' : 'Dark Mode')}</span>}
+          {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          {(isSidebarOpen || isMobile) && <span>{isDarkMode ? (isAr ? 'الوضع الفاتح' : 'Light') : (isAr ? 'الوضع الليلي' : 'Dark')}</span>}
         </button>
 
-        {/* Language Switch */}
         <Link
           href={redirectedPathname(isAr ? 'en' : 'ar')}
           className={cn(
-            "w-full flex items-center gap-4 p-3.5 rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black text-xs uppercase tracking-widest",
+            "w-full flex items-center gap-4 p-3 rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black text-xs uppercase tracking-widest",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
           )}
         >
-          <Languages className="h-6 w-6 text-secondary" />
+          <Languages className="h-5 w-5 text-secondary" />
           {(isSidebarOpen || isMobile) && <span>{isAr ? 'English' : 'العربية'}</span>}
         </Link>
 
-        {/* Logout */}
         <button 
           onClick={handleLogout}
           className={cn(
-            "w-full flex items-center gap-4 p-3.5 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest",
+            "w-full flex items-center gap-4 p-3 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
           )}
         >
-          <LogOut className="h-6 w-6" />
-          {(isSidebarOpen || isMobile) && <span>{isAr ? 'خروج آمن' : 'Secure Logout'}</span>}
+          <LogOut className="h-5 w-5" />
+          {(isSidebarOpen || isMobile) && <span>{isAr ? 'خروج' : 'Logout'}</span>}
         </button>
       </div>
     </div>
@@ -227,29 +283,28 @@ export default function AdminLayout({
     )}>
       {/* Desktop Sidebar */}
       <aside className={cn(
-        "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-700 ease-in-out border-r border-black/5",
-        isSidebarOpen ? "w-72" : "w-24",
+        "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-700 ease-in-out border-r border-black/5 shadow-2xl",
+        isSidebarOpen ? "w-72" : "w-20",
         isAr ? "right-0" : "left-0"
       )}>
         <SidebarContent />
-        {/* Toggle Button Floating */}
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className={cn(
-            "absolute top-8 h-10 w-10 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl transition-all z-[60]",
+            "absolute top-8 h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl transition-all z-[60] hover:scale-110",
             isAr 
-              ? (isSidebarOpen ? "-left-5 rotate-0" : "-left-5 rotate-180")
-              : (isSidebarOpen ? "-right-5 rotate-0" : "-right-5 rotate-180")
+              ? (isSidebarOpen ? "-left-4 rotate-0" : "-left-4 rotate-180")
+              : (isSidebarOpen ? "-right-4 rotate-0" : "-right-4 rotate-180")
           )}
         >
-          {isAr ? <ChevronLeft className="h-6 w-6" /> : <ChevronRight className="h-6 w-6" />}
+          {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
       </aside>
 
       {/* Mobile Drawer */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side={isAr ? 'right' : 'left'} className="p-0 border-none w-80">
-          <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
+          <SheetTitle className="sr-only">Nav</SheetTitle>
           <SidebarContent isMobile />
         </SheetContent>
       </Sheet>
@@ -257,21 +312,17 @@ export default function AdminLayout({
       {/* Main Content Area */}
       <div className={cn(
         "flex-1 flex flex-col min-h-screen transition-all duration-700 ease-in-out",
-        isSidebarOpen ? (isAr ? "lg:mr-72" : "lg:ml-72") : (isAr ? "lg:mr-24" : "lg:ml-24")
+        isSidebarOpen ? (isAr ? "lg:mr-72" : "lg:ml-72") : (isAr ? "lg:mr-20" : "lg:ml-20")
       )}>
-        {/* Compact Mobile Header Only */}
-        <header className="lg:hidden h-20 bg-white dark:bg-slate-950 border-b border-black/5 flex items-center px-6 justify-between sticky top-0 z-40">
-           <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)}>
-                <Menu className="h-8 w-8 text-primary dark:text-white" />
-              </Button>
-              <span className="font-black text-xl text-primary dark:text-white">BBA OS</span>
-           </div>
-           <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center text-white font-black">AD</div>
+        <header className="lg:hidden h-16 bg-white dark:bg-slate-950 border-b border-black/5 flex items-center px-6 justify-between sticky top-0 z-40">
+           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)}>
+             <Menu className="h-6 w-6 text-primary dark:text-white" />
+           </Button>
+           <span className="font-black text-primary dark:text-white uppercase tracking-tighter">BBA OS</span>
+           <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center text-white font-black text-xs">AD</div>
         </header>
 
-        {/* Dynamic Page Content */}
-        <main className="flex-1 p-4 md:p-10 lg:p-12 animate-in fade-in slide-in-from-bottom-3 duration-1000">
+        <main className="flex-1 p-4 md:p-10 lg:p-12 animate-in fade-in duration-1000">
           <div className="max-w-[1600px] mx-auto">
             {children}
           </div>
@@ -280,12 +331,8 @@ export default function AdminLayout({
       
       <style jsx global>{`
         .admin-dark-mode h1, .admin-dark-mode h2, .admin-dark-mode h3, .admin-dark-mode h4 { color: #f8fafc !important; }
-        .admin-dark-mode p { color: #94a3b8 !important; }
         .admin-dark-mode .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
         .admin-dark-mode .border-slate-100, .admin-dark-mode .border-slate-50 { border-color: #1e293b !important; }
-        .admin-dark-mode table thead tr { background-color: #1e293b !important; }
-        .admin-dark-mode table tbody tr:hover { background-color: #1e293b/50 !important; }
-        .admin-dark-mode input, .admin-dark-mode select { background-color: #1e293b !important; border-color: #334155 !important; color: white !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
       `}</style>

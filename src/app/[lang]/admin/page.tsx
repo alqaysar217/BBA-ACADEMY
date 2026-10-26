@@ -10,15 +10,15 @@ import {
   FileText, 
   TrendingUp, 
   DollarSign, 
-  CheckCircle2, 
   Clock,
   ArrowUpRight,
-  Target,
   Calendar,
   AlertTriangle,
   ArrowRight,
   MessageSquare,
-  Briefcase
+  Briefcase,
+  GraduationCap,
+  Target
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,8 +52,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     const totalApps = enrollments?.length || 0;
     const pendingApps = enrollments?.filter(e => e.status === 'submitted' || e.status === 'reviewed').length || 0;
     const activeStudents = students?.filter(s => s.status === 'active').length || 0;
-    
-    // Revenue simulation based on student financials
     const totalRevenue = students?.reduce((acc, curr) => acc + (curr.financialLedger?.totalPaid || 0), 0) || 0;
     const outstanding = students?.reduce((acc, curr) => acc + ((curr.financialLedger?.totalDue || 0) - (curr.financialLedger?.totalPaid || 0)), 0) || 0;
     
@@ -61,44 +59,44 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
   }, [enrollments, students]);
 
   if (enrollLoading || studentLoading) return (
-    <div className="p-10 flex flex-col items-center justify-center min-h-[60vh] gap-4">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Academy Data...</p>
+      <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Academy Intelligence...</p>
     </div>
   );
 
   return (
-    <div className="space-y-10">
-      {/* 1. Header & Quick Actions */}
+    <div className="space-y-12">
+      {/* 1. Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
          <div className="space-y-1">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'نظرة عامة على النظام' : 'BBA System Insights'}</h1>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'نظرة عامة على الأكاديمية' : 'Executive Dashboard'}</h1>
             <p className="text-slate-500 font-bold flex items-center gap-2">
                <Calendar className="h-4 w-4" />
-               {format(new Date(), 'MMMM dd, yyyy')} • {isAr ? 'بيانات حية من السحابة' : 'Live cloud synchronization'}
+               {format(new Date(), 'MMMM dd, yyyy')} • {isAr ? 'بيانات النظام الموحدة' : 'Live System Intelligence'}
             </p>
          </div>
-         <div className="flex flex-wrap gap-3">
-            <Button variant="outline" className="h-12 rounded-xl border-slate-200 font-black px-6 hover:bg-slate-50">
-               {isAr ? 'تصدير التقارير' : 'Export Reports'}
+         <div className="flex gap-3">
+            <Button variant="outline" className="h-12 rounded-xl font-black px-6">
+               {isAr ? 'تقارير السنة الحالية' : 'AY 2026 Reports'}
             </Button>
             <Button asChild className="h-12 rounded-xl bg-secondary text-white font-black px-6 shadow-xl shadow-secondary/20">
-               <Link href={`/${lang}/admin/enrollments`}>
-                  {isAr ? 'مراجعة الطلبات' : 'Review Applications'}
+               <Link href={`/${lang}/admin/admissions/new`}>
+                  {isAr ? 'مراجعة الطلبات الجديدة' : 'Review New Apps'}
                </Link>
             </Button>
          </div>
       </div>
 
-      {/* 2. Key Metrics Grid */}
+      {/* 2. Key Performance Indicators */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
          {[
-           { label: isAr ? 'إجمالي المحصل' : 'Total Collected', value: `$${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'bg-green-500', trend: '+12%' },
+           { label: isAr ? 'إجمالي المحصل المالي' : 'Total Revenue', value: `$${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'bg-green-500', trend: '+12%' },
            { label: isAr ? 'الطلاب النشطين' : 'Active Students', value: stats.activeStudents, icon: Users, color: 'bg-secondary', trend: '+18%' },
-           { label: isAr ? 'طلبات بانتظار المراجعة' : 'Pending Review', value: stats.pendingApps, icon: FileText, color: 'bg-primary', trend: stats.pendingApps > 0 ? 'Urgent' : 'Clear' },
-           { label: isAr ? 'مستحقات متأخرة' : 'Outstanding', value: `$${stats.outstanding.toLocaleString()}`, icon: AlertTriangle, color: 'bg-amber-500', trend: '-5%' },
+           { label: isAr ? 'طلبات بانتظار الإجراء' : 'Action Required', value: stats.pendingApps, icon: AlertTriangle, color: 'bg-primary', trend: 'Urgent' },
+           { label: isAr ? 'مستحقات تحت التحصيل' : 'Accounts Receivable', value: `$${stats.outstanding.toLocaleString()}`, icon: CreditCard, color: 'bg-amber-500', trend: '-5%' },
          ].map((stat, i) => (
-           <Card key={i} className="border-none shadow-premium rounded-[2rem] overflow-hidden group hover:shadow-2xl transition-all duration-500 bg-white border border-slate-100/50">
+           <Card key={i} className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white border border-slate-100 transition-all hover:shadow-2xl">
               <CardContent className="p-8">
                  <div className="flex justify-between items-start">
                     <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center text-white shadow-lg", stat.color)}>
@@ -117,12 +115,12 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
          ))}
       </div>
 
-      {/* 3. Analytics & Growth */}
+      {/* 3. Analytics Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         <Card className="lg:col-span-2 border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+         <Card className="lg:col-span-2 border-none shadow-premium rounded-[2.5rem] bg-white">
             <CardHeader className="p-10 pb-0">
-               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'نمو الأكاديمية والطلاب' : 'Academy Enrollment Growth'}</CardTitle>
-               <CardDescription className="font-bold">{isAr ? 'مقارنة الطلبات والتحويل لطلاب نشطين' : 'Monthly funnel from application to active student'}</CardDescription>
+               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'نمو الأكاديمية والطلاب' : 'Academy Growth Matrix'}</CardTitle>
+               <CardDescription className="font-bold">{isAr ? 'مقارنة الطلبات والتحويل لطلاب نشطين شهرياً' : 'Monthly conversion from application to active enrollment'}</CardDescription>
             </CardHeader>
             <CardContent className="p-10">
                <div className="h-80 w-full">
@@ -152,10 +150,10 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
             </CardContent>
          </Card>
 
-         <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+         <Card className="border-none shadow-premium rounded-[2.5rem] bg-white">
             <CardHeader className="p-10">
-               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'توزيع البرامج' : 'Program Distribution'}</CardTitle>
-               <CardDescription className="font-bold">{isAr ? 'نسبة الطلاب حسب نوع البرنامج' : 'Students enrolled per program path'}</CardDescription>
+               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'توزيع البرامج التعليمية' : 'Program Penetration'}</CardTitle>
+               <CardDescription className="font-bold">{isAr ? 'نسبة الطلاب حسب نوع البرنامج' : 'Students distribution per academic track'}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
                <div className="h-64 w-full">
@@ -216,13 +214,12 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
             <CardHeader className="p-10 flex flex-row items-center justify-between">
                <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'تنبيهات النظام' : 'System Alerts'}</CardTitle>
-               <Badge className="bg-red-100 text-red-600 border-none">3 Critical</Badge>
+               <Badge className="bg-red-100 text-red-600 border-none">Critical</Badge>
             </CardHeader>
             <CardContent className="p-10 pt-0 space-y-4">
                {[
                  { t: isAr ? 'وثائق مفقودة' : 'Missing Transcript', s: 'Aisha Omar', i: AlertTriangle, c: 'text-amber-500' },
                  { t: isAr ? 'دفعة متأخرة' : 'Overdue Payment', s: 'Zaid Ali', i: DollarSign, c: 'text-red-500' },
-                 { t: isAr ? 'مراجعة طلب' : 'App Review Req.', s: 'Fatima Ahmed', i: FileText, c: 'text-primary' },
                ].map((alert, i) => (
                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-slate-100 group">
                     <div className="flex items-center gap-4">
@@ -237,7 +234,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                     <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl group-hover:bg-white group-hover:shadow-md transition-all"><ArrowRight className="h-4 w-4" /></Button>
                  </div>
                ))}
-               <Button variant="link" className="w-full text-secondary font-black">{isAr ? 'مشاهدة كافة التنبيهات' : 'View All Alerts'}</Button>
+               <Button variant="link" className="w-full text-secondary font-black">{isAr ? 'عرض كافة المهام' : 'View All Tasks'}</Button>
             </CardContent>
          </Card>
       </div>
