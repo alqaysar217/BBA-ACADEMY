@@ -25,9 +25,10 @@ import {
   Users2,
   Trash2,
   KeyRound,
-  UserPen,
+  UserCog,
   ShieldAlert,
-  MessageSquare
+  MessageSquare,
+  Search
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -82,7 +83,7 @@ export default function AdminLayout({
 
   const hasPermission = (module: string, action: 'read' | 'write' | 'delete' | 'execute' = 'read') => {
     if (localStorage.getItem('bba_test_admin') === 'true') return true;
-    if (!profile) return true; // السماح بالوصول الأولي للمديرين
+    if (!profile) return true; 
     if (profile.role === 'admin') return true;
     return profile.permissions?.[module]?.[action] || false;
   };
@@ -101,7 +102,7 @@ export default function AdminLayout({
       items: [
         { label: isAr ? 'سجل الحسابات' : 'Account Registry', href: `/${lang}/admin/users`, icon: Users2, show: true },
         { label: isAr ? 'إضافة مستخدم' : 'Register User', href: `/${lang}/admin/users/new`, icon: UserPlus, show: hasPermission('users', 'write') },
-        { label: isAr ? 'تعديل مستخدم' : 'Edit User', href: `/${lang}/admin/users/edit`, icon: UserPen, show: hasPermission('users', 'write') },
+        { label: isAr ? 'تعديل مستخدم' : 'Edit User', href: `/${lang}/admin/users/edit`, icon: UserCog, show: hasPermission('users', 'write') },
         { label: isAr ? 'تحديد الصلاحيات' : 'Permissions Hub', href: `/${lang}/admin/users/permissions`, icon: KeyRound, show: hasPermission('users', 'execute') },
       ]
     },
@@ -121,10 +122,31 @@ export default function AdminLayout({
       ]
     },
     {
+      title: isAr ? 'الأكاديميا' : 'Academic',
+      show: hasPermission('academic'),
+      items: [
+        { label: isAr ? 'الخطط الدراسية' : 'Study Plans', href: `/${lang}/admin/academic/plans`, icon: BookOpen, show: true },
+      ]
+    },
+    {
       title: isAr ? 'المالية' : 'Finances',
       show: hasPermission('finances'),
       items: [
         { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard, show: true },
+      ]
+    },
+    {
+      title: isAr ? 'إدارة المحتوى' : 'CMS',
+      show: hasPermission('cms'),
+      items: [
+        { label: isAr ? 'منصة المحتوى' : 'Content CMS', href: `/${lang}/admin/cms`, icon: Briefcase, show: true },
+      ]
+    },
+    {
+      title: isAr ? 'التواصل' : 'Communication',
+      show: hasPermission('communication'),
+      items: [
+        { label: isAr ? 'مركز المراسلات' : 'Comms Hub', href: `/${lang}/admin/communication`, icon: MessageSquare, show: true },
       ]
     },
     {
@@ -140,7 +162,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (!pathname) return;
     menuGroups.forEach(group => {
-      const hasActiveChild = group.items.some(item => pathname.startsWith(item.href));
+      const hasActiveChild = group.items.some(item => pathname === item.href);
       if (hasActiveChild && !openGroups.includes(group.title)) {
         setOpenGroups(prev => [...prev, group.title]);
       }

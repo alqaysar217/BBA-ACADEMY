@@ -6,7 +6,7 @@ import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { 
-  Search, UserPen, Users2, Mail, 
+  Search, Users2, Mail, 
   ChevronRight, UserCog, ShieldCheck, User 
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -72,7 +72,7 @@ export default function EditUserLandingPage({ params }: { params: Promise<{ lang
                       </div>
                    </div>
                    <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl group-hover:bg-primary group-hover:text-white transition-all">
-                      <UserPen className="h-5 w-5" />
+                      <UserCog className="h-5 w-5" />
                    </Button>
                 </CardContent>
              </Card>

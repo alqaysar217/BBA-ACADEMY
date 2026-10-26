@@ -8,9 +8,9 @@ import { useFirestore, useDoc } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   ShieldCheck, ChevronLeft, Loader2, Save,
-  FileSearch, Users, CreditCard, UserCog,
+  FileText, Users, CreditCard, UserCog,
   MessageSquare, LayoutDashboard, KeyRound,
-  BarChart3, Briefcase, ShieldAlert
+  BarChart3, Briefcase, ShieldAlert, Search
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,7 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
         dashboard: { read: true, write: false, execute: false },
         enrollments: { read: true, write: false, execute: false },
         students: { read: true, write: false, execute: false },
+        academic: { read: true, write: false, execute: false },
         finances: { read: false, write: false, execute: false },
         communication: { read: false, write: false, execute: false },
         cms: { read: false, write: false, execute: false },
@@ -77,8 +78,9 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
 
   const modules = [
     { id: 'dashboard', label: isAr ? 'لوحة المعلومات الرئيسية' : 'Main Dashboard', icon: LayoutDashboard },
-    { id: 'enrollments', label: isAr ? 'القبول وطلبات الالتحاق' : 'Admissions & Applications', icon: FileSearch },
+    { id: 'enrollments', label: isAr ? 'القبول وطلبات الالتحاق' : 'Admissions & Applications', icon: Search },
     { id: 'students', label: isAr ? 'إدارة ملفات الطلاب' : 'Student Management', icon: Users },
+    { id: 'academic', label: isAr ? 'الخطط الدراسية والمتابعة' : 'Academic Plans', icon: BookOpen },
     { id: 'finances', label: isAr ? 'الإدارة والتقارير المالية' : 'Financial Management', icon: CreditCard },
     { id: 'communication', label: isAr ? 'التواصل وقوالب الرسائل' : 'Comms & Outreach', icon: MessageSquare },
     { id: 'cms', label: isAr ? 'إدارة البرامج والمحتوى' : 'CMS & Programs', icon: Briefcase },
@@ -125,10 +127,10 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
          </CardHeader>
          <CardContent className="p-0">
             <div className="overflow-x-auto">
-               <table className="w-full text-left">
+               <table className="w-full text-left" dir={isAr ? 'rtl' : 'ltr'}>
                   <thead>
                      <tr className="bg-slate-50/50 border-b border-slate-50">
-                        <th className="p-8 font-black text-[10px] uppercase text-slate-400 tracking-widest w-2/5">{isAr ? 'الوحدة الوظيفية' : 'Module / Unit'}</th>
+                        <th className="p-8 font-black text-[10px] uppercase text-slate-400 tracking-widest w-2/5 text-start">{isAr ? 'الوحدة الوظيفية' : 'Module / Unit'}</th>
                         <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'قراءة' : 'Read'}</th>
                         <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'كتابة' : 'Write'}</th>
                         <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'تنفيذ' : 'Execute'}</th>
