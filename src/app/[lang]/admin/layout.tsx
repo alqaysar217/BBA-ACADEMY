@@ -36,7 +36,9 @@ import {
   UserCog,
   LockKeyhole,
   Archive,
-  Trash2
+  Trash2,
+  KeyRound,
+  ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -93,11 +95,21 @@ export default function AdminLayout({
       ]
     },
     {
-      title: isAr ? 'إدارة المستخدمين' : 'User Management',
+      title: isAr ? 'سجل المستخدمين' : 'User Registry',
       items: [
-        { label: isAr ? 'سجل المستخدمين' : 'Active Registry', href: `/${lang}/admin/users`, icon: Users2 },
-        { label: isAr ? 'إضافة مستخدم' : 'New User', href: `/${lang}/admin/users/new`, icon: UserPlus },
-        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2 },
+        { label: isAr ? 'قائمة الموظفين' : 'Active Registry', href: `/${lang}/admin/users`, icon: Users2 },
+      ]
+    },
+    {
+      title: isAr ? 'إضافة مستخدم' : 'Direct Provisioning',
+      items: [
+        { label: isAr ? 'تفعيل حساب جديد' : 'Activate Account', href: `/${lang}/admin/users/new`, icon: UserPlus },
+      ]
+    },
+    {
+      title: isAr ? 'تحديد الصلاحيات' : 'Access Control',
+      items: [
+        { label: isAr ? 'هيكلية الأدوار' : 'Standard Roles', href: `/${lang}/admin/users/roles`, icon: KeyRound },
       ]
     },
     {
@@ -148,9 +160,10 @@ export default function AdminLayout({
       ]
     },
     {
-      title: isAr ? 'التقارير والإعدادات' : 'Tools',
+      title: isAr ? 'التقارير والإعدادات' : 'Reporting & Tools',
       items: [
         { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3 },
+        { label: isAr ? 'سلة المهملات' : 'Trash Bin (Recycle)', href: `/${lang}/admin/users/trash`, icon: Trash2 },
       ]
     }
   ];
