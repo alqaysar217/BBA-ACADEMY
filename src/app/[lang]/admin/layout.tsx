@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ReactNode, useState, useEffect, use } from 'react';
@@ -80,6 +79,16 @@ export default function AdminLayout({
       router.push(`/${lang}/admin/login`);
     }
   }, [user, loading, router, lang, pathname]);
+
+  // Logic to auto-open groups containing the active item
+  useEffect(() => {
+    menuGroups.forEach(group => {
+      const hasActiveChild = group.items.some(item => pathname === item.href);
+      if (hasActiveChild && !openGroups.includes(group.title)) {
+        setOpenGroups(prev => [...prev, group.title]);
+      }
+    });
+  }, [pathname]);
 
   if (pathname.includes('/login')) return children;
 
@@ -188,9 +197,10 @@ export default function AdminLayout({
       </div>
 
       {/* 2. Navigation */}
-      <nav className="flex-1 py-8 px-3 space-y-2 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 py-8 px-3 space-y-4 overflow-y-auto custom-scrollbar">
         {menuGroups.map((group, gIdx) => {
           const isGroupOpen = openGroups.includes(group.title);
+          const hasActiveChild = group.items.some(item => pathname === item.href);
           
           return (
             <Collapsible 
@@ -201,11 +211,18 @@ export default function AdminLayout({
             >
               {(isSidebarOpen || isMobile) ? (
                 <>
-                  <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 rounded-xl transition-all group">
-                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">{group.title}</p>
-                    <ChevronRight className={cn("h-3 w-3 text-white/20 transition-transform duration-300", isGroupOpen && "rotate-90")} />
+                  <CollapsibleTrigger className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group font-black text-[11px] uppercase tracking-[0.2em]",
+                    isGroupOpen || hasActiveChild
+                      ? "bg-white/10 text-secondary shadow-sm" 
+                      : "text-white/30 hover:bg-white/5 hover:text-white"
+                  )}>
+                    <div className="flex items-center gap-3">
+                       <span className="truncate">{group.title}</span>
+                    </div>
+                    <ChevronRight className={cn("h-3.5 w-3.5 transition-transform duration-300", isGroupOpen && "rotate-90", isGroupOpen || hasActiveChild ? "text-secondary" : "text-white/20")} />
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-0.5 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                  <CollapsibleContent className="space-y-1 mt-1 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
                     {group.items.map((item) => {
                       const active = pathname === item.href;
                       return (
@@ -214,14 +231,14 @@ export default function AdminLayout({
                           href={item.href}
                           onClick={() => isMobile && setMobileMenuOpen(false)}
                           className={cn(
-                            "flex items-center gap-4 p-3 rounded-2xl transition-all group relative",
+                            "flex items-center gap-4 p-3.5 rounded-2xl transition-all group relative border border-transparent",
                             active 
-                              ? "bg-secondary text-white shadow-xl shadow-secondary/30 scale-[1.02]" 
+                              ? "bg-secondary text-white shadow-xl shadow-secondary/30 scale-[1.02] border-white/10" 
                               : "hover:bg-white/5 text-white/60 hover:text-white"
                           )}
                         >
-                          <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
-                          <span className="font-black text-[13px] tracking-tight truncate">
+                          <item.icon className={cn("h-4.5 w-4.5 shrink-0 transition-transform", !active && "group-hover:scale-110", active ? "text-white" : "text-secondary/50")} />
+                          <span className="font-bold text-[13px] tracking-tight truncate">
                             {item.label}
                           </span>
                         </Link>
@@ -230,8 +247,9 @@ export default function AdminLayout({
                   </CollapsibleContent>
                 </>
               ) : (
-                /* In mini mode, we just show icons of all items directly */
-                <div className="space-y-0.5">
+                /* In mini mode, we just show icons of all items directly with highlights */
+                <div className="space-y-1 flex flex-col items-center">
+                  <div className={cn("w-1 h-4 rounded-full mb-1 transition-colors", hasActiveChild ? "bg-secondary" : "bg-transparent")} />
                   {group.items.map((item) => {
                     const active = pathname === item.href;
                     return (
@@ -239,13 +257,14 @@ export default function AdminLayout({
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          "flex items-center justify-center p-3 rounded-2xl transition-all group relative",
+                          "flex items-center justify-center h-12 w-12 rounded-2xl transition-all group relative",
                           active 
                             ? "bg-secondary text-white shadow-xl shadow-secondary/30" 
                             : "hover:bg-white/5 text-white/60 hover:text-white"
                         )}
                       >
-                        <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
+                        <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110", active ? "text-white" : "text-secondary/50")} />
+                        {active && <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-white rounded-l-full" />}
                       </Link>
                     );
                   })}
@@ -264,7 +283,7 @@ export default function AdminLayout({
         <button 
           onClick={toggleTheme}
           className={cn(
-            "w-full flex items-center gap-4 p-3 rounded-2xl transition-all font-black text-xs uppercase tracking-widest",
+            "w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all font-black text-xs uppercase tracking-widest",
             isDarkMode ? "bg-white/5 text-amber-400" : "bg-white/5 text-white/60 hover:text-white",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
           )}
@@ -276,7 +295,7 @@ export default function AdminLayout({
         <Link
           href={redirectedPathname(isAr ? 'en' : 'ar')}
           className={cn(
-            "w-full flex items-center gap-4 p-3 rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black text-xs uppercase tracking-widest",
+            "w-full flex items-center gap-4 p-3.5 rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black text-xs uppercase tracking-widest",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
           )}
         >
@@ -287,7 +306,7 @@ export default function AdminLayout({
         <button 
           onClick={handleLogout}
           className={cn(
-            "w-full flex items-center gap-4 p-3 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest",
+            "w-full flex items-center gap-4 p-3.5 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
           )}
         >
