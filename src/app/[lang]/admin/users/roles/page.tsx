@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 export default function RolesPermissionsPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
