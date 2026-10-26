@@ -8,12 +8,18 @@ import { collection, query, orderBy, doc, deleteDoc, updateDoc, serverTimestamp 
 import { 
   Search, UserPlus, ShieldCheck, Mail, Calendar, 
   Trash2, Ban, CheckCircle2, ChevronRight, Filter,
-  MoreVertical, ShieldAlert, UserCog
+  MoreVertical, ShieldAlert, UserCog, PencilLine
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
@@ -103,91 +109,130 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
 
       <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
          <div className="overflow-x-auto">
-            <table className="w-full">
-               <thead>
-                  <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                     <th className="px-10 py-6 text-left">{isAr ? 'المستخدم' : 'User Details'}</th>
-                     <th className="px-10 py-6 text-left">{isAr ? 'الدور الوظيفي' : 'Role'}</th>
-                     <th className="px-10 py-6 text-left">{isAr ? 'الحالة' : 'Status'}</th>
-                     <th className="px-10 py-6 text-left">{isAr ? 'تاريخ الإنشاء' : 'Created At'}</th>
-                     <th className="px-10 py-6 text-right"></th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-100">
-                  {loading ? (
-                    [1,2,3].map(i => <tr key={i} className="animate-pulse"><td colSpan={5} className="h-24 bg-slate-50/50" /></tr>)
-                  ) : filteredUsers.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="py-32 text-center">
-                        <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto text-slate-200 mb-6">
-                           <UserCog className="h-10 w-10" />
-                        </div>
-                        <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{isAr ? 'لا يوجد مستخدمون حالياً' : 'No user accounts found'}</p>
-                      </td>
+            <TooltipProvider delayDuration={0}>
+              <table className="w-full">
+                 <thead>
+                    <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                       <th className="px-10 py-6 text-left">{isAr ? 'المستخدم' : 'User Details'}</th>
+                       <th className="px-10 py-6 text-left">{isAr ? 'الدور الوظيفي' : 'Role'}</th>
+                       <th className="px-10 py-6 text-left">{isAr ? 'الحالة' : 'Status'}</th>
+                       <th className="px-10 py-6 text-left">{isAr ? 'تاريخ الإنشاء' : 'Created At'}</th>
+                       <th className="px-10 py-6 text-right"></th>
                     </tr>
-                  ) : filteredUsers.map((user: any) => (
-                    <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
-                       <td className="px-10 py-6">
-                          <div className="flex items-center gap-4">
-                             <div className="h-12 w-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shadow-md">
-                                <Image 
-                                   src={user.photoURL || '/logo.png'} 
-                                   alt={user.displayName} 
-                                   width={40} 
-                                   height={40} 
-                                   className="object-contain p-1"
-                                   unoptimized
-                                />
-                             </div>
-                             <div>
-                                <p className="text-sm font-black text-slate-900 leading-none mb-1">{user.displayName}</p>
-                                <div className="flex items-center gap-1.5 text-slate-400 font-bold text-[10px] uppercase">
-                                   <Mail className="h-3 w-3" /> {user.email}
-                                </div>
-                             </div>
+                 </thead>
+                 <tbody className="divide-y divide-slate-100">
+                    {loading ? (
+                      [1,2,3].map(i => <tr key={i} className="animate-pulse"><td colSpan={5} className="h-24 bg-slate-50/50" /></tr>)
+                    ) : filteredUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-32 text-center">
+                          <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto text-slate-200 mb-6">
+                             <UserCog className="h-10 w-10" />
                           </div>
-                       </td>
-                       <td className="px-10 py-6">
-                          <Badge variant="outline" className="rounded-lg bg-secondary/5 border-secondary/20 text-secondary font-black text-[9px] uppercase tracking-widest px-3 py-1">
-                             {user.role}
-                          </Badge>
-                       </td>
-                       <td className="px-10 py-6">
-                          <Badge className={cn(
-                            "rounded-lg border-none font-black text-[9px] uppercase px-3 py-1",
-                            user.status === 'active' ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-                          )}>
-                             {user.status === 'active' ? (isAr ? 'نشط' : 'Active') : (isAr ? 'محظور' : 'Blocked')}
-                          </Badge>
-                       </td>
-                       <td className="px-10 py-6">
-                          <div className="flex items-center gap-2 text-slate-500 font-bold text-xs">
-                             <Calendar className="h-3.5 w-3.5" />
-                             {user.createdAt ? format(user.createdAt.toDate(), 'MMM dd, yyyy') : '-'}
-                          </div>
-                       </td>
-                       <td className="px-10 py-6 text-right">
-                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                             <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md" asChild>
-                                <Link href={`/${lang}/admin/users/${user.id}`}>
-                                   <UserCog className="h-4.5 w-4.5 text-slate-400 hover:text-primary transition-colors" />
-                                </Link>
-                             </Button>
-                             <Button onClick={() => toggleUserStatus(user)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md">
-                                <Ban className={cn("h-4.5 w-4.5 transition-colors", user.status === 'active' ? "text-amber-500" : "text-green-500")} />
-                             </Button>
-                             <Button onClick={() => deleteUser(user.id)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-red-50">
-                                <Trash2 className="h-4.5 w-4.5 text-red-400" />
-                             </Button>
-                          </div>
-                       </td>
-                    </tr>
-                  ))}
-               </tbody>
-            </table>
+                          <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{isAr ? 'لا يوجد مستخدمون حالياً' : 'No user accounts found'}</p>
+                        </td>
+                      </tr>
+                    ) : filteredUsers.map((user: any) => (
+                      <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
+                         <td className="px-10 py-6">
+                            <div className="flex items-center gap-4">
+                               <div className="h-12 w-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shadow-md">
+                                  <Image 
+                                     src={user.photoURL || '/logo.png'} 
+                                     alt={user.displayName} 
+                                     width={40} 
+                                     height={40} 
+                                     className="object-contain p-1"
+                                     unoptimized
+                                  />
+                               </div>
+                               <div>
+                                  <p className="text-sm font-black text-slate-900 leading-none mb-1">{user.displayName}</p>
+                                  <div className="flex items-center gap-1.5 text-slate-400 font-bold text-[10px] uppercase">
+                                     <Mail className="h-3 w-3" /> {user.email}
+                                  </div>
+                               </div>
+                            </div>
+                         </td>
+                         <td className="px-10 py-6">
+                            <Badge variant="outline" className="rounded-lg bg-secondary/5 border-secondary/20 text-secondary font-black text-[9px] uppercase tracking-widest px-3 py-1">
+                               {user.role}
+                            </Badge>
+                         </td>
+                         <td className="px-10 py-6">
+                            <Badge className={cn(
+                              "rounded-lg border-none font-black text-[9px] uppercase px-3 py-1",
+                              user.status === 'active' ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                            )}>
+                               {user.status === 'active' ? (isAr ? 'نشط' : 'Active') : (isAr ? 'محظور' : 'Blocked')}
+                            </Badge>
+                         </td>
+                         <td className="px-10 py-6">
+                            <div className="flex items-center gap-2 text-slate-500 font-bold text-xs">
+                               <Calendar className="h-3.5 w-3.5" />
+                               {user.createdAt ? format(user.createdAt.toDate(), 'MMM dd, yyyy') : '-'}
+                            </div>
+                         </td>
+                         <td className="px-10 py-6 text-right">
+                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                               {/* Edit Profile Button */}
+                               <Tooltip>
+                                  <TooltipTrigger asChild>
+                                     <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md">
+                                        <PencilLine className="h-4.5 w-4.5 text-slate-400 hover:text-primary transition-colors" />
+                                     </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-primary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                     {isAr ? 'تعديل البيانات' : 'Edit Profile Data'}
+                                  </TooltipContent>
+                               </Tooltip>
+
+                               {/* Permissions Button */}
+                               <Tooltip>
+                                  <TooltipTrigger asChild>
+                                     <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md" asChild>
+                                        <Link href={`/${lang}/admin/users/${user.id}`}>
+                                           <UserCog className="h-4.5 w-4.5 text-slate-400 hover:text-secondary transition-colors" />
+                                        </Link>
+                                     </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-secondary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                     {isAr ? 'إدارة الصلاحيات' : 'Manage Permissions'}
+                                  </TooltipContent>
+                               </Tooltip>
+
+                               {/* Status Toggle Button */}
+                               <Tooltip>
+                                  <TooltipTrigger asChild>
+                                     <Button onClick={() => toggleUserStatus(user)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md">
+                                        <Ban className={cn("h-4.5 w-4.5 transition-colors", user.status === 'active' ? "text-amber-500" : "text-green-500")} />
+                                     </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                     {user.status === 'active' ? (isAr ? 'حظر الحساب' : 'Block Access') : (isAr ? 'تفعيل الحساب' : 'Activate Access')}
+                                  </TooltipContent>
+                               </Tooltip>
+
+                               {/* Delete Button */}
+                               <Tooltip>
+                                  <TooltipTrigger asChild>
+                                     <Button onClick={() => deleteUser(user.id)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-red-50">
+                                        <Trash2 className="h-4.5 w-4.5 text-red-400" />
+                                     </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-red-600 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                     {isAr ? 'حذف نهائي' : 'Permanent Delete'}
+                                  </TooltipContent>
+                               </Tooltip>
+                            </div>
+                         </td>
+                      </tr>
+                    ))}
+                 </tbody>
+              </table>
+            </TooltipProvider>
          </div>
       </Card>
     </div>
   );
 }
-
