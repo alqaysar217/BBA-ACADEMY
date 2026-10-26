@@ -8,7 +8,7 @@ import { collection, query, orderBy, doc, updateDoc, serverTimestamp } from 'fir
 import { 
   Search, UserPlus, ShieldCheck, Mail, Calendar, 
   Trash2, Ban, ChevronRight, Archive, PencilLine,
-  UserCog, AlertCircle, KeyRound, Filter, Shield
+  UserCog, AlertCircle, KeyRound, Filter, Shield, UserCheck
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -187,7 +187,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                             </Badge>
                          </td>
                          <td className="px-10 py-6 text-right">
-                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                            <div className="flex justify-end gap-2">
                                <Tooltip>
                                   <TooltipTrigger asChild>
                                      <Button size="icon" variant="outline" className="h-10 w-10 rounded-xl border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" asChild>

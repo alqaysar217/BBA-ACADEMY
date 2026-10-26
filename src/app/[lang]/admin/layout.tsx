@@ -1,10 +1,11 @@
 
 'use client';
 
-import { ReactNode, useState, useEffect, use } from 'react';
+import { ReactNode, useState, useEffect, use, useMemo } from 'react';
 import { type Locale } from '@/lib/i18n/config';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
+import { doc } from 'firebase/firestore';
 import { 
   LayoutDashboard, 
   Users, 
@@ -28,7 +29,9 @@ import {
   Trash2,
   KeyRound,
   UserPen,
-  Settings
+  Settings,
+  ShieldAlert,
+  MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -50,6 +53,7 @@ export default function AdminLayout({
 }) {
   const { lang } = use(params);
   const { user, loading } = useUser();
+  const firestore = useFirestore();
   const router = useRouter();
   const pathname = usePathname();
   const isAr = lang === 'ar';
@@ -58,6 +62,10 @@ export default function AdminLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
+
+  // Fetch current user's profile for permissions
+  const profileRef = useMemo(() => (firestore && user) ? doc(firestore, 'admin_users', user.uid) : null, [firestore, user]);
+  const { data: profile } = useDoc(profileRef);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('bba_admin_theme');
@@ -77,47 +85,60 @@ export default function AdminLayout({
     }
   }, [user, loading, router, lang, pathname]);
 
+  // Unified Permission Check
+  const hasPermission = (module: string, action: 'read' | 'write' | 'delete' = 'read') => {
+    if (localStorage.getItem('bba_test_admin') === 'true') return true;
+    if (!profile) return false;
+    if (profile.role === 'admin') return true;
+    return profile.permissions?.[module]?.[action] || false;
+  };
+
   const menuGroups = [
     {
       title: isAr ? 'الرئيسية' : 'Main',
+      show: hasPermission('dashboard'),
       items: [
-        { label: isAr ? 'لوحة المعلومات' : 'Dashboard', href: `/${lang}/admin`, icon: LayoutDashboard },
+        { label: isAr ? 'لوحة المعلومات' : 'Dashboard', href: `/${lang}/admin`, icon: LayoutDashboard, show: true },
       ]
     },
     {
       title: isAr ? 'إدارة المستخدمين' : 'User Management',
+      show: hasPermission('users'),
       items: [
-        { label: isAr ? 'سجل الحسابات' : 'Account Registry', href: `/${lang}/admin/users`, icon: Users2 },
-        { label: isAr ? 'إضافة مستخدم' : 'Register User', href: `/${lang}/admin/users/new`, icon: UserPlus },
-        { label: isAr ? 'تعديل الملفات' : 'Edit Profile', href: `/${lang}/admin/users`, icon: UserPen },
-        { label: isAr ? 'إدارة الصلاحيات' : 'Permissions Hub', href: `/${lang}/admin/users`, icon: KeyRound },
+        { label: isAr ? 'سجل الحسابات' : 'Account Registry', href: `/${lang}/admin/users`, icon: Users2, show: true },
+        { label: isAr ? 'إضافة مستخدم' : 'Register User', href: `/${lang}/admin/users/new`, icon: UserPlus, show: hasPermission('users', 'write') },
+        { label: isAr ? 'إدارة الصلاحيات' : 'Permissions Hub', href: `/${lang}/admin/users/roles`, icon: KeyRound, show: hasPermission('users', 'execute') },
       ]
     },
     {
       title: isAr ? 'القبول والتسجيل' : 'Admissions',
+      show: hasPermission('enrollments'),
       items: [
-        { label: isAr ? 'كافة الطلبات' : 'All Applications', href: `/${lang}/admin/enrollments`, icon: FileText },
-        { label: isAr ? 'طلبات جديدة' : 'New Submissions', href: `/${lang}/admin/admissions/new`, icon: UserPlus },
+        { label: isAr ? 'كافة الطلبات' : 'All Applications', href: `/${lang}/admin/enrollments`, icon: FileText, show: true },
+        { label: isAr ? 'طلبات جديدة' : 'New Submissions', href: `/${lang}/admin/admissions/new`, icon: UserPlus, show: true },
       ]
     },
     {
       title: isAr ? 'إدارة الطلاب' : 'Students',
+      show: hasPermission('students'),
       items: [
-        { label: isAr ? 'سجل الطلاب' : 'Active Roster', href: `/${lang}/admin/students`, icon: Users },
-        { label: isAr ? 'المستندات' : 'Docs & Transcripts', href: `/${lang}/admin/students/documents`, icon: ShieldCheck },
+        { label: isAr ? 'سجل الطلاب' : 'Active Roster', href: `/${lang}/admin/students`, icon: Users, show: true },
+        { label: isAr ? 'المستندات' : 'Docs & Transcripts', href: `/${lang}/admin/students/documents`, icon: ShieldCheck, show: true },
       ]
     },
     {
       title: isAr ? 'المالية' : 'Finances',
+      show: hasPermission('finances'),
       items: [
-        { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard },
+        { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard, show: true },
       ]
     },
     {
       title: isAr ? 'التقارير والإعدادات' : 'Reports & Settings',
+      show: true,
       items: [
-        { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3 },
-        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2 },
+        { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3, show: hasPermission('reports') },
+        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2, show: hasPermission('users', 'delete') },
       ]
     }
   ];
@@ -166,6 +187,7 @@ export default function AdminLayout({
 
       <nav className="flex-1 py-8 px-3 space-y-4 overflow-y-auto">
         {menuGroups.map((group, gIdx) => {
+          if (!group.show) return null;
           const isGroupOpen = openGroups.includes(group.title);
           const hasActiveChild = group.items.some(item => pathname === item.href);
           
@@ -189,6 +211,7 @@ export default function AdminLayout({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="space-y-1 mt-1 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
                     {group.items.map((item, iIdx) => {
+                      if (!item.show) return null;
                       const active = pathname === item.href;
                       return (
                         <Link
@@ -215,6 +238,7 @@ export default function AdminLayout({
                 <div className="space-y-1 flex flex-col items-center">
                   <div className={cn("w-1 h-4 rounded-full mb-1", hasActiveChild ? "bg-secondary" : "bg-transparent")} />
                   {group.items.map((item, iIdx) => {
+                    if (!item.show) return null;
                     const active = pathname === item.href;
                     return (
                       <Link

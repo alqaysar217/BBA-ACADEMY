@@ -5,19 +5,18 @@ import { use, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useDoc } from '@/firebase';
-import { doc, updateDoc, serverTimestamp, collection, query, orderBy } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   ShieldCheck, ChevronLeft, Loader2, Save,
   FileSearch, Users, CreditCard, UserCog, CheckCircle2,
-  MessageSquare, LayoutDashboard, KeyRound, Search
+  MessageSquare, LayoutDashboard, KeyRound, Search,
+  BarChart3, Settings, Briefcase, BookOpen, GraduationCap
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useCollection } from '@/firebase';
 
 export default function UserPermissionsPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -37,11 +36,14 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
   useEffect(() => {
     if (userData && !permissions) {
       setPermissions(userData.permissions || {
-        enrollments: { read: true, write: false, delete: false },
-        students: { read: true, write: false, delete: false },
-        finances: { read: false, write: false, delete: false },
-        users: { read: false, write: false, delete: false },
-        communication: { read: false, write: false, delete: false }
+        dashboard: { read: true, write: false, execute: false },
+        enrollments: { read: true, write: false, execute: false },
+        students: { read: true, write: false, execute: false },
+        finances: { read: false, write: false, execute: false },
+        communication: { read: false, write: false, execute: false },
+        users: { read: false, write: false, execute: false },
+        cms: { read: false, write: false, execute: false },
+        reports: { read: false, write: false, execute: false }
       });
     }
   }, [userData, permissions]);
@@ -73,11 +75,14 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
   };
 
   const modules = [
-    { id: 'enrollments', label: isAr ? 'القبول والتسجيل' : 'Admissions & Registration', icon: FileSearch },
-    { id: 'students', label: isAr ? 'إدارة شؤون الطلاب' : 'Student Management', icon: Users },
-    { id: 'finances', label: isAr ? 'التقارير المالية' : 'Financial Reporting', icon: CreditCard },
-    { id: 'communication', label: isAr ? 'نظام التواصل' : 'Comms System', icon: MessageSquare },
-    { id: 'users', label: isAr ? 'إدارة المستخدمين' : 'User Admin', icon: UserCog },
+    { id: 'dashboard', label: isAr ? 'لوحة المعلومات الرئيسية' : 'Main Dashboard', icon: LayoutDashboard },
+    { id: 'enrollments', label: isAr ? 'القبول وطلبات الالتحاق' : 'Admissions & Applications', icon: FileSearch },
+    { id: 'students', label: isAr ? 'إدارة ملفات الطلاب' : 'Student Management', icon: Users },
+    { id: 'finances', label: isAr ? 'الإدارة والتقارير المالية' : 'Financial Management', icon: CreditCard },
+    { id: 'communication', label: isAr ? 'التواصل وقوالب الرسائل' : 'Comms & Outreach', icon: MessageSquare },
+    { id: 'cms', label: isAr ? 'إدارة البرامج والمحتوى' : 'CMS & Programs', icon: Briefcase },
+    { id: 'users', label: isAr ? 'إدارة المستخدمين' : 'User Administration', icon: UserCog },
+    { id: 'reports', label: isAr ? 'التقارير والإحصائيات العامة' : 'Reports & Analytics', icon: BarChart3 },
   ];
 
   if (loading || !permissions) return (
@@ -95,7 +100,7 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
               <ChevronLeft className={cn("h-5 w-5", isAr && "rotate-180")} />
             </button>
             <div>
-               <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'إدارة الصلاحيات' : 'Manage Permissions'}</h1>
+               <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'إدارة صلاحيات الوصول' : 'Manage Access Privileges'}</h1>
                <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{userData.displayName} • {userData.role}</p>
             </div>
          </div>
@@ -110,8 +115,8 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
             <div className="flex items-center gap-4">
                <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg"><KeyRound className="h-6 w-6" /></div>
                <div>
-                  <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'مصفوفة الوصول الدقيق' : 'Granular Access Matrix'}</CardTitle>
-                  <CardDescription className="font-bold">Grant or revoke specific CRUD permissions for each system interface.</CardDescription>
+                  <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'مصفوفة التحكم الدقيق' : 'Granular Control Matrix'}</CardTitle>
+                  <CardDescription className="font-bold">Define specific CRUD permissions for each functional module in the system.</CardDescription>
                </div>
             </div>
          </CardHeader>
@@ -120,10 +125,10 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
                <table className="w-full text-left">
                   <thead>
                      <tr className="bg-slate-50/50 border-b border-slate-50">
-                        <th className="p-8 font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'الواجهة / القسم' : 'Interface / Module'}</th>
-                        <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'قراءة (Read)' : 'Read'}</th>
-                        <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'كتابة (Write)' : 'Write'}</th>
-                        <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'تنفيذ (Execute)' : 'Execute'}</th>
+                        <th className="p-8 font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'الوحدة الوظيفية' : 'Module / Unit'}</th>
+                        <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'قراءة' : 'Read'}</th>
+                        <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'كتابة' : 'Write'}</th>
+                        <th className="p-8 text-center font-black text-[10px] uppercase text-slate-400 tracking-widest">{isAr ? 'تنفيذ' : 'Execute'}</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -141,21 +146,21 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
                               <Checkbox 
                                  checked={permissions[mod.id]?.read} 
                                  onCheckedChange={() => togglePermission(mod.id, 'read')}
-                                 className="h-6 w-6 border-2 border-slate-200"
+                                 className="h-6 w-6 border-2 border-slate-200 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                               />
                            </td>
                            <td className="p-8 text-center">
                               <Checkbox 
                                  checked={permissions[mod.id]?.write} 
                                  onCheckedChange={() => togglePermission(mod.id, 'write')}
-                                 className="h-6 w-6 border-2 border-slate-200"
+                                 className="h-6 w-6 border-2 border-slate-200 data-[state=checked]:bg-secondary data-[state=checked]:border-secondary"
                               />
                            </td>
                            <td className="p-8 text-center">
                               <Checkbox 
-                                 checked={permissions[mod.id]?.delete} 
-                                 onCheckedChange={() => togglePermission(mod.id, 'delete')}
-                                 className="h-6 w-6 border-2 border-slate-200"
+                                 checked={permissions[mod.id]?.execute} 
+                                 onCheckedChange={() => togglePermission(mod.id, 'execute')}
+                                 className="h-6 w-6 border-2 border-slate-200 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                               />
                            </td>
                         </tr>
@@ -165,6 +170,15 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
             </div>
          </CardContent>
       </Card>
+
+      <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 flex items-start gap-4">
+         <ShieldAlert className="h-6 w-6 text-amber-600 shrink-0" />
+         <p className="text-xs font-bold text-amber-900/70 leading-relaxed italic">
+            {isAr 
+               ? 'تنبيه أمني: التغييرات في مصفوفة الصلاحيات تسري فوراً على جلسة المستخدم الحالية. يرجى التأكد من فصل المهام وعدم منح صلاحيات واسعة للموظفين إلا عند الضرورة القصوى.' 
+               : 'Security Notice: Changes to the permission matrix apply immediately. Ensure proper separation of duties and avoid granting administrative execution rights unless absolutely necessary.'}
+         </p>
+      </div>
     </div>
   );
 }
