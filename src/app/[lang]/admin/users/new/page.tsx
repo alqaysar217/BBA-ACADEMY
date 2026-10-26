@@ -3,11 +3,14 @@
 import { use, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useFirebaseApp } from '@/firebase';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { initializeApp, deleteApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { firebaseConfig } from '@/firebase/config';
 import { 
   UserPlus, ChevronLeft, ShieldCheck, Mail, User, 
-  LockKeyhole, AlertCircle, Loader2, CheckCircle2, Camera, Upload, X, KeyRound, Info 
+  LockKeyhole, AlertCircle, Loader2, CheckCircle2, Camera, Upload, X, KeyRound, Info, Eye, EyeOff 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,13 +33,16 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
   const isAr = lang === 'ar';
   const router = useRouter();
   const firestore = useFirestore();
+  const firebaseApp = useFirebaseApp();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     displayName: '',
     email: '',
+    password: '',
     role: '',
     photoURL: '',
   });
@@ -89,18 +95,48 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firestore) return;
+    if (!firestore || !firebaseApp) return;
     
-    if (!formData.displayName || !formData.email || !formData.role) {
-      toast({ variant: "destructive", title: isAr ? "حقول ناقصة" : "Missing Fields", description: isAr ? "يرجى ملء كافة الحقول الإلزامية." : "Please fill all required fields." });
+    if (!formData.displayName || !formData.email || !formData.role || !formData.password) {
+      toast({ 
+        variant: "destructive", 
+        title: isAr ? "حقول ناقصة" : "Missing Fields", 
+        description: isAr ? "يرجى ملء كافة الحقول الإلزامية بما في ذلك كلمة المرور." : "Please fill all required fields including password." 
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({ 
+        variant: "destructive", 
+        title: isAr ? "كلمة مرور ضعيفة" : "Weak Password", 
+        description: isAr ? "يجب أن تكون كلمة المرور 6 أحرف على الأقل." : "Password must be at least 6 characters." 
+      });
       return;
     }
 
     setLoading(true);
+
+    // نظام التزويد المباشر: إنشاء الحساب في Auth دون الخروج من حساب المدير الحالي
+    const tempAppName = `temp-app-${Date.now()}`;
+    let tempApp;
+    
     try {
-      const newUserRef = doc(collection(firestore, 'admin_users'));
+      // 1. إنشاء مثيل مؤقت لفايربيس
+      tempApp = initializeApp(firebaseConfig, tempAppName);
+      const tempAuth = getAuth(tempApp);
+
+      // 2. إنشاء المستخدم في Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(tempAuth, formData.email, formData.password);
+      const uid = userCredential.user.uid;
+
+      // 3. تسجيل الخروج من المثيل المؤقت (لحماية الجلسة)
+      await signOut(tempAuth);
+
+      // 4. حفظ بيانات وصلاحيات المستخدم في Firestore
+      const newUserRef = doc(firestore, 'admin_users', uid);
       const userData = {
-        id: newUserRef.id,
+        id: uid,
         displayName: formData.displayName,
         email: formData.email.toLowerCase(),
         role: formData.role,
@@ -120,13 +156,20 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
       
       toast({
         title: isAr ? "تم إنشاء الحساب بنجاح" : "Account Created",
-        description: isAr ? "تم حفظ بيانات الموظف، يرجى التأكد من تفعيل بريده في فايربيس." : "Staff details saved. Ensure their login is active in Firebase Console.",
+        description: isAr ? "تم تزويد الموظف بالحساب والصلاحيات بنجاح. يمكنه الدخول الآن." : "Staff account and privileges provisioned successfully. They can login now.",
       });
+      
       router.push(`/${lang}/admin/users`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast({ variant: "destructive", title: "Error", description: "Failed to create account." });
+      let errorMsg = isAr ? "فشل إنشاء الحساب." : "Failed to create account.";
+      if (err.code === 'auth/email-already-in-use') {
+        errorMsg = isAr ? "هذا البريد الإلكتروني مستخدم بالفعل." : "This email is already in use.";
+      }
+      toast({ variant: "destructive", title: "Error", description: errorMsg });
     } finally {
+      // تنظيف المثيل المؤقت
+      if (tempApp) await deleteApp(tempApp);
       setLoading(false);
     }
   };
@@ -138,8 +181,8 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
            {isAr ? <ChevronLeft className="h-5 w-5 rotate-180" /> : <ChevronLeft className="h-5 w-5" />}
          </button>
          <div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'إضافة مسؤول للنظام' : 'Add New Admin Staff'}</h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'تحديد هوية وصلاحيات الموظف الجديد' : 'Define Identity & Privileges'}</p>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'تفعيل حساب موظف جديد' : 'Activate New Staff Account'}</h1>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'إنشاء هوية وصلاحيات الموظف مباشرة' : 'Direct Provisioning of Identity & Privileges'}</p>
          </div>
       </div>
 
@@ -148,8 +191,8 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
             <div className="flex items-center gap-4">
                <div className="h-12 w-12 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg"><ShieldCheck className="h-6 w-6" /></div>
                <div>
-                  <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'بيانات الحساب الجديد' : 'New Account Intelligence'}</CardTitle>
-                  <CardDescription className="font-bold">Define system identity and assigned role.</CardDescription>
+                  <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'بيانات الاعتماد الذكية' : 'Credential Intelligence'}</CardTitle>
+                  <CardDescription className="font-bold">Create direct login credentials and system role.</CardDescription>
                </div>
             </div>
          </CardHeader>
@@ -190,7 +233,7 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                      )}
                   </div>
                   <div className="text-center">
-                     <p className="text-xs font-black text-primary uppercase tracking-widest">{isAr ? 'صورة الموظف' : 'Staff Profile Picture'}</p>
+                     <p className="text-xs font-black text-primary uppercase tracking-widest">{isAr ? 'صورة الموظف الشخصية' : 'Staff Profile Picture'}</p>
                   </div>
                   <input 
                      type="file" 
@@ -215,7 +258,7 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                   </div>
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <Mail className="h-3 w-3 text-secondary" /> {isAr ? 'البريد الإلكتروني الرسمي *' : 'Official Email Address *'}
+                        <Mail className="h-3 w-3 text-secondary" /> {isAr ? 'البريد الإلكتروني الرسمي (لتسجيل الدخول) *' : 'Official Login Email *'}
                      </Label>
                      <Input 
                         type="email"
@@ -225,7 +268,28 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                         placeholder="name@baneenbanaat.org" 
                      />
                   </div>
-                  <div className="space-y-3 md:col-span-2">
+                  <div className="space-y-3">
+                     <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                        <LockKeyhole className="h-3 w-3 text-secondary" /> {isAr ? 'كلمة مرور الحساب *' : 'Account Password *'}
+                     </Label>
+                     <div className="relative">
+                        <Input 
+                           type={showPassword ? "text" : "password"}
+                           value={formData.password}
+                           onChange={(e) => setFormData({...formData, password: e.target.value})}
+                           className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 focus:bg-white pr-12" 
+                           placeholder="••••••••" 
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-secondary"
+                        >
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
+                     </div>
+                  </div>
+                  <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                         <KeyRound className="h-3 w-3 text-secondary" /> {isAr ? 'الدور الوظيفي والصلاحيات *' : 'Assigned Role & Permissions *'}
                      </Label>
@@ -242,32 +306,25 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                   </div>
                </div>
 
-               {/* Instructions for the Admin */}
-               <div className="bg-blue-50 p-8 rounded-3xl border border-blue-100 flex flex-col md:flex-row items-start gap-6 shadow-sm">
+               {/* New Direct Provisioning Info */}
+               <div className="bg-primary/5 p-8 rounded-3xl border border-primary/10 flex flex-col md:flex-row items-start gap-6 shadow-sm">
                   <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0">
-                    <Info className="h-6 w-6 text-blue-600" />
+                    <CheckCircle2 className="h-6 w-6 text-primary" />
                   </div>
                   <div className="space-y-3">
-                    <h4 className="font-black text-blue-900 uppercase text-sm">{isAr ? 'كيف يعمل تسجيل دخول الموظفين؟' : 'How Staff Login Works'}</h4>
-                    <div className="text-xs font-bold text-blue-800/80 space-y-2 leading-relaxed">
-                      <p>
-                        {isAr 
-                          ? '1. يجب أولاً إضافة بريد الموظف وكلمة مروره في "Firebase Console" (قسم Authentication) لمنحه حق الدخول.' 
-                          : '1. You must first add the staff email and password in the Firebase Console (Authentication section) to grant them entry.'}
-                      </p>
-                      <p>
-                        {isAr 
-                          ? '2. بعد ذلك، قم بتعبئة هذا النموذج بنفس البريد لربط الدخول بصلاحيات (مدير، محاسب، إلخ) داخل النظام.' 
-                          : '2. Then, fill out this form using the SAME email to link their login to specific permissions (Admin, Finance, etc.).'}
-                      </p>
-                    </div>
+                    <h4 className="font-black text-primary uppercase text-sm">{isAr ? 'نظام التزويد المباشر مفعل' : 'Direct Provisioning Active'}</h4>
+                    <p className="text-xs font-bold text-slate-600 leading-relaxed">
+                      {isAr 
+                        ? 'عند الضغط على تفعيل الحساب، سيقوم النظام تلقائياً بإنشاء بيانات الدخول للموظف وربطها بصلاحياته المختارة. لا حاجة لأي إجراءات تقنية إضافية.' 
+                        : 'Clicking activate will automatically create the credentials and link permissions. No further technical steps required.'}
+                    </p>
                   </div>
                </div>
 
                <div className="flex justify-end pt-6">
                   <Button type="submit" disabled={loading} className="h-16 rounded-2xl bg-primary text-white font-black px-12 shadow-xl shadow-primary/20 gap-3 text-lg transition-all active:scale-95">
-                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? 'تفعيل حساب الموظف' : 'Provision Staff Account')}
-                     {!loading && <CheckCircle2 className="h-6 w-6" />}
+                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? 'إنشاء وتفعيل حساب الموظف' : 'Create & Provision Account')}
+                     {!loading && <UserPlus className="h-6 w-6" />}
                   </Button>
                </div>
             </form>
