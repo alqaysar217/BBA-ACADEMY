@@ -8,7 +8,7 @@ import { useFirestore } from '@/firebase';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   UserPlus, ChevronLeft, ShieldCheck, Mail, User, 
-  LockKeyhole, AlertCircle, Loader2, CheckCircle2, Camera, Upload, X 
+  LockKeyhole, AlertCircle, Loader2, CheckCircle2, Camera, Upload, X, KeyRound 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,6 +111,7 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
           enrollments: formData.role === 'admin' || formData.role === 'admissions' ? { read: true, write: true, delete: formData.role === 'admin' } : { read: true, write: false, delete: false },
           students: formData.role === 'admin' || formData.role === 'academic' ? { read: true, write: true, delete: formData.role === 'admin' } : { read: true, write: false, delete: false },
           finances: formData.role === 'admin' || formData.role === 'financial' ? { read: true, write: true, delete: formData.role === 'admin' } : { read: false, write: false, delete: false },
+          users: formData.role === 'admin' ? { read: true, write: true, delete: true } : { read: false, write: false, delete: false }
         },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -119,8 +120,8 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
       await setDoc(newUserRef, userData);
       
       toast({
-        title: isAr ? "تم إنشاء الحساب" : "Account Created",
-        description: isAr ? "تمت إضافة المستخدم الجديد بنجاح." : "New user metadata has been successfully added.",
+        title: isAr ? "تم إنشاء الحساب بنجاح" : "Account Created",
+        description: isAr ? "تم حفظ بيانات الموظف، يرجى التأكد من تفعيل بريده في فايربيس." : "Staff details saved. Ensure their login is active in Firebase Console.",
       });
       router.push(`/${lang}/admin/users`);
     } catch (err) {
@@ -138,8 +139,8 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
            {isAr ? <ChevronLeft className="h-5 w-5 rotate-180" /> : <ChevronLeft className="h-5 w-5" />}
          </button>
          <div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'إنشاء حساب جديد' : 'New User Account'}</h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'إضافة مسؤول جديد للنظام' : 'Provision a New Admin Staff Member'}</p>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'إضافة مسؤول للنظام' : 'Add New Admin Staff'}</h1>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'تحديد هوية وصلاحيات الموظف الجديد' : 'Define Identity & Privileges'}</p>
          </div>
       </div>
 
@@ -148,8 +149,8 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
             <div className="flex items-center gap-4">
                <div className="h-12 w-12 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg"><ShieldCheck className="h-6 w-6" /></div>
                <div>
-                  <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'بيانات الحساب' : 'Account Intelligence'}</CardTitle>
-                  <CardDescription className="font-bold">Define identity and system privileges.</CardDescription>
+                  <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'بيانات الحساب الجديد' : 'New Account Intelligence'}</CardTitle>
+                  <CardDescription className="font-bold">Define system identity and assigned role.</CardDescription>
                </div>
             </div>
          </CardHeader>
@@ -190,8 +191,7 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                      )}
                   </div>
                   <div className="text-center">
-                     <p className="text-xs font-black text-primary uppercase tracking-widest">{isAr ? 'الصورة الشخصية' : 'Profile Picture'}</p>
-                     <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{isAr ? 'يتم الضغط آلياً لتوفير المساحة' : 'Compressed automatically for efficiency'}</p>
+                     <p className="text-xs font-black text-primary uppercase tracking-widest">{isAr ? 'صورة الموظف' : 'Staff Profile Picture'}</p>
                   </div>
                   <input 
                      type="file" 
@@ -205,34 +205,34 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <User className="h-3 w-3 text-secondary" /> {isAr ? 'الاسم الكامل' : 'Full Name'}
+                        <User className="h-3 w-3 text-secondary" /> {isAr ? 'الاسم الكامل للموظف *' : 'Staff Full Name *'}
                      </Label>
                      <Input 
                         value={formData.displayName}
                         onChange={(e) => setFormData({...formData, displayName: e.target.value})}
                         className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 focus:bg-white" 
-                        placeholder="Mustafa Ali" 
+                        placeholder="e.g. Ahmad Ali" 
                      />
                   </div>
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <Mail className="h-3 w-3 text-secondary" /> {isAr ? 'البريد الإلكتروني' : 'Email Address'}
+                        <Mail className="h-3 w-3 text-secondary" /> {isAr ? 'البريد الإلكتروني الرسمي *' : 'Official Email Address *'}
                      </Label>
                      <Input 
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 focus:bg-white" 
-                        placeholder="m.ali@baneenbanaat.org" 
+                        placeholder="name@baneenbanaat.org" 
                      />
                   </div>
                   <div className="space-y-3 md:col-span-2">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <LockKeyhole className="h-3 w-3 text-secondary" /> {isAr ? 'الدور الوظيفي' : 'System Role'}
+                        <KeyRound className="h-3 w-3 text-secondary" /> {isAr ? 'الدور الوظيفي والصلاحيات *' : 'Assigned Role & Permissions *'}
                      </Label>
                      <Select onValueChange={(v) => setFormData({...formData, role: v})} value={formData.role}>
                         <SelectTrigger className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50">
-                           <SelectValue placeholder={isAr ? 'اختر الدور الوظيفي' : 'Assign Role'} />
+                           <SelectValue placeholder={isAr ? 'اختر الدور الوظيفي' : 'Assign System Role'} />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl p-2">
                            {roles.map(role => (
@@ -243,18 +243,31 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                   </div>
                </div>
 
-               <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 flex items-start gap-4">
-                  <AlertCircle className="h-6 w-6 text-amber-500 shrink-0 mt-1" />
-                  <p className="text-xs font-bold text-amber-900 leading-relaxed italic">
-                     {isAr 
-                       ? 'ملاحظة: إنشاء حساب هنا يؤسس السجل في قاعدة البيانات، يجب التأكد من تطابق البريد مع الحساب المفعل في Firebase Auth.' 
-                       : 'Note: Creating an account here establishes the database record. Ensure the email matches the verified account in Firebase Authentication.'}
-                  </p>
+               {/* New Clearer Instructions for the Admin */}
+               <div className="bg-blue-50 p-8 rounded-3xl border border-blue-100 flex flex-col md:flex-row items-start gap-6 shadow-sm">
+                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0">
+                    <Info className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="font-black text-blue-900 uppercase text-sm">{isAr ? 'كيف يعمل تسجيل دخول الموظفين؟' : 'How Staff Login Works'}</h4>
+                    <div className="text-xs font-bold text-blue-800/80 space-y-2 leading-relaxed">
+                      <p>
+                        {isAr 
+                          ? '1. يجب أولاً إضافة بريد الموظف وكلمة مروره في "Firebase Console" (قسم Authentication) لمنحه حق الدخول.' 
+                          : '1. You must first add the staff email and password in the Firebase Console (Authentication section) to grant them entry.'}
+                      </p>
+                      <p>
+                        {isAr 
+                          ? '2. بعد ذلك، قم بتعبئة هذا النموذج بنفس البريد لربط الدخول بصلاحيات (مدير، محاسب، إلخ) داخل النظام.' 
+                          : '2. Then, fill out this form using the SAME email to link their login to specific permissions (Admin, Finance, etc.).'}
+                      </p>
+                    </div>
+                  </div>
                </div>
 
                <div className="flex justify-end pt-6">
                   <Button type="submit" disabled={loading} className="h-16 rounded-2xl bg-primary text-white font-black px-12 shadow-xl shadow-primary/20 gap-3 text-lg transition-all active:scale-95">
-                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? 'تفعيل الحساب الآن' : 'Provision Account')}
+                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? 'تفعيل حساب الموظف' : 'Provision Staff Account')}
                      {!loading && <CheckCircle2 className="h-6 w-6" />}
                   </Button>
                </div>
@@ -264,4 +277,3 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
     </div>
   );
 }
-
