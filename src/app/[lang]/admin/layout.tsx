@@ -38,7 +38,8 @@ import {
   Archive,
   Trash2,
   KeyRound,
-  ShieldAlert
+  ShieldAlert,
+  UserPen
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -95,21 +96,12 @@ export default function AdminLayout({
       ]
     },
     {
-      title: isAr ? 'سجل المستخدمين' : 'User Registry',
+      title: isAr ? 'إدارة المستخدمين' : 'User Management',
       items: [
-        { label: isAr ? 'قائمة الموظفين' : 'Active Registry', href: `/${lang}/admin/users`, icon: Users2 },
-      ]
-    },
-    {
-      title: isAr ? 'إضافة مستخدم' : 'Direct Provisioning',
-      items: [
-        { label: isAr ? 'تفعيل حساب جديد' : 'Activate Account', href: `/${lang}/admin/users/new`, icon: UserPlus },
-      ]
-    },
-    {
-      title: isAr ? 'تحديد الصلاحيات' : 'Access Control',
-      items: [
-        { label: isAr ? 'هيكلية الأدوار' : 'Standard Roles', href: `/${lang}/admin/users/roles`, icon: KeyRound },
+        { label: isAr ? 'سجل المستخدمين' : 'User Registry', href: `/${lang}/admin/users`, icon: Users2 },
+        { label: isAr ? 'إضافة مستخدم' : 'Add New User', href: `/${lang}/admin/users/new`, icon: UserPlus },
+        { label: isAr ? 'تعديل مستخدم' : 'Edit User Profile', href: `/${lang}/admin/users`, icon: UserPen },
+        { label: isAr ? 'تحديد الصلاحيات' : 'Define Permissions', href: `/${lang}/admin/users/roles`, icon: KeyRound },
       ]
     },
     {
