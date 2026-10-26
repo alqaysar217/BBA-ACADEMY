@@ -1,7 +1,7 @@
 
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useDoc } from '@/firebase';
@@ -28,13 +28,18 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
   const firestore = useFirestore();
   const [isSaving, setIsSaving] = useState(false);
 
-  const userRef = firestore ? doc(firestore, 'admin_users', id) : null;
+  // تثبيت مرجع المستند لمنع إعادة التحميل اللانهائي
+  const userRef = useMemo(() => {
+    if (!firestore || !id) return null;
+    return doc(firestore, 'admin_users', id);
+  }, [firestore, id]);
+
   const { data: userData, loading } = useDoc(userRef);
 
   const [permissions, setPermissions] = useState<any>(null);
 
   useEffect(() => {
-    if (userData) {
+    if (userData && !permissions) {
       setPermissions(userData.permissions || {
         enrollments: { read: true, write: false, delete: false },
         students: { read: true, write: false, delete: false },
@@ -42,7 +47,7 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
         users: { read: false, write: false, delete: false }
       });
     }
-  }, [userData]);
+  }, [userData, permissions]);
 
   const togglePermission = (module: string, action: string) => {
     setPermissions((prev: any) => ({
@@ -55,14 +60,17 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
   };
 
   const handleSave = async () => {
-    if (!firestore || !userData) return;
+    if (!firestore || !userData || !userRef) return;
     setIsSaving(true);
     try {
-      await updateDoc(userRef!, {
+      await updateDoc(userRef, {
         permissions: permissions,
         updatedAt: serverTimestamp()
       });
-      toast({ title: isAr ? "تم الحفظ" : "Changes Saved", description: isAr ? "تم تحديث الصلاحيات بنجاح." : "User permissions updated successfully." });
+      toast({ 
+        title: isAr ? "تم الحفظ" : "Changes Saved", 
+        description: isAr ? "تم تحديث الصلاحيات بنجاح." : "User permissions updated successfully." 
+      });
     } catch (err) {
       toast({ variant: "destructive", title: "Error", description: "Failed to update permissions." });
     } finally {
@@ -70,14 +78,28 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
     }
   };
 
-  if (loading) return <div className="p-20 text-center animate-pulse">Syncing User Matrix...</div>;
-  if (!userData) return <div className="p-20 text-center">User not found.</div>;
+  if (loading) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+      <Loader2 className="h-10 w-10 text-secondary animate-spin" />
+      <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">
+        {isAr ? 'جاري مزامنة بيانات الصلاحيات...' : 'Syncing User Matrix...'}
+      </p>
+    </div>
+  );
+
+  if (!userData) return (
+    <div className="p-20 text-center space-y-4">
+       <ShieldAlert className="h-16 w-16 text-slate-200 mx-auto" />
+       <p className="text-slate-400 font-bold">{isAr ? 'لم يتم العثور على هذا المستخدم.' : 'User not found.'}</p>
+       <Button onClick={() => router.back()} variant="outline">{isAr ? 'العودة للخلف' : 'Go Back'}</Button>
+    </div>
+  );
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-24">
       <div className="flex items-center gap-6">
          <button onClick={() => router.back()} className="h-12 w-12 rounded-2xl bg-white text-slate-400 hover:text-primary transition-all flex items-center justify-center shadow-sm border border-slate-100">
-           <ChevronLeft className="h-5 w-5" />
+           <ChevronLeft className={cn("h-5 w-5", isAr && "rotate-180")} />
          </button>
          <div>
             <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'صلاحيات المستخدم' : 'Privilege Management'}</h1>
@@ -118,12 +140,12 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
 
          <div className="lg:col-span-2">
             <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
-               <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between bg-slate-50/30">
+               <CardHeader className="p-10 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between bg-slate-50/30 gap-6">
                   <div>
                      <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'مصفوفة الصلاحيات' : 'Access Permissions Matrix'}</CardTitle>
                      <CardDescription className="font-bold">Grant specific CRUD access per functional module.</CardDescription>
                   </div>
-                  <Button onClick={handleSave} disabled={isSaving} className="h-12 rounded-xl bg-primary text-white font-black px-8 shadow-xl shadow-primary/10 gap-2">
+                  <Button onClick={handleSave} disabled={isSaving} className="h-12 w-full md:w-auto rounded-xl bg-primary text-white font-black px-8 shadow-xl shadow-primary/10 gap-2 transition-all active:scale-95">
                      {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                      {isAr ? 'حفظ التعديلات' : 'Commit Changes'}
                   </Button>
@@ -136,9 +158,9 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
                         { id: 'finances', label: isAr ? 'الإدارة المالية' : 'Financial Ledgers', icon: CreditCard },
                         { id: 'users', label: isAr ? 'إدارة المستخدمين' : 'Admin User Control', icon: UserCog },
                      ].map((mod) => (
-                        <div key={mod.id} className="p-10 flex flex-col md:flex-row md:items-center justify-between gap-8 hover:bg-slate-50/50 transition-all">
+                        <div key={mod.id} className="p-10 flex flex-col md:flex-row md:items-center justify-between gap-8 hover:bg-slate-50/50 transition-all group">
                            <div className="flex items-center gap-6">
-                              <div className="h-12 w-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-secondary">
+                              <div className="h-12 w-12 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
                                  <mod.icon className="h-6 w-6" />
                               </div>
                               <div>
