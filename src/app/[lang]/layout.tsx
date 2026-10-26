@@ -2,17 +2,9 @@ import { ReactNode } from 'react';
 import { i18n, type Locale } from '@/lib/i18n/config';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Noto_Sans_Arabic, Inter } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
-import { PWAScript } from '@/components/PWAScript';
-import { Toaster } from '@/components/ui/toaster';
 import { Metadata, Viewport } from 'next';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const notoArabic = Noto_Sans_Arabic({ subsets: ['arabic'], variable: '--font-noto-sans-arabic' });
 
 export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }));
@@ -39,7 +31,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     ? 'شريك تعليمي موثوق يساعد الطلاب والعائلات على تحقيق النجاح الأكاديمي من خلال التعلم المرن عبر الإنترنت والتوجيه الشخصي والالتزام بالتميز.'
     : 'A trusted educational partner helping students and families achieve academic success through flexible online learning and personalized guidance.';
 
-  // Base URL for metadata resolution
   const baseUrl = 'https://bba-academy.vercel.app';
 
   return {
@@ -53,14 +44,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
       ? ['أكاديمية بنين وبنات', 'تعليم عن بعد', 'قرآن كريم أونلاين', 'منهج أمريكي إسلامي', 'دراسة أونلاين أمريكا', 'BBA Academy'] 
       : ['Baneen and Banaat Academy', 'Online Islamic School', 'Remote Learning USA', 'Quran Classes Online', 'BBA Academy', 'Arabic Language School'],
     manifest: '/manifest.json',
-    icons: {
-      icon: [
-        { url: '/favicon.ico' },
-        { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
-      ],
-      shortcut: '/web-app-manifest-192x192.png',
-      apple: '/apple-touch-icon.png',
-    },
     openGraph: {
       title,
       description,
@@ -77,21 +60,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
       locale: lang === 'ar' ? 'ar_SA' : 'en_US',
       type: 'website',
     },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: ['/logo.png'],
-      creator: '@bba_academy',
-    },
-    appleWebApp: {
-      capable: true,
-      statusBarStyle: 'default',
-      title: siteName,
-    },
-    formatDetection: {
-      telephone: false,
-    },
     alternates: {
       canonical: `${baseUrl}/${lang}`,
       languages: {
@@ -102,7 +70,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
   };
 }
 
-export default async function RootLayout({
+/**
+ * Language Layout
+ * 
+ * This layout handles direction and language-specific components.
+ * The <html> and <body> tags are provided by the root layout.
+ */
+export default async function LanguageLayout({
   children,
   params,
 }: {
@@ -113,27 +87,14 @@ export default async function RootLayout({
   const isRtl = lang === 'ar';
 
   return (
-    <html lang={lang} dir={isRtl ? 'rtl' : 'ltr'} className={cn(inter.variable, notoArabic.variable)}>
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
-      </head>
-      <body className={cn("min-h-screen font-sans antialiased", isRtl && "font-arabic")}>
-        <FirebaseClientProvider>
-          <FirebaseErrorListener />
-          <PWAScript />
-          <div className="relative flex min-h-screen flex-col">
-            <Header lang={lang} />
-            <main className="flex-1">{children}</main>
-            <Footer lang={lang} />
-            <WhatsAppButton lang={lang} />
-          </div>
-          <Toaster />
-        </FirebaseClientProvider>
-      </body>
-    </html>
+    <div 
+      dir={isRtl ? 'rtl' : 'ltr'} 
+      className={cn("flex min-h-screen flex-col", isRtl && "font-arabic")}
+    >
+      <Header lang={lang} />
+      <main className="flex-1">{children}</main>
+      <Footer lang={lang} />
+      <WhatsAppButton lang={lang} />
+    </div>
   );
 }
