@@ -1,15 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Query, 
   onSnapshot, 
-  QuerySnapshot, 
   DocumentData 
 } from 'firebase/firestore';
 import { errorEmitter } from '../error-emitter';
-import { FirestorePermissionError } from '../errors';
+import { FirestorePermissionError, type SecurityRuleContext } from '../errors';
 
 export function useCollection<T = DocumentData>(query: Query<T> | null) {
   const [data, setData] = useState<T[]>([]);
@@ -32,15 +31,18 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         } as T));
         setData(items);
         setLoading(false);
+        setError(null);
       },
       async (serverError) => {
-        // Attempt to get a readable path from the query object for debugging
-        const path = (query as any).path || 'enrollments';
+        // محاولة استخراج المسار من الاستعلام بشكل برمجى أدق للتشخيص
+        const queryPath = (query as any)._query?.path?.segments?.join('/') || 'collection';
         
         const permissionError = new FirestorePermissionError({
-          path: path,
+          path: queryPath,
           operation: 'list',
-        });
+        } satisfies SecurityRuleContext);
+
+        // إرسال الخطأ للمستمع المركزي (Next.js Error Overlay)
         errorEmitter.emit('permission-error', permissionError);
         setError(permissionError);
         setLoading(false);
