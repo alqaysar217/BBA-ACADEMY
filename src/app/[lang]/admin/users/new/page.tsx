@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useRef } from 'react';
@@ -8,7 +7,7 @@ import { useFirestore } from '@/firebase';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   UserPlus, ChevronLeft, ShieldCheck, Mail, User, 
-  LockKeyhole, AlertCircle, Loader2, CheckCircle2, Camera, Upload, X, KeyRound 
+  LockKeyhole, AlertCircle, Loader2, CheckCircle2, Camera, Upload, X, KeyRound, Info 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -243,7 +242,7 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                   </div>
                </div>
 
-               {/* New Clearer Instructions for the Admin */}
+               {/* Instructions for the Admin */}
                <div className="bg-blue-50 p-8 rounded-3xl border border-blue-100 flex flex-col md:flex-row items-start gap-6 shadow-sm">
                   <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0">
                     <Info className="h-6 w-6 text-blue-600" />
