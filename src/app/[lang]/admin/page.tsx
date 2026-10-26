@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useMemo } from 'react';
@@ -18,7 +17,8 @@ import {
   Calendar,
   CreditCard,
   AlertTriangle,
-  ArrowRight
+  ArrowRight,
+  MessageSquare
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,8 +51,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     
     return { total, submitted, revenue, studentCount };
   }, [enrollments]);
-
-  const COLORS = ['#1A73E8', '#0FB9B1', '#F7B731', '#EB3B5A', '#A55EEA'];
 
   if (loading) return <div className="p-10 animate-pulse space-y-8">
     <div className="grid grid-cols-4 gap-6 h-32 bg-white rounded-3xl" />
