@@ -9,13 +9,14 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   UserCog, ChevronLeft, ShieldCheck, Mail, User, 
   LockKeyhole, CheckCircle2, Loader2, Save,
-  Eye, Pencil, Trash2, ShieldAlert
+  Eye, Pencil, Trash2, ShieldAlert, FileSearch,
+  Users, CreditCard
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from '@/components/ui/badge';
 import { Switch } from "@/components/ui/switch";
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -28,32 +29,33 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
   const [isSaving, setIsSaving] = useState(false);
 
   const userRef = firestore ? doc(firestore, 'admin_users', id) : null;
-  const { data: user, loading } = useDoc(userRef);
+  const { data: userData, loading } = useDoc(userRef);
 
   const [permissions, setPermissions] = useState<any>(null);
 
   useEffect(() => {
-    if (user) {
-      setPermissions(user.permissions || {
+    if (userData) {
+      setPermissions(userData.permissions || {
         enrollments: { read: true, write: false, delete: false },
         students: { read: true, write: false, delete: false },
-        finances: { read: false, write: false, delete: false }
+        finances: { read: false, write: false, delete: false },
+        users: { read: false, write: false, delete: false }
       });
     }
-  }, [user]);
+  }, [userData]);
 
   const togglePermission = (module: string, action: string) => {
     setPermissions((prev: any) => ({
       ...prev,
       [module]: {
         ...prev[module],
-        [action]: !prev[module][action]
+        [action]: !prev[module]?.[action]
       }
     }));
   };
 
   const handleSave = async () => {
-    if (!firestore || !user) return;
+    if (!firestore || !userData) return;
     setIsSaving(true);
     try {
       await updateDoc(userRef!, {
@@ -69,7 +71,7 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
   };
 
   if (loading) return <div className="p-20 text-center animate-pulse">Syncing User Matrix...</div>;
-  if (!user) return <div className="p-20 text-center">User not found.</div>;
+  if (!userData) return <div className="p-20 text-center">User not found.</div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-24">
@@ -79,29 +81,28 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
          </button>
          <div>
             <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'صلاحيات المستخدم' : 'Privilege Management'}</h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{user.displayName} • {user.role}</p>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{userData.displayName} • {userData.role}</p>
          </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-         {/* Identity Card */}
          <div className="space-y-6">
             <Card className="border-none shadow-premium rounded-[2.5rem] bg-slate-900 text-white p-10 space-y-8">
                <div className="h-20 w-20 rounded-3xl bg-secondary flex items-center justify-center text-white text-3xl font-black shadow-xl">
-                  {user.displayName?.charAt(0)}
+                  {userData.displayName?.charAt(0)}
                </div>
                <div className="space-y-2">
-                  <h3 className="text-2xl font-black uppercase">{user.displayName}</h3>
-                  <p className="text-white/40 font-bold text-xs flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> {user.email}</p>
+                  <h3 className="text-2xl font-black uppercase">{userData.displayName}</h3>
+                  <p className="text-white/40 font-bold text-xs flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> {userData.email}</p>
                </div>
                <div className="pt-6 border-t border-white/5 space-y-4">
                   <div className="flex justify-between items-center">
                      <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Account Status</span>
-                     <Badge className={cn("rounded-lg border-none font-black text-[8px] uppercase", user.status === 'active' ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400")}>{user.status}</Badge>
+                     <Badge className={cn("rounded-lg border-none font-black text-[8px] uppercase", userData.status === 'active' ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400")}>{userData.status}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
                      <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">System Role</span>
-                     <Badge className="bg-secondary/10 text-secondary border-none rounded-lg font-black text-[8px] uppercase">{user.role}</Badge>
+                     <Badge className="bg-secondary/10 text-secondary border-none rounded-lg font-black text-[8px] uppercase">{userData.role}</Badge>
                   </div>
                </div>
             </Card>
@@ -115,7 +116,6 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
             </Card>
          </div>
 
-         {/* Permissions Matrix */}
          <div className="lg:col-span-2">
             <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
                <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between bg-slate-50/30">
@@ -153,7 +153,6 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
                                     <Switch 
                                        checked={permissions?.[mod.id]?.[action] || false} 
                                        onCheckedChange={() => togglePermission(mod.id, action)}
-                                       className="data-[state=checked]:bg-secondary"
                                     />
                                     <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{action}</span>
                                  </div>

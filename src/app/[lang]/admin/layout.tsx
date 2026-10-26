@@ -79,34 +79,10 @@ export default function AdminLayout({
 
   useEffect(() => {
     const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
-    if (!loading && !user && !isTestAdmin && !pathname.includes('/login')) {
+    if (!loading && !user && !isTestAdmin && pathname && !pathname.includes('/login')) {
       router.push(`/${lang}/admin/login`);
     }
   }, [user, loading, router, lang, pathname]);
-
-  useEffect(() => {
-    menuGroups.forEach(group => {
-      const hasActiveChild = group.items.some(item => pathname === item.href);
-      if (hasActiveChild && !openGroups.includes(group.title)) {
-        setOpenGroups(prev => [...prev, group.title]);
-      }
-    });
-  }, [pathname]);
-
-  if (pathname.includes('/login')) return children;
-
-  const redirectedPathname = (locale: string) => {
-    if (!pathname) return '/';
-    const segments = pathname.split('/');
-    segments[1] = locale;
-    return segments.join('/');
-  };
-
-  const toggleGroup = (title: string) => {
-    setOpenGroups(prev => 
-      prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
-    );
-  };
 
   const menuGroups = [
     {
@@ -178,12 +154,38 @@ export default function AdminLayout({
     }
   ];
 
+  useEffect(() => {
+    if (!pathname) return;
+    menuGroups.forEach(group => {
+      const hasActiveChild = group.items.some(item => pathname === item.href);
+      if (hasActiveChild && !openGroups.includes(group.title)) {
+        setOpenGroups(prev => [...prev, group.title]);
+      }
+    });
+  }, [pathname]);
+
+  if (pathname?.includes('/login')) return children;
+
+  const redirectedPathname = (locale: string) => {
+    if (!pathname) return '/';
+    const segments = pathname.split('/');
+    if (segments.length < 2) return `/${locale}`;
+    segments[1] = locale;
+    return segments.join('/');
+  };
+
+  const toggleGroup = (title: string) => {
+    setOpenGroups(prev => 
+      prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
+    );
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('bba_test_admin');
     router.push(`/${lang}`);
   };
 
-  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+  const SidebarInner = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={cn(
       "flex flex-col h-full transition-colors duration-500",
       isDarkMode ? "bg-slate-950 text-slate-100" : "bg-primary text-white"
@@ -289,7 +291,6 @@ export default function AdminLayout({
         <div className={cn("flex gap-2", !isSidebarOpen && !isMobile ? "flex-col items-center" : "flex-row")}>
           <button 
             onClick={toggleTheme}
-            title={isDarkMode ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الليلي' : 'Dark Mode')}
             className={cn(
               "flex items-center justify-center rounded-2xl transition-all font-black",
               isDarkMode ? "bg-white/5 text-amber-400" : "bg-white/5 text-white/60 hover:text-white",
@@ -297,12 +298,10 @@ export default function AdminLayout({
             )}
           >
             {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            {(isSidebarOpen || isMobile) && <span className="sr-only">Toggle Theme</span>}
           </button>
 
           <Link
             href={redirectedPathname(isAr ? 'en' : 'ar')}
-            title={isAr ? 'English' : 'العربية'}
             className={cn(
               "flex items-center justify-center rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black",
               isSidebarOpen || isMobile ? "flex-1 p-3.5 gap-2" : "h-12 w-12"
@@ -315,7 +314,6 @@ export default function AdminLayout({
 
         <button 
           onClick={handleLogout}
-          title={isAr ? 'خروج' : 'Logout'}
           className={cn(
             "w-full flex items-center gap-4 p-3.5 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
@@ -338,14 +336,14 @@ export default function AdminLayout({
         isSidebarOpen ? "w-72" : "w-20",
         isAr ? "right-0" : "left-0"
       )}>
-        <SidebarContent />
+        <SidebarInner />
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className={cn(
             "absolute top-8 h-8 w-8 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl transition-all z-[60] hover:scale-110",
             isAr 
-              ? (isSidebarOpen ? "-left-4 rotate-0" : "-left-4 rotate-180")
-              : (isSidebarOpen ? "-right-4 rotate-0" : "-right-4 rotate-180")
+              ? (isSidebarOpen ? "-left-4" : "-left-4 rotate-180")
+              : (isSidebarOpen ? "-right-4" : "-right-4 rotate-180")
           )}
         >
           {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -354,8 +352,8 @@ export default function AdminLayout({
 
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side={isAr ? 'right' : 'left'} className="p-0 border-none w-80">
-          <SheetTitle className="sr-only">Nav</SheetTitle>
-          <SidebarContent isMobile />
+          <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
+          <SidebarInner isMobile />
         </SheetContent>
       </Sheet>
 
@@ -378,13 +376,13 @@ export default function AdminLayout({
         </main>
       </div>
       
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .admin-dark-mode h1, .admin-dark-mode h2, .admin-dark-mode h3, .admin-dark-mode h4 { color: #f8fafc !important; }
         .admin-dark-mode .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
         .admin-dark-mode .border-slate-100, .admin-dark-mode .border-slate-50 { border-color: #1e293b !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-      `}</style>
+      `}} />
     </div>
   );
 }

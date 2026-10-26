@@ -3,7 +3,7 @@
 
 import { use } from 'react';
 import { type Locale } from '@/lib/i18n/config';
-import { Mail, Send, MessageSquare, History, Search, UserCheck } from 'lucide-react';
+import { Mail, Send, MessageSquare, History, Search, UserCheck, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,6 @@ export default function CommunicationHub({ params }: { params: Promise<{ lang: L
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-         {/* Sidebar Tools */}
          <div className="space-y-6">
             <Card className="border-none shadow-premium rounded-[2rem] bg-white p-6">
                <h3 className="font-black uppercase text-xs text-slate-400 mb-6 tracking-widest">{isAr ? 'القوالب السريعة' : 'Quick Templates'}</h3>
@@ -47,7 +46,6 @@ export default function CommunicationHub({ params }: { params: Promise<{ lang: L
             </Card>
          </div>
 
-         {/* Composer Area */}
          <div className="lg:col-span-2">
             <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
                <CardHeader className="bg-slate-50 p-10 border-b border-slate-100">
@@ -64,7 +62,7 @@ export default function CommunicationHub({ params }: { params: Promise<{ lang: L
                      </div>
                      <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'الموضوع:' : 'Subject:'}</label>
-                        <Input className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                        <Input placeholder={isAr ? 'أدخل العنوان...' : 'Enter subject...'} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
                      </div>
                   </div>
                   <div className="space-y-2">

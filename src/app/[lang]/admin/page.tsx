@@ -53,8 +53,17 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     const totalApps = enrollments?.length || 0;
     const pendingApps = enrollments?.filter(e => e.status === 'submitted' || e.status === 'reviewed').length || 0;
     const activeStudents = students?.filter(s => s.status === 'active').length || 0;
-    const totalRevenue = students?.reduce((acc, curr) => acc + (curr.financialLedger?.totalPaid || 0), 0) || 0;
-    const outstanding = students?.reduce((acc, curr) => acc + ((curr.financialLedger?.totalDue || 0) - (curr.financialLedger?.totalPaid || 0)), 0) || 0;
+    
+    const totalRevenue = students?.reduce((acc, curr) => {
+      const paid = Number(curr.financialLedger?.totalPaid) || 0;
+      return acc + paid;
+    }, 0) || 0;
+
+    const outstanding = students?.reduce((acc, curr) => {
+      const due = Number(curr.financialLedger?.totalDue) || 0;
+      const paid = Number(curr.financialLedger?.totalPaid) || 0;
+      return acc + (due - paid);
+    }, 0) || 0;
     
     return { totalApps, pendingApps, activeStudents, totalRevenue, outstanding };
   }, [enrollments, students]);
@@ -68,7 +77,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
 
   return (
     <div className="space-y-12">
-      {/* 1. Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
          <div className="space-y-1">
             <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'نظرة عامة على الأكاديمية' : 'Executive Dashboard'}</h1>
@@ -89,7 +97,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
          </div>
       </div>
 
-      {/* 2. Key Performance Indicators */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
          {[
            { label: isAr ? 'إجمالي المحصل المالي' : 'Total Revenue', value: `$${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'bg-green-500', trend: '+12%' },
@@ -116,7 +123,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
          ))}
       </div>
 
-      {/* 3. Analytics Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          <Card className="lg:col-span-2 border-none shadow-premium rounded-[2.5rem] bg-white">
             <CardHeader className="p-10 pb-0">
@@ -193,7 +199,6 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
          </Card>
       </div>
 
-      {/* 4. Attention Center */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
          <Card className="border-none shadow-premium rounded-[2.5rem] bg-slate-900 text-white overflow-hidden">
             <CardContent className="p-10 space-y-8">
