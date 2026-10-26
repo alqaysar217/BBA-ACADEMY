@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -23,13 +24,13 @@
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 224 78% 20%;
-    --radius: 0.75rem;
+    --radius: 1rem; /* Slightly larger radius for smoother elder-friendly feel */
   }
 
+  /* Standard dark mode for main site components if ever used */
   .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
-    /* Dark mode omitted for simplicity as requested per academic institution feel */
   }
 }
 
@@ -63,4 +64,18 @@
 
 .container-tight {
   @apply max-w-6xl mx-auto px-4 md:px-8;
+}
+
+/* Custom shadow for admin tables/cards */
+.shadow-premium {
+  box-shadow: 0 20px 25px -5px rgba(11, 31, 91, 0.03), 0 8px 10px -6px rgba(11, 31, 91, 0.02);
+}
+
+/* Scrollbar hide for cleaner menus */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

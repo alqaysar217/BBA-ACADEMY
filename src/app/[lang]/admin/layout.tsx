@@ -9,22 +9,21 @@ import {
   LayoutDashboard, 
   Users, 
   FileText, 
-  Settings, 
   LogOut, 
   Menu, 
-  X,
   CreditCard,
   MessageSquare,
-  BookOpen,
   ChevronRight,
   ChevronLeft,
-  Bell,
-  Search,
   Layers,
   GraduationCap,
-  ChevronDown
+  Sun,
+  Moon,
+  Languages,
+  Settings
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -42,9 +41,22 @@ export default function AdminLayout({
   const pathname = usePathname();
   const isAr = lang === 'ar';
   
-  // Sidebar State: Expanded by default on Desktop
+  // States
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Load theme preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('bba_admin_theme');
+    if (savedTheme === 'dark') setIsDarkMode(true);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    localStorage.setItem('bba_admin_theme', newTheme ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
@@ -54,6 +66,13 @@ export default function AdminLayout({
   }, [user, loading, router, lang, pathname]);
 
   if (pathname.includes('/login')) return children;
+
+  const redirectedPathname = (locale: string) => {
+    if (!pathname) return '/';
+    const segments = pathname.split('/');
+    segments[1] = locale;
+    return segments.join('/');
+  };
 
   const menuGroups = [
     {
@@ -66,26 +85,18 @@ export default function AdminLayout({
       title: isAr ? 'القبول والتسجيل' : 'Admissions',
       items: [
         { label: isAr ? 'طلبات الالتحاق' : 'Applications', href: `/${lang}/admin/enrollments`, icon: FileText },
-        { label: isAr ? 'إحصائيات المتقدمين' : 'Analytics', href: `/${lang}/admin/enrollments/analytics`, icon: Layers },
       ]
     },
     {
       title: isAr ? 'الأكاديميين' : 'Academics',
       items: [
-        { label: isAr ? 'قائمة الطلاب' : 'Students', href: `/${lang}/admin/students`, icon: Users },
-        { label: isAr ? 'الخطط الدراسية' : 'Academic Plans', href: `/${lang}/admin/academics/plans`, icon: GraduationCap },
+        { label: isAr ? 'قائمة الطلاب' : 'Students Registry', href: `/${lang}/admin/students`, icon: Users },
       ]
     },
     {
       title: isAr ? 'المالية' : 'Finances',
       items: [
         { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard },
-      ]
-    },
-    {
-      title: isAr ? 'التواصل' : 'Communication',
-      items: [
-        { label: isAr ? 'مركز المراسلات' : 'Comms Hub', href: `/${lang}/admin/communication`, icon: MessageSquare },
       ]
     }
   ];
@@ -96,36 +107,36 @@ export default function AdminLayout({
   };
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <div className="flex flex-col h-full bg-slate-900 text-white">
-      {/* Sidebar Header */}
+    <div className={cn(
+      "flex flex-col h-full transition-colors duration-500",
+      isDarkMode ? "bg-slate-950 text-slate-100" : "bg-primary text-white"
+    )}>
+      {/* 1. Brand Header */}
       <div className={cn(
-        "h-20 flex items-center px-6 bg-slate-950/40 border-b border-white/5",
-        !isSidebarOpen && !isMobile ? "justify-center px-0" : "justify-between"
+        "p-6 border-b",
+        isDarkMode ? "border-white/5" : "border-white/10"
       )}>
-        {(isSidebarOpen || isMobile) && (
-          <div className="flex flex-col animate-in fade-in duration-500">
-            <span className="font-black text-xl tracking-tighter text-white">BBA <span className="text-secondary">OS</span></span>
-            <span className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-bold">Admin Portal</span>
+        <Link href={`/${lang}`} className="flex items-center gap-4 group">
+          <div className="h-14 w-14 rounded-2xl bg-white p-2 shrink-0 shadow-2xl transition-transform group-hover:scale-105">
+            <Image src="/logo.png" alt="BBA Logo" width={50} height={50} className="object-contain" unoptimized />
           </div>
-        )}
-        {!isMobile && (
-          <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-          >
-            {isSidebarOpen ? (isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />) : (isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />)}
-          </button>
-        )}
+          {(isSidebarOpen || isMobile) && (
+            <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
+              <span className="font-black text-2xl tracking-tighter leading-none">BBA <span className="text-secondary">OS</span></span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-white/50 font-black mt-1">Admin Portal</span>
+            </div>
+          )}
+        </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-6 px-3 space-y-8 overflow-y-auto scrollbar-hide">
+      {/* 2. Navigation */}
+      <nav className="flex-1 py-8 px-3 space-y-8 overflow-y-auto custom-scrollbar">
         {menuGroups.map((group, gIdx) => (
-          <div key={gIdx} className="space-y-2">
+          <div key={gIdx} className="space-y-3">
             {(isSidebarOpen || isMobile) && (
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-3 mb-2">{group.title}</p>
+              <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] px-4">{group.title}</p>
             )}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {group.items.map((item) => {
                 const active = pathname === item.href;
                 return (
@@ -134,28 +145,26 @@ export default function AdminLayout({
                     href={item.href}
                     onClick={() => isMobile && setMobileMenuOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 p-2.5 rounded-xl transition-all group relative",
-                      active ? "bg-secondary text-white shadow-lg shadow-secondary/20" : "hover:bg-white/5 text-slate-400 hover:text-white",
+                      "flex items-center gap-4 p-3.5 rounded-2xl transition-all group relative",
+                      active 
+                        ? "bg-secondary text-white shadow-xl shadow-secondary/30 scale-[1.02]" 
+                        : "hover:bg-white/5 text-white/60 hover:text-white",
                       !isSidebarOpen && !isMobile ? "justify-center" : ""
                     )}
                   >
-                    <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
+                    <item.icon className={cn("h-6 w-6 shrink-0 transition-transform", !active && "group-hover:scale-110")} />
                     {(isSidebarOpen || isMobile) && (
-                      <span className="font-bold text-sm truncate animate-in slide-in-from-left-2 duration-300">
+                      <span className="font-black text-sm tracking-tight truncate animate-in fade-in duration-300">
                         {item.label}
                       </span>
                     )}
                     {/* Tooltip for collapsed state */}
                     {!isSidebarOpen && !isMobile && (
                       <div className={cn(
-                        "absolute invisible group-hover:visible bg-slate-800 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-xl z-50 whitespace-nowrap",
+                        "absolute invisible group-hover:visible bg-slate-800 text-white text-xs font-black py-2 px-4 rounded-xl shadow-2xl z-50 whitespace-nowrap",
                         isAr ? "right-full mr-4" : "left-full ml-4"
                       )}>
                         {item.label}
-                        <div className={cn(
-                          "absolute top-1/2 -translate-y-1/2 border-8 border-transparent",
-                          isAr ? "left-full border-l-slate-800" : "right-full border-r-slate-800"
-                        )} />
                       </div>
                     )}
                   </Link>
@@ -166,99 +175,120 @@ export default function AdminLayout({
         ))}
       </nav>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-white/5">
+      {/* 3. Bottom Actions (Theme, Lang, Logout) */}
+      <div className={cn(
+        "p-4 space-y-3 border-t",
+        isDarkMode ? "border-white/5" : "border-white/10"
+      )}>
+        {/* Theme Toggle */}
         <button 
-          onClick={handleLogout}
+          onClick={toggleTheme}
           className={cn(
-            "w-full flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-bold",
+            "w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all font-black text-xs uppercase tracking-widest",
+            isDarkMode ? "bg-white/5 text-amber-400" : "bg-white/5 text-white/60 hover:text-white",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
           )}
         >
-          <LogOut className="h-5 w-5" />
-          {(isSidebarOpen || isMobile) && <span>{isAr ? 'خروج' : 'Logout'}</span>}
+          {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+          {(isSidebarOpen || isMobile) && <span>{isDarkMode ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الليلي' : 'Dark Mode')}</span>}
+        </button>
+
+        {/* Language Switch */}
+        <Link
+          href={redirectedPathname(isAr ? 'en' : 'ar')}
+          className={cn(
+            "w-full flex items-center gap-4 p-3.5 rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black text-xs uppercase tracking-widest",
+            !isSidebarOpen && !isMobile ? "justify-center" : ""
+          )}
+        >
+          <Languages className="h-6 w-6 text-secondary" />
+          {(isSidebarOpen || isMobile) && <span>{isAr ? 'English' : 'العربية'}</span>}
+        </Link>
+
+        {/* Logout */}
+        <button 
+          onClick={handleLogout}
+          className={cn(
+            "w-full flex items-center gap-4 p-3.5 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest",
+            !isSidebarOpen && !isMobile ? "justify-center" : ""
+          )}
+        >
+          <LogOut className="h-6 w-6" />
+          {(isSidebarOpen || isMobile) && <span>{isAr ? 'خروج آمن' : 'Secure Logout'}</span>}
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex overflow-hidden font-sans">
-      {/* Desktop Sidebar (Persistent) */}
+    <div className={cn(
+      "min-h-screen flex overflow-hidden font-sans transition-colors duration-500",
+      isDarkMode ? "bg-slate-900 admin-dark-mode" : "bg-slate-50"
+    )}>
+      {/* Desktop Sidebar */}
       <aside className={cn(
-        "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-500 ease-in-out border-slate-800 shadow-2xl",
-        isSidebarOpen ? "w-64" : "w-20",
+        "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-700 ease-in-out border-r border-black/5",
+        isSidebarOpen ? "w-72" : "w-24",
         isAr ? "right-0" : "left-0"
       )}>
         <SidebarContent />
+        {/* Toggle Button Floating */}
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className={cn(
+            "absolute top-8 h-10 w-10 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl transition-all z-[60]",
+            isAr 
+              ? (isSidebarOpen ? "-left-5 rotate-0" : "-left-5 rotate-180")
+              : (isSidebarOpen ? "-right-5 rotate-0" : "-right-5 rotate-180")
+          )}
+        >
+          {isAr ? <ChevronLeft className="h-6 w-6" /> : <ChevronRight className="h-6 w-6" />}
+        </button>
       </aside>
 
-      {/* Mobile Sidebar (Drawer) */}
+      {/* Mobile Drawer */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side={isAr ? 'right' : 'left'} className="p-0 border-none w-72">
+        <SheetContent side={isAr ? 'right' : 'left'} className="p-0 border-none w-80">
           <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
           <SidebarContent isMobile />
         </SheetContent>
       </Sheet>
 
-      {/* Main Page Area */}
+      {/* Main Content Area */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out",
-        isSidebarOpen ? (isAr ? "lg:mr-64" : "lg:ml-64") : (isAr ? "lg:mr-20" : "lg:ml-20")
+        "flex-1 flex flex-col min-h-screen transition-all duration-700 ease-in-out",
+        isSidebarOpen ? (isAr ? "lg:mr-72" : "lg:ml-72") : (isAr ? "lg:mr-24" : "lg:ml-24")
       )}>
-        {/* Header - Compact & Clean */}
-        <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-40">
+        {/* Compact Mobile Header Only */}
+        <header className="lg:hidden h-20 bg-white dark:bg-slate-950 border-b border-black/5 flex items-center px-6 justify-between sticky top-0 z-40">
            <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="lg:hidden" 
-                onClick={() => setMobileMenuOpen(true)}
-              >
-                <Menu className="h-6 w-6" />
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)}>
+                <Menu className="h-8 w-8 text-primary dark:text-white" />
               </Button>
-              <h2 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight truncate max-w-[200px] md:max-w-none">
-                 {menuGroups.flatMap(g => g.items).find(i => pathname === i.href)?.label || (isAr ? 'الإدارة' : 'Admin')}
-              </h2>
+              <span className="font-black text-xl text-primary dark:text-white">BBA OS</span>
            </div>
-           
-           <div className="flex items-center gap-2 md:gap-6">
-              <div className="hidden md:flex items-center bg-slate-100 rounded-xl px-4 py-2 gap-3 w-64 focus-within:ring-2 focus-within:ring-secondary/20 transition-all border border-transparent focus-within:bg-white focus-within:border-slate-200">
-                 <Search className="h-4 w-4 text-slate-400" />
-                 <input 
-                    type="text" 
-                    placeholder={isAr ? 'بحث سريع...' : 'Quick search...'} 
-                    className="bg-transparent border-none text-xs font-bold outline-none w-full text-slate-900" 
-                 />
-              </div>
-              
-              <div className="flex items-center gap-2 md:gap-4">
-                <button className="relative p-2.5 text-slate-400 hover:text-secondary hover:bg-slate-50 rounded-xl transition-all">
-                   <Bell className="h-5 w-5" />
-                   <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white" />
-                </button>
-                
-                <div className="h-8 w-px bg-slate-200" />
-
-                <div className="flex items-center gap-3">
-                   <div className="text-right hidden sm:block">
-                      <p className="text-xs font-black text-slate-900 leading-none">Admin</p>
-                      <p className="text-[9px] text-secondary font-black uppercase mt-1 tracking-widest">Director</p>
-                   </div>
-                   <div className="h-10 w-10 rounded-xl bg-slate-900 text-secondary flex items-center justify-center font-black shadow-lg shadow-slate-900/10">
-                      AD
-                   </div>
-                </div>
-              </div>
-           </div>
+           <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center text-white font-black">AD</div>
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 p-4 md:p-8 lg:p-10 animate-in fade-in slide-in-from-bottom-2 duration-700">
-          {children}
+        <main className="flex-1 p-4 md:p-10 lg:p-12 animate-in fade-in slide-in-from-bottom-3 duration-1000">
+          <div className="max-w-[1600px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
+      
+      <style jsx global>{`
+        .admin-dark-mode h1, .admin-dark-mode h2, .admin-dark-mode h3, .admin-dark-mode h4 { color: #f8fafc !important; }
+        .admin-dark-mode p { color: #94a3b8 !important; }
+        .admin-dark-mode .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
+        .admin-dark-mode .border-slate-100, .admin-dark-mode .border-slate-50 { border-color: #1e293b !important; }
+        .admin-dark-mode table thead tr { background-color: #1e293b !important; }
+        .admin-dark-mode table tbody tr:hover { background-color: #1e293b/50 !important; }
+        .admin-dark-mode input, .admin-dark-mode select { background-color: #1e293b !important; border-color: #334155 !important; color: white !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+      `}</style>
     </div>
   );
 }
-
