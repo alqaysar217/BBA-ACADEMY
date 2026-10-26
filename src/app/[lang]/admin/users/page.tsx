@@ -4,11 +4,12 @@
 import { use, useState, useMemo } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy, doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc, serverTimestamp, where } from 'firebase/firestore';
 import { 
   Search, UserPlus, ShieldCheck, Mail, Calendar, 
   Trash2, Ban, CheckCircle2, ChevronRight, Filter,
-  MoreVertical, ShieldAlert, UserCog, PencilLine
+  MoreVertical, ShieldAlert, UserCog, PencilLine,
+  AlertCircle, Archive, ArrowUpRight, X
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,16 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
@@ -31,10 +42,20 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
   const isAr = lang === 'ar';
   const firestore = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // States for Soft Delete Confirmation
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToArchive, setUserToArchive] = useState<any>(null);
 
   const usersQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'admin_users'), orderBy('createdAt', 'desc'));
+    // نفلتر المستخدمين بحيث لا نعرض المؤرشفين (سلة المهملات) في السجل الرئيسي
+    return query(
+      collection(firestore, 'admin_users'), 
+      where('status', '!=', 'archived'),
+      orderBy('status'), // Firestore requires ordering by the filtered field first
+      orderBy('createdAt', 'desc')
+    );
   }, [firestore]);
 
   const { data: users, loading } = useCollection(usersQuery);
@@ -64,15 +85,24 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
     }
   };
 
-  const deleteUser = async (userId: string) => {
-    if (!firestore) return;
-    if (!confirm(isAr ? 'هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع عن هذه العملية.' : 'Are you sure you want to delete this account? This action cannot be undone.')) return;
+  const confirmArchive = async () => {
+    if (!firestore || !userToArchive) return;
     
     try {
-      await deleteDoc(doc(firestore, 'admin_users', userId));
-      toast({ title: isAr ? "تم الحذف" : "Deleted", description: isAr ? "تم حذف الحساب نهائياً." : "Account has been deleted." });
+      await updateDoc(doc(firestore, 'admin_users', userToArchive.id), {
+        status: 'archived',
+        updatedAt: serverTimestamp(),
+        archivedAt: serverTimestamp()
+      });
+      
+      toast({ 
+        title: isAr ? "تم النقل لسلة المهملات" : "Moved to Trash", 
+        description: isAr ? "تم إلغاء تنشيط الحساب بنجاح." : "Account has been deactivated successfully." 
+      });
+      setIsDeleteDialogOpen(false);
+      setUserToArchive(null);
     } catch (err) {
-      toast({ variant: "destructive", title: "Error", description: "Failed to delete user." });
+      toast({ variant: "destructive", title: "Error", description: "Operation failed." });
     }
   };
 
@@ -81,11 +111,11 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
          <div className="space-y-1">
             <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'إدارة المستخدمين' : 'User Management'}</h1>
-            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em]">{isAr ? 'إدارة حسابات المسؤولين والصلاحيات' : 'Manage Admin Accounts & Permissions'}</p>
+            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em]">{isAr ? 'التحكم في هويات وصلاحيات النظام' : 'Manage Admin Identities & Core Privileges'}</p>
          </div>
          <Button asChild className="h-14 rounded-2xl bg-secondary text-white font-black px-8 shadow-xl shadow-secondary/20 transition-all active:scale-95">
             <Link href={`/${lang}/admin/users/new`}>
-               <UserPlus className="h-5 w-5 mr-2" /> {isAr ? 'إنشاء حساب جديد' : 'Create New Account'}
+               <UserPlus className="h-5 w-5 mr-2" /> {isAr ? 'تفعيل حساب جديد' : 'Activate New Account'}
             </Link>
          </Button>
       </div>
@@ -102,7 +132,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
          </div>
          <div className="flex gap-3 w-full lg:w-auto">
             <Button variant="outline" className="h-14 rounded-2xl px-6 border-slate-100 font-black gap-2">
-               <Filter className="h-4 w-4" /> {isAr ? 'تصفية' : 'Filters'}
+               <Archive className="h-4 w-4" /> {isAr ? 'سلة المهملات' : 'Trash Bin'}
             </Button>
          </div>
       </Card>
@@ -129,7 +159,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                           <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto text-slate-200 mb-6">
                              <UserCog className="h-10 w-10" />
                           </div>
-                          <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{isAr ? 'لا يوجد مستخدمون حالياً' : 'No user accounts found'}</p>
+                          <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{isAr ? 'لا يوجد مستخدمون نشطون' : 'No active user accounts'}</p>
                         </td>
                       </tr>
                     ) : filteredUsers.map((user: any) => (
@@ -174,34 +204,22 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                             </div>
                          </td>
                          <td className="px-10 py-6 text-right">
-                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                               {/* Edit Profile Button */}
-                               <Tooltip>
-                                  <TooltipTrigger asChild>
-                                     <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md">
-                                        <PencilLine className="h-4.5 w-4.5 text-slate-400 hover:text-primary transition-colors" />
-                                     </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-primary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
-                                     {isAr ? 'تعديل البيانات' : 'Edit Profile Data'}
-                                  </TooltipContent>
-                               </Tooltip>
-
-                               {/* Permissions Button */}
+                            <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                               {/* Edit Data & Permissions Button */}
                                <Tooltip>
                                   <TooltipTrigger asChild>
                                      <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md" asChild>
                                         <Link href={`/${lang}/admin/users/${user.id}`}>
-                                           <UserCog className="h-4.5 w-4.5 text-slate-400 hover:text-secondary transition-colors" />
+                                           <PencilLine className="h-4.5 w-4.5 text-slate-400 hover:text-primary transition-colors" />
                                         </Link>
                                      </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent className="bg-secondary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
-                                     {isAr ? 'إدارة الصلاحيات' : 'Manage Permissions'}
+                                  <TooltipContent className="bg-primary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                     {isAr ? 'تعديل البيانات والصلاحيات' : 'Edit Data & Access'}
                                   </TooltipContent>
                                </Tooltip>
 
-                               {/* Status Toggle Button */}
+                               {/* Block/Activate Button */}
                                <Tooltip>
                                   <TooltipTrigger asChild>
                                      <Button onClick={() => toggleUserStatus(user)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-md">
@@ -209,19 +227,24 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                                      </Button>
                                   </TooltipTrigger>
                                   <TooltipContent className="bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
-                                     {user.status === 'active' ? (isAr ? 'حظر الحساب' : 'Block Access') : (isAr ? 'تفعيل الحساب' : 'Activate Access')}
+                                     {user.status === 'active' ? (isAr ? 'حظر الدخول' : 'Restrict Access') : (isAr ? 'إعادة التنشيط' : 'Reactivate User')}
                                   </TooltipContent>
                                </Tooltip>
 
-                               {/* Delete Button */}
+                               {/* Soft Delete (Archive) Button */}
                                <Tooltip>
                                   <TooltipTrigger asChild>
-                                     <Button onClick={() => deleteUser(user.id)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-red-50">
-                                        <Trash2 className="h-4.5 w-4.5 text-red-400" />
+                                     <Button 
+                                       onClick={() => { setUserToArchive(user); setIsDeleteDialogOpen(true); }} 
+                                       size="icon" 
+                                       variant="ghost" 
+                                       className="h-10 w-10 rounded-xl hover:bg-secondary/10"
+                                     >
+                                        <Trash2 className="h-4.5 w-4.5 text-secondary" />
                                      </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent className="bg-red-600 text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
-                                     {isAr ? 'حذف نهائي' : 'Permanent Delete'}
+                                  <TooltipContent className="bg-secondary text-white font-black text-[10px] uppercase tracking-widest border-none px-3 py-1.5">
+                                     {isAr ? 'نقل لسلة المهملات' : 'Move to Trash'}
                                   </TooltipContent>
                                </Tooltip>
                             </div>
@@ -233,6 +256,46 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
             </TooltipProvider>
          </div>
       </Card>
+
+      {/* Elegant Archive Confirmation Modal */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-md border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden bg-white">
+          <div className="bg-secondary p-8 text-white flex flex-col items-center gap-4 text-center">
+             <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl">
+                <Archive className="h-8 w-8 text-white" />
+             </div>
+             <div className="space-y-1">
+                <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">
+                   {isAr ? 'إجراء إداري: نقل للأرشفة' : 'Admin Action: Archive User'}
+                </AlertDialogTitle>
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/60">Baneen & Banaat Academy OS</p>
+             </div>
+          </div>
+          <div className="p-10 space-y-6">
+            <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed text-center">
+               {isAr 
+                 ? `أنت على وشك إلغاء تنشيط حساب "${userToArchive?.displayName}". سيتم سحب كافة صلاحيات الدخول فوراً ونقل السجل إلى سلة المهملات.` 
+                 : `You are about to deactivate "${userToArchive?.displayName}". All access privileges will be revoked immediately and moved to the trash bin.`}
+            </AlertDialogDescription>
+            
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-3">
+               <AlertCircle className="h-5 w-5 text-secondary shrink-0" />
+               <p className="text-[10px] font-bold text-slate-400 italic">
+                  {isAr ? 'يمكنك استعادة هذا الحساب لاحقاً من قسم الأرشفة.' : 'You can restore this account later from the archive section.'}
+               </p>
+            </div>
+
+            <div className="flex flex-col gap-3 pt-4">
+              <Button onClick={confirmArchive} className="h-14 rounded-xl bg-secondary text-white font-black uppercase tracking-widest shadow-xl shadow-secondary/20 hover:bg-primary transition-all">
+                {isAr ? 'تأكيد النقل للأرشفة' : 'Confirm Deactivation'}
+              </Button>
+              <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50">
+                {isAr ? 'تراجع عن الإجراء' : 'Cancel Operation'}
+              </Button>
+            </div>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
