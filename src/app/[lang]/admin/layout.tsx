@@ -214,13 +214,13 @@ export default function AdminLayout({
                   <CollapsibleTrigger className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group font-black text-[11px] uppercase tracking-[0.2em]",
                     isGroupOpen || hasActiveChild
-                      ? "bg-white/10 text-secondary shadow-sm" 
+                      ? "bg-secondary text-white shadow-xl shadow-secondary/20" 
                       : "text-white/30 hover:bg-white/5 hover:text-white"
                   )}>
                     <div className="flex items-center gap-3">
                        <span className="truncate">{group.title}</span>
                     </div>
-                    <ChevronRight className={cn("h-3.5 w-3.5 transition-transform duration-300", isGroupOpen && "rotate-90", isGroupOpen || hasActiveChild ? "text-secondary" : "text-white/20")} />
+                    <ChevronRight className={cn("h-3.5 w-3.5 transition-transform duration-300", isGroupOpen && "rotate-90", isGroupOpen || hasActiveChild ? "text-white" : "text-white/20")} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="space-y-1 mt-1 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
                     {group.items.map((item) => {
@@ -233,11 +233,11 @@ export default function AdminLayout({
                           className={cn(
                             "flex items-center gap-4 p-3.5 rounded-2xl transition-all group relative border border-transparent",
                             active 
-                              ? "bg-secondary text-white shadow-xl shadow-secondary/30 scale-[1.02] border-white/10" 
+                              ? "bg-white/10 text-white shadow-sm scale-[1.02] border-white/5" 
                               : "hover:bg-white/5 text-white/60 hover:text-white"
                           )}
                         >
-                          <item.icon className={cn("h-4.5 w-4.5 shrink-0 transition-transform", !active && "group-hover:scale-110", active ? "text-white" : "text-secondary/50")} />
+                          <item.icon className={cn("h-4.5 w-4.5 shrink-0 transition-transform", !active && "group-hover:scale-110", active ? "text-secondary" : "text-secondary/50")} />
                           <span className="font-bold text-[13px] tracking-tight truncate">
                             {item.label}
                           </span>
@@ -280,31 +280,36 @@ export default function AdminLayout({
         "p-4 space-y-2 border-t",
         isDarkMode ? "border-white/5" : "border-white/10"
       )}>
-        <button 
-          onClick={toggleTheme}
-          className={cn(
-            "w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all font-black text-xs uppercase tracking-widest",
-            isDarkMode ? "bg-white/5 text-amber-400" : "bg-white/5 text-white/60 hover:text-white",
-            !isSidebarOpen && !isMobile ? "justify-center" : ""
-          )}
-        >
-          {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          {(isSidebarOpen || isMobile) && <span>{isDarkMode ? (isAr ? 'الوضع الفاتح' : 'Light') : (isAr ? 'الوضع الليلي' : 'Dark')}</span>}
-        </button>
+        <div className={cn("flex gap-2", !isSidebarOpen && !isMobile ? "flex-col items-center" : "flex-row")}>
+          <button 
+            onClick={toggleTheme}
+            title={isDarkMode ? (isAr ? 'الوضع الفاتح' : 'Light Mode') : (isAr ? 'الوضع الليلي' : 'Dark Mode')}
+            className={cn(
+              "flex items-center justify-center rounded-2xl transition-all font-black",
+              isDarkMode ? "bg-white/5 text-amber-400" : "bg-white/5 text-white/60 hover:text-white",
+              isSidebarOpen || isMobile ? "flex-1 p-3.5" : "h-12 w-12"
+            )}
+          >
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {(isSidebarOpen || isMobile) && <span className="sr-only">Toggle Theme</span>}
+          </button>
 
-        <Link
-          href={redirectedPathname(isAr ? 'en' : 'ar')}
-          className={cn(
-            "w-full flex items-center gap-4 p-3.5 rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black text-xs uppercase tracking-widest",
-            !isSidebarOpen && !isMobile ? "justify-center" : ""
-          )}
-        >
-          <Languages className="h-5 w-5 text-secondary" />
-          {(isSidebarOpen || isMobile) && <span>{isAr ? 'English' : 'العربية'}</span>}
-        </Link>
+          <Link
+            href={redirectedPathname(isAr ? 'en' : 'ar')}
+            title={isAr ? 'English' : 'العربية'}
+            className={cn(
+              "flex items-center justify-center rounded-2xl bg-white/5 text-white/60 hover:text-white transition-all font-black",
+              isSidebarOpen || isMobile ? "flex-1 p-3.5 gap-2" : "h-12 w-12"
+            )}
+          >
+            <Languages className="h-5 w-5 text-secondary" />
+            {(isSidebarOpen || isMobile) && <span className="text-[10px] font-black">{isAr ? 'EN' : 'AR'}</span>}
+          </Link>
+        </div>
 
         <button 
           onClick={handleLogout}
+          title={isAr ? 'خروج' : 'Logout'}
           className={cn(
             "w-full flex items-center gap-4 p-3.5 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-widest",
             !isSidebarOpen && !isMobile ? "justify-center" : ""
