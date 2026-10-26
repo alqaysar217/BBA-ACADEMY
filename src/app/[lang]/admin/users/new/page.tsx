@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useRef } from 'react';
@@ -20,14 +21,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
-const getRoles = (isAr: boolean) => [
-  { value: 'admin', label: isAr ? 'مدير النظام (Super Admin)' : 'Super Admin' },
-  { value: 'admissions', label: isAr ? 'مسؤول القبول (Admissions)' : 'Admissions Officer' },
-  { value: 'academic', label: isAr ? 'المنسق الأكاديمي (Academic)' : 'Academic Coordinator' },
-  { value: 'financial', label: isAr ? 'المسؤول المالي (Financial)' : 'Financial Officer' },
-  { value: 'viewer', label: isAr ? 'مشاهد (Viewer)' : 'Viewer (Read Only)' },
-];
-
 export default function NewUserPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
   const isAr = lang === 'ar';
@@ -47,49 +40,23 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
     photoURL: '',
   });
 
-  const roles = getRoles(isAr);
-
-  const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new globalThis.Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 200;
-          const MAX_HEIGHT = 200;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.7));
-        };
-      };
-    });
-  };
+  const roles = [
+    { value: 'admin', label: isAr ? 'مدير نظام (Manager)' : 'System Manager' },
+    { value: 'academic', label: isAr ? 'موظف أكاديمي (Staff)' : 'Academic Staff' },
+    { value: 'financial', label: isAr ? 'موظف مالي (Staff)' : 'Financial Staff' },
+    { value: 'admissions', label: isAr ? 'مسؤول قبول (Staff)' : 'Admissions Staff' },
+    { value: 'viewer', label: isAr ? 'مشاهد (Viewer)' : 'Viewer Only' },
+  ];
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const compressed = await compressImage(file);
-      setPhotoPreview(compressed);
-      setFormData(prev => ({ ...prev, photoURL: compressed }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+        setFormData(prev => ({ ...prev, photoURL: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -101,52 +68,38 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
       toast({ 
         variant: "destructive", 
         title: isAr ? "حقول ناقصة" : "Missing Fields", 
-        description: isAr ? "يرجى ملء كافة الحقول الإلزامية بما في ذلك كلمة المرور." : "Please fill all required fields including password." 
-      });
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast({ 
-        variant: "destructive", 
-        title: isAr ? "كلمة مرور ضعيفة" : "Weak Password", 
-        description: isAr ? "يجب أن تكون كلمة المرور 6 أحرف على الأقل." : "Password must be at least 6 characters." 
+        description: isAr ? "يرجى ملء كافة الحقول الإلزامية." : "Please fill all required fields." 
       });
       return;
     }
 
     setLoading(true);
 
-    // نظام التزويد المباشر: إنشاء الحساب في Auth دون الخروج من حساب المدير الحالي
     const tempAppName = `temp-app-${Date.now()}`;
     let tempApp;
     
     try {
-      // 1. إنشاء مثيل مؤقت لفايربيس
       tempApp = initializeApp(firebaseConfig, tempAppName);
       const tempAuth = getAuth(tempApp);
 
-      // 2. إنشاء المستخدم في Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(tempAuth, formData.email, formData.password);
       const uid = userCredential.user.uid;
-
-      // 3. تسجيل الخروج من المثيل المؤقت (لحماية الجلسة)
       await signOut(tempAuth);
 
-      // 4. حفظ بيانات وصلاحيات المستخدم في Firestore
       const newUserRef = doc(firestore, 'admin_users', uid);
       const userData = {
         id: uid,
         displayName: formData.displayName,
         email: formData.email.toLowerCase(),
         role: formData.role,
-        photoURL: formData.photoURL || '/logo.png',
+        photoURL: formData.photoURL || '',
         status: 'active',
         permissions: {
-          enrollments: formData.role === 'admin' || formData.role === 'admissions' ? { read: true, write: true, delete: formData.role === 'admin' } : { read: true, write: false, delete: false },
-          students: formData.role === 'admin' || formData.role === 'academic' ? { read: true, write: true, delete: formData.role === 'admin' } : { read: true, write: false, delete: false },
-          finances: formData.role === 'admin' || formData.role === 'financial' ? { read: true, write: true, delete: formData.role === 'admin' } : { read: false, write: false, delete: false },
-          users: formData.role === 'admin' ? { read: true, write: true, delete: true } : { read: false, write: false, delete: false }
+          enrollments: { read: true, write: false, delete: false },
+          students: { read: true, write: false, delete: false },
+          finances: { read: false, write: false, delete: false },
+          users: { read: false, write: false, delete: false },
+          communication: { read: false, write: false, delete: false }
         },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -156,19 +109,14 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
       
       toast({
         title: isAr ? "تم إنشاء الحساب بنجاح" : "Account Created",
-        description: isAr ? "تم تزويد الموظف بالحساب والصلاحيات بنجاح. يمكنه الدخول الآن." : "Staff account and privileges provisioned successfully. They can login now.",
+        description: isAr ? "تم تزويد الموظف بالحساب بنجاح." : "Staff account provisioned successfully.",
       });
       
       router.push(`/${lang}/admin/users`);
     } catch (err: any) {
       console.error(err);
-      let errorMsg = isAr ? "فشل إنشاء الحساب." : "Failed to create account.";
-      if (err.code === 'auth/email-already-in-use') {
-        errorMsg = isAr ? "هذا البريد الإلكتروني مستخدم بالفعل." : "This email is already in use.";
-      }
-      toast({ variant: "destructive", title: "Error", description: errorMsg });
+      toast({ variant: "destructive", title: "Error", description: err.message });
     } finally {
-      // تنظيف المثيل المؤقت
       if (tempApp) await deleteApp(tempApp);
       setLoading(false);
     }
@@ -209,11 +157,6 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                            className="object-contain p-2"
                            unoptimized
                         />
-                        {loading && (
-                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <Loader2 className="h-8 w-8 text-white animate-spin" />
-                          </div>
-                        )}
                      </div>
                      <button 
                         type="button"
@@ -232,70 +175,56 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                         </button>
                      )}
                   </div>
-                  <div className="text-center">
-                     <p className="text-xs font-black text-primary uppercase tracking-widest">{isAr ? 'صورة الموظف الشخصية' : 'Staff Profile Picture'}</p>
-                  </div>
-                  <input 
-                     type="file" 
-                     ref={fileInputRef} 
-                     className="hidden" 
-                     accept="image/*" 
-                     onChange={handleImageChange} 
-                  />
+                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageChange} />
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <User className="h-3 w-3 text-secondary" /> {isAr ? 'الاسم الكامل للموظف *' : 'Staff Full Name *'}
+                        <User className="h-3 w-3 text-secondary" /> {isAr ? 'الاسم الكامل *' : 'Full Name *'}
                      </Label>
                      <Input 
                         value={formData.displayName}
                         onChange={(e) => setFormData({...formData, displayName: e.target.value})}
-                        className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 focus:bg-white" 
+                        className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50" 
                         placeholder="e.g. Ahmad Ali" 
                      />
                   </div>
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <Mail className="h-3 w-3 text-secondary" /> {isAr ? 'البريد الإلكتروني الرسمي (لتسجيل الدخول) *' : 'Official Login Email *'}
+                        <Mail className="h-3 w-3 text-secondary" /> {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
                      </Label>
                      <Input 
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 focus:bg-white" 
+                        className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50" 
                         placeholder="name@baneenbanaat.org" 
                      />
                   </div>
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <LockKeyhole className="h-3 w-3 text-secondary" /> {isAr ? 'كلمة مرور الحساب *' : 'Account Password *'}
+                        <LockKeyhole className="h-3 w-3 text-secondary" /> {isAr ? 'كلمة المرور *' : 'Password *'}
                      </Label>
                      <div className="relative">
                         <Input 
                            type={showPassword ? "text" : "password"}
                            value={formData.password}
                            onChange={(e) => setFormData({...formData, password: e.target.value})}
-                           className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 focus:bg-white pr-12" 
-                           placeholder="••••••••" 
+                           className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 pr-12" 
                         />
-                        <button 
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-secondary"
-                        >
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                      </div>
                   </div>
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <KeyRound className="h-3 w-3 text-secondary" /> {isAr ? 'الدور الوظيفي والصلاحيات *' : 'Assigned Role & Permissions *'}
+                        <KeyRound className="h-3 w-3 text-secondary" /> {isAr ? 'نوع الحساب *' : 'Account Type *'}
                      </Label>
-                     <Select onValueChange={(v) => setFormData({...formData, role: v})} value={formData.role}>
+                     <Select onValueChange={(v) => setFormData({...formData, role: v})}>
                         <SelectTrigger className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50">
-                           <SelectValue placeholder={isAr ? 'اختر الدور الوظيفي' : 'Assign System Role'} />
+                           <SelectValue placeholder={isAr ? 'اختر النوع' : 'Select type'} />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl p-2">
                            {roles.map(role => (
@@ -306,25 +235,9 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                   </div>
                </div>
 
-               {/* New Direct Provisioning Info */}
-               <div className="bg-primary/5 p-8 rounded-3xl border border-primary/10 flex flex-col md:flex-row items-start gap-6 shadow-sm">
-                  <div className="h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="space-y-3">
-                    <h4 className="font-black text-primary uppercase text-sm">{isAr ? 'نظام التزويد المباشر مفعل' : 'Direct Provisioning Active'}</h4>
-                    <p className="text-xs font-bold text-slate-600 leading-relaxed">
-                      {isAr 
-                        ? 'عند الضغط على تفعيل الحساب، سيقوم النظام تلقائياً بإنشاء بيانات الدخول للموظف وربطها بصلاحياته المختارة. لا حاجة لأي إجراءات تقنية إضافية.' 
-                        : 'Clicking activate will automatically create the credentials and link permissions. No further technical steps required.'}
-                    </p>
-                  </div>
-               </div>
-
                <div className="flex justify-end pt-6">
                   <Button type="submit" disabled={loading} className="h-16 rounded-2xl bg-primary text-white font-black px-12 shadow-xl shadow-primary/20 gap-3 text-lg transition-all active:scale-95">
-                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? 'إنشاء وتفعيل حساب الموظف' : 'Create & Provision Account')}
-                     {!loading && <UserPlus className="h-6 w-6" />}
+                     {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? 'إنشاء الحساب' : 'Create Account')}
                   </Button>
                </div>
             </form>

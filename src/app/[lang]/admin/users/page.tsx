@@ -8,12 +8,13 @@ import { collection, query, orderBy, doc, updateDoc, serverTimestamp } from 'fir
 import { 
   Search, UserPlus, ShieldCheck, Mail, Calendar, 
   Trash2, Ban, ChevronRight, Archive, PencilLine,
-  UserCog, AlertCircle, KeyRound
+  UserCog, AlertCircle, KeyRound, Filter, Shield
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Tooltip, 
   TooltipContent, 
@@ -34,12 +35,14 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function UserRegistryPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
   const isAr = lang === 'ar';
   const firestore = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToArchive, setUserToArchive] = useState<any>(null);
 
@@ -54,11 +57,14 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
     if (!rawUsers) return [];
     return rawUsers
       .filter(u => u.status !== 'archived')
-      .filter(u => 
-        u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-  }, [rawUsers, searchTerm]);
+      .filter(u => {
+        const matchesSearch = 
+          u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          u.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+        return matchesSearch && matchesRole;
+      });
+  }, [rawUsers, searchTerm, roleFilter]);
 
   const toggleUserStatus = async (user: any) => {
     if (!firestore) return;
@@ -96,7 +102,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
     <div className="space-y-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
          <div className="space-y-1">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'سجل المستخدمين' : 'User Registry'}</h1>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'سجل الحسابات' : 'Account Registry'}</h1>
             <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em]">{isAr ? 'استعراض كافة الموظفين والمديرين' : 'List of all authorized personnel'}</p>
          </div>
          <Button asChild className="h-14 rounded-2xl bg-primary text-white font-black px-8 shadow-xl shadow-primary/20">
@@ -106,8 +112,8 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
          </Button>
       </div>
 
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-6">
-         <div className="relative w-full lg:max-w-md group">
+      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-6 flex flex-col md:flex-row gap-6">
+         <div className="relative flex-1 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-secondary transition-colors" />
             <Input 
                placeholder={isAr ? 'بحث بالاسم أو البريد...' : 'Search by name or email...'} 
@@ -115,6 +121,20 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
             />
+         </div>
+         <div className="w-full md:w-64">
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+               <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
+                  <SelectValue placeholder={isAr ? 'تصفية حسب الدور' : 'Filter by Role'} />
+               </SelectTrigger>
+               <SelectContent className="rounded-xl">
+                  <SelectItem value="all">{isAr ? 'كافة الأدوار' : 'All Roles'}</SelectItem>
+                  <SelectItem value="admin">{isAr ? 'مدير نظام' : 'Admin'}</SelectItem>
+                  <SelectItem value="academic">{isAr ? 'موظف أكاديمي' : 'Academic'}</SelectItem>
+                  <SelectItem value="financial">{isAr ? 'موظف مالي' : 'Financial'}</SelectItem>
+                  <SelectItem value="admissions">{isAr ? 'مسؤول قبول' : 'Admissions'}</SelectItem>
+               </SelectContent>
+            </Select>
          </div>
       </Card>
 
@@ -137,8 +157,15 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                       <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
                          <td className="px-10 py-6">
                             <div className="flex items-center gap-4">
-                               <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-black text-lg">
-                                  {user.displayName?.charAt(0)}
+                               <div className="h-12 w-12 rounded-2xl bg-primary/10 overflow-hidden flex items-center justify-center border-2 border-white shadow-sm">
+                                  <Image 
+                                    src={user.photoURL || '/logo.png'} 
+                                    alt={user.displayName} 
+                                    width={48} 
+                                    height={48} 
+                                    className="object-contain p-1"
+                                    unoptimized
+                                  />
                                </div>
                                <div>
                                   <p className="text-sm font-black text-slate-900 leading-none mb-1">{user.displayName}</p>
@@ -160,7 +187,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                             </Badge>
                          </td>
                          <td className="px-10 py-6 text-right">
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                                <Tooltip>
                                   <TooltipTrigger asChild>
                                      <Button size="icon" variant="outline" className="h-10 w-10 rounded-xl border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" asChild>
@@ -212,19 +239,21 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent className="max-w-md border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden bg-white">
-          <div className="bg-secondary p-8 text-white flex flex-col items-center gap-4 text-center">
+          <div className="bg-primary p-8 text-white flex flex-col items-center gap-4 text-center">
              <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl">
-                <Archive className="h-8 w-8 text-white" />
+                <Shield className="h-8 w-8 text-secondary" />
              </div>
-             <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">{isAr ? 'نقل إلى سلة المهملات' : 'Move to Trash'}</AlertDialogTitle>
+             <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">{isAr ? 'تأكيد إجراء إداري' : 'Confirm Admin Action'}</AlertDialogTitle>
           </div>
-          <div className="p-10 space-y-6">
-            <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed text-center">
-               {isAr ? `هل أنت متأكد من إيقاف نشاط "${userToArchive?.displayName}" ونقله للمهملات؟` : `Are you sure you want to deactivate "${userToArchive?.displayName}" and move to trash?`}
+          <div className="p-10 space-y-6 text-center">
+            <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed">
+               {isAr 
+                 ? `هل أنت متأكد من إلغاء تنشيط حساب "${userToArchive?.displayName}" ونقله لسلة المهملات؟ سيفقد الموظف حق الوصول فوراً.` 
+                 : `Are you sure you want to deactivate "${userToArchive?.displayName}" and move it to the trash bin? Access will be revoked immediately.`}
             </AlertDialogDescription>
             <div className="flex flex-col gap-3">
               <Button onClick={confirmArchive} className="h-14 rounded-xl bg-secondary text-white font-black uppercase tracking-widest transition-all">
-                {isAr ? 'تأكيد الإجراء' : 'Confirm Action'}
+                {isAr ? 'تأكيد النقل للمهملات' : 'Confirm Deactivation'}
               </Button>
               <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest">
                 {isAr ? 'إلغاء' : 'Cancel'}
