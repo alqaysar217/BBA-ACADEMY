@@ -1,22 +1,18 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
 import { 
-  User, 
-  Mail, 
-  Phone, 
+  Users, 
   MapPin, 
   GraduationCap, 
   CreditCard, 
   FileText, 
   CheckCircle2,
-  Users,
-  ShieldCheck,
-  Briefcase,
   DownloadCloud,
   FileCheck,
   ExternalLink,
@@ -26,16 +22,27 @@ import {
   Layers,
   Globe,
   Trash2,
-  FileSearch,
-  Hash,
-  Home
+  ShieldCheck,
+  Briefcase,
+  AlertCircle,
+  MoreVertical,
+  UserPlus
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function EnrollmentDetailPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -43,6 +50,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
   const firestore = useFirestore();
   const router = useRouter();
   const isAr = lang === 'ar';
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const docRef = useMemo(() => {
     if (!firestore || !id) return null;
@@ -57,6 +65,98 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       router.push(`/${lang}/admin/login`);
     }
   }, [user, authLoading, router, lang]);
+
+  const updateStatus = async (newStatus: string) => {
+    if (!firestore || !app) return;
+    setIsProcessing(true);
+    
+    const updateData = {
+      status: newStatus,
+      updatedAt: serverTimestamp(),
+      processedBy: user?.email || 'admin'
+    };
+
+    setDoc(docRef!, updateData, { merge: true })
+      .then(() => {
+        toast({
+          title: isAr ? "تم تحديث الحالة" : "Status Updated",
+          description: isAr ? `تم تغيير حالة الطلب إلى: ${newStatus}` : `Application status changed to ${newStatus}.`,
+        });
+      })
+      .catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef!.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      })
+      .finally(() => setIsProcessing(false));
+  };
+
+  const approveAndEnroll = async () => {
+    if (!firestore || !app) return;
+    if (app.status === 'approved') {
+       toast({ variant: "destructive", title: isAr ? "الطلب معتمد بالفعل" : "Already Approved" });
+       return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // 1. Create Student records for each sibling in the application
+      const studentsCollection = collection(firestore, 'students');
+      
+      const creationPromises = app.students.map((student: any) => {
+        const studentDoc = doc(studentsCollection);
+        const studentData = {
+          ...student,
+          enrollmentId: id,
+          parentId: user?.uid || 'anonymous',
+          parent1Name: app.parent1Name,
+          parent1Email: app.parent1Email,
+          parent1Phone: app.parent1Phone,
+          address: app.address,
+          programOption: app.programOption,
+          status: 'active',
+          gradeLevel: student.lastGrade,
+          academicPlan: {
+            courses: [],
+            progress: 0,
+            graduationYear: new Date().getFullYear() + (12 - parseInt(student.lastGrade || '0'))
+          },
+          financialLedger: {
+            totalDue: app.programOption === 'weekend' ? 75 : (app.paymentTier === 'full-3-5' ? 2850 : 1650),
+            totalPaid: 0,
+            payments: [],
+            lastPaymentDate: null
+          },
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+        return setDoc(studentDoc, studentData);
+      });
+
+      await Promise.all(creationPromises);
+
+      // 2. Update Enrollment status to approved
+      await setDoc(docRef!, { 
+        status: 'approved', 
+        updatedAt: serverTimestamp(),
+        approvedAt: serverTimestamp()
+      }, { merge: true });
+
+      toast({
+        title: isAr ? "تم الاعتماد والتسجيل" : "Approved & Enrolled",
+        description: isAr ? "تم إنشاء ملفات الطلاب بنجاح." : "Student records have been created successfully.",
+      });
+      router.push(`/${lang}/admin/students`);
+    } catch (err) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Error during enrollment" });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   if (authLoading || dataLoading) {
     return (
@@ -90,15 +190,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     );
   }
 
-  const downloadFile = (file: any) => {
-    const link = document.createElement('a');
-    link.href = file.data;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const SectionHeader = ({ icon: Icon, title, subtitle, color = "bg-primary" }: { icon: any, title: string, subtitle: string, color?: string }) => (
     <div className="flex items-center gap-4 mb-6">
       <div className={cn("h-12 w-12 rounded-2xl text-white flex items-center justify-center shadow-lg", color)}>
@@ -128,9 +219,11 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                    <h1 className="text-xl md:text-2xl font-black text-primary tracking-tight">{app.parent1Name}</h1>
                    <Badge className={cn(
                      "h-7 px-3 rounded-lg font-black uppercase text-[9px] tracking-widest border-none",
-                     app.status === 'submitted' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
+                     app.status === 'approved' ? "bg-green-100 text-green-600" : 
+                     app.status === 'rejected' ? "bg-red-100 text-red-600" :
+                     "bg-blue-100 text-blue-600"
                    )}>
-                     {app.status === 'submitted' ? (isAr ? 'مكتمل' : 'Submitted') : (isAr ? 'مسودة' : 'Draft')}
+                     {app.status}
                    </Badge>
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -141,12 +234,27 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
            </div>
            
            <div className="flex items-center gap-3">
-              <Button variant="outline" className="hidden md:flex rounded-2xl h-12 border-slate-200 font-black text-xs text-slate-500 uppercase tracking-widest hover:bg-slate-50">
-                <FileSearch className="h-4 w-4 mr-2" />
-                {isAr ? 'معاينة' : 'Quick View'}
-              </Button>
-              <Button className="rounded-2xl h-12 bg-primary hover:bg-secondary text-white font-black px-6 shadow-xl shadow-primary/10 transition-all">
-                {isAr ? 'اعتماد الطلب' : 'Approve Application'}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="rounded-2xl h-12 border-slate-200 font-black text-xs uppercase tracking-widest">
+                    <Layers className="h-4 w-4 mr-2" />
+                    {isAr ? 'تغيير الحالة' : 'Status Action'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="rounded-xl p-2 min-w-[200px]">
+                  <DropdownMenuItem onClick={() => updateStatus('reviewed')} className="font-bold text-primary">{isAr ? 'تمت المراجعة' : 'Mark Reviewed'}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => updateStatus('missing_docs')} className="font-bold text-amber-600">{isAr ? 'وثائق مفقودة' : 'Missing Documents'}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => updateStatus('rejected')} className="font-bold text-red-600">{isAr ? 'رفض الطلب' : 'Reject Application'}</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button 
+                onClick={approveAndEnroll}
+                disabled={isProcessing || app.status === 'approved'}
+                className="rounded-2xl h-12 bg-primary hover:bg-secondary text-white font-black px-6 shadow-xl shadow-primary/10 transition-all gap-2"
+              >
+                {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+                {isAr ? 'اعتماد وتسجيل الطالب' : 'Approve & Enroll'}
               </Button>
            </div>
         </div>
@@ -154,7 +262,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
       <main className="max-w-7xl mx-auto px-4 mt-12 space-y-16">
         
-        {/* SECTION 1: GUARDIANS & ADDRESS HUB (SINGLE TABLE) */}
+        {/* SECTION 1: GUARDIANS & ADDRESS HUB */}
         <section>
           <SectionHeader 
             icon={Users} 
@@ -208,26 +316,12 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                         </div>
                         <div className="flex flex-wrap gap-4 text-sm font-bold text-slate-500">
                            <div className="px-4 py-2 bg-white rounded-lg border border-slate-100 shadow-sm">
-                              <span className="text-[10px] text-slate-300 uppercase block mb-0.5">{isAr ? 'العنوان الرئيسي' : 'Street Line 1'}</span>
-                              {app.address?.line1}
-                           </div>
-                           {app.address?.line2 && (
-                             <div className="px-4 py-2 bg-white rounded-lg border border-slate-100 shadow-sm">
-                                <span className="text-[10px] text-slate-300 uppercase block mb-0.5">{isAr ? 'السطر الثاني' : 'Line 2'}</span>
-                                {app.address?.line2}
-                             </div>
-                           )}
-                           <div className="px-4 py-2 bg-white rounded-lg border border-slate-100 shadow-sm">
-                              <span className="text-[10px] text-slate-300 uppercase block mb-0.5">{isAr ? 'المدينة' : 'City'}</span>
-                              {app.address?.city}
+                              <span className="text-[10px] text-slate-300 uppercase block mb-0.5">{isAr ? 'العنوان' : 'Line 1'}</span>
+                              {app.address?.line1} {app.address?.line2}
                            </div>
                            <div className="px-4 py-2 bg-white rounded-lg border border-slate-100 shadow-sm">
-                              <span className="text-[10px] text-slate-300 uppercase block mb-0.5">{isAr ? 'الولاية' : 'State'}</span>
-                              {app.address?.state}
-                           </div>
-                           <div className="px-4 py-2 bg-white rounded-lg border border-slate-100 shadow-sm">
-                              <span className="text-[10px] text-slate-300 uppercase block mb-0.5">{isAr ? 'الرمز البريدي' : 'ZIP'}</span>
-                              {app.address?.zip}
+                              <span className="text-[10px] text-slate-300 uppercase block mb-0.5">{isAr ? 'المدينة والولاية' : 'City, State'}</span>
+                              {app.address?.city}, {app.address?.state} {app.address?.zip}
                            </div>
                         </div>
                      </div>
@@ -238,7 +332,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
           </Card>
         </section>
 
-        {/* SECTION 2: STUDENT ROSTER (WIDE TABLE) */}
+        {/* SECTION 2: STUDENT ROSTER */}
         <section>
            <SectionHeader 
               icon={GraduationCap} 
@@ -255,9 +349,8 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                     <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'الجنس' : 'Gender'}</TableHead>
                     <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'تاريخ الميلاد' : 'D.O.B'}</TableHead>
                     <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'حالة الطالب' : 'Status'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'التواصل' : 'Contact (Phone/Email)'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'المستوى' : 'Grade Level'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-right pr-8">{isAr ? 'السجل' : 'Entry'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'التواصل' : 'Contact'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-right pr-8">{isAr ? 'المستوى' : 'Grade'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -268,32 +361,19 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                         {student.firstName} {student.middleName} {student.lastName}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-slate-50 text-slate-500 font-black text-[9px] uppercase border-none">
-                           {student.gender === 'Male' ? (isAr ? 'ذكر' : 'Male') : (isAr ? 'أنثى' : 'Female')}
-                        </Badge>
+                         {student.gender === 'Male' ? (isAr ? 'ذكر' : 'Male') : (isAr ? 'أنثى' : 'Female')}
                       </TableCell>
                       <TableCell className="font-bold text-slate-600 text-xs">{student.dob}</TableCell>
                       <TableCell>
                         <Badge className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">
-                           {student.status === 'New Student' ? (isAr ? 'طالب جديد' : 'New') : (isAr ? 'عائد' : 'Returning')}
+                           {student.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-slate-600 flex items-center gap-2" dir="ltr"><Phone className="h-3 w-3 text-slate-300" /> {student.phone}</p>
-                          <p className="text-[10px] font-bold text-slate-600 flex items-center gap-2"><Mail className="h-3 w-3 text-slate-300" /> {student.email}</p>
-                        </div>
+                      <TableCell className="text-[10px] font-bold text-slate-600" dir="ltr">
+                        {student.phone}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                           <div className="h-6 w-6 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
-                              <Layers className="h-3 w-3" />
-                           </div>
-                           <span className="font-black text-primary text-xs">Grade {student.lastGrade}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right pr-8">
-                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">#{id.slice(0, 4)}</span>
+                      <TableCell className="text-right pr-8 font-black text-primary">
+                        Grade {student.lastGrade}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -302,43 +382,23 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
             </Card>
         </section>
 
-        {/* SECTION 3: PROGRAM & ATTACHMENTS (ORGANIZED TABLES) */}
+        {/* SECTION 3: PROGRAM & ATTACHMENTS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          
-          {/* Program Details Table */}
           <section>
-             <SectionHeader 
-               icon={Briefcase} 
-               title={isAr ? 'البرنامج التعليمي' : 'Academic Program'} 
-               subtitle={isAr ? 'المسار والخيارات المالية' : 'Selected Track & Financials'}
-             />
+             <SectionHeader icon={Briefcase} title={isAr ? 'البرنامج التعليمي' : 'Academic Program'} subtitle={isAr ? 'المسار والخيارات المالية' : 'Selected Track & Financials'} />
              <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white">
                 <Table>
                   <TableBody>
                     <TableRow className="hover:bg-transparent border-slate-50">
                       <TableCell className="w-1/3 bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'نوع البرنامج' : 'Program Option'}</TableCell>
-                      <TableCell className="font-black text-primary text-lg py-6">
-                         {app.programOption === 'grades-3-5' ? (isAr ? 'برنامج التأسيس (3-5)' : 'Foundation 3-5') : 
-                          app.programOption === 'grades-6-12' ? (isAr ? 'البرنامج الأكاديمي (6-12)' : 'Academics 6-12') : 
-                          (isAr ? 'برنامج عطلة الأسبوع' : 'Weekend Remote')}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow className="hover:bg-transparent border-slate-50">
-                      <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'اللغة المعتمدة' : 'Language Path'}</TableCell>
-                      <TableCell className="font-bold text-slate-600 py-6 flex items-center gap-3">
-                        <Globe className="h-4 w-4 text-secondary" />
-                        {app.languageOption === 'english-arabic' ? (isAr ? 'الإنجليزية والعربية' : 'English & Arabic') : (isAr ? 'الإنجليزية فقط' : 'English Only')}
-                      </TableCell>
+                      <TableCell className="font-black text-primary text-lg py-6">{app.programOption}</TableCell>
                     </TableRow>
                     <TableRow className="hover:bg-transparent border-none">
                       <TableCell className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'الرسوم المقدرة' : 'Tuition Projection'}</TableCell>
                       <TableCell className="py-6">
-                        <div className="flex items-baseline gap-2">
-                           <span className="font-black text-secondary text-4xl">
-                              {app.programOption === 'weekend' ? '$75' : app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650'}
-                           </span>
-                           <span className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">USD</span>
-                        </div>
+                        <span className="font-black text-secondary text-4xl">
+                           {app.programOption === 'weekend' ? '$75' : app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650'}
+                        </span>
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -346,88 +406,36 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
              </Card>
           </section>
 
-          {/* Attachments Table */}
           <section>
-             <SectionHeader 
-               icon={FileCheck} 
-               title={isAr ? 'المرفقات والمستندات' : 'Required Documents'} 
-               subtitle={isAr ? 'الوثائق الرسمية المرفوعة' : 'PDF & Image Evidence'}
-               color="bg-slate-900"
-             />
-             <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white h-full min-h-[300px]">
+             <SectionHeader icon={FileCheck} title={isAr ? 'المستندات المرفوعة' : 'Uploaded Files'} subtitle={isAr ? 'الوثائق الرسمية للطلب' : 'Digital PDF & Image Evidence'} color="bg-slate-900" />
+             <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white h-full min-h-[200px]">
                 <Table>
-                  <TableHeader className="bg-slate-50 border-b border-slate-100">
-                    <TableRow className="hover:bg-transparent">
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 py-4 px-8">{isAr ? 'اسم الملف' : 'File Name'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 py-4 text-right pr-8">{isAr ? 'الإجراء' : 'Actions'}</TableHead>
-                    </TableRow>
-                  </TableHeader>
                   <TableBody>
                     {app.files && app.files.length > 0 ? (
                       app.files.map((file: any, idx: number) => (
-                        <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-50 group">
+                        <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-50">
                           <TableCell className="py-5 px-8">
                              <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
-                                   <FileText className="h-5 w-5" />
-                                </div>
-                                <div className="min-w-0">
-                                   <p className="text-xs font-black text-primary truncate max-w-[200px]">{file.name}</p>
-                                   <p className="text-[9px] font-bold text-slate-300 uppercase">{(file.size / 1024).toFixed(0)} KB</p>
-                                </div>
+                                <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-secondary"><FileText className="h-5 w-5" /></div>
+                                <p className="text-xs font-black text-primary truncate max-w-[200px]">{file.name}</p>
                              </div>
                           </TableCell>
                           <TableCell className="py-5 text-right pr-8">
-                             <div className="flex justify-end gap-3">
-                                <button onClick={() => window.open(file.data, '_blank')} className="h-9 w-9 rounded-xl bg-slate-50 text-slate-400 hover:text-secondary hover:bg-white hover:shadow-md transition-all flex items-center justify-center border border-slate-100"><ExternalLink className="h-4 w-4" /></button>
-                                <button onClick={() => downloadFile(file)} className="h-9 w-9 rounded-xl bg-secondary text-white shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all"><DownloadCloud className="h-4 w-4" /></button>
+                             <div className="flex justify-end gap-2">
+                                <button onClick={() => window.open(file.data, '_blank')} className="h-9 w-9 rounded-xl bg-slate-50 text-slate-400 hover:text-secondary flex items-center justify-center border border-slate-100"><ExternalLink className="h-4 w-4" /></button>
                              </div>
                           </TableCell>
                         </TableRow>
                       ))
                     ) : (
-                      <TableRow>
-                        <TableCell colSpan={2} className="py-24 text-center">
-                           <div className="space-y-4">
-                              <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-200">
-                                 <FileCheck className="h-8 w-8" />
-                              </div>
-                              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لم يتم رفع أي مستندات بعد' : 'No documents uploaded yet'}</p>
-                           </div>
-                        </TableCell>
-                      </TableRow>
+                      <TableRow><TableCell colSpan={2} className="py-20 text-center text-slate-300 font-bold uppercase text-[10px]">{isAr ? 'لا توجد مرفقات' : 'No files found'}</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
              </Card>
           </section>
         </div>
-
-        {/* ADMIN ACTIONS FOOTER */}
-        <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8">
-           <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center shadow-inner">
-                 <ShieldCheck className="h-8 w-8" />
-              </div>
-              <div>
-                 <h4 className="font-black text-primary uppercase text-sm tracking-tight">{isAr ? 'جاهز للاعتماد؟' : 'Ready for Approval?'}</h4>
-                 <p className="text-xs font-bold text-slate-400">{isAr ? 'يرجى مراجعة كافة البيانات والوثائق قبل اتخاذ القرار.' : 'Please verify all data and documents before proceeding.'}</p>
-              </div>
-           </div>
-           
-           <div className="flex items-center gap-4 w-full md:w-auto">
-              <Button variant="outline" className="flex-1 md:flex-none h-16 px-10 rounded-2xl border-slate-200 text-slate-400 font-black hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all gap-3">
-                 <Trash2 className="h-5 w-5" />
-                 {isAr ? 'رفض الطلب' : 'Reject Request'}
-              </Button>
-              <Button className="flex-[2] md:flex-none h-16 px-16 rounded-2xl bg-green-500 hover:bg-green-600 text-white font-black shadow-xl shadow-green-500/20 gap-3 text-lg transition-all active:scale-[0.98]">
-                 <CheckCircle2 className="h-6 w-6" />
-                 {isAr ? 'اعتماد وتسجيل' : 'Approve & Enroll'}
-              </Button>
-           </div>
-        </div>
       </main>
     </div>
   );
 }
-

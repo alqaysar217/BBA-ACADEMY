@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useMemo } from 'react';
@@ -12,19 +13,17 @@ import {
   CheckCircle2, 
   Clock,
   ArrowUpRight,
-  ArrowDownRight,
   Target,
   Calendar,
-  CreditCard,
   AlertTriangle,
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  Briefcase
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
-  AreaChart, Area, PieChart, Pie
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie
 } from 'recharts';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -41,52 +40,65 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
     return query(collection(firestore, 'enrollments'), orderBy('updatedAt', 'desc'));
   }, [firestore]);
 
-  const { data: enrollments, loading } = useCollection(enrollmentsQuery);
+  const studentsQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'students'), orderBy('firstName', 'asc'));
+  }, [firestore]);
+
+  const { data: enrollments, loading: enrollLoading } = useCollection(enrollmentsQuery);
+  const { data: students, loading: studentLoading } = useCollection(studentsQuery);
 
   const stats = useMemo(() => {
-    const total = enrollments?.length || 0;
-    const submitted = enrollments?.filter(e => e.status === 'submitted' || e.status === 'approved').length || 0;
-    const revenue = submitted * 1650; // Dynamic revenue calculation based on payments needed
-    const studentCount = enrollments?.reduce((acc, curr) => acc + (curr.students?.length || 0), 0) || 0;
+    const totalApps = enrollments?.length || 0;
+    const pendingApps = enrollments?.filter(e => e.status === 'submitted' || e.status === 'reviewed').length || 0;
+    const activeStudents = students?.filter(s => s.status === 'active').length || 0;
     
-    return { total, submitted, revenue, studentCount };
-  }, [enrollments]);
+    // Revenue simulation based on student financials
+    const totalRevenue = students?.reduce((acc, curr) => acc + (curr.financialLedger?.totalPaid || 0), 0) || 0;
+    const outstanding = students?.reduce((acc, curr) => acc + ((curr.financialLedger?.totalDue || 0) - (curr.financialLedger?.totalPaid || 0)), 0) || 0;
+    
+    return { totalApps, pendingApps, activeStudents, totalRevenue, outstanding };
+  }, [enrollments, students]);
 
-  if (loading) return <div className="p-10 animate-pulse space-y-8">
-    <div className="grid grid-cols-4 gap-6 h-32 bg-white rounded-3xl" />
-    <div className="grid grid-cols-3 gap-6 h-96 bg-white rounded-3xl" />
-  </div>;
+  if (enrollLoading || studentLoading) return (
+    <div className="p-10 flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Academy Data...</p>
+    </div>
+  );
 
   return (
     <div className="space-y-10">
-      {/* 1. Welcome & Summary */}
-      <div className="flex justify-between items-end">
+      {/* 1. Header & Quick Actions */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
          <div className="space-y-1">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'نظرة عامة' : 'System Insights'}</h1>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'نظرة عامة على النظام' : 'BBA System Insights'}</h1>
             <p className="text-slate-500 font-bold flex items-center gap-2">
                <Calendar className="h-4 w-4" />
-               {format(new Date(), 'MMMM dd, yyyy')} • {isAr ? 'أداء الأكاديمية الحالي' : 'Live performance tracking'}
+               {format(new Date(), 'MMMM dd, yyyy')} • {isAr ? 'بيانات حية من السحابة' : 'Live cloud synchronization'}
             </p>
          </div>
-         <div className="flex gap-4">
-            <Button variant="outline" className="h-12 rounded-xl border-slate-200 font-black px-6">
-               {isAr ? 'تحميل التقرير السنوي' : 'Export Annual Report'}
+         <div className="flex flex-wrap gap-3">
+            <Button variant="outline" className="h-12 rounded-xl border-slate-200 font-black px-6 hover:bg-slate-50">
+               {isAr ? 'تصدير التقارير' : 'Export Reports'}
             </Button>
-            <Button className="h-12 rounded-xl bg-secondary text-white font-black px-6 shadow-xl shadow-secondary/20">
-               {isAr ? 'إضافة دفعة مالية' : 'Record Payment'}
+            <Button asChild className="h-12 rounded-xl bg-secondary text-white font-black px-6 shadow-xl shadow-secondary/20">
+               <Link href={`/${lang}/admin/enrollments`}>
+                  {isAr ? 'مراجعة الطلبات' : 'Review Applications'}
+               </Link>
             </Button>
          </div>
       </div>
 
-      {/* 2. Primary Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* 2. Key Metrics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
          {[
-           { label: isAr ? 'إجمالي الإيرادات' : 'Total Revenue', value: `$${stats.revenue.toLocaleString()}`, icon: DollarSign, color: 'bg-green-500', trend: '+14%' },
-           { label: isAr ? 'الطلاب المسجلين' : 'Active Students', value: stats.studentCount, icon: Users, color: 'bg-secondary', trend: '+22%' },
-           { label: isAr ? 'طلبات القبول' : 'Applications', value: stats.total, icon: FileText, color: 'bg-primary', trend: '+8%' },
-           { label: isAr ? 'معدل التحويل' : 'Conversion Rate', value: '76%', icon: Target, color: 'bg-amber-500', trend: '+3%' },
+           { label: isAr ? 'إجمالي المحصل' : 'Total Collected', value: `$${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: 'bg-green-500', trend: '+12%' },
+           { label: isAr ? 'الطلاب النشطين' : 'Active Students', value: stats.activeStudents, icon: Users, color: 'bg-secondary', trend: '+18%' },
+           { label: isAr ? 'طلبات بانتظار المراجعة' : 'Pending Review', value: stats.pendingApps, icon: FileText, color: 'bg-primary', trend: stats.pendingApps > 0 ? 'Urgent' : 'Clear' },
+           { label: isAr ? 'مستحقات متأخرة' : 'Outstanding', value: `$${stats.outstanding.toLocaleString()}`, icon: AlertTriangle, color: 'bg-amber-500', trend: '-5%' },
          ].map((stat, i) => (
-           <Card key={i} className="border-none shadow-premium rounded-[2rem] overflow-hidden group hover:shadow-2xl transition-all duration-500 bg-white">
+           <Card key={i} className="border-none shadow-premium rounded-[2rem] overflow-hidden group hover:shadow-2xl transition-all duration-500 bg-white border border-slate-100/50">
               <CardContent className="p-8">
                  <div className="flex justify-between items-start">
                     <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center text-white shadow-lg", stat.color)}>
@@ -105,22 +117,22 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
          ))}
       </div>
 
-      {/* 3. Charts & Analytics */}
+      {/* 3. Analytics & Growth */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          <Card className="lg:col-span-2 border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
             <CardHeader className="p-10 pb-0">
-               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'نمو التسجيل والطلاب' : 'Enrollment Growth'}</CardTitle>
-               <CardDescription className="font-bold">{isAr ? 'مقارنة الطلبات المسجلة بالأشهر السابقة' : 'Monthly application volume comparison'}</CardDescription>
+               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'نمو الأكاديمية والطلاب' : 'Academy Enrollment Growth'}</CardTitle>
+               <CardDescription className="font-bold">{isAr ? 'مقارنة الطلبات والتحويل لطلاب نشطين' : 'Monthly funnel from application to active student'}</CardDescription>
             </CardHeader>
             <CardContent className="p-10">
                <div className="h-80 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                      <AreaChart data={[
-                        { name: 'Sep', apps: 45, students: 30 },
-                        { name: 'Oct', apps: 52, students: 38 },
-                        { name: 'Nov', apps: 48, students: 40 },
-                        { name: 'Dec', apps: 61, students: 55 },
-                        { name: 'Jan', apps: 75, students: 68 },
+                        { name: 'Sep', apps: 45, active: 30 },
+                        { name: 'Oct', apps: 52, active: 38 },
+                        { name: 'Nov', apps: 48, active: 40 },
+                        { name: 'Dec', apps: 61, active: 55 },
+                        { name: 'Jan', apps: 75, active: stats.activeStudents },
                      ]}>
                         <defs>
                           <linearGradient id="colorApps" x1="0" y1="0" x2="0" y2="1">
@@ -133,7 +145,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                         <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 700}} />
                         <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'}} />
                         <Area type="monotone" dataKey="apps" stroke="#1A73E8" strokeWidth={4} fillOpacity={1} fill="url(#colorApps)" />
-                        <Area type="monotone" dataKey="students" stroke="#0FB9B1" strokeWidth={4} fillOpacity={0} />
+                        <Area type="monotone" dataKey="active" stroke="#0FB9B1" strokeWidth={4} fillOpacity={0} />
                      </AreaChart>
                   </ResponsiveContainer>
                </div>
@@ -142,8 +154,8 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
 
          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
             <CardHeader className="p-10">
-               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'الحالة المالية' : 'Financial Health'}</CardTitle>
-               <CardDescription className="font-bold">{isAr ? 'الدفعات المستلمة والمستحقة' : 'Paid vs Outstanding balances'}</CardDescription>
+               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'توزيع البرامج' : 'Program Distribution'}</CardTitle>
+               <CardDescription className="font-bold">{isAr ? 'نسبة الطلاب حسب نوع البرنامج' : 'Students enrolled per program path'}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
                <div className="h-64 w-full">
@@ -151,8 +163,9 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                      <PieChart>
                         <Pie
                            data={[
-                              { name: 'Paid', value: 75, fill: '#0FB9B1' },
-                              { name: 'Outstanding', value: 25, fill: '#EB3B5A' },
+                              { name: 'Foundation', value: 40, fill: '#1A73E8' },
+                              { name: 'Academics', value: 45, fill: '#0FB9B1' },
+                              { name: 'Weekend', value: 15, fill: '#FA8231' },
                            ]}
                            innerRadius={70}
                            outerRadius={90}
@@ -163,40 +176,38 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                      </PieChart>
                   </ResponsiveContainer>
                </div>
-               <div className="w-full space-y-4 mt-6">
-                  <div className="flex justify-between p-4 bg-slate-50 rounded-2xl">
-                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-green-500" />
-                        <span className="text-xs font-black uppercase text-slate-500">{isAr ? 'تم تحصيله' : 'Paid'}</span>
-                     </div>
-                     <span className="font-black text-slate-900">$124,500</span>
-                  </div>
-                  <div className="flex justify-between p-4 bg-red-50/50 rounded-2xl border border-red-100">
-                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-red-500" />
-                        <span className="text-xs font-black uppercase text-red-500">{isAr ? 'متأخرات' : 'Overdue'}</span>
-                     </div>
-                     <span className="font-black text-red-600">$42,300</span>
-                  </div>
+               <div className="w-full space-y-3 mt-6">
+                  {[
+                    { label: isAr ? 'برنامج التأسيس' : 'Foundation 3-5', color: 'bg-primary' },
+                    { label: isAr ? 'المتوسط والثانوي' : 'Academics 6-12', color: 'bg-secondary' },
+                    { label: isAr ? 'عطلة نهاية الأسبوع' : 'Weekend Remote', color: 'bg-orange-500' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex justify-between p-3 bg-slate-50 rounded-xl">
+                       <div className="flex items-center gap-2">
+                          <div className={cn("h-2.5 w-2.5 rounded-full", item.color)} />
+                          <span className="text-[10px] font-black uppercase text-slate-500">{item.label}</span>
+                       </div>
+                    </div>
+                  ))}
                </div>
             </CardContent>
          </Card>
       </div>
 
-      {/* 4. Action Center */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* 4. Attention Center */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
          <Card className="border-none shadow-premium rounded-[2.5rem] bg-slate-900 text-white overflow-hidden">
             <CardContent className="p-10 space-y-8">
                <div className="h-16 w-16 rounded-3xl bg-secondary flex items-center justify-center shadow-xl">
                   <MessageSquare className="h-8 w-8 text-white" />
                </div>
                <div className="space-y-2">
-                  <h3 className="text-2xl font-black uppercase">{isAr ? 'مركز المراسلات الذكي' : 'Parent Outreach'}</h3>
-                  <p className="text-slate-400 font-bold leading-relaxed">{isAr ? 'أرسل تذكيرات الدفع، رسائل الترحيب، أو طلبات الوثائق بنقرة واحدة.' : 'Send automated reminders, welcome packages, or document requests to parents.'}</p>
+                  <h3 className="text-2xl font-black uppercase">{isAr ? 'مركز التواصل الذكي' : 'Parent Outreach'}</h3>
+                  <p className="text-slate-400 font-bold leading-relaxed">{isAr ? 'أرسل تذكيرات الدفع، رسائل القبول، أو طلبات الوثائق بنقرة واحدة.' : 'Automated welcome packages, payment reminders, or missing document requests.'}</p>
                </div>
                <Button asChild className="w-full h-14 bg-white text-slate-900 hover:bg-secondary hover:text-white font-black rounded-2xl transition-all">
                   <Link href={`/${lang}/admin/communication`}>
-                     {isAr ? 'ابدأ المراسلة' : 'Launch Comms Hub'}
+                     {isAr ? 'فتح مركز المراسلات' : 'Launch Comms Hub'}
                   </Link>
                </Button>
             </CardContent>
@@ -204,20 +215,26 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
 
          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
             <CardHeader className="p-10 flex flex-row items-center justify-between">
-               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'طلاب يحتاجون للمراجعة' : 'Attention Required'}</CardTitle>
-               <Badge className="bg-amber-100 text-amber-600 border-none">5 {isAr ? 'تنبيهات' : 'Alerts'}</Badge>
+               <CardTitle className="text-xl font-black uppercase text-slate-900">{isAr ? 'تنبيهات النظام' : 'System Alerts'}</CardTitle>
+               <Badge className="bg-red-100 text-red-600 border-none">3 Critical</Badge>
             </CardHeader>
             <CardContent className="p-10 pt-0 space-y-4">
-               {[1, 2, 3].map(i => (
-                 <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-slate-100">
+               {[
+                 { t: isAr ? 'وثائق مفقودة' : 'Missing Transcript', s: 'Aisha Omar', i: AlertTriangle, c: 'text-amber-500' },
+                 { t: isAr ? 'دفعة متأخرة' : 'Overdue Payment', s: 'Zaid Ali', i: DollarSign, c: 'text-red-500' },
+                 { t: isAr ? 'مراجعة طلب' : 'App Review Req.', s: 'Fatima Ahmed', i: FileText, c: 'text-primary' },
+               ].map((alert, i) => (
+                 <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-slate-100 group">
                     <div className="flex items-center gap-4">
-                       <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center font-black">ST</div>
+                       <div className={cn("h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center", alert.c)}>
+                          <alert.i className="h-5 w-5" />
+                       </div>
                        <div>
-                          <p className="text-sm font-black text-slate-900">Student Name {i}</p>
-                          <p className="text-[10px] text-red-500 font-bold uppercase">{isAr ? 'وثيقة مفقودة' : 'Missing Transcript'}</p>
+                          <p className="text-sm font-black text-slate-900">{alert.s}</p>
+                          <p className="text-[10px] font-bold uppercase text-slate-400">{alert.t}</p>
                        </div>
                     </div>
-                    <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl"><ArrowRight className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl group-hover:bg-white group-hover:shadow-md transition-all"><ArrowRight className="h-4 w-4" /></Button>
                  </div>
                ))}
                <Button variant="link" className="w-full text-secondary font-black">{isAr ? 'مشاهدة كافة التنبيهات' : 'View All Alerts'}</Button>

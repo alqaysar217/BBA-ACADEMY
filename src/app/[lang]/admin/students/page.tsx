@@ -7,14 +7,13 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { 
   Search, Users, GraduationCap, MapPin, 
-  ChevronRight, MoreVertical, Filter, Download,
-  UserCheck, CreditCard, BookOpen
+  ChevronRight, Filter, Download,
+  CreditCard, BookOpen
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
@@ -26,31 +25,19 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
   const studentsQuery = useMemo(() => {
     if (!firestore) return null;
-    // In a real scenario, this fetches from the 'students' collection populated after approval
-    return query(collection(firestore, 'enrollments'), orderBy('updatedAt', 'desc'));
+    return query(collection(firestore, 'students'), orderBy('updatedAt', 'desc'));
   }, [firestore]);
 
-  const { data: enrollments, loading } = useCollection(studentsQuery);
+  const { data: students, loading } = useCollection(studentsQuery);
 
-  const students = useMemo(() => {
-    if (!enrollments) return [];
-    // Flattening students from enrollments for this view
-    return enrollments.flatMap(e => (e.students || []).map((s: any) => ({
-      ...s,
-      parentName: e.parent1Name,
-      program: e.programOption,
-      status: e.status,
-      enrollmentId: e.id,
-      city: e.address?.city,
-      state: e.address?.state
-    })));
-  }, [enrollments]);
-
-  const filteredStudents = students.filter(s => 
-    s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.parentName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudents = useMemo(() => {
+    if (!students) return [];
+    return students.filter(s => 
+      s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.parent1Name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [students, searchTerm]);
 
   return (
     <div className="space-y-8">
@@ -67,10 +54,10 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
          </div>
          <div className="flex gap-3 w-full lg:w-auto">
             <Button variant="outline" className="h-14 rounded-2xl px-6 border-slate-200 font-black gap-2">
-               <Filter className="h-4 w-4" /> {isAr ? 'فلترة متقدمة' : 'Filters'}
+               <Filter className="h-4 w-4" /> {isAr ? 'فلترة' : 'Filters'}
             </Button>
             <Button variant="outline" className="h-14 rounded-2xl px-6 border-slate-200 font-black gap-2">
-               <Download className="h-4 w-4" /> {isAr ? 'تصدير للبيانات' : 'Export List'}
+               <Download className="h-4 w-4" /> {isAr ? 'تصدير CSV' : 'Export'}
             </Button>
          </div>
       </div>
@@ -84,14 +71,16 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                      <th className="px-10 py-6 text-left">{isAr ? 'اسم الطالب' : 'Student Name'}</th>
                      <th className="px-10 py-6 text-left">{isAr ? 'المستوى الدراسي' : 'Level'}</th>
                      <th className="px-10 py-6 text-left">{isAr ? 'البرنامج' : 'Program'}</th>
-                     <th className="px-10 py-6 text-left">{isAr ? 'الموقع' : 'Location'}</th>
-                     <th className="px-10 py-6 text-left">{isAr ? 'الحالة المالية' : 'Financials'}</th>
+                     <th className="px-10 py-6 text-left">{isAr ? 'الحالة' : 'Status'}</th>
+                     <th className="px-10 py-6 text-left">{isAr ? 'الرصيد المالي' : 'Balance'}</th>
                      <th className="px-10 py-6 text-right"></th>
                   </tr>
                </thead>
                <tbody className="divide-y divide-slate-100">
-                  {filteredStudents.map((student, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/50 transition-all group cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/students/${student.enrollmentId}`}>
+                  {loading ? (
+                    [1,2,3].map(i => <tr key={i} className="animate-pulse"><td colSpan={6} className="h-20 bg-slate-50/50" /></tr>)
+                  ) : filteredStudents.map((student: any) => (
+                    <tr key={student.id} className="hover:bg-slate-50/50 transition-all group cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/students/${student.id}`}>
                        <td className="px-10 py-6">
                           <div className="flex items-center gap-4">
                              <div className="h-12 w-12 rounded-2xl bg-slate-900 text-secondary flex items-center justify-center font-black">
@@ -99,35 +88,37 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                              </div>
                              <div>
                                 <p className="text-sm font-black text-slate-900">{student.firstName} {student.lastName}</p>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{student.parentName}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{student.parent1Name}</p>
                              </div>
                           </div>
                        </td>
                        <td className="px-10 py-6">
                           <Badge variant="outline" className="rounded-lg bg-slate-50 border-none font-black text-[10px]">
-                             Grade {student.lastGrade}
+                             Grade {student.gradeLevel}
                           </Badge>
                        </td>
                        <td className="px-10 py-6">
-                          <p className="text-xs font-bold text-slate-600 uppercase">{student.program}</p>
+                          <p className="text-xs font-bold text-slate-600 uppercase">{student.programOption}</p>
                        </td>
                        <td className="px-10 py-6">
-                          <div className="flex items-center gap-2 text-slate-400">
-                             <MapPin className="h-3 w-3" />
-                             <span className="text-xs font-bold">{student.city}, {student.state}</span>
-                          </div>
+                          <Badge className={cn(
+                            "rounded-lg border-none font-black text-[9px] uppercase",
+                            student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+                          )}>
+                             {student.status}
+                          </Badge>
                        </td>
                        <td className="px-10 py-6">
-                          <div className="flex items-center gap-3">
-                             <div className="h-1.5 w-16 bg-slate-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500 w-[80%]" />
+                          <div className="space-y-1">
+                             <p className="text-sm font-black text-primary">${(student.financialLedger?.totalDue - student.financialLedger?.totalPaid).toLocaleString()}</p>
+                             <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-green-500" style={{ width: `${(student.financialLedger?.totalPaid / student.financialLedger?.totalDue) * 100}%` }} />
                              </div>
-                             <span className="text-[10px] font-black text-slate-400">80%</span>
                           </div>
                        </td>
                        <td className="px-10 py-6 text-right">
                           <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md">
-                             <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-secondary transition-colors" />
+                             <ChevronRight className={cn("h-5 w-5 text-slate-300 group-hover:text-secondary transition-colors", isAr && "rotate-180")} />
                           </Button>
                        </td>
                     </tr>
