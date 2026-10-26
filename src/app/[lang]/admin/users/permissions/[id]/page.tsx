@@ -10,7 +10,8 @@ import {
   ShieldCheck, ChevronLeft, Loader2, Save,
   FileText, Users, CreditCard, UserCog,
   MessageSquare, LayoutDashboard, KeyRound,
-  BarChart3, Briefcase, ShieldAlert, Search
+  BarChart3, Briefcase, ShieldAlert, Search,
+  BookOpen
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
