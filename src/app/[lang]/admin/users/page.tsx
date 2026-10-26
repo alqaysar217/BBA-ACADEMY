@@ -34,7 +34,6 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function UserRegistryPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);

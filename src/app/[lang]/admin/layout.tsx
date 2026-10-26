@@ -12,7 +12,6 @@ import {
   LogOut, 
   Menu, 
   CreditCard,
-  MessageSquare,
   ChevronRight,
   ChevronLeft,
   GraduationCap,
@@ -20,14 +19,10 @@ import {
   Moon,
   Languages,
   BookOpen,
-  ClipboardCheck,
   Briefcase,
-  Target,
   BarChart3,
   Mail,
   UserPlus,
-  FileSearch,
-  History,
   ShieldCheck,
   Users2,
   Trash2,
@@ -92,8 +87,8 @@ export default function AdminLayout({
       title: isAr ? 'إدارة المستخدمين' : 'User Management',
       items: [
         { label: isAr ? 'سجل المستخدمين' : 'User Registry', href: `/${lang}/admin/users`, icon: Users2 },
-        { label: isAr ? 'إضافة مستخدم' : 'Add New User', href: `/${lang}/admin/users/new`, icon: UserPlus },
-        { label: isAr ? 'تعديل الملف' : 'Edit Profile', href: `/${lang}/admin/users`, icon: UserPen },
+        { label: isAr ? 'إضافة مستخدم جديد' : 'Add New User', href: `/${lang}/admin/users/new`, icon: UserPlus },
+        { label: isAr ? 'تعديل الملفات' : 'Edit Profiles', href: `/${lang}/admin/users`, icon: UserPen },
         { label: isAr ? 'تحديد الصلاحيات' : 'Define Permissions', href: `/${lang}/admin/users`, icon: KeyRound },
       ]
     },
@@ -146,12 +141,6 @@ export default function AdminLayout({
     return segments.join('/');
   };
 
-  const toggleGroup = (title: string) => {
-    setOpenGroups(prev => 
-      prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
-    );
-  };
-
   const SidebarInner = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={cn(
       "flex flex-col h-full transition-colors duration-500",
@@ -183,7 +172,7 @@ export default function AdminLayout({
             <Collapsible 
               key={`${group.title}-${gIdx}`} 
               open={isGroupOpen} 
-              onOpenChange={() => toggleGroup(group.title)}
+              onOpenChange={() => setOpenGroups(prev => prev.includes(group.title) ? prev.filter(t => t !== group.title) : [...prev, group.title])}
               className="space-y-1"
             >
               {(isSidebarOpen || isMobile) ? (
@@ -194,9 +183,7 @@ export default function AdminLayout({
                       ? "bg-secondary text-white shadow-xl shadow-secondary/20" 
                       : "text-white/30 hover:bg-white/5 hover:text-white"
                   )}>
-                    <div className="flex items-center gap-3">
-                       <span className="truncate">{group.title}</span>
-                    </div>
+                    <span className="truncate">{group.title}</span>
                     <ChevronRight className={cn("h-3.5 w-3.5 transition-transform duration-300", isGroupOpen && "rotate-90")} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="space-y-1 mt-1 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
@@ -204,7 +191,7 @@ export default function AdminLayout({
                       const active = pathname === item.href;
                       return (
                         <Link
-                          key={`${item.label}-${item.href}-${iIdx}`}
+                          key={`${item.label}-${iIdx}`}
                           href={item.href}
                           onClick={() => isMobile && setMobileMenuOpen(false)}
                           className={cn(
@@ -230,7 +217,7 @@ export default function AdminLayout({
                     const active = pathname === item.href;
                     return (
                       <Link
-                        key={`${item.label}-${item.href}-${iIdx}`}
+                        key={`${item.label}-${iIdx}`}
                         href={item.href}
                         className={cn(
                           "flex items-center justify-center h-12 w-12 rounded-2xl transition-all group",
