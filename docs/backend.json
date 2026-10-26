@@ -6,67 +6,49 @@
       "description": "Stores multi-step enrollment applications including parents, multiple students, and document files.",
       "type": "object",
       "properties": {
-        "userId": { "type": "string", "description": "The ID of the parent user or 'anonymous'." },
-        "status": { "type": "string", "enum": ["draft", "submitted", "reviewed"], "description": "Current status of the application." },
-        "lang": { "type": "string", "description": "Language used during submission (en/ar)." },
+        "userId": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "submitted", "reviewed", "approved", "rejected"] },
+        "lang": { "type": "string" },
         "parent1Name": { "type": "string" },
         "parent1Phone": { "type": "string" },
         "parent1Email": { "type": "string" },
-        "relationship1": { "type": "string" },
-        "parent2Name": { "type": "string" },
-        "parent2Phone": { "type": "string" },
-        "parent2Email": { "type": "string" },
-        "relationship2": { "type": "string" },
-        "address": {
-          "type": "object",
-          "properties": {
-            "line1": { "type": "string" },
-            "line2": { "type": "string" },
-            "city": { "type": "string" },
-            "state": { "type": "string" },
-            "zip": { "type": "string" }
-          }
-        },
-        "siblingCount": { "type": "string" },
-        "students": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "status": { "type": "string" },
-              "firstName": { "type": "string" },
-              "middleName": { "type": "string" },
-              "lastName": { "type": "string" },
-              "dob": { "type": "string", "format": "date" },
-              "gender": { "type": "string" },
-              "phone": { "type": "string" },
-              "email": { "type": "string" },
-              "lastGrade": { "type": "string" }
-            }
-          }
-        },
-        "programFormat": { "type": "string", "default": "online" },
+        "address": { "type": "object" },
+        "students": { "type": "array" },
         "programOption": { "type": "string" },
-        "languageOption": { "type": "string" },
         "paymentTier": { "type": "string" },
-        "weekendSlot": { "type": "string" },
-        "weekendTerm": { "type": "string" },
-        "files": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": { "type": "string" },
-              "type": { "type": "string" },
-              "size": { "type": "number" },
-              "data": { "type": "string", "description": "Base64 encoded file data." }
-            }
-          }
-        },
+        "files": { "type": "array" },
         "submittedAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userId", "parent1Name", "students", "programOption", "status"]
+      }
+    },
+    "Student": {
+      "title": "Active Student",
+      "description": "Records of approved students with academic and financial tracking.",
+      "type": "object",
+      "properties": {
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "enrollmentId": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "graduated", "on-hold"] },
+        "gradeLevel": { "type": "string" },
+        "academicPlan": {
+          "type": "object",
+          "properties": {
+            "courses": { "type": "array" },
+            "progress": { "type": "number" },
+            "graduationYear": { "type": "number" }
+          }
+        },
+        "financialLedger": {
+          "type": "object",
+          "properties": {
+            "totalDue": { "type": "number" },
+            "totalPaid": { "type": "number" },
+            "payments": { "type": "array" },
+            "lastPaymentDate": { "type": "string" }
+          }
+        }
+      }
     }
   },
   "auth": {
@@ -75,7 +57,11 @@
   "firestore": {
     "/enrollments/{enrollmentId}": {
       "schema": "Enrollment",
-      "description": "Collection of full student enrollment applications."
+      "description": "Collection of all applications."
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Collection of active student records."
     }
   }
 }
