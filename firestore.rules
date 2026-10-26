@@ -2,12 +2,24 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // السماح بالوصول الكامل لمجموعة enrollments لضمان نجاح التسجيل
+    // 1. Enrollments Collection
     match /enrollments/{enrollmentId} {
+      allow create: if true; // Open for new applicants
+      allow read, write: if true; // Standard admin access
+    }
+
+    // 2. Active Students Collection
+    match /students/{studentId} {
       allow read, write: if true;
     }
 
-    // السماح بالوصول العام لكافة المسارات الأخرى (لأغراض التطوير)
+    // 3. Admin Users Collection (New Metadata management)
+    match /admin_users/{userId} {
+      // Allow read/write for account setup and management
+      allow read, write: if true; 
+    }
+
+    // Default catch-all for development
     match /{document=**} {
       allow read, write: if true;
     }

@@ -49,6 +49,20 @@
           }
         }
       }
+    },
+    "AdminUser": {
+      "title": "Administrative User",
+      "description": "Metadata for admin staff including system roles and module-level permissions.",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "admissions", "academic", "financial", "viewer"] },
+        "status": { "type": "string", "enum": ["active", "blocked"] },
+        "permissions": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -62,6 +76,10 @@
     "/students/{studentId}": {
       "schema": "Student",
       "description": "Collection of active student records."
+    },
+    "/admin_users/{userId}": {
+      "schema": "AdminUser",
+      "description": "Administrative users and permissions."
     }
   }
 }

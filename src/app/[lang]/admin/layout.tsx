@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ReactNode, useState, useEffect, use } from 'react';
@@ -31,7 +32,10 @@ import {
   FileSearch,
   History,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Users2,
+  UserCog,
+  LockKeyhole
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -80,7 +84,6 @@ export default function AdminLayout({
     }
   }, [user, loading, router, lang, pathname]);
 
-  // Logic to auto-open groups containing the active item
   useEffect(() => {
     menuGroups.forEach(group => {
       const hasActiveChild = group.items.some(item => pathname === item.href);
@@ -130,6 +133,14 @@ export default function AdminLayout({
       ]
     },
     {
+      title: isAr ? 'إدارة المستخدمين' : 'User Management',
+      items: [
+        { label: isAr ? 'سجل المستخدمين' : 'All Accounts', href: `/${lang}/admin/users`, icon: Users2 },
+        { label: isAr ? 'إنشاء حساب جديد' : 'New Account', href: `/${lang}/admin/users/new`, icon: UserPlus },
+        { label: isAr ? 'الأدوار والصلاحيات' : 'Roles & Permissions', href: `/${lang}/admin/users/roles`, icon: LockKeyhole },
+      ]
+    },
+    {
       title: isAr ? 'الأكاديميين' : 'Academics',
       items: [
         { label: isAr ? 'الخطط الدراسية' : 'Study Plans', href: `/${lang}/admin/academic/plans`, icon: Target },
@@ -163,7 +174,6 @@ export default function AdminLayout({
       title: isAr ? 'التقارير والإعدادات' : 'Tools',
       items: [
         { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3 },
-        { label: isAr ? 'المستخدمون' : 'Staff Accounts', href: `/${lang}/admin/users`, icon: Settings },
       ]
     }
   ];
@@ -178,7 +188,6 @@ export default function AdminLayout({
       "flex flex-col h-full transition-colors duration-500",
       isDarkMode ? "bg-slate-950 text-slate-100" : "bg-primary text-white"
     )}>
-      {/* 1. Brand Header */}
       <div className={cn(
         "p-6 border-b",
         isDarkMode ? "border-white/5" : "border-white/10"
@@ -196,7 +205,6 @@ export default function AdminLayout({
         </Link>
       </div>
 
-      {/* 2. Navigation */}
       <nav className="flex-1 py-8 px-3 space-y-4 overflow-y-auto custom-scrollbar">
         {menuGroups.map((group, gIdx) => {
           const isGroupOpen = openGroups.includes(group.title);
@@ -247,7 +255,6 @@ export default function AdminLayout({
                   </CollapsibleContent>
                 </>
               ) : (
-                /* In mini mode, we just show icons of all items directly with highlights */
                 <div className="space-y-1 flex flex-col items-center">
                   <div className={cn("w-1 h-4 rounded-full mb-1 transition-colors", hasActiveChild ? "bg-secondary" : "bg-transparent")} />
                   {group.items.map((item) => {
@@ -275,7 +282,6 @@ export default function AdminLayout({
         })}
       </nav>
 
-      {/* 3. Bottom Actions */}
       <div className={cn(
         "p-4 space-y-2 border-t",
         isDarkMode ? "border-white/5" : "border-white/10"
@@ -327,7 +333,6 @@ export default function AdminLayout({
       "min-h-screen flex overflow-hidden font-sans transition-colors duration-500",
       isDarkMode ? "bg-slate-900 admin-dark-mode" : "bg-slate-50"
     )}>
-      {/* Desktop Sidebar */}
       <aside className={cn(
         "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-700 ease-in-out border-r border-black/5 shadow-2xl",
         isSidebarOpen ? "w-72" : "w-20",
@@ -347,7 +352,6 @@ export default function AdminLayout({
         </button>
       </aside>
 
-      {/* Mobile Drawer */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side={isAr ? 'right' : 'left'} className="p-0 border-none w-80">
           <SheetTitle className="sr-only">Nav</SheetTitle>
@@ -355,7 +359,6 @@ export default function AdminLayout({
         </SheetContent>
       </Sheet>
 
-      {/* Main Content Area */}
       <div className={cn(
         "flex-1 flex flex-col min-h-screen transition-all duration-700 ease-in-out",
         isSidebarOpen ? (isAr ? "lg:mr-72" : "lg:ml-72") : (isAr ? "lg:mr-20" : "lg:ml-20")
