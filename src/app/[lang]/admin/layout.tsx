@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ReactNode, useState, useEffect, use } from 'react';
@@ -220,7 +221,7 @@ export default function AdminLayout({
           
           return (
             <Collapsible 
-              key={gIdx} 
+              key={`${group.title}-${gIdx}`} 
               open={isGroupOpen} 
               onOpenChange={() => toggleGroup(group.title)}
               className="space-y-1"
@@ -239,11 +240,11 @@ export default function AdminLayout({
                     <ChevronRight className={cn("h-3.5 w-3.5 transition-transform duration-300", isGroupOpen && "rotate-90", isGroupOpen || hasActiveChild ? "text-white" : "text-white/20")} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="space-y-1 mt-1 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
-                    {group.items.map((item) => {
+                    {group.items.map((item, iIdx) => {
                       const active = pathname === item.href;
                       return (
                         <Link
-                          key={item.href}
+                          key={`${item.label}-${iIdx}`}
                           href={item.href}
                           onClick={() => isMobile && setMobileMenuOpen(false)}
                           className={cn(
@@ -265,11 +266,11 @@ export default function AdminLayout({
               ) : (
                 <div className="space-y-1 flex flex-col items-center">
                   <div className={cn("w-1 h-4 rounded-full mb-1 transition-colors", hasActiveChild ? "bg-secondary" : "bg-transparent")} />
-                  {group.items.map((item) => {
+                  {group.items.map((item, iIdx) => {
                     const active = pathname === item.href;
                     return (
                       <Link
-                        key={item.href}
+                        key={`${item.label}-${iIdx}`}
                         href={item.href}
                         className={cn(
                           "flex items-center justify-center h-12 w-12 rounded-2xl transition-all group relative",
