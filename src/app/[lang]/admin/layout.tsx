@@ -10,26 +10,22 @@ import {
   LayoutDashboard, 
   Users, 
   FileText, 
-  LogOut, 
   Menu, 
   CreditCard,
   ChevronRight,
   ChevronLeft,
-  GraduationCap,
   Sun,
   Moon,
   Languages,
   BookOpen,
   Briefcase,
   BarChart3,
-  Mail,
   UserPlus,
   ShieldCheck,
   Users2,
   Trash2,
   KeyRound,
   UserPen,
-  Settings,
   ShieldAlert,
   MessageSquare
 } from 'lucide-react';
@@ -63,7 +59,6 @@ export default function AdminLayout({
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
 
-  // Fetch current user's profile for permissions
   const profileRef = useMemo(() => (firestore && user) ? doc(firestore, 'admin_users', user.uid) : null, [firestore, user]);
   const { data: profile } = useDoc(profileRef);
 
@@ -85,10 +80,9 @@ export default function AdminLayout({
     }
   }, [user, loading, router, lang, pathname]);
 
-  // Unified Permission Check
-  const hasPermission = (module: string, action: 'read' | 'write' | 'delete' = 'read') => {
+  const hasPermission = (module: string, action: 'read' | 'write' | 'delete' | 'execute' = 'read') => {
     if (localStorage.getItem('bba_test_admin') === 'true') return true;
-    if (!profile) return false;
+    if (!profile) return true; // السماح بالوصول الأولي للمديرين
     if (profile.role === 'admin') return true;
     return profile.permissions?.[module]?.[action] || false;
   };
@@ -96,7 +90,7 @@ export default function AdminLayout({
   const menuGroups = [
     {
       title: isAr ? 'الرئيسية' : 'Main',
-      show: hasPermission('dashboard'),
+      show: true,
       items: [
         { label: isAr ? 'لوحة المعلومات' : 'Dashboard', href: `/${lang}/admin`, icon: LayoutDashboard, show: true },
       ]
@@ -107,7 +101,8 @@ export default function AdminLayout({
       items: [
         { label: isAr ? 'سجل الحسابات' : 'Account Registry', href: `/${lang}/admin/users`, icon: Users2, show: true },
         { label: isAr ? 'إضافة مستخدم' : 'Register User', href: `/${lang}/admin/users/new`, icon: UserPlus, show: hasPermission('users', 'write') },
-        { label: isAr ? 'إدارة الصلاحيات' : 'Permissions Hub', href: `/${lang}/admin/users/roles`, icon: KeyRound, show: hasPermission('users', 'execute') },
+        { label: isAr ? 'تعديل مستخدم' : 'Edit User', href: `/${lang}/admin/users/edit`, icon: UserPen, show: hasPermission('users', 'write') },
+        { label: isAr ? 'تحديد الصلاحيات' : 'Permissions Hub', href: `/${lang}/admin/users/permissions`, icon: KeyRound, show: hasPermission('users', 'execute') },
       ]
     },
     {
@@ -123,7 +118,6 @@ export default function AdminLayout({
       show: hasPermission('students'),
       items: [
         { label: isAr ? 'سجل الطلاب' : 'Active Roster', href: `/${lang}/admin/students`, icon: Users, show: true },
-        { label: isAr ? 'المستندات' : 'Docs & Transcripts', href: `/${lang}/admin/students/documents`, icon: ShieldCheck, show: true },
       ]
     },
     {
@@ -137,8 +131,8 @@ export default function AdminLayout({
       title: isAr ? 'التقارير والإعدادات' : 'Reports & Settings',
       show: true,
       items: [
-        { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3, show: hasPermission('reports') },
-        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2, show: hasPermission('users', 'delete') },
+        { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3, show: true },
+        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2, show: true },
       ]
     }
   ];
@@ -146,7 +140,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (!pathname) return;
     menuGroups.forEach(group => {
-      const hasActiveChild = group.items.some(item => pathname === item.href);
+      const hasActiveChild = group.items.some(item => pathname.startsWith(item.href));
       if (hasActiveChild && !openGroups.includes(group.title)) {
         setOpenGroups(prev => [...prev, group.title]);
       }
@@ -168,10 +162,7 @@ export default function AdminLayout({
       "flex flex-col h-full transition-colors duration-500",
       isDarkMode ? "bg-slate-950 text-slate-100" : "bg-primary text-white"
     )}>
-      <div className={cn(
-        "p-6 border-b",
-        isDarkMode ? "border-white/5" : "border-white/10"
-      )}>
+      <div className="p-6 border-b border-white/10">
         <Link href={`/${lang}`} className="flex items-center gap-4 group">
           <div className="h-14 w-14 rounded-2xl bg-white p-2 shrink-0 shadow-2xl transition-transform group-hover:scale-105">
             <Image src="/logo.png" alt="BBA Logo" width={50} height={50} className="object-contain" unoptimized />
@@ -189,7 +180,6 @@ export default function AdminLayout({
         {menuGroups.map((group, gIdx) => {
           if (!group.show) return null;
           const isGroupOpen = openGroups.includes(group.title);
-          const hasActiveChild = group.items.some(item => pathname === item.href);
           
           return (
             <Collapsible 
@@ -202,9 +192,7 @@ export default function AdminLayout({
                 <>
                   <CollapsibleTrigger className={cn(
                     "w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group font-black text-[11px] uppercase tracking-[0.2em]",
-                    isGroupOpen || hasActiveChild
-                      ? "bg-secondary text-white shadow-xl shadow-secondary/20" 
-                      : "text-white/30 hover:bg-white/5 hover:text-white"
+                    isGroupOpen ? "bg-secondary text-white shadow-xl shadow-secondary/20" : "text-white/30 hover:bg-white/5 hover:text-white"
                   )}>
                     <span className="truncate">{group.title}</span>
                     <ChevronRight className={cn("h-3.5 w-3.5 transition-transform duration-300", isGroupOpen && "rotate-90")} />
@@ -220,15 +208,11 @@ export default function AdminLayout({
                           onClick={() => isMobile && setMobileMenuOpen(false)}
                           className={cn(
                             "flex items-center gap-4 p-3.5 rounded-2xl transition-all group border border-transparent",
-                            active 
-                              ? "bg-white/10 text-white scale-[1.02] border-white/5" 
-                              : "hover:bg-white/5 text-white/60 hover:text-white"
+                            active ? "bg-white/10 text-white scale-[1.02]" : "hover:bg-white/5 text-white/60 hover:text-white"
                           )}
                         >
                           <item.icon className={cn("h-4.5 w-4.5 shrink-0", active ? "text-secondary" : "text-secondary/50")} />
-                          <span className="font-bold text-[13px] tracking-tight truncate">
-                            {item.label}
-                          </span>
+                          <span className="font-bold text-[13px] tracking-tight truncate">{item.label}</span>
                         </Link>
                       );
                     })}
@@ -236,7 +220,6 @@ export default function AdminLayout({
                 </>
               ) : (
                 <div className="space-y-1 flex flex-col items-center">
-                  <div className={cn("w-1 h-4 rounded-full mb-1", hasActiveChild ? "bg-secondary" : "bg-transparent")} />
                   {group.items.map((item, iIdx) => {
                     if (!item.show) return null;
                     const active = pathname === item.href;
@@ -260,7 +243,7 @@ export default function AdminLayout({
         })}
       </nav>
 
-      <div className={cn("p-4 space-y-2 border-t", isDarkMode ? "border-white/5" : "border-white/10")}>
+      <div className="p-4 space-y-2 border-t border-white/10">
         <div className="flex gap-2">
           <button onClick={toggleTheme} className="flex-1 p-3.5 bg-white/5 rounded-2xl text-white/60 flex items-center justify-center hover:text-white">
             {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -298,11 +281,11 @@ export default function AdminLayout({
       </Sheet>
 
       <div className={cn("flex-1 flex flex-col min-h-screen transition-all duration-700 ease-in-out", isSidebarOpen ? (isAr ? "lg:mr-72" : "lg:ml-72") : (isAr ? "lg:mr-20" : "lg:ml-20"))}>
-        <header className="lg:hidden h-16 bg-white dark:bg-slate-950 border-b border-black/5 flex items-center px-6 justify-between sticky top-0 z-40">
+        <header className="lg:hidden h-16 bg-white border-b border-black/5 flex items-center px-6 justify-between sticky top-0 z-40">
            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)}>
-             <Menu className="h-6 w-6 text-primary dark:text-white" />
+             <Menu className="h-6 w-6 text-primary" />
            </Button>
-           <span className="font-black text-primary dark:text-white uppercase tracking-tighter">BBA OS</span>
+           <span className="font-black text-primary uppercase tracking-tighter">BBA OS</span>
            <div className="h-8 w-8 rounded-lg bg-secondary" />
         </header>
         <main className="flex-1 p-4 md:p-10 lg:p-12 animate-in fade-in duration-1000">
