@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function UserRegistryPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -128,8 +129,15 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                     <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
                        <td className="px-10 py-6">
                           <div className="flex items-center gap-4">
-                             <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-lg shadow-lg">
-                                {user.displayName?.charAt(0) || 'U'}
+                             <div className="h-12 w-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shadow-md">
+                                <Image 
+                                   src={user.photoURL || '/logo.png'} 
+                                   alt={user.displayName} 
+                                   width={40} 
+                                   height={40} 
+                                   className="object-contain p-1"
+                                   unoptimized
+                                />
                              </div>
                              <div>
                                 <p className="text-sm font-black text-slate-900 leading-none mb-1">{user.displayName}</p>
@@ -182,3 +190,4 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
     </div>
   );
 }
+

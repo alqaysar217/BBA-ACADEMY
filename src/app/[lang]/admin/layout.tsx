@@ -113,7 +113,6 @@ export default function AdminLayout({
       items: [
         { label: isAr ? 'سجل المستخدمين' : 'All Accounts', href: `/${lang}/admin/users`, icon: Users2 },
         { label: isAr ? 'إنشاء حساب جديد' : 'New Account', href: `/${lang}/admin/users/new`, icon: UserPlus },
-        { label: isAr ? 'الأدوار والصلاحيات' : 'Roles & Permissions', href: `/${lang}/admin/users/roles`, icon: LockKeyhole },
       ]
     },
     {
@@ -386,3 +385,4 @@ export default function AdminLayout({
     </div>
   );
 }
+

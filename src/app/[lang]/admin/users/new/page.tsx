@@ -1,14 +1,14 @@
 
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore } from '@/firebase';
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   UserPlus, ChevronLeft, ShieldCheck, Mail, User, 
-  LockKeyhole, AlertCircle, Loader2, CheckCircle2 
+  LockKeyhole, AlertCircle, Loader2, CheckCircle2, Camera, Upload, X 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,13 +16,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
-const ROLES = [
-  { value: 'admin', label: 'Super Admin' },
-  { value: 'admissions', label: 'Admissions Officer' },
-  { value: 'academic', label: 'Academic Coordinator' },
-  { value: 'financial', label: 'Financial Officer' },
-  { value: 'viewer', label: 'Viewer (Read Only)' },
+const getRoles = (isAr: boolean) => [
+  { value: 'admin', label: isAr ? 'مدير النظام (Super Admin)' : 'Super Admin' },
+  { value: 'admissions', label: isAr ? 'مسؤول القبول (Admissions)' : 'Admissions Officer' },
+  { value: 'academic', label: isAr ? 'المنسق الأكاديمي (Academic)' : 'Academic Coordinator' },
+  { value: 'financial', label: isAr ? 'المسؤول المالي (Financial)' : 'Financial Officer' },
+  { value: 'viewer', label: isAr ? 'مشاهد (Viewer)' : 'Viewer (Read Only)' },
 ];
 
 export default function NewUserPage({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -31,33 +32,80 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
   const router = useRouter();
   const firestore = useFirestore();
   const [loading, setLoading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     displayName: '',
     email: '',
     role: '',
-    tempPassword: '',
+    photoURL: '',
   });
+
+  const roles = getRoles(isAr);
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new globalThis.Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 200;
+          const MAX_HEIGHT = 200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+      };
+    });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const compressed = await compressImage(file);
+      setPhotoPreview(compressed);
+      setFormData(prev => ({ ...prev, photoURL: compressed }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firestore) return;
     
     if (!formData.displayName || !formData.email || !formData.role) {
-      toast({ variant: "destructive", title: "Missing Fields", description: "Please fill all required fields." });
+      toast({ variant: "destructive", title: isAr ? "حقول ناقصة" : "Missing Fields", description: isAr ? "يرجى ملء كافة الحقول الإلزامية." : "Please fill all required fields." });
       return;
     }
 
     setLoading(true);
     try {
-      // For a real app, this would be a Cloud Function or Admin SDK call
-      // to create the Auth user. Here we create the Firestore metadata.
       const newUserRef = doc(collection(firestore, 'admin_users'));
       const userData = {
         id: newUserRef.id,
         displayName: formData.displayName,
         email: formData.email.toLowerCase(),
         role: formData.role,
+        photoURL: formData.photoURL || '/logo.png',
         status: 'active',
         permissions: {
           enrollments: formData.role === 'admin' || formData.role === 'admissions' ? { read: true, write: true, delete: formData.role === 'admin' } : { read: true, write: false, delete: false },
@@ -87,7 +135,7 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
     <div className="max-w-4xl mx-auto space-y-10 pb-20">
       <div className="flex items-center gap-6">
          <button onClick={() => router.back()} className="h-12 w-12 rounded-2xl bg-white text-slate-400 hover:text-primary transition-all flex items-center justify-center shadow-sm border border-slate-100">
-           <ChevronLeft className="h-5 w-5" />
+           {isAr ? <ChevronLeft className="h-5 w-5 rotate-180" /> : <ChevronLeft className="h-5 w-5" />}
          </button>
          <div>
             <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{isAr ? 'إنشاء حساب جديد' : 'New User Account'}</h1>
@@ -106,7 +154,54 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
             </div>
          </CardHeader>
          <CardContent className="p-10">
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-10">
+               {/* Photo Upload Section */}
+               <div className="flex flex-col items-center gap-6 pb-6 border-b border-slate-50">
+                  <div className="relative group">
+                     <div className="h-32 w-32 rounded-3xl bg-slate-100 border-4 border-white shadow-xl overflow-hidden relative">
+                        <Image 
+                           src={photoPreview || '/logo.png'} 
+                           alt="Preview" 
+                           fill 
+                           className="object-contain p-2"
+                           unoptimized
+                        />
+                        {loading && (
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <Loader2 className="h-8 w-8 text-white animate-spin" />
+                          </div>
+                        )}
+                     </div>
+                     <button 
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute -bottom-3 -right-3 h-10 w-10 bg-primary text-white rounded-xl shadow-xl flex items-center justify-center hover:bg-secondary transition-all"
+                     >
+                        <Camera className="h-5 w-5" />
+                     </button>
+                     {photoPreview && (
+                        <button 
+                           type="button"
+                           onClick={() => { setPhotoPreview(null); setFormData(p => ({...p, photoURL: ''})); }}
+                           className="absolute -top-3 -right-3 h-8 w-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg"
+                        >
+                           <X className="h-4 w-4" />
+                        </button>
+                     )}
+                  </div>
+                  <div className="text-center">
+                     <p className="text-xs font-black text-primary uppercase tracking-widest">{isAr ? 'الصورة الشخصية' : 'Profile Picture'}</p>
+                     <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{isAr ? 'يتم الضغط آلياً لتوفير المساحة' : 'Compressed automatically for efficiency'}</p>
+                  </div>
+                  <input 
+                     type="file" 
+                     ref={fileInputRef} 
+                     className="hidden" 
+                     accept="image/*" 
+                     onChange={handleImageChange} 
+                  />
+               </div>
+
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
@@ -131,30 +226,20 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                         placeholder="m.ali@baneenbanaat.org" 
                      />
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-3 md:col-span-2">
                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                         <LockKeyhole className="h-3 w-3 text-secondary" /> {isAr ? 'الدور الوظيفي' : 'System Role'}
                      </Label>
                      <Select onValueChange={(v) => setFormData({...formData, role: v})} value={formData.role}>
                         <SelectTrigger className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50">
-                           <SelectValue placeholder={isAr ? 'اختر الدور' : 'Assign Role'} />
+                           <SelectValue placeholder={isAr ? 'اختر الدور الوظيفي' : 'Assign Role'} />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl p-2">
-                           {ROLES.map(role => (
+                           {roles.map(role => (
                               <SelectItem key={role.value} value={role.value} className="font-bold py-3">{role.label}</SelectItem>
                            ))}
                         </SelectContent>
                      </Select>
-                  </div>
-                  <div className="space-y-3">
-                     <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <LockKeyhole className="h-3 w-3 text-secondary" /> {isAr ? 'كلمة مرور مؤقتة' : 'Temporary Password'}
-                     </Label>
-                     <Input 
-                        type="password"
-                        className="h-14 rounded-xl border-slate-100 font-bold bg-slate-50/50 focus:bg-white" 
-                        placeholder="••••••••" 
-                     />
                   </div>
                </div>
 
@@ -179,3 +264,4 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
     </div>
   );
 }
+
