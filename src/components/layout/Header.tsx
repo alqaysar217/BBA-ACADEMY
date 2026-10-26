@@ -44,6 +44,9 @@ export function Header({ lang }: { lang: Locale }) {
     setMounted(true);
   }, []);
 
+  // منع ظهور الهيدر في صفحات الإدارة
+  if (pathname?.includes('/admin')) return null;
+
   const redirectedPathname = (locale: string) => {
     if (!pathname) return '/';
     const segments = pathname.split('/');

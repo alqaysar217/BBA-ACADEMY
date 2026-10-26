@@ -2,11 +2,17 @@
 
 import { MessageCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { toast } from '@/hooks/use-toast';
 
 export function WhatsAppButton({ lang }: { lang: Locale }) {
+  const pathname = usePathname();
   const isAr = lang === 'ar';
+  
+  // منع ظهور زر واتساب والمساعد الذكي في صفحات الإدارة
+  if (pathname?.includes('/admin')) return null;
+
   const whatsappNumber = '13136555778';
   const message = isAr 
     ? 'مرحباً أكاديمية بنين وبنات، أرغب في الاستفسار عن برامجكم التعليمية.' 

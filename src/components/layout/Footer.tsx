@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { 
   Mail, 
@@ -26,8 +27,12 @@ import {
 import Image from 'next/image';
 
 export function Footer({ lang }: { lang: Locale }) {
+  const pathname = usePathname();
   const isAr = lang === 'ar';
   const currentYear = 2026;
+
+  // منع ظهور الفوتر في صفحات الإدارة
+  if (pathname?.includes('/admin')) return null;
 
   const t = {
     description: isAr 
