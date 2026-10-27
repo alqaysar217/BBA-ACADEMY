@@ -109,7 +109,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     
     const studentsCollection = collection(firestore, 'students');
     
-    // Create student records - Avoiding await for instant UI feel
     app.students.forEach((student: any) => {
       const studentDoc = doc(studentsCollection);
       const studentData = {
@@ -148,7 +147,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       });
     });
 
-    // Update enrollment status
     const enrollmentUpdate = { 
       status: 'approved', 
       updatedAt: serverTimestamp(),
@@ -178,7 +176,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">
-           <div className="h-12 w-12 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
+           <div className="h-10 w-10 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
            <p className="text-[10px] font-black text-primary uppercase tracking-widest animate-pulse">
               {isAr ? 'مزامنة السجلات...' : 'Syncing Records...'}
            </p>
@@ -191,10 +189,10 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-center p-8">
         <div className="space-y-6 max-w-sm">
-           <div className="h-20 w-20 bg-white shadow-lg rounded-xl flex items-center justify-center mx-auto text-slate-200 border border-slate-100">
-              <FileText className="h-10 w-10" />
+           <div className="h-16 w-16 bg-white shadow-lg rounded-xl flex items-center justify-center mx-auto text-slate-200 border border-slate-100">
+              <FileText className="h-8 w-8" />
            </div>
-           <h2 className="text-2xl font-black text-primary uppercase">{isAr ? 'الطلب غير موجود' : 'Missing Entry'}</h2>
+           <h2 className="text-xl font-black text-primary uppercase">{isAr ? 'الطلب غير موجود' : 'Missing Entry'}</h2>
            <Button onClick={() => router.back()} className="w-full bg-primary text-white rounded-lg h-12 font-black">
               {isAr ? 'العودة للخلف' : 'Go Back'}
            </Button>
@@ -205,11 +203,11 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
   const SectionHeader = ({ icon: Icon, title, subtitle, color = "bg-primary" }: { icon: any, title: string, subtitle: string, color?: string }) => (
     <div className="flex items-center gap-4 mb-6 px-2">
-      <div className={cn("h-11 w-11 rounded-lg text-white flex items-center justify-center shadow-md", color)}>
-        <Icon className="h-5.5 w-5.5" />
+      <div className={cn("h-10 w-10 rounded-lg text-white flex items-center justify-center shadow-md", color)}>
+        <Icon className="h-5 w-5" />
       </div>
       <div className="space-y-0.5">
-        <h2 className="text-xl font-black text-primary uppercase tracking-tight leading-none">{title}</h2>
+        <h2 className="text-lg font-black text-primary uppercase tracking-tight leading-none">{title}</h2>
         <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{subtitle}</p>
       </div>
     </div>
@@ -217,20 +215,19 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
   return (
     <div className="space-y-10">
-      {/* Premium Header - Glassmorphism */}
-      <header className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-xl p-5 shadow-sm sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
+      <header className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-xl p-4 shadow-sm sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => router.back()} 
-            className="h-11 w-11 rounded-lg bg-slate-50 text-slate-400 hover:text-primary hover:bg-white hover:shadow-md transition-all border border-slate-100 flex items-center justify-center group"
+            className="h-10 w-10 rounded-lg bg-slate-50 text-slate-400 hover:text-primary hover:bg-white hover:shadow-md transition-all border border-slate-100 flex items-center justify-center group"
           >
-            {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+            {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
           <div className="space-y-0.5">
             <div className="flex items-center gap-3">
-               <h1 className="text-xl md:text-2xl font-black text-primary truncate">{app.parent1Name}</h1>
+               <h1 className="text-lg md:text-xl font-black text-primary truncate">{app.parent1Name}</h1>
                <Badge className={cn(
-                 "h-6 px-3 rounded-lg font-black uppercase text-[9px] tracking-widest border-none shadow-sm",
+                 "h-5 px-2 rounded-md font-black uppercase text-[8px] tracking-widest border-none shadow-sm",
                  app.status === 'approved' ? "bg-green-100 text-green-600" : 
                  app.status === 'rejected' ? "bg-red-100 text-red-600" :
                  app.status === 'reviewed' ? "bg-blue-100 text-blue-600" :
@@ -241,31 +238,29 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
             </div>
             <div className="flex items-center gap-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                <span className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> {app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, HH:mm') : '-'}</span>
-               <span className="h-1 w-1 bg-slate-200 rounded-full" />
-               <span>ID: {id.slice(0,8)}</span>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex-1 md:flex-none rounded-lg h-11 border-slate-200 font-black text-[10px] uppercase tracking-widest bg-white hover:bg-slate-50">
-                <Layers className="h-4 w-4 mr-2 text-secondary" />
+              <Button variant="outline" className="flex-1 md:flex-none rounded-lg h-10 border-slate-200 font-black text-[10px] uppercase tracking-widest bg-white hover:bg-slate-50">
+                <Layers className="h-3.5 w-3.5 mr-2 text-secondary" />
                 {isAr ? 'تغيير الحالة' : 'Update Status'}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl p-1.5 min-w-[200px] shadow-2xl border-slate-100">
-              <DropdownMenuItem onClick={() => updateStatus('reviewed')} className="font-bold text-primary p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+              <DropdownMenuItem onClick={() => updateStatus('reviewed')} className="font-bold text-primary p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
                 <div className="h-2 w-2 rounded-full bg-blue-500" /> {isAr ? 'تمت المراجعة' : 'Mark Reviewed'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('missing_docs')} className="font-bold text-amber-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+              <DropdownMenuItem onClick={() => updateStatus('missing_docs')} className="font-bold text-amber-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
                 <div className="h-2 w-2 rounded-full bg-amber-500" /> {isAr ? 'وثائق مفقودة' : 'Missing Documents'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('rejected')} className="font-bold text-red-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+              <DropdownMenuItem onClick={() => updateStatus('rejected')} className="font-bold text-red-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
                 <div className="h-2 w-2 rounded-full bg-red-500" /> {isAr ? 'رفض الطلب' : 'Reject Application'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('approved')} className="font-bold text-emerald-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+              <DropdownMenuItem onClick={() => updateStatus('approved')} className="font-bold text-emerald-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
                 <div className="h-2 w-2 rounded-full bg-emerald-500" /> {isAr ? 'مقبول' : 'Approve Application'}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -274,18 +269,15 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
           <Button 
             onClick={approveAndEnroll}
             disabled={isProcessing || app.status === 'approved'}
-            className="flex-[2] md:flex-none rounded-lg h-11 bg-primary hover:bg-secondary text-white font-black px-8 shadow-xl transition-all gap-2 text-xs active:scale-95"
+            className="flex-[2] md:flex-none rounded-lg h-10 bg-primary hover:bg-secondary text-white font-black px-6 shadow-xl transition-all gap-2 text-[10px] uppercase tracking-widest"
           >
-            {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4 text-secondary" />}
+            {isProcessing ? <Clock className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5 text-secondary" />}
             {isAr ? 'اعتماد وتسجيل الطالب' : 'Approve & Enroll'}
           </Button>
         </div>
       </header>
 
-      {/* Main Grid Content */}
       <div className="grid grid-cols-1 gap-12">
-        
-        {/* SECTION 1: GUARDIANS */}
         <section className="animate-in fade-in slide-in-from-bottom-8 duration-700">
           <SectionHeader 
             icon={Users} 
@@ -296,7 +288,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
             <div className="overflow-x-auto">
                <Table>
                  <TableHeader className="bg-slate-50 border-b border-slate-100">
-                   <TableRow className="hover:bg-transparent h-14">
+                   <TableRow className="hover:bg-transparent h-12">
                      <TableHead className="w-16 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">#</TableHead>
                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest px-6 text-start">{isAr ? 'اسم ولي الأمر' : 'Guardian Name'}</TableHead>
                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'رقم الهاتف' : 'Contact Phone'}</TableHead>
@@ -307,30 +299,30 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                  </TableHeader>
                  <TableBody>
                    <TableRow className="hover:bg-slate-50/50 border-slate-100 transition-colors">
-                     <TableCell className="text-center font-black text-slate-300 py-6">01</TableCell>
-                     <TableCell className="px-6 font-black text-primary text-base text-start">{app.parent1Name}</TableCell>
-                     <TableCell className="font-bold text-slate-600 text-center" dir="ltr">{app.parent1Phone}</TableCell>
-                     <TableCell className="font-bold text-slate-600 text-center">{app.parent1Email}</TableCell>
-                     <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-lg">{app.relationship1}</Badge></TableCell>
-                     <TableCell className="text-center"><Badge className="bg-secondary text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-lg">Primary</Badge></TableCell>
+                     <TableCell className="text-center font-black text-slate-300 py-4">01</TableCell>
+                     <TableCell className="px-6 font-black text-primary text-sm text-start">{app.parent1Name}</TableCell>
+                     <TableCell className="font-bold text-slate-600 text-center text-xs" dir="ltr">{app.parent1Phone}</TableCell>
+                     <TableCell className="font-bold text-slate-600 text-center text-xs">{app.parent1Email}</TableCell>
+                     <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-md">{app.relationship1}</Badge></TableCell>
+                     <TableCell className="text-center"><Badge className="bg-secondary text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-md">Primary</Badge></TableCell>
                    </TableRow>
                    
                    {app.parent2Name && (
                      <TableRow className="hover:bg-slate-50/50 border-slate-100 transition-colors">
-                       <TableCell className="text-center font-black text-slate-300 py-6">02</TableCell>
-                       <TableCell className="px-6 font-black text-primary text-base text-start">{app.parent2Name}</TableCell>
-                       <TableCell className="font-bold text-slate-600 text-center" dir="ltr">{app.parent2Phone}</TableCell>
-                       <TableCell className="font-bold text-slate-600 text-center">{app.parent2Email}</TableCell>
-                       <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-lg">{app.relationship2}</Badge></TableCell>
-                       <TableCell className="text-center"><Badge className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-lg">Secondary</Badge></TableCell>
+                       <TableCell className="text-center font-black text-slate-300 py-4">02</TableCell>
+                       <TableCell className="px-6 font-black text-primary text-sm text-start">{app.parent2Name}</TableCell>
+                       <TableCell className="font-bold text-slate-600 text-center text-xs" dir="ltr">{app.parent2Phone}</TableCell>
+                       <TableCell className="font-bold text-slate-600 text-center text-xs">{app.parent2Email}</TableCell>
+                       <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-md">{app.relationship2}</Badge></TableCell>
+                       <TableCell className="text-center"><Badge className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-md">Secondary</Badge></TableCell>
                      </TableRow>
                    )}
 
                    <TableRow className="bg-slate-50/30">
-                     <TableCell colSpan={6} className="p-6">
-                        <div className="bg-white p-6 rounded-xl border border-slate-100 flex flex-row items-center gap-8 shadow-sm overflow-x-auto no-scrollbar ring-1 ring-slate-100">
+                     <TableCell colSpan={6} className="p-4">
+                        <div className="bg-white p-6 rounded-lg border border-slate-100 flex flex-row items-center gap-8 shadow-sm overflow-x-auto no-scrollbar ring-1 ring-slate-100">
                            <div className="flex items-center gap-4 shrink-0">
-                              <div className="h-11 w-11 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
+                              <div className="h-10 w-10 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
                                  <MapPin className="h-5 w-5" />
                               </div>
                               <div className="space-y-0.5">
@@ -339,7 +331,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                               </div>
                            </div>
                            <div className="h-10 w-px bg-slate-100 shrink-0" />
-                           <div className="flex flex-row gap-8 text-xs font-bold text-slate-700 whitespace-nowrap">
+                           <div className="flex flex-row gap-10 text-xs font-bold text-slate-700 whitespace-nowrap">
                               <div className="space-y-1">
                                  <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'العنوان الأول' : 'Address 1'}</span>
                                  <span className="text-primary font-black text-sm">{app.address?.line1 || '-'}</span>
@@ -370,7 +362,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
           </Card>
         </section>
 
-        {/* SECTION 2: STUDENT ROSTER */}
         <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
            <SectionHeader 
               icon={GraduationCap} 
@@ -382,10 +373,10 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-slate-50 border-b border-slate-100">
-                    <TableRow className="hover:bg-transparent h-14">
+                    <TableRow className="hover:bg-transparent h-12">
                       <TableHead className="w-16 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">#</TableHead>
                       <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest px-6 text-start">{isAr ? 'اسم الطالب' : 'Full Name'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'الجنس' : 'Gender'}</TableHead>
+                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'الجنـس' : 'Gender'}</TableHead>
                       <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'تاريخ الميلاد' : 'D.O.B'}</TableHead>
                       <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'المستوى' : 'Level'}</TableHead>
                       <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'الهاتف' : 'Phone'}</TableHead>
@@ -396,16 +387,16 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                   <TableBody>
                     {app.students?.map((student: any, idx: number) => (
                       <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100 transition-colors">
-                        <TableCell className="text-center font-black text-slate-300 py-6">{idx + 1}</TableCell>
-                        <TableCell className="px-6 font-black text-primary text-base text-start whitespace-nowrap">
+                        <TableCell className="text-center font-black text-slate-300 py-4">{idx + 1}</TableCell>
+                        <TableCell className="px-6 font-black text-primary text-sm text-start whitespace-nowrap">
                           {student.firstName} {student.middleName} {student.lastName}
                         </TableCell>
-                        <TableCell className="text-center font-bold text-slate-500">
+                        <TableCell className="text-center font-bold text-slate-500 text-xs">
                            {student.gender === 'Male' ? (isAr ? 'ذكر' : 'Male') : (isAr ? 'أنثى' : 'Female')}
                         </TableCell>
-                        <TableCell className="font-bold text-slate-600 text-[11px] text-center whitespace-nowrap">{student.dob}</TableCell>
+                        <TableCell className="font-bold text-slate-600 text-[10px] text-center whitespace-nowrap">{student.dob}</TableCell>
                         <TableCell className="text-center whitespace-nowrap">
-                           <Badge variant="outline" className="rounded-lg border-slate-100 bg-slate-50 text-primary font-black text-[9px] px-3 py-1">Grade {student.lastGrade}</Badge>
+                           <Badge variant="outline" className="rounded-md border-slate-100 bg-slate-50 text-primary font-black text-[8px] px-2 py-0.5">Grade {student.lastGrade}</Badge>
                         </TableCell>
                         <TableCell className="text-[10px] font-black text-slate-600 text-center whitespace-nowrap" dir="ltr">
                           {student.phone}
@@ -414,7 +405,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                           {student.email}
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap">
-                          <Badge className="bg-secondary/10 text-secondary border-none font-black text-[8px] uppercase px-2 rounded-lg">
+                          <Badge className="bg-secondary/10 text-secondary border-none font-black text-[8px] uppercase px-2 rounded-md">
                              {student.status}
                           </Badge>
                         </TableCell>
@@ -426,23 +417,22 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
             </Card>
         </section>
 
-        {/* SECTION 3: BOTTOM GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
           <section className="space-y-6">
              <SectionHeader icon={Briefcase} title={isAr ? 'المسار التعليمي' : 'Academic Track'} subtitle={isAr ? 'البرنامج المختار والرسوم' : 'Enrollment Path'} color="bg-accent" />
-             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 p-8 flex flex-col justify-center gap-6 min-h-[240px]">
+             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 p-8 flex flex-col justify-center gap-6 min-h-[200px]">
                 <div className="space-y-1">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'خيار البرنامج' : 'Selected Program'}</p>
-                   <h3 className="text-2xl font-black text-primary tracking-tight">{app.programOption}</h3>
+                   <h3 className="text-xl font-black text-primary tracking-tight">{app.programOption}</h3>
                 </div>
                 <div className="h-px bg-slate-50 w-full" />
                 <div className="space-y-2">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'الرسوم الدراسية المقدرة' : 'Tuition Projection'}</p>
                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-secondary tracking-tighter">
+                      <span className="text-3xl font-black text-secondary tracking-tighter">
                          {app.programOption === 'weekend' ? '$75' : app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650'}
                       </span>
-                      <span className="text-slate-300 font-bold text-xs uppercase tracking-widest">{app.programOption === 'weekend' ? '/ Month' : '/ One-Time'}</span>
+                      <span className="text-slate-300 font-bold text-[10px] uppercase tracking-widest">{app.programOption === 'weekend' ? '/ Month' : '/ One-Time'}</span>
                    </div>
                 </div>
              </Card>
@@ -450,16 +440,16 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
           <section className="space-y-6">
              <SectionHeader icon={FileCheck} title={isAr ? 'الأرشيف الرقمي' : 'Digital Evidence'} subtitle={isAr ? 'الوثائق المرفقة' : 'Verified Uploads'} color="bg-slate-900" />
-             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 min-h-[240px]">
+             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 min-h-[200px]">
                 <Table>
                   <TableBody>
                     {app.files && app.files.length > 0 ? (
                       app.files.map((file: any, idx: number) => (
                         <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100">
-                          <TableCell className="py-5 px-8">
+                          <TableCell className="py-4 px-8">
                              <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-secondary shadow-sm">
-                                   <FileText className="h-5 w-5" />
+                                <div className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-secondary shadow-sm">
+                                   <FileText className="h-4 w-4" />
                                 </div>
                                 <div className="space-y-0.5">
                                    <p className="text-xs font-black text-primary truncate max-w-[200px]">{file.name}</p>
@@ -467,13 +457,13 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                                 </div>
                              </div>
                           </TableCell>
-                          <TableCell className="py-5 text-right pr-8">
+                          <TableCell className="py-4 text-right pr-8">
                              <Button 
                                 onClick={() => window.open(file.data, '_blank')} 
                                 variant="outline" 
-                                className="h-10 w-10 rounded-lg border-slate-200 text-slate-400 hover:text-secondary hover:bg-white"
+                                className="h-8 w-8 rounded-lg border-slate-200 text-slate-400 hover:text-secondary"
                              >
-                                <ExternalLink className="h-4 w-4" />
+                                <ExternalLink className="h-3.5 w-3.5" />
                              </Button>
                           </TableCell>
                         </TableRow>
