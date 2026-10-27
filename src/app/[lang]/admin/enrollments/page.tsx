@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -168,35 +169,35 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                  <table className="w-full">
                     <thead>
                        <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
-                          <th className="px-8 py-5 text-left">{isAr ? 'ولي الأمر والطلاب' : 'Guardian & Students'}</th>
-                          <th className="px-8 py-5 text-left">{isAr ? 'البرنامج' : 'Program'}</th>
-                          <th className="px-8 py-5 text-left">{isAr ? 'الموقع' : 'Location'}</th>
-                          <th className="px-8 py-5 text-left">{isAr ? 'الحالة' : 'Status'}</th>
-                          <th className="px-8 py-5 text-left">{isAr ? 'التاريخ' : 'Date'}</th>
-                          <th className="px-8 py-5 text-right"></th>
+                          <th className="px-8 py-5 text-start">{isAr ? 'ولي الأمر والطلاب' : 'Guardian & Students'}</th>
+                          <th className="px-8 py-5 text-center">{isAr ? 'البرنامج' : 'Program'}</th>
+                          <th className="px-8 py-5 text-center">{isAr ? 'الموقع' : 'Location'}</th>
+                          <th className="px-8 py-5 text-center">{isAr ? 'الحالة' : 'Status'}</th>
+                          <th className="px-8 py-5 text-center">{isAr ? 'التاريخ' : 'Date'}</th>
+                          <th className="px-8 py-5 text-end"></th>
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                        {filteredData.map((app: any) => (
                           <tr key={app.id} className="hover:bg-slate-50/50 transition-colors group cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/enrollments/${app.id}`}>
-                             <td className="px-8 py-6">
+                             <td className="px-8 py-6 text-start">
                                 <div className="flex items-center gap-4">
-                                   <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-lg">
+                                   <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-lg shrink-0">
                                       {app.parent1Name?.charAt(0)}
                                    </div>
-                                   <div className="space-y-1">
-                                      <p className="text-base font-black text-primary leading-none">{app.parent1Name}</p>
+                                   <div className="space-y-1 min-w-0">
+                                      <p className="text-base font-black text-primary leading-none truncate">{app.parent1Name}</p>
                                       <div className="flex items-center gap-3">
                                          <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
                                             <Users className="h-3 w-3" /> {app.students?.length} {isAr ? 'طلاب' : 'Students'}
                                          </span>
                                          <span className="text-[10px] text-slate-300">•</span>
-                                         <span className="text-[10px] text-slate-400 font-bold">{app.parent1Email}</span>
+                                         <span className="text-[10px] text-slate-400 font-bold truncate">{app.parent1Email}</span>
                                       </div>
                                    </div>
                                 </div>
                              </td>
-                             <td className="px-8 py-6">
+                             <td className="px-8 py-6 text-center">
                                 <div className="space-y-1">
                                    <Badge variant="outline" className="text-[9px] font-black uppercase bg-secondary/5 border-secondary/10 text-secondary">
                                       {app.programOption}
@@ -204,24 +205,24 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                                    <p className="text-[10px] text-slate-400 font-bold uppercase">{app.languageOption || 'Default'}</p>
                                 </div>
                              </td>
-                             <td className="px-8 py-6">
-                                <div className="flex items-center gap-2">
+                             <td className="px-8 py-6 text-center">
+                                <div className="flex items-center justify-center gap-2">
                                    <MapPin className="h-3.5 w-3.5 text-slate-300" />
-                                   <span className="text-xs font-bold text-slate-600">{app.address?.city}, {app.address?.state}</span>
+                                   <span className="text-xs font-bold text-slate-600 whitespace-nowrap">{app.address?.city}, {app.address?.state}</span>
                                 </div>
                              </td>
-                             <td className="px-8 py-6">
+                             <td className="px-8 py-6 text-center">
                                 <Badge className={cn(
-                                   "text-[9px] font-black uppercase rounded-lg border-none",
+                                   "text-[9px] font-black uppercase rounded-lg border-none mx-auto",
                                    app.status === 'submitted' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
                                 )}>
                                    {app.status}
                                 </Badge>
                              </td>
-                             <td className="px-8 py-6">
-                                <p className="text-xs font-bold text-slate-600">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</p>
+                             <td className="px-8 py-6 text-center">
+                                <p className="text-xs font-bold text-slate-600 whitespace-nowrap">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</p>
                              </td>
-                             <td className="px-8 py-6 text-right">
+                             <td className="px-8 py-6 text-end">
                                 <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md">
                                    <ChevronRight className={cn("h-5 w-5 text-slate-300 group-hover:text-primary transition-colors", isAr && "rotate-180")} />
                                 </Button>
