@@ -308,19 +308,23 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                                  <MapPin className="h-5 w-5" />
                               </div>
                               <div className="space-y-0.5">
-                                 <span className="font-black text-primary uppercase text-[10px] tracking-tight">{isAr ? 'عنوان السكن المعتمد' : 'Residence'}</span>
-                                 <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Global Shipping Address</p>
+                                 <span className="font-black text-primary uppercase text-[10px] tracking-tight">{isAr ? 'عنوان السكن المعتمد' : 'Verified Address'}</span>
+                                 <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Shipping & Records</p>
                               </div>
                            </div>
-                           <div className="h-10 w-px bg-slate-100 shrink-0 hidden md:block" />
-                           <div className="flex flex-row gap-4 text-xs font-bold text-slate-700 whitespace-nowrap">
-                              <div className="px-4 py-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block mb-0.5">{isAr ? 'تفاصيل الموقع' : 'Location Details'}</span>
-                                 <span className="text-primary font-black">{app.address?.line1} {app.address?.line2}</span>
+                           <div className="h-10 w-px bg-slate-100 shrink-0" />
+                           <div className="flex flex-row gap-8 text-xs font-bold text-slate-700 whitespace-nowrap">
+                              <div className="space-y-1">
+                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'العنوان' : 'Street Address'}</span>
+                                 <span className="text-primary font-black text-sm">{app.address?.line1} {app.address?.line2}</span>
                               </div>
-                              <div className="px-4 py-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block mb-0.5">{isAr ? 'المنطقة والرمز' : 'Region & ZIP'}</span>
-                                 <span className="text-secondary font-black">{app.address?.city}, {app.address?.state} {app.address?.zip}</span>
+                              <div className="space-y-1">
+                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'المدينة والولاية' : 'City & State'}</span>
+                                 <span className="text-primary font-black text-sm">{app.address?.city}, {app.address?.state}</span>
+                              </div>
+                              <div className="space-y-1">
+                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'الرمز البريدي' : 'ZIP Code'}</span>
+                                 <span className="text-secondary font-black text-sm">{app.address?.zip}</span>
                               </div>
                            </div>
                         </div>
