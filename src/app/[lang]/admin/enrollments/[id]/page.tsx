@@ -274,33 +274,33 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
               <TableHeader className="bg-slate-50 border-b border-slate-100">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-16 text-center font-black text-[10px] uppercase text-slate-400">#</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase text-slate-400 px-6">{isAr ? 'اسم ولي الأمر' : 'Guardian Full Name'}</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'رقم الهاتف' : 'Phone Number'}</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'القرابة' : 'Relationship'}</TableHead>
-                  <TableHead className="font-black text-[10px] uppercase text-slate-400 text-right pr-8">{isAr ? 'الدور' : 'Role'}</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase text-slate-400 px-6 text-start">{isAr ? 'اسم ولي الأمر' : 'Guardian Full Name'}</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'رقم الهاتف' : 'Phone Number'}</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'القرابة' : 'Relationship'}</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'الدور' : 'Role'}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {/* Parent 1 */}
                 <TableRow className="hover:bg-slate-50/50 border-slate-100">
                   <TableCell className="text-center font-black text-slate-300 py-6">01</TableCell>
-                  <TableCell className="px-6 font-black text-primary text-base">{app.parent1Name}</TableCell>
-                  <TableCell className="font-bold text-slate-600" dir="ltr">{app.parent1Phone}</TableCell>
-                  <TableCell className="font-bold text-slate-600">{app.parent1Email}</TableCell>
-                  <TableCell><Badge variant="outline" className="bg-secondary/5 text-secondary border-none font-black text-[10px] uppercase">{app.relationship1}</Badge></TableCell>
-                  <TableCell className="text-right pr-8"><Badge className="bg-primary text-white text-[8px] font-black uppercase">Primary</Badge></TableCell>
+                  <TableCell className="px-6 font-black text-primary text-base text-start">{app.parent1Name}</TableCell>
+                  <TableCell className="font-bold text-slate-600 text-center" dir="ltr">{app.parent1Phone}</TableCell>
+                  <TableCell className="font-bold text-slate-600 text-center">{app.parent1Email}</TableCell>
+                  <TableCell className="text-center"><Badge variant="outline" className="bg-secondary/5 text-secondary border-none font-black text-[10px] uppercase">{app.relationship1}</Badge></TableCell>
+                  <TableCell className="text-center"><Badge className="bg-primary text-white text-[8px] font-black uppercase">Primary</Badge></TableCell>
                 </TableRow>
                 
                 {/* Parent 2 (If Exists) */}
                 {app.parent2Name && (
                   <TableRow className="hover:bg-slate-50/50 border-slate-100">
                     <TableCell className="text-center font-black text-slate-300 py-6">02</TableCell>
-                    <TableCell className="px-6 font-black text-primary text-base">{app.parent2Name}</TableCell>
-                    <TableCell className="font-bold text-slate-600" dir="ltr">{app.parent2Phone}</TableCell>
-                    <TableCell className="font-bold text-slate-600">{app.parent2Email}</TableCell>
-                    <TableCell><Badge variant="outline" className="bg-slate-100 text-slate-400 border-none font-black text-[10px] uppercase">{app.relationship2}</Badge></TableCell>
-                    <TableCell className="text-right pr-8"><Badge className="bg-slate-900 text-white text-[8px] font-black uppercase">Secondary</Badge></TableCell>
+                    <TableCell className="px-6 font-black text-primary text-base text-start">{app.parent2Name}</TableCell>
+                    <TableCell className="font-bold text-slate-600 text-center" dir="ltr">{app.parent2Phone}</TableCell>
+                    <TableCell className="font-bold text-slate-600 text-center">{app.parent2Email}</TableCell>
+                    <TableCell className="text-center"><Badge variant="outline" className="bg-slate-100 text-slate-400 border-none font-black text-[10px] uppercase">{app.relationship2}</Badge></TableCell>
+                    <TableCell className="text-center"><Badge className="bg-slate-900 text-white text-[8px] font-black uppercase">Secondary</Badge></TableCell>
                   </TableRow>
                 )}
 
@@ -345,34 +345,34 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                 <TableHeader className="bg-slate-50 border-b border-slate-100">
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-16 text-center font-black text-[10px] uppercase text-slate-400">#</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400 px-6">{isAr ? 'الاسم بالكامل' : 'Full Name'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'الجنس' : 'Gender'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'تاريخ الميلاد' : 'D.O.B'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'حالة الطالب' : 'Status'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400">{isAr ? 'التواصل' : 'Contact'}</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-right pr-8">{isAr ? 'المستوى' : 'Grade'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 px-6 text-start">{isAr ? 'الاسم بالكامل' : 'Full Name'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'الجنس' : 'Gender'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'تاريخ الميلاد' : 'D.O.B'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'حالة الطالب' : 'Status'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'التواصل' : 'Contact'}</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase text-slate-400 text-center">{isAr ? 'المستوى' : 'Grade'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {app.students?.map((student: any, idx: number) => (
                     <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100 group">
                       <TableCell className="text-center font-black text-slate-300 py-6">{idx + 1}</TableCell>
-                      <TableCell className="px-6 font-black text-primary text-base">
+                      <TableCell className="px-6 font-black text-primary text-base text-start">
                         {student.firstName} {student.middleName} {student.lastName}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                          {student.gender === 'Male' ? (isAr ? 'ذكر' : 'Male') : (isAr ? 'أنثى' : 'Female')}
                       </TableCell>
-                      <TableCell className="font-bold text-slate-600 text-xs">{student.dob}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-bold text-slate-600 text-xs text-center">{student.dob}</TableCell>
+                      <TableCell className="text-center">
                         <Badge className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">
                            {student.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-[10px] font-bold text-slate-600" dir="ltr">
+                      <TableCell className="text-[10px] font-bold text-slate-600 text-center" dir="ltr">
                         {student.phone}
                       </TableCell>
-                      <TableCell className="text-right pr-8 font-black text-primary">
+                      <TableCell className="text-center font-black text-primary">
                         Grade {student.lastGrade}
                       </TableCell>
                     </TableRow>
