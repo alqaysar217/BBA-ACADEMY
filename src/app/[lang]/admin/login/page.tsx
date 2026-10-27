@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, use } from 'react';
@@ -9,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Lock, Mail, Loader2, ArrowLeft, ArrowRight, ShieldCheck, User } from 'lucide-react';
+import { Lock, Mail, Loader2, ArrowLeft, ArrowRight, ShieldCheck, User, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,12 +20,14 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
   const auth = useAuth();
   const router = useRouter();
   const isAr = lang === 'ar';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setNetworkError(false);
 
     // 1. TESTING BYPASS: Allow admin/admin for rapid local testing
     if (email.toLowerCase() === 'admin' && password.toLowerCase() === 'admin') {
@@ -52,10 +55,7 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
 
     setLoading(true);
     try {
-      // Try to sign in with official Firebase Credentials
       await signInWithEmailAndPassword(auth, email, password);
-      
-      // If successful, clear any test flags and proceed
       localStorage.removeItem('bba_test_admin');
       toast({
         title: isAr ? "تم تسجيل الدخول بنجاح" : "Logged In Successfully",
@@ -64,17 +64,22 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
       router.push(`/${lang}/admin`);
     } catch (err: any) {
       console.error("Login failed:", err.code);
-      let errorMsg = isAr ? "البريد أو كلمة المرور غير صحيحة." : "Invalid email or password.";
       
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        errorMsg = isAr ? "بيانات الدخول غير صحيحة. يرجى التأكد من الحساب المنشأ في Firebase." : "Invalid credentials. Please check your Firebase user account.";
+      if (err.code === 'auth/network-request-failed') {
+        setNetworkError(true);
+        toast({
+          variant: "destructive",
+          title: isAr ? "خطأ في الاتصال" : "Network Error",
+          description: isAr ? "فشل الاتصال بخوادم التحقق. يرجى مراجعة إعدادات النطاق المعتمد." : "Failed to reach Auth servers. Please check Authorized Domains.",
+        });
+      } else {
+        const errorMsg = isAr ? "بيانات الدخول غير صحيحة." : "Invalid credentials. Please check your Firebase account.";
+        toast({
+          variant: "destructive",
+          title: isAr ? "فشل الدخول" : "Login Failed",
+          description: errorMsg,
+        });
       }
-
-      toast({
-        variant: "destructive",
-        title: isAr ? "فشل الدخول" : "Login Failed",
-        description: errorMsg,
-      });
     } finally {
       setLoading(false);
     }
@@ -115,6 +120,20 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
+            {networkError && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex gap-3 items-start animate-in fade-in">
+                <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-xs font-black text-red-900 uppercase">Action Required</p>
+                  <p className="text-[11px] text-red-800 leading-relaxed">
+                    {isAr 
+                      ? "نطاق العمل الحالي غير معتمد في Firebase Console. يرجى إضافة هذا النطاق إلى 'Authorized Domains' في قسم Authentication."
+                      : "The current domain is not authorized in Firebase Console. Add this domain to 'Authorized Domains' in the Authentication section."}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
