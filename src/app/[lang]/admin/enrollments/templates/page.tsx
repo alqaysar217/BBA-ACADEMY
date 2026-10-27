@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -25,7 +24,8 @@ import {
   History,
   FileText,
   UserCheck,
-  AlertCircle
+  AlertCircle,
+  ShieldAlert
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
@@ -153,6 +163,7 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const t = {
     title: isAr ? 'قوالب المراسلات الرسمية' : 'Official Email Templates',
@@ -168,6 +179,7 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
     editorTitle: isAr ? 'محرر القوالب' : 'Template Composer',
     editingLabel: isAr ? 'تعديل:' : 'Editing:',
     btnSave: isAr ? 'حفظ التغييرات' : 'Save Changes',
+    btnDelete: isAr ? 'حذف القالب' : 'Delete Template',
     fieldLabel: isAr ? 'اسم القالب (للإدارة)' : 'Internal Label',
     fieldCategory: isAr ? 'التصنيف' : 'Category',
     fieldSubject: isAr ? 'عنوان البريد الإلكتروني' : 'Email Subject',
@@ -175,7 +187,16 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
     emptyTitle: isAr ? 'اختر قالباً للتعديل أو العرض' : 'Select a Template to Begin',
     emptySubtitle: isAr ? 'إدارة مراسلات الأكاديمية الرسمية مع ربط البيانات الذكي.' : 'Manage the official academy correspondence library with smart data binding.',
     toastSaved: isAr ? 'تم حفظ القالب بنجاح' : 'Template Saved Successfully',
+    toastDeleted: isAr ? 'تم حذف القالب من النظام' : 'Template Deleted Successfully',
     toastCopied: isAr ? 'تم نسخ المتغير' : 'Variable Copied',
+    dialog: {
+      title: isAr ? 'هل أنت متأكد من الحذف؟' : 'Confirm Permanent Deletion',
+      desc: isAr 
+        ? 'سيتم حذف هذا القالب نهائياً من المكتبة. لا يمكن التراجع عن هذا الإجراء.' 
+        : 'This action will permanently remove the template from the library. This cannot be undone.',
+      confirm: isAr ? 'تأكيد الحذف' : 'Yes, Delete',
+      cancel: isAr ? 'إلغاء' : 'Cancel'
+    },
     variables: [
       { name: '{{parentName}}', desc: isAr ? 'اسم ولي الأمر الأساسي' : 'Primary Parent Name' },
       { name: '{{studentNames}}', desc: isAr ? 'قائمة أسماء الطلاب المشمولين' : 'List of selected student names' },
@@ -205,6 +226,14 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
     });
     toast({ title: t.toastSaved });
     setSelectedTemplate(null);
+  };
+
+  const handleDelete = () => {
+    if (!selectedTemplate) return;
+    setTemplates(prev => prev.filter(t => t.id !== selectedTemplate.id));
+    toast({ title: t.toastDeleted });
+    setSelectedTemplate(null);
+    setIsDeleteDialogOpen(false);
   };
 
   const copyVar = (name: string) => {
@@ -303,7 +332,9 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
                         </div>
                      </div>
                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-red-400 hover:text-red-500 hover:bg-red-50"><Trash2 className="h-5 w-5" /></Button>
+                        <Button onClick={() => setIsDeleteDialogOpen(true)} variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-red-400 hover:text-red-500 hover:bg-red-50">
+                           <Trash2 className="h-5 w-5" />
+                        </Button>
                         <Button onClick={handleSave} className="h-12 rounded-xl bg-primary text-white font-black px-6 shadow-xl shadow-primary/10 gap-2">
                            <Save className="h-4 w-4 text-secondary" /> {t.btnSave}
                         </Button>
@@ -367,6 +398,31 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
             )}
          </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden bg-white">
+          <div className="bg-red-500 p-8 text-white flex flex-col items-center gap-4 text-center">
+             <div className="h-16 w-16 rounded-xl bg-white/20 flex items-center justify-center shadow-xl">
+                <Trash2 className="h-8 w-8 text-white" />
+             </div>
+             <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">{t.dialog.title}</AlertDialogTitle>
+          </div>
+          <div className="p-10 space-y-8 text-center">
+            <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed">
+               {t.dialog.desc}
+            </AlertDialogDescription>
+            <div className="flex flex-col gap-3">
+              <Button onClick={handleDelete} className="h-14 rounded-xl bg-red-600 text-white font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:bg-red-700 transition-all">
+                {t.dialog.confirm}
+              </Button>
+              <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest">
+                {t.dialog.cancel}
+              </Button>
+            </div>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
