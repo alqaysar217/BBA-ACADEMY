@@ -1,10 +1,10 @@
 
 'use client';
 
-import { use, useState, useMemo } from 'react';
+import { use, useState, useMemo, useEffect } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy, where } from 'firebase/firestore';
+import { collection, query, orderBy, where, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   MessageSquare, 
   Search, 
@@ -12,19 +12,45 @@ import {
   Clock, 
   User, 
   ChevronRight,
-  ExternalLink,
-  History,
   Send,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  History,
+  Users,
+  FileText,
+  Eye,
+  Check,
+  X,
+  FileUp,
+  Loader2,
+  Info,
+  ShieldCheck,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+
+// Standard Academy Templates (Sync with the templates page)
+const TEMPLATES_CATALOG = [
+  { id: 'app_received', label: 'Application Received & Welcome', cat: 'Admissions' },
+  { id: 'app_review', label: 'Application Under Review', cat: 'Admissions' },
+  { id: 'info_required', label: 'Additional Information Required', cat: 'Admissions', needsField: 'missingInformation' },
+  { id: 'docs_required', label: 'Additional Documents Required', cat: 'Admissions', needsField: 'missingDocuments' },
+  { id: 'admission_offer', label: 'Admission Accepted - Full', cat: 'Admissions', needsField: 'nextSteps' },
+  { id: 'admission_rejected', label: 'Admission Decision: Not Accepted', cat: 'Admissions', needsField: 'decisionReason' },
+  { id: 'payment_reminder', label: 'Payment Reminder', cat: 'Financial', needsField: 'paymentAmount' },
+];
 
 export default function ParentCommunicationsHub({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -32,45 +58,93 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
   const firestore = useFirestore();
   const router = useRouter();
   
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('send');
+  const [searchApp, setSearchApp] = useState('');
+  const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState('');
+  const [recipients, setRecipients] = useState({ p1: true, p2: false });
+  const [selectedStudents, setSelectedStudentIds] = useState<string[]>([]);
+  const [customField, setCustomField] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fetch enrollments that have communications
-  const commsQuery = useMemo(() => {
+  // Fetch enrollments for selection
+  const appsQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(
-      collection(firestore, 'enrollments'),
-      orderBy('lastCommunicationAt', 'desc')
-    );
+    return query(collection(firestore, 'enrollments'), orderBy('updatedAt', 'desc'));
   }, [firestore]);
+  const { data: allApps } = useCollection(appsQuery);
 
-  const { data: enrollments, loading } = useCollection(commsQuery);
+  const filteredApps = useMemo(() => {
+    if (!allApps) return [];
+    return allApps.filter(app => 
+       app.parent1Name?.toLowerCase().includes(searchApp.toLowerCase()) || 
+       app.id?.toLowerCase().includes(searchApp.toLowerCase())
+    ).slice(0, 5);
+  }, [allApps, searchApp]);
 
-  const history = useMemo(() => {
-    if (!enrollments) return [];
-    // Flatten and sort all communication logs across all apps
-    const allLogs: any[] = [];
-    enrollments.forEach(app => {
-      if (app.communications && Array.isArray(app.communications)) {
-        app.communications.forEach(log => {
-          allLogs.push({
-            ...log,
-            appId: app.id,
-            parentName: app.parent1Name,
-            parentEmail: app.parent1Email
-          });
-        });
-      }
+  const selectedTemplate = useMemo(() => {
+    return TEMPLATES_CATALOG.find(t => t.id === selectedTemplateId);
+  }, [selectedTemplateId]);
+
+  // Template Engine
+  const resolveTemplate = (content: string, data: any) => {
+    if (!content) return '';
+    let resolved = content;
+    const vars = {
+      parentName: data.parent1Name || 'Valued Parent',
+      applicationNumber: data.id || 'N/A',
+      studentNames: data.students?.filter((s:any, i:number) => selectedStudents.includes(`${i}`)).map((s:any) => `${s.firstName} ${s.lastName}`).join(', ') || 'Your student(s)',
+      programName: data.programOption || 'N/A',
+      missingInformation: customField,
+      missingDocuments: customField,
+      decisionReason: customField,
+      nextSteps: customField,
+      paymentAmount: customField,
+      academyEmail: 'banaatacademy@gmail.com'
+    };
+
+    Object.entries(vars).forEach(([key, val]) => {
+      resolved = resolved.split(`{{${key}}}`).join(String(val));
     });
-    return allLogs.sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime());
-  }, [enrollments]);
+    return resolved;
+  };
 
-  const filteredHistory = useMemo(() => {
-    return history.filter(log => 
-      log.parentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.parentEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.subject?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [history, searchTerm]);
+  const handleSend = async () => {
+    if (!firestore || !selectedApp || !selectedTemplateId) return;
+    setIsProcessing(true);
+
+    const logEntry = {
+      templateId: selectedTemplateId,
+      sentAt: new Date().toISOString(),
+      recipients: [
+        ...(recipients.p1 ? [selectedApp.parent1Email] : []),
+        ...(recipients.p2 && selectedApp.parent2Email ? [selectedApp.parent2Email] : [])
+      ],
+      subject: `BBA Update: ${selectedTemplate?.label}`,
+      content: resolveTemplate("Selected template body goes here after resolving variables...", selectedApp),
+      studentsMailed: selectedStudents,
+      status: 'sent'
+    };
+
+    try {
+      const appRef = doc(firestore, 'enrollments', selectedApp.id);
+      const existingLogs = selectedApp.communications || [];
+      await updateDoc(appRef, {
+        communications: [logEntry, ...existingLogs],
+        lastCommunicationAt: serverTimestamp()
+      });
+
+      toast({ title: isAr ? "تم إرسال الرسالة وتسجيلها" : "Message Sent & Logged" });
+      setSelectedApp(null);
+      setSelectedTemplateId('');
+      setCustomField('');
+      setActiveTab('history');
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error sending message" });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="space-y-10 pb-20">
@@ -78,92 +152,259 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
          <div className="space-y-1">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
                <MessageSquare className="h-8 w-8 text-secondary" />
-               {isAr ? 'مراسلات أولياء الأمور' : 'Parent Communications'}
+               {isAr ? 'مركز المراسلات الموحد' : 'Unified Comms Hub'}
             </h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'إدارة وسجل كافة المراسلات الرسمية' : 'Unified log of official academy correspondence'}</p>
-         </div>
-         <div className="relative w-full md:w-80 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
-            <Input 
-               placeholder={isAr ? 'بحث في السجلات...' : 'Search logs...'} 
-               className="pl-12 h-12 rounded-xl bg-white border-slate-100 font-bold"
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'إرسال الرسائل الرسمية ومتابعة السجلات' : 'Broadcast official messages & track parent engagement'}</p>
          </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-         <div className="lg:col-span-1 space-y-6">
-            <Card className="border-none shadow-premium rounded-xl bg-primary text-white p-8 space-y-6 relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Send className="h-24 w-24" /></div>
-               <div className="space-y-1 relative z-10">
-                  <p className="text-[10px] font-black text-secondary uppercase tracking-widest">Total Sent</p>
-                  <h3 className="text-4xl font-black">{history.length} Logs</h3>
-               </div>
-               <p className="text-xs font-medium text-white/50 relative z-10 leading-relaxed italic">All messages are officially recorded for compliance and tracking.</p>
-            </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+         <TabsList className="bg-white p-1 rounded-xl h-14 shadow-sm border border-slate-100 inline-flex">
+            <TabsTrigger value="send" className="rounded-lg font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full">
+               <Send className="h-4 w-4 mr-2" /> {isAr ? 'إرسال رسالة جديدة' : 'Compose Message'}
+            </TabsTrigger>
+            <TabsTrigger value="history" className="rounded-lg font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full">
+               <History className="h-4 w-4 mr-2" /> {isAr ? 'سجل المراسلات' : 'Broadcast History'}
+            </TabsTrigger>
+         </TabsList>
 
-            <Card className="border-none shadow-sm rounded-xl bg-white p-6 space-y-4">
-               <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b pb-3">{isAr ? 'إحصائيات المراسلة' : 'Delivery Metrics'}</h4>
-               <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                     <span className="text-xs font-bold text-slate-500">Delivered</span>
-                     <Badge className="bg-green-100 text-green-600 border-none font-black text-[10px]">100%</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                     <span className="text-xs font-bold text-slate-500">Read Rate</span>
-                     <Badge className="bg-blue-100 text-blue-600 border-none font-black text-[10px]">85%</Badge>
+         <TabsContent value="send" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+               {/* Left: Configuration Form */}
+               <div className="lg:col-span-7 space-y-8">
+                  {/* Step 1: Select Application */}
+                  <Card className="border-none shadow-premium rounded-2xl bg-white p-8 space-y-6">
+                     <div className="flex items-center gap-3 mb-2">
+                        <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary font-black shadow-inner">1</div>
+                        <h3 className="text-sm font-black uppercase text-primary tracking-widest">{isAr ? 'البحث عن الطلب والمستلمين' : 'Select Enrollment & Recipients'}</h3>
+                     </div>
+                     <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                        <Input 
+                           placeholder={isAr ? 'ابحث عن اسم ولي الأمر أو رقم الطلب...' : 'Search by name or App ID...'} 
+                           className="pl-10 h-12 bg-slate-50 border-none rounded-xl font-bold"
+                           value={searchApp}
+                           onChange={(e) => setSearchApp(e.target.value)}
+                        />
+                        {searchApp && !selectedApp && (
+                           <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                              {filteredApps.map(app => (
+                                 <div 
+                                    key={app.id} 
+                                    onClick={() => { setSelectedApp(app); setSearchApp(''); setSelectedStudentIds(app.students?.map((_:any,i:number)=>`${i}`) || []); }}
+                                    className="p-4 hover:bg-slate-50 cursor-pointer flex items-center justify-between border-b border-slate-50 last:border-none"
+                                 >
+                                    <div>
+                                       <p className="font-black text-primary text-sm uppercase">{app.parent1Name}</p>
+                                       <p className="text-[10px] font-bold text-slate-400">{app.parent1Email} • ID: {app.id}</p>
+                                    </div>
+                                    <ChevronRight className="h-4 w-4 text-slate-300" />
+                                 </div>
+                              ))}
+                           </div>
+                        )}
+                     </div>
+
+                     {selectedApp && (
+                        <div className="p-6 bg-secondary/5 rounded-2xl border border-secondary/10 space-y-6 animate-in zoom-in-95">
+                           <div className="flex justify-between items-start">
+                              <div className="space-y-1">
+                                 <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase px-3 py-1 rounded-full mb-2">Active Target</Badge>
+                                 <h4 className="font-black text-primary text-lg">{selectedApp.parent1Name}</h4>
+                                 <p className="text-xs font-bold text-slate-500 uppercase">{selectedApp.programOption}</p>
+                              </div>
+                              <Button onClick={() => setSelectedApp(null)} variant="ghost" size="icon" className="text-slate-300 hover:text-red-500"><X className="h-5 w-5" /></Button>
+                           </div>
+
+                           <div className="space-y-4">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'تحديد المستلمين' : 'Recipient Selection'}</p>
+                              <div className="grid grid-cols-2 gap-4">
+                                 <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
+                                    <Checkbox id="p1" checked={recipients.p1} onCheckedChange={(v) => setRecipients({...recipients, p1: !!v})} />
+                                    <label htmlFor="p1" className="text-xs font-bold text-slate-700 truncate">{selectedApp.parent1Email}</label>
+                                 </div>
+                                 {selectedApp.parent2Email && (
+                                    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
+                                       <Checkbox id="p2" checked={recipients.p2} onCheckedChange={(v) => setRecipients({...recipients, p2: !!v})} />
+                                       <label htmlFor="p2" className="text-xs font-bold text-slate-700 truncate">{selectedApp.parent2Email}</label>
+                                    </div>
+                                 )}
+                              </div>
+                           </div>
+
+                           <div className="space-y-4">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'الطلاب المعنيين بالمراسلة' : 'Target Students'}</p>
+                              <div className="flex flex-wrap gap-2">
+                                 {selectedApp.students?.map((s:any, i:number) => {
+                                    const isSelected = selectedStudents.includes(`${i}`);
+                                    return (
+                                       <button 
+                                          key={i}
+                                          onClick={() => setSelectedStudentIds(prev => isSelected ? prev.filter(x => x !== `${i}`) : [...prev, `${i}`])}
+                                          className={cn(
+                                             "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all",
+                                             isSelected ? "bg-primary text-white shadow-lg" : "bg-white text-slate-400 border border-slate-100"
+                                          )}
+                                       >
+                                          {s.firstName}
+                                       </button>
+                                    );
+                                 })}
+                              </div>
+                           </div>
+                        </div>
+                     )}
+                  </Card>
+
+                  {/* Step 2: Choose Template and Details */}
+                  <Card className="border-none shadow-premium rounded-2xl bg-white p-8 space-y-8">
+                     <div className="flex items-center gap-3 mb-2">
+                        <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary font-black shadow-inner">2</div>
+                        <h3 className="text-sm font-black uppercase text-primary tracking-widest">{isAr ? 'اختيار الرسالة وتفاصيلها' : 'Message Content & Logic'}</h3>
+                     </div>
+
+                     <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'اختر القالب المناسب' : 'Select Official Template'}</label>
+                        <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+                           <SelectTrigger className="h-14 bg-slate-50 border-none rounded-xl font-bold">
+                              <SelectValue placeholder={isAr ? 'اختر من المكتبة...' : 'Choose from library...'} />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-xl">
+                              {TEMPLATES_CATALOG.map(t => (
+                                 <SelectItem key={t.id} value={t.id} className="font-bold py-3">
+                                    <div className="flex items-center justify-between w-full">
+                                       <span>{t.label}</span>
+                                       <Badge variant="outline" className="text-[8px] ml-4 bg-slate-50 border-none opacity-50 uppercase">{t.cat}</Badge>
+                                    </div>
+                                 </SelectItem>
+                              ))}
+                           </SelectContent>
+                        </Select>
+                     </div>
+
+                     {selectedTemplate?.needsField && (
+                        <div className="space-y-4 animate-in slide-in-from-top-4">
+                           <label className="text-[10px] font-black uppercase text-secondary tracking-widest flex items-center gap-2">
+                              <Info className="h-3 w-3" />
+                              {isAr ? 'تفاصيل إضافية مطلوبة لهذا القالب' : `Required Info: ${selectedTemplate.needsField}`}
+                           </label>
+                           <Textarea 
+                              value={customField}
+                              onChange={(e) => setCustomField(e.target.value)}
+                              placeholder={isAr ? 'أدخل البيانات المطلوبة هنا لتضمينها في الرسالة...' : 'Type specific reasons or data here...'}
+                              className="min-h-[120px] bg-slate-50 border-none rounded-xl font-bold p-5"
+                           />
+                        </div>
+                     )}
+
+                     <div className="pt-6 border-t border-slate-50">
+                        <Button 
+                           onClick={handleSend} 
+                           disabled={isProcessing || !selectedApp || !selectedTemplateId}
+                           className="h-16 w-full rounded-xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/10 gap-3 group"
+                        >
+                           {isProcessing ? <Loader2 className="h-6 w-6 animate-spin" /> : <Send className="h-6 w-6 text-secondary group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+                           {isAr ? 'تأكيد وإرسال المراسلة' : 'Confirm & Dispatch Message'}
+                        </Button>
+                        <p className="text-[9px] font-bold text-slate-400 text-center uppercase tracking-widest mt-4">
+                           {isAr ? 'سيتم تسجيل نسخة من هذه الرسالة في سجل الطالب فوراً.' : 'A permanent record of this message will be archived instantly.'}
+                        </p>
+                     </div>
+                  </Card>
+               </div>
+
+               {/* Right: Live Preview */}
+               <div className="lg:col-span-5">
+                  <div className="sticky top-28 space-y-6">
+                     <div className="flex items-center gap-3">
+                        <Eye className="h-5 w-5 text-secondary" />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{isAr ? 'معاينة البريد الصادر' : 'Live Email Preview'}</h3>
+                     </div>
+
+                     <Card className="border-none shadow-premium rounded-3xl bg-slate-900 overflow-hidden border-4 border-slate-800">
+                        <div className="bg-slate-800 p-6 flex items-center gap-4">
+                           <div className="h-3 w-3 rounded-full bg-red-500/30" />
+                           <div className="h-3 w-3 rounded-full bg-amber-500/30" />
+                           <div className="h-3 w-3 rounded-full bg-green-500/30" />
+                           <div className="flex-1 h-6 bg-slate-900/50 rounded-lg flex items-center px-4">
+                              <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Official BBA Comms</span>
+                           </div>
+                        </div>
+                        <div className="p-10 space-y-8 bg-white min-h-[600px] mx-4 my-4 rounded-2xl shadow-inner overflow-y-auto">
+                           {selectedApp && selectedTemplateId ? (
+                              <div className="space-y-8 animate-in fade-in duration-500">
+                                 <div className="space-y-1 pb-6 border-b border-slate-100">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase">From: <span className="text-primary">BBA Academy &lt;banaatacademy@gmail.com&gt;</span></p>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase">To: <span className="text-secondary">{[...(recipients.p1 ? [selectedApp.parent1Email] : []), ...(recipients.p2 ? [selectedApp.parent2Email] : [])].join(', ')}</span></p>
+                                    <p className="text-sm font-black text-slate-900 mt-4">Subject: BBA Update - {selectedTemplate?.label}</p>
+                                 </div>
+                                 <div className="space-y-6">
+                                    <div className="flex justify-center">
+                                       <img src="/logo.png" className="h-16 w-16 object-contain" alt="BBA Logo" />
+                                    </div>
+                                    <div className="prose prose-slate max-w-none">
+                                       <p className="text-slate-600 leading-relaxed font-medium italic whitespace-pre-wrap">
+                                          {resolveTemplate("Dear {{parentName}},\n\nThank you for choosing BBA Academy. Regarding the enrollment for {{studentNames}}, we are writing to update you that your application ({{applicationNumber}}) is currently being processed.\n\nDetails:\n{{decisionReason}}\n\nSincerely,\nBBA Administration", selectedApp)}
+                                       </p>
+                                    </div>
+                                 </div>
+                                 <div className="pt-10 border-t border-slate-100 space-y-4">
+                                    <div className="flex items-center gap-4">
+                                       <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
+                                       <p className="text-[10px] font-bold text-slate-400 leading-tight uppercase tracking-widest">Verified Official Communication</p>
+                                    </div>
+                                 </div>
+                              </div>
+                           ) : (
+                              <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30 pt-40">
+                                 <Mail className="h-20 w-20 text-slate-200" />
+                                 <p className="text-sm font-black text-slate-300 uppercase tracking-tighter">Choose a recipient and template to see the preview</p>
+                              </div>
+                           )}
+                        </div>
+                     </Card>
                   </div>
                </div>
-            </Card>
-         </div>
+            </div>
+         </TabsContent>
 
-         <div className="lg:col-span-3">
-            <Card className="border-none shadow-premium rounded-xl bg-white overflow-hidden border border-slate-100">
-               <CardHeader className="p-8 border-b border-slate-50 bg-slate-50/30 flex flex-row items-center justify-between">
+         <TabsContent value="history">
+            <Card className="border-none shadow-premium rounded-2xl bg-white overflow-hidden">
+               <CardHeader className="p-8 border-b border-slate-50 flex flex-row items-center justify-between">
                   <div className="flex items-center gap-3">
-                     <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center"><History className="h-5 w-5" /></div>
-                     <CardTitle className="text-sm font-black text-primary uppercase">{isAr ? 'سجل المراسلات الأخير' : 'Recent Comms History'}</CardTitle>
+                     <History className="h-5 w-5 text-secondary" />
+                     <h3 className="text-sm font-black uppercase text-primary">{isAr ? 'السجلات الصادرة' : 'Outbox Logs'}</h3>
                   </div>
                </CardHeader>
                <CardContent className="p-0">
-                  <div className="divide-y divide-slate-100">
-                     {loading ? (
-                        [1,2,3].map(i => <div key={i} className="h-20 bg-white animate-pulse" />)
-                     ) : filteredHistory.length === 0 ? (
-                        <div className="py-24 text-center space-y-4">
-                           <AlertCircle className="h-12 w-12 text-slate-100 mx-auto" />
-                           <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No correspondence records found</p>
-                        </div>
-                     ) : filteredHistory.map((log, idx) => (
-                        <div key={idx} className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:bg-slate-50/50 transition-colors">
-                           <div className="flex items-start gap-4">
-                              <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"><Mail className="h-5 w-5" /></div>
-                              <div className="space-y-1">
-                                 <p className="text-sm font-black text-primary line-clamp-1">{log.subject}</p>
-                                 <div className="flex items-center gap-3 flex-wrap">
-                                    <span className="text-[10px] font-bold text-secondary uppercase bg-secondary/5 px-2 py-0.5 rounded-full">{log.templateId}</span>
-                                    <span className="text-[10px] font-bold text-slate-400">To: {log.parentName}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><Clock className="h-3 w-3" /> {format(new Date(log.sentAt), 'MMM dd, HH:mm')}</span>
+                  <div className="divide-y divide-slate-50">
+                     {allApps?.filter(a => a.communications?.length > 0).map((app: any) => (
+                        app.communications.map((log: any, idx: number) => (
+                           <div key={`${app.id}-${idx}`} className="p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:bg-slate-50/50 transition-all">
+                              <div className="flex items-start gap-4 flex-1">
+                                 <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"><Mail className="h-5 w-5" /></div>
+                                 <div className="space-y-1">
+                                    <p className="text-sm font-black text-slate-900">{log.subject}</p>
+                                    <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400">
+                                       <span className="uppercase text-secondary">{app.parent1Name}</span>
+                                       <span className="opacity-40">|</span>
+                                       <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {format(new Date(log.sentAt), 'MMM dd, HH:mm')}</span>
+                                    </div>
                                  </div>
                               </div>
+                              <div className="flex items-center gap-3">
+                                 <Badge className="bg-green-100 text-green-600 border-none font-black text-[8px] px-3 py-1 rounded-md">DELIVERED</Badge>
+                                 <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)} className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-sm"><ChevronRight className={cn("h-5 w-5", isAr && "rotate-180")} /></Button>
+                              </div>
                            </div>
-                           <div className="flex items-center gap-3 self-end md:self-center">
-                              <Badge className="bg-green-100 text-green-600 border-none font-black text-[8px] px-3 rounded-md flex items-center gap-1.5">
-                                 <CheckCircle2 className="h-3 w-3" /> SENT
-                              </Badge>
-                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm" onClick={() => router.push(`/${lang}/admin/enrollments/${log.appId}`)}>
-                                 <ChevronRight className={cn("h-5 w-5 text-slate-300", isAr && "rotate-180")} />
-                              </Button>
-                           </div>
-                        </div>
+                        ))
                      ))}
                   </div>
                </CardContent>
             </Card>
-         </div>
-      </div>
+         </TabsContent>
+      </Tabs>
     </div>
   );
 }
+
