@@ -14,7 +14,10 @@ import {
   BadgeCheck,
   Clock,
   FileText,
-  LayoutGrid
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Inbox
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,6 +36,38 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+
+  const t = {
+    title: isAr ? 'سجل الطلبات' : 'Admissions Register',
+    subtitle: isAr ? 'عرض كافة طلبات التسجيل الواردة وتتبع حالاتها' : 'View all incoming enrollment applications and track their status',
+    searchPlaceholder: isAr ? 'بحث بالاسم، البريد، أو رقم الطلب...' : 'Search Name, Email, or ID...',
+    export: isAr ? 'تصدير' : 'Export',
+    allStatuses: isAr ? 'كافة الحالات' : 'All Statuses',
+    stats: {
+      total: isAr ? 'إجمالي الطلبات' : 'Total Intake',
+      new: isAr ? 'طلبات جديدة' : 'New Submissions',
+      review: isAr ? 'قيد المراجعة' : 'Under Review',
+      missing: isAr ? 'نقص بيانات' : 'Awaiting Info',
+      accepted: isAr ? 'مقبول / مكتمل' : 'Accepted / Done',
+      rejected: isAr ? 'طلبات مرفوضة' : 'Rejected'
+    },
+    table: {
+      guardian: isAr ? 'الطلب وولي الأمر' : 'Application & Guardian',
+      path: isAr ? 'المسار' : 'Path',
+      students: isAr ? 'الطلاب' : 'Students',
+      status: isAr ? 'الحالة' : 'Status',
+      date: isAr ? 'تاريخ التحديث' : 'Updated At'
+    },
+    statusMap: {
+      submitted: isAr ? 'طلب جديد' : 'New Submission',
+      reviewed: isAr ? 'قيد المراجعة' : 'Under Review',
+      missing_info: isAr ? 'نقص بيانات' : 'Awaiting Info',
+      approved: isAr ? 'مقبول' : 'Approved',
+      Completed: isAr ? 'مكتمل' : 'Completed',
+      rejected: isAr ? 'مرفوض' : 'Rejected',
+      draft: isAr ? 'مسودة' : 'Draft'
+    }
+  };
 
   const enrollmentsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -55,11 +90,14 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
   }, [enrollments, searchTerm, filterStatus]);
 
   const stats = useMemo(() => {
-    if (!enrollments) return { total: 0, pending: 0, completed: 0 };
+    if (!enrollments) return { total: 0, new: 0, review: 0, missing: 0, accepted: 0, rejected: 0 };
     return {
       total: enrollments.length,
-      pending: enrollments.filter(e => e.status === 'submitted' || e.status === 'reviewed').length,
-      completed: enrollments.filter(e => e.status === 'approved' || e.status === 'Completed').length
+      new: enrollments.filter(e => e.status === 'submitted').length,
+      review: enrollments.filter(e => e.status === 'reviewed').length,
+      missing: enrollments.filter(e => e.status === 'missing_info').length,
+      accepted: enrollments.filter(e => e.status === 'approved' || e.status === 'Completed').length,
+      rejected: enrollments.filter(e => e.status === 'rejected').length
     };
   }, [enrollments]);
 
@@ -69,41 +107,63 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
          <div className="space-y-1">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
                <FileText className="h-8 w-8 text-secondary" />
-               {isAr ? 'سجل الطلبات' : 'Admissions Register'}
+               {t.title}
             </h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'عرض كافة طلبات التسجيل الواردة' : 'Master list of all incoming enrollment applications'}</p>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{t.subtitle}</p>
          </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-         <Card className="border-none shadow-sm rounded-xl bg-white p-6 border border-slate-100 flex justify-between items-center">
+      {/* Grid Statistics */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+         <Card className="border-none shadow-sm rounded-xl bg-white p-4 border border-slate-100 transition-all hover:shadow-md">
             <div className="space-y-1">
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Intake</p>
+               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.stats.total}</p>
                <h3 className="text-2xl font-black text-primary">{stats.total}</h3>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary"><Users className="h-5 w-5" /></div>
+            <div className="h-8 w-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary mt-3"><Inbox className="h-4 w-4" /></div>
          </Card>
-         <Card className="border-none shadow-sm rounded-xl bg-white p-6 border border-slate-100 flex justify-between items-center">
+         <Card className="border-none shadow-sm rounded-xl bg-white p-4 border border-slate-100 transition-all hover:shadow-md">
             <div className="space-y-1">
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Review</p>
-               <h3 className="text-2xl font-black text-secondary">{stats.pending}</h3>
+               <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">{t.stats.new}</p>
+               <h3 className="text-2xl font-black text-blue-600">{stats.new}</h3>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-secondary/5 flex items-center justify-center text-secondary"><Clock className="h-5 w-5" /></div>
+            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 mt-3"><Clock className="h-4 w-4" /></div>
          </Card>
-         <Card className="border-none shadow-sm rounded-xl bg-white p-6 border border-slate-100 flex justify-between items-center">
+         <Card className="border-none shadow-sm rounded-xl bg-white p-4 border border-slate-100 transition-all hover:shadow-md">
             <div className="space-y-1">
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Onboarded</p>
-               <h3 className="text-2xl font-black text-green-600">{stats.completed}</h3>
+               <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest">{t.stats.review}</p>
+               <h3 className="text-2xl font-black text-amber-600">{stats.review}</h3>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600"><BadgeCheck className="h-5 w-5" /></div>
+            <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 mt-3"><Users className="h-4 w-4" /></div>
+         </Card>
+         <Card className="border-none shadow-sm rounded-xl bg-white p-4 border border-slate-100 transition-all hover:shadow-md">
+            <div className="space-y-1">
+               <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest">{t.stats.missing}</p>
+               <h3 className="text-2xl font-black text-purple-600">{stats.missing}</h3>
+            </div>
+            <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-500 mt-3"><AlertCircle className="h-4 w-4" /></div>
+         </Card>
+         <Card className="border-none shadow-sm rounded-xl bg-white p-4 border border-slate-100 transition-all hover:shadow-md">
+            <div className="space-y-1">
+               <p className="text-[9px] font-black text-green-400 uppercase tracking-widest">{t.stats.accepted}</p>
+               <h3 className="text-2xl font-black text-green-600">{stats.accepted}</h3>
+            </div>
+            <div className="h-8 w-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600 mt-3"><BadgeCheck className="h-4 w-4" /></div>
+         </Card>
+         <Card className="border-none shadow-sm rounded-xl bg-white p-4 border border-slate-100 transition-all hover:shadow-md">
+            <div className="space-y-1">
+               <p className="text-[9px] font-black text-red-400 uppercase tracking-widest">{t.stats.rejected}</p>
+               <h3 className="text-2xl font-black text-red-600">{stats.rejected}</h3>
+            </div>
+            <div className="h-8 w-8 rounded-lg bg-red-50 flex items-center justify-center text-red-600 mt-3"><XCircle className="h-4 w-4" /></div>
          </Card>
       </div>
 
-      <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-4 overflow-x-auto no-scrollbar">
+      <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-4">
          <div className="relative flex-1 w-full group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 transition-colors group-focus-within:text-secondary" />
             <Input 
-               placeholder={isAr ? 'بحث بالاسم، البريد، رقم الطلب...' : 'Search Name, Email, ID...'} 
+               placeholder={t.searchPlaceholder} 
                className="pl-10 h-11 rounded-lg bg-slate-50 border-none font-bold text-sm"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
@@ -112,20 +172,21 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
 
          <div className="flex items-center gap-3 w-full md:w-auto">
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-               <SelectTrigger className="w-full md:w-44 h-11 rounded-lg bg-slate-50 border-none font-black text-[10px] uppercase">
-                  <SelectValue placeholder="All Statuses" />
+               <SelectTrigger className="w-full md:w-48 h-11 rounded-lg bg-slate-50 border-none font-black text-[10px] uppercase">
+                  <SelectValue placeholder={t.allStatuses} />
                </SelectTrigger>
                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="submitted" className="text-blue-600">New (Submitted)</SelectItem>
-                  <SelectItem value="reviewed" className="text-amber-600">Under Review</SelectItem>
-                  <SelectItem value="approved" className="text-green-600">Approved</SelectItem>
-                  <SelectItem value="rejected" className="text-red-600">Rejected</SelectItem>
+                  <SelectItem value="all">{t.allStatuses}</SelectItem>
+                  <SelectItem value="submitted" className="text-blue-600 font-bold">{t.statusMap.submitted}</SelectItem>
+                  <SelectItem value="reviewed" className="text-amber-600 font-bold">{t.statusMap.reviewed}</SelectItem>
+                  <SelectItem value="missing_info" className="text-purple-600 font-bold">{t.statusMap.missing_info}</SelectItem>
+                  <SelectItem value="approved" className="text-green-600 font-bold">{t.statusMap.approved}</SelectItem>
+                  <SelectItem value="rejected" className="text-red-600 font-bold">{t.statusMap.rejected}</SelectItem>
                </SelectContent>
             </Select>
 
             <Button variant="outline" className="h-11 px-6 rounded-lg border-slate-100 font-black text-[10px] uppercase gap-2 hover:bg-slate-50 transition-all shrink-0">
-               <Download className="h-4 w-4" /> Export
+               <Download className="h-4 w-4" /> {t.export}
             </Button>
          </div>
       </div>
@@ -141,15 +202,22 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
                  <table className="w-full">
                     <thead>
                        <tr className="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                          <th className="px-8 py-5 text-start">Application & Guardian</th>
-                          <th className="px-6 py-5 text-center">Path</th>
-                          <th className="px-6 py-5 text-center">Students</th>
-                          <th className="px-6 py-5 text-center">Status</th>
+                          <th className="px-8 py-5 text-start">{t.table.guardian}</th>
+                          <th className="px-6 py-5 text-center">{t.table.path}</th>
+                          <th className="px-6 py-5 text-center">{t.table.students}</th>
+                          <th className="px-6 py-5 text-center">{t.table.status}</th>
                           <th className="px-6 py-5 text-end pr-8"></th>
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                       {filteredData.map((app: any) => (
+                       {filteredData.length === 0 ? (
+                         <tr>
+                            <td colSpan={5} className="py-20 text-center">
+                               <Inbox className="h-12 w-12 text-slate-100 mx-auto mb-4" />
+                               <p className="text-slate-400 font-bold uppercase text-xs">{isAr ? 'لا توجد طلبات تطابق معايير البحث' : 'No applications match your criteria'}</p>
+                            </td>
+                         </tr>
+                       ) : filteredData.map((app: any) => (
                           <tr key={app.id} className="hover:bg-slate-50/40 transition-all group cursor-pointer" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}>
                              <td className="px-8 py-6 text-start">
                                 <div className="flex items-center gap-4">
@@ -157,7 +225,7 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
                                       {app.parent1Name?.charAt(0)}
                                    </div>
                                    <div className="space-y-0.5">
-                                      <p className="text-sm font-black text-primary truncate max-w-[180px]">{app.parent1Name}</p>
+                                      <p className="text-sm font-black text-primary truncate max-w-[200px]">{app.parent1Name}</p>
                                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{app.id}</p>
                                    </div>
                                 </div>
@@ -176,11 +244,13 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
                                 <Badge className={cn(
                                    "text-[9px] font-black uppercase rounded-lg border-none px-4 py-1.5 shadow-sm",
                                    app.status === 'submitted' ? "bg-blue-100 text-blue-600" : 
+                                   app.status === 'reviewed' ? "bg-amber-100 text-amber-600" :
+                                   app.status === 'missing_info' ? "bg-purple-100 text-purple-600" :
                                    app.status === 'approved' || app.status === 'Completed' ? "bg-green-100 text-green-600" : 
                                    app.status === 'rejected' ? "bg-red-50 text-red-500" :
                                    "bg-slate-100 text-slate-400"
                                 )}>
-                                   {app.status}
+                                   {t.statusMap[app.status as keyof typeof t.statusMap] || app.status}
                                 </Badge>
                              </td>
                              <td className="px-6 py-6 text-end pr-8">
