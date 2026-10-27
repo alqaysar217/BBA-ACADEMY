@@ -53,8 +53,14 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
 
   const handleSave = () => {
+    if (!selectedTemplate) return;
+    setTemplates(prev => prev.map(t => t.id === selectedTemplate.id ? selectedTemplate : t));
     toast({ title: "Template Saved", description: "The changes have been applied to the system library." });
     setSelectedTemplate(null);
+  };
+
+  const updateSelectedField = (field: string, value: string) => {
+    setSelectedTemplate((prev: any) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -81,7 +87,7 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
                      "border shadow-sm rounded-xl cursor-pointer transition-all group overflow-hidden",
                      selectedTemplate?.id === t.id ? "border-secondary ring-1 ring-secondary/20 shadow-lg" : "border-slate-100 hover:border-slate-200"
                   )}
-                  onClick={() => setSelectedTemplate(t)}
+                  onClick={() => setSelectedTemplate({...t})}
                >
                   <div className="p-5 flex items-center justify-between">
                      <div className="flex items-center gap-3">
@@ -125,11 +131,19 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
                   <CardContent className="p-8 space-y-8">
                      <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Subject Line</label>
-                        <Input value={selectedTemplate.subject} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                        <Input 
+                          value={selectedTemplate.subject} 
+                          onChange={(e) => updateSelectedField('subject', e.target.value)}
+                          className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
+                        />
                      </div>
                      <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Email Body (Markdown/Text)</label>
-                        <Textarea value={selectedTemplate.body} className="min-h-[350px] rounded-xl bg-slate-50 border-none p-8 font-medium leading-relaxed italic" />
+                        <Textarea 
+                          value={selectedTemplate.body} 
+                          onChange={(e) => updateSelectedField('body', e.target.value)}
+                          className="min-h-[350px] rounded-xl bg-slate-50 border-none p-8 font-medium leading-relaxed italic" 
+                        />
                      </div>
                      <div className="flex justify-end gap-3 pt-6 border-t border-slate-50">
                         <Button variant="ghost" onClick={() => setSelectedTemplate(null)} className="font-black text-[10px] uppercase">Cancel</Button>
