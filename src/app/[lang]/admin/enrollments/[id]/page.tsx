@@ -30,7 +30,9 @@ import {
   FileWarning,
   Info,
   BadgeCheck,
-  PencilLine
+  PencilLine,
+  Phone,
+  Home
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -87,7 +89,7 @@ const EMAIL_TEMPLATES = [
   {
     id: 'not_accepted',
     label: 'Admission Decision: Not Accepted',
-    subject: 'Update regarding your BBA Academy Application',
+    subject: 'Update regarding your BBA Application',
     body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Maximum capacity reached for the current semester.'}\n\nWe wish you and your family the very best in your educational journey.\n\nRespectfully,\nBBA Admissions Office`
   }
 ];
@@ -242,86 +244,94 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
   return (
     <div className="space-y-8 pb-20">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* 1. TOP HEADER BAR */}
+      <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl shadow-premium border border-slate-100 sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-lg bg-slate-50">
+          <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100">
             {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </Button>
           <div className="space-y-0.5">
-            <h1 className="text-xl font-black text-primary truncate max-w-[250px]">{app.parent1Name}</h1>
+            <h1 className="text-xl font-black text-primary truncate max-w-[350px]">{app.parent1Name}</h1>
             <div className="flex items-center gap-2">
-               <Badge className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">{app.status}</Badge>
+               <Badge className={cn(
+                 "border-none font-black text-[9px] uppercase px-3 py-1 rounded-full",
+                 app.status === 'submitted' ? "bg-blue-100 text-blue-600" :
+                 app.status === 'approved' ? "bg-green-100 text-green-600" :
+                 "bg-secondary/10 text-secondary"
+               )}>
+                 {app.status}
+               </Badge>
                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">ID: {id}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <Select value={app.status} onValueChange={updateAppStatus}>
-             <SelectTrigger className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase w-full md:w-44 bg-white">
-                <Layers className="h-3.5 w-3.5 mr-2 text-secondary" />
+             <SelectTrigger className="h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase w-full md:w-52 bg-white shadow-sm">
+                <Layers className="h-4 w-4 mr-2 text-secondary" />
                 <SelectValue />
              </SelectTrigger>
              <SelectContent className="rounded-xl p-1">
-                <SelectItem value="submitted" className="font-bold py-2.5">New Submission</SelectItem>
-                <SelectItem value="reviewed" className="font-bold py-2.5">Under Review</SelectItem>
-                <SelectItem value="missing_info" className="font-bold py-2.5 text-amber-600">Awaiting Info</SelectItem>
-                <SelectItem value="approved" className="font-bold py-2.5 text-green-600">Completed</SelectItem>
-                <SelectItem value="rejected" className="font-bold py-2.5 text-red-600">Rejected</SelectItem>
+                <SelectItem value="submitted" className="font-bold py-3">New Submission</SelectItem>
+                <SelectItem value="reviewed" className="font-bold py-3">Under Review</SelectItem>
+                <SelectItem value="missing_info" className="font-bold py-3 text-amber-600">Awaiting Info</SelectItem>
+                <SelectItem value="approved" className="font-bold py-3 text-green-600">Completed / Approved</SelectItem>
+                <SelectItem value="rejected" className="font-bold py-3 text-red-600">Rejected</SelectItem>
              </SelectContent>
           </Select>
 
           <Dialog open={isMsgOpen} onOpenChange={setIsMsgOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-primary text-white h-11 px-6 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2">
+              <Button className="bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2 hover:bg-primary/90 transition-all">
                 <MessageSquare className="h-4 w-4 text-secondary" />
-                {isAr ? 'تواصل' : 'Contact'}
+                {isAr ? 'تواصل مع ولي الأمر' : 'Send Message'}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl rounded-xl border-none p-0 overflow-hidden shadow-2xl">
+            <DialogContent className="max-w-2xl rounded-2xl border-none p-0 overflow-hidden shadow-2xl">
               <div className="bg-primary p-6 text-white flex items-center gap-4">
                  <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center"><Mail className="h-6 w-6 text-secondary" /></div>
                  <DialogTitle className="text-xl font-black uppercase tracking-tight">Parent Correspondence</DialogTitle>
               </div>
               <div className="p-8 space-y-6">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Choose English Template</label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Select Template</label>
                     <Select onValueChange={(val) => setSelectedTemplate(EMAIL_TEMPLATES.find(t => t.id === val) || EMAIL_TEMPLATES[0])}>
-                       <SelectTrigger className="h-12 rounded-lg font-bold border-slate-100 bg-slate-50">
+                       <SelectTrigger className="h-14 rounded-xl font-bold border-slate-100 bg-slate-50">
                           <SelectValue placeholder="Select Template..." />
                        </SelectTrigger>
-                       <SelectContent>
-                          {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold">{t.label}</SelectItem>)}
+                       <SelectContent className="rounded-xl">
+                          {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold py-3">{t.label}</SelectItem>)}
                        </SelectContent>
                     </Select>
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. Decision Reason / Notes</label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. Details / Reasons</label>
                     <Textarea 
                       value={msgReason} 
                       onChange={(e) => setReason(e.target.value)}
-                      placeholder="Type reason here (will be included in email)..." 
-                      className="min-h-[100px] bg-slate-50 border-none rounded-xl font-bold"
+                      placeholder="Type details here (reason for rejection, missing docs, etc)..." 
+                      className="min-h-[120px] bg-slate-50 border-none rounded-xl font-bold p-5"
                     />
                  </div>
-                 <div className="bg-slate-900 rounded-xl p-6 space-y-3">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Preview (Email Content)</span>
+                 <div className="bg-slate-900 rounded-2xl p-6 space-y-3">
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Email Preview</span>
                     <p className="text-[11px] text-white/80 whitespace-pre-wrap font-medium leading-relaxed italic">
                       {selectedTemplate.body({ 
                          parentName: app.parent1Name, 
                          appId: id, 
-                         studentCount: app.students.length,
-                         acceptedStudents: app.students.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
-                         targetStudents: app.students.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
+                         studentCount: app.students?.length || 0,
+                         acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n') || '',
+                         targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', ') || '',
                          reason: msgReason || '...' 
                       })}
                     </p>
                  </div>
               </div>
               <DialogFooter className="bg-slate-50 p-6">
-                 <Button onClick={handleSendMessage} disabled={isProcessing} className="bg-primary text-white px-8 rounded-lg h-12 font-black shadow-xl">
+                 <Button onClick={handleSendMessage} disabled={isProcessing} className="bg-primary text-white px-10 rounded-xl h-14 font-black shadow-xl w-full sm:w-auto">
                     {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                    Confirm & Record Message
+                    Log & Record Correspondence
                  </Button>
               </DialogFooter>
             </DialogContent>
@@ -329,190 +339,234 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </div>
       </div>
 
+      {/* 2. PARENT & FAMILY INFORMATION (FULL ROW) */}
+      <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
+         <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+               <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
+               <CardTitle className="text-sm font-black text-primary uppercase">{isAr ? 'بيانات أولياء الأمور والعنوان' : 'Family & Contact Information'}</CardTitle>
+            </div>
+         </CardHeader>
+         <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+               {/* Parent 1 */}
+               <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-secondary">
+                     <UserPlus className="h-4 w-4" />
+                     <span className="text-[10px] font-black uppercase tracking-widest">{isAr ? 'ولي الأمر الأول' : 'Parent 1 (Primary)'}</span>
+                  </div>
+                  <div className="space-y-1">
+                     <p className="text-lg font-black text-primary">{app.parent1Name}</p>
+                     <p className="text-xs font-bold text-slate-500 flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> {app.parent1Email}</p>
+                     <p className="text-xs font-bold text-slate-500 flex items-center gap-2"><Phone className="h-3.5 w-3.5" /> {app.parent1Phone}</p>
+                     <Badge variant="outline" className="mt-2 bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship1}</Badge>
+                  </div>
+               </div>
+
+               {/* Parent 2 */}
+               <div className="space-y-4 border-l border-slate-100 pl-10">
+                  <div className="flex items-center gap-2 text-secondary">
+                     <UserPlus className="h-4 w-4" />
+                     <span className="text-[10px] font-black uppercase tracking-widest">{isAr ? 'ولي الأمر الثاني' : 'Parent 2'}</span>
+                  </div>
+                  {app.parent2Name ? (
+                    <div className="space-y-1">
+                       <p className="text-lg font-black text-primary">{app.parent2Name}</p>
+                       <p className="text-xs font-bold text-slate-500 flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> {app.parent2Email}</p>
+                       <p className="text-xs font-bold text-slate-500 flex items-center gap-2"><Phone className="h-3.5 w-3.5" /> {app.parent2Phone}</p>
+                       <Badge variant="outline" className="mt-2 bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship2}</Badge>
+                    </div>
+                  ) : (
+                    <p className="text-xs font-bold text-slate-400 italic">Not provided</p>
+                  )}
+               </div>
+
+               {/* Home Address */}
+               <div className="space-y-4 border-l border-slate-100 pl-10">
+                  <div className="flex items-center gap-2 text-secondary">
+                     <MapPin className="h-4 w-4" />
+                     <span className="text-[10px] font-black uppercase tracking-widest">{isAr ? 'عنوان السكن' : 'Physical Address'}</span>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                     <p className="text-sm font-bold text-primary leading-relaxed">
+                        {app.address?.line1}<br />
+                        {app.address?.line2 && <>{app.address.line2}<br/></>}
+                        <span className="text-secondary">{app.address?.city}, {app.address?.state} {app.address?.zip}</span>
+                     </p>
+                  </div>
+               </div>
+            </div>
+         </CardContent>
+      </Card>
+
+      {/* 3. STUDENT REVIEW QUEUE (FULL WIDTH TABLE) */}
+      <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
+         <CardHeader className="bg-secondary/5 p-6 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+               <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
+               <CardTitle className="text-sm font-black text-primary uppercase">{isAr ? 'مراجعة بيانات الطلاب' : 'Student Eligibility & Decision Queue'}</CardTitle>
+            </div>
+         </CardHeader>
+         <CardContent className="p-0">
+            <Table>
+               <TableHeader className="bg-slate-50/50">
+                  <TableRow className="h-14 border-none">
+                     <TableHead className="text-[10px] font-black uppercase text-slate-400 pl-10 w-1/3">Full Name & Details</TableHead>
+                     <TableHead className="text-[10px] font-black uppercase text-slate-400">Academic Context</TableHead>
+                     <TableHead className="text-[10px] font-black uppercase text-slate-400 text-center">Eligibility Decision</TableHead>
+                     <TableHead className="text-[10px] font-black uppercase text-slate-400 text-right pr-10">Administrative Action</TableHead>
+                  </TableRow>
+               </TableHeader>
+               <TableBody>
+                  {app.students?.map((st: any, i: number) => (
+                    <TableRow key={i} className="hover:bg-slate-50/30 transition-colors border-slate-50 h-24">
+                       <td className="pl-10">
+                          <div className="flex items-center gap-4">
+                             <div className="h-10 w-10 rounded-full bg-primary/5 text-primary flex items-center justify-center font-black">{i+1}</div>
+                             <div>
+                                <p className="text-sm font-black text-primary">{st.firstName} {st.lastName}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{st.gender} • DOB: {st.dob}</p>
+                             </div>
+                          </div>
+                       </td>
+                       <td>
+                          <p className="text-xs font-black text-secondary">Target: Grade {st.lastGrade}</p>
+                          <Badge variant="outline" className="bg-white border-slate-100 text-[8px] font-black uppercase text-slate-400 mt-1">{st.status || 'NEW ENTRY'}</Badge>
+                       </td>
+                       <td className="text-center">
+                          <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
+                             <SelectTrigger className="h-10 rounded-lg text-[10px] font-black uppercase border-slate-200 bg-white w-40 mx-auto shadow-sm">
+                                <SelectValue />
+                             </SelectTrigger>
+                             <SelectContent className="rounded-xl p-1">
+                                <SelectItem value="Pending" className="text-[10px] font-bold py-2.5">Pending Review</SelectItem>
+                                <SelectItem value="Accepted" className="text-[10px] font-bold text-green-600 py-2.5">Accept Candidate</SelectItem>
+                                <SelectItem value="Missing Docs" className="text-[10px] font-bold text-amber-600 py-2.5">Request More Docs</SelectItem>
+                                <SelectItem value="Rejected" className="text-[10px] font-bold text-red-600 py-2.5">Decline Application</SelectItem>
+                             </SelectContent>
+                          </Select>
+                       </td>
+                       <td className="text-right pr-10">
+                          {st.isEnrolled ? (
+                            <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit ml-auto shadow-sm">
+                               <BadgeCheck className="h-4 w-4" /> ENROLLED & ACTIVE
+                            </Badge>
+                          ) : (
+                            <Button 
+                              onClick={() => enrollStudent(i)} 
+                              disabled={isProcessing || st.status !== 'Accepted'}
+                              className="bg-primary hover:bg-secondary text-white h-11 px-6 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-primary/10 transition-all active:scale-95"
+                            >
+                               Provision Profile
+                            </Button>
+                          )}
+                       </td>
+                    </TableRow>
+                  ))}
+               </TableBody>
+            </Table>
+         </CardContent>
+      </Card>
+
+      {/* 4. BOTTOM GRID: PROGRAMS, LOGS & ATTACHMENTS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          
-          <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
-             <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100">
-                <div className="flex items-center gap-3">
-                   <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
-                   <CardTitle className="text-sm font-black text-primary uppercase">Family Information</CardTitle>
-                </div>
-             </CardHeader>
-             <CardContent className="p-0">
-                <Table>
-                   <TableHeader className="bg-slate-50/30">
-                      <TableRow className="h-12 border-none">
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Guardian</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Contact Details</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Relation</TableHead>
-                      </TableRow>
-                   </TableHeader>
-                   <TableBody>
-                      <TableRow className="border-slate-50">
-                         <td className="py-5 pl-8 font-black text-primary text-sm">{app.parent1Name}</td>
-                         <td className="py-5">
-                            <p className="text-xs font-bold text-slate-600">{app.parent1Email}</p>
-                            <p className="text-[10px] font-bold text-slate-400" dir="ltr">{app.parent1Phone}</p>
-                         </td>
-                         <td className="py-5"><Badge variant="outline" className="text-[8px] font-black uppercase bg-slate-50 border-none">{app.relationship1}</Badge></td>
-                      </TableRow>
-                      {app.parent2Name && (
-                        <TableRow className="border-none">
-                           <td className="py-5 pl-8 font-black text-primary text-sm">{app.parent2Name}</td>
-                           <td className="py-5">
-                              <p className="text-xs font-bold text-slate-600">{app.parent2Email}</p>
-                              <p className="text-[10px] font-bold text-slate-400" dir="ltr">{app.parent2Phone}</p>
-                           </td>
-                           <td className="py-5"><Badge variant="outline" className="text-[8px] font-black uppercase bg-slate-50 border-none">{app.relationship2}</Badge></td>
-                        </TableRow>
-                      )}
-                   </TableBody>
-                </Table>
-                
-                <div className="p-6 bg-slate-50/50 border-t border-slate-100">
-                   <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-inner flex items-center gap-8">
-                      <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0"><MapPin className="h-5 w-5" /></div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-[11px] font-bold text-slate-600 w-full">
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">Address</span><p className="text-primary truncate">{app.address?.line1}</p></div>
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">City</span><p className="text-primary">{app.address?.city}</p></div>
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">State</span><p className="text-primary">{app.address?.state}</p></div>
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">ZIP</span><p className="text-secondary font-black">{app.address?.zip}</p></div>
-                      </div>
-                   </div>
-                </div>
-             </CardContent>
-          </Card>
+         <div className="lg:col-span-2 space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               {/* Program Selection Card */}
+               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-primary text-white p-10 space-y-10 relative">
+                  <div className="absolute top-0 right-0 p-8 opacity-10"><Briefcase className="h-32 w-32" /></div>
+                  <div className="space-y-2 relative z-10">
+                     <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{isAr ? 'البرنامج المختار' : 'Program Selection'}</p>
+                     <h3 className="text-2xl font-black uppercase tracking-tight leading-tight">{app.programOption}</h3>
+                     <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase tracking-widest">{app.paymentTier || 'Standard'}</Badge>
+                  </div>
+                  <div className="space-y-2 relative z-10 pt-6 border-t border-white/5">
+                     <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{isAr ? 'الرسوم الأولية' : 'Base Tuition Estimate'}</p>
+                     <div className="text-5xl font-black text-secondary tracking-tighter">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</div>
+                  </div>
+               </Card>
 
-          <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
-             <CardHeader className="bg-secondary/5 p-6 border-b border-slate-100">
-                <div className="flex items-center gap-3">
-                   <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
-                   <CardTitle className="text-sm font-black text-primary uppercase">Student Review Queue</CardTitle>
-                </div>
-             </CardHeader>
-             <CardContent className="p-0">
-                <Table>
-                   <TableHeader className="bg-slate-50/30">
-                      <TableRow className="h-12 border-none">
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Full Name</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Academic Info</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400 text-center">Status</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400 text-right pr-8">Actions</TableHead>
-                      </TableRow>
-                   </TableHeader>
-                   <TableBody>
-                      {app.students.map((st: any, i: number) => (
-                        <TableRow key={i} className="hover:bg-slate-50/30 transition-colors border-slate-50">
-                           <td className="py-6 pl-8">
-                              <p className="text-sm font-black text-primary">{st.firstName} {st.lastName}</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase">{st.gender} • {st.dob}</p>
-                           </td>
-                           <td className="py-6">
-                              <p className="text-xs font-black text-secondary">Grade {st.lastGrade}</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase">{st.status || 'Initial Entry'}</p>
-                           </td>
-                           <td className="py-6 text-center">
-                              <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
-                                 <SelectTrigger className="h-8 rounded-md text-[8px] font-black uppercase border-slate-100 bg-white w-28 mx-auto">
-                                    <SelectValue />
-                                 </SelectTrigger>
-                                 <SelectContent className="rounded-lg p-1">
-                                    <SelectItem value="Pending" className="text-[9px] font-bold">Pending Review</SelectItem>
-                                    <SelectItem value="Accepted" className="text-[9px] font-bold text-green-600">Accepted</SelectItem>
-                                    <SelectItem value="Missing Docs" className="text-[9px] font-bold text-amber-600">Missing Docs</SelectItem>
-                                    <SelectItem value="Rejected" className="text-[9px] font-bold text-red-600">Rejected</SelectItem>
-                                 </SelectContent>
-                              </Select>
-                           </td>
-                           <td className="py-6 text-right pr-8">
-                              {st.isEnrolled ? (
-                                <Badge className="bg-green-100 text-green-600 border-none font-black text-[8px] py-1.5 px-3 rounded-lg flex items-center gap-2 w-fit ml-auto">
-                                   <BadgeCheck className="h-3 w-3" /> ENROLLED
-                                </Badge>
-                              ) : (
-                                <Button 
-                                  onClick={() => enrollStudent(i)} 
-                                  disabled={isProcessing || st.status !== 'Accepted'}
-                                  className="bg-primary hover:bg-secondary text-white h-9 px-4 rounded-lg font-black text-[9px] uppercase shadow-lg shadow-primary/10"
-                                >
-                                   Create Profile
-                                </Button>
-                              )}
-                           </td>
-                        </TableRow>
-                      ))}
-                   </TableBody>
-                </Table>
-             </CardContent>
-          </Card>
-        </div>
+               {/* Communication Logs Card */}
+               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
+                  <CardHeader className="p-6 border-b border-slate-50 flex flex-row items-center justify-between">
+                     <CardTitle className="text-[11px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><Clock className="h-4 w-4 text-secondary" /> Correspondence Logs</CardTitle>
+                     <Badge variant="outline" className="text-[9px] border-slate-100 text-slate-400 px-3">{app.communications?.length || 0} Events</Badge>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        {app.communications?.length > 0 ? app.communications.map((log: any, idx: number) => (
+                          <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-200 group transition-all">
+                             <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100"><Mail className="h-4.5 w-4.5 text-slate-300" /></div>
+                             <div className="space-y-1 flex-1">
+                                <div className="flex justify-between items-start">
+                                   <p className="text-[10px] font-black text-primary uppercase">{log.templateId}</p>
+                                   <span className="text-[9px] font-bold text-slate-400 uppercase">{format(new Date(log.sentAt), 'MMM dd')}</span>
+                                </div>
+                                <p className="text-[10px] font-medium text-slate-500 line-clamp-2 leading-relaxed">{log.subject}</p>
+                             </div>
+                          </div>
+                        )) : (
+                          <div className="py-20 text-center flex flex-col items-center gap-3">
+                             <Mail className="h-10 w-10 text-slate-100" />
+                             <p className="text-slate-300 font-bold uppercase text-[10px] tracking-widest">No communication history</p>
+                          </div>
+                        )}
+                     </div>
+                  </CardContent>
+               </Card>
+            </div>
+         </div>
 
-        <div className="space-y-8">
-           <Card className="border shadow-sm rounded-xl overflow-hidden bg-primary text-white p-8 space-y-6 relative">
-              <div className="absolute top-0 right-0 p-6 opacity-10"><Briefcase className="h-24 w-24" /></div>
-              <div className="space-y-1 relative z-10">
-                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Program Selection</p>
-                 <h3 className="text-xl font-black uppercase tracking-tight">{app.programOption}</h3>
-              </div>
-              <div className="h-px bg-white/5 w-full" />
-              <div className="space-y-2 relative z-10">
-                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Payment Tier</p>
-                 <div className="text-4xl font-black text-secondary">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</div>
-              </div>
-           </Card>
-
-           <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
-              <CardHeader className="p-6 border-b border-slate-50 flex flex-row items-center justify-between">
-                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><Clock className="h-3.5 w-3.5 text-secondary" /> Application Logs</CardTitle>
-                 <Badge variant="outline" className="text-[8px] border-slate-100 text-slate-400">{app.communications?.length || 0} Events</Badge>
-              </CardHeader>
-              <CardContent className="p-6">
-                 <div className="space-y-4 max-h-[350px] overflow-y-auto no-scrollbar">
-                    {app.communications?.length > 0 ? app.communications.map((log: any, idx: number) => (
-                      <div key={idx} className="flex gap-4 p-4 rounded-xl bg-slate-50 border border-transparent hover:border-slate-200 group transition-all">
-                         <div className="h-9 w-9 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0"><Mail className="h-4 w-4 text-slate-300" /></div>
-                         <div className="space-y-1 flex-1">
-                            <div className="flex justify-between items-start">
-                               <p className="text-[10px] font-black text-primary uppercase">{log.templateId}</p>
-                               <span className="text-[8px] font-bold text-slate-400 uppercase">{format(new Date(log.sentAt), 'MMM dd')}</span>
-                            </div>
-                            <p className="text-[10px] font-medium text-slate-500 line-clamp-1">{log.subject}</p>
-                         </div>
-                      </div>
-                    )) : (
-                      <div className="py-12 text-center text-slate-300 font-bold uppercase text-[9px]">No logs yet</div>
-                    )}
-                 </div>
-              </CardContent>
-           </Card>
-
-           <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
-              <CardHeader className="p-6 border-b border-slate-50">
-                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><FileCheck className="h-3.5 w-3.5 text-secondary" /> Verification Files</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                 <div className="divide-y divide-slate-50">
-                    {app.files?.length > 0 ? app.files.map((file: any, idx: number) => (
-                      <div key={idx} className="p-5 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
-                         <div className="flex items-center gap-4">
-                            {file.type?.startsWith('image/') || file.data?.startsWith('data:image/') ? (
-                              <div className="h-10 w-10 rounded-lg border border-slate-200 overflow-hidden shrink-0"><img src={file.data} className="h-full w-full object-cover" alt="preview" /></div>
-                            ) : (
-                              <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"><FileText className="h-4 w-4 text-slate-400" /></div>
-                            )}
-                            <p className="text-[10px] font-black text-primary truncate max-w-[120px]">{file.name}</p>
-                         </div>
-                         <Button onClick={() => window.open(file.data, '_blank')} variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-300 hover:text-secondary hover:bg-white transition-all"><ExternalLink className="h-4 w-4" /></Button>
-                      </div>
-                    )) : (
-                      <div className="py-20 text-center text-slate-300 font-bold uppercase text-[9px]">No artifacts found</div>
-                    )}
-                 </div>
-              </CardContent>
-           </Card>
-        </div>
+         {/* Verification Files (Full Height in Column) */}
+         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col">
+            <CardHeader className="p-6 border-b border-slate-100 bg-slate-50/30">
+               <CardTitle className="text-[11px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><FileCheck className="h-4 w-4 text-secondary" /> Document Artifacts</CardTitle>
+               <CardDescription className="text-[10px] font-bold">Verification files uploaded by parents.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 flex-1">
+               <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto custom-scrollbar">
+                  {app.files?.length > 0 ? app.files.map((file: any, idx: number) => (
+                    <div key={idx} className="p-6 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                       <div className="flex items-center gap-4">
+                          {file.type?.startsWith('image/') || file.data?.startsWith('data:image/') ? (
+                            <div className="h-12 w-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 shadow-sm"><img src={file.data} className="h-full w-full object-cover" alt="preview" /></div>
+                          ) : (
+                            <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200"><FileText className="h-5 w-5 text-slate-400" /></div>
+                          )}
+                          <div className="space-y-0.5">
+                             <p className="text-[10px] font-black text-primary truncate max-w-[150px] uppercase tracking-tight">{file.name}</p>
+                             <p className="text-[9px] font-bold text-slate-400 uppercase">{Math.round(file.size / 1024)} KB</p>
+                          </div>
+                       </div>
+                       <Button onClick={() => window.open(file.data, '_blank')} variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-300 hover:text-secondary hover:bg-white hover:shadow-sm transition-all"><ExternalLink className="h-5 w-5" /></Button>
+                    </div>
+                  )) : (
+                    <div className="py-32 text-center flex flex-col items-center gap-4">
+                       <FileWarning className="h-12 w-12 text-slate-100" />
+                       <p className="text-slate-300 font-black uppercase text-[10px] tracking-widest px-10">No artifacts were uploaded with this application.</p>
+                    </div>
+                  )}
+               </div>
+            </CardContent>
+         </Card>
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #cbd5e1;
+        }
+      `}</style>
     </div>
   );
 }
+
