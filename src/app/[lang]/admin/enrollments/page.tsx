@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -221,7 +220,15 @@ export default function AdmissionsRegisterPage({ params }: { params: Promise<{ l
                           <tr key={app.id} className="hover:bg-slate-50/40 transition-all group cursor-pointer" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}>
                              <td className="px-8 py-6 text-start">
                                 <div className="flex items-center gap-4">
-                                   <div className="h-12 w-12 rounded-xl bg-primary text-white flex items-center justify-center font-black text-lg shadow-xl shadow-primary/10">
+                                   <div className={cn(
+                                      "h-12 w-12 rounded-full flex items-center justify-center font-black text-lg shadow-xl text-white transition-all",
+                                      app.status === 'submitted' ? "bg-blue-500 shadow-blue-500/20" : 
+                                      app.status === 'reviewed' ? "bg-amber-500 shadow-amber-500/20" :
+                                      app.status === 'missing_info' ? "bg-purple-500 shadow-purple-500/20" :
+                                      app.status === 'approved' || app.status === 'Completed' ? "bg-green-600 shadow-green-600/20" : 
+                                      app.status === 'rejected' ? "bg-red-500 shadow-red-500/20" :
+                                      "bg-primary shadow-primary/20"
+                                   )}>
                                       {app.parent1Name?.charAt(0)}
                                    </div>
                                    <div className="space-y-0.5">
