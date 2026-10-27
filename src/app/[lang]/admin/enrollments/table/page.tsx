@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -18,7 +19,9 @@ import {
   ExternalLink,
   MapPin,
   Users,
-  GraduationCap
+  GraduationCap,
+  Check,
+  ChevronDown
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -39,6 +42,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -55,6 +64,7 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
   const [filterState, setFilterState] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [colSearch, setColSearch] = useState('');
 
   // Column management - Default visible
   const [visibleColumns, setVisibleColumns] = useState<string[]>([
@@ -117,33 +127,22 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
   const filteredData = useMemo(() => {
     if (!enrollments) return [];
     return enrollments.filter(app => {
-      // 1. Search text
       const searchStr = `${app.parent1Name || ''} ${app.id || ''} ${app.parent1Email || ''} ${app.parent1Phone || ''}`.toLowerCase();
       const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
-      
-      // 2. Program Filter
       const matchesProgram = filterProgram === 'all' || app.programOption === filterProgram;
-      
-      // 3. State Filter
       const matchesState = filterState === 'all' || app.address?.state === filterState;
 
-      // 4. Date Filter
       let matchesDate = true;
       if (app.updatedAt && typeof app.updatedAt.toDate === 'function') {
         const appDate = app.updatedAt.toDate();
-        if (dateFrom) {
-          matchesDate = matchesDate && appDate >= startOfDay(new Date(dateFrom));
-        }
-        if (dateTo) {
-          matchesDate = matchesDate && appDate <= endOfDay(new Date(dateTo));
-        }
+        if (dateFrom) matchesDate = matchesDate && appDate >= startOfDay(new Date(dateFrom));
+        if (dateTo) matchesDate = matchesDate && appDate <= endOfDay(new Date(dateTo));
       }
 
       return matchesSearch && matchesProgram && matchesState && matchesDate;
     });
   }, [enrollments, searchTerm, filterProgram, filterState, dateFrom, dateTo]);
 
-  // Extract unique states from current data for the state filter
   const uniqueStates = useMemo(() => {
     if (!enrollments) return [];
     const states = new Set(enrollments.map(e => e.address?.state).filter(Boolean));
@@ -155,6 +154,9 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
   };
+
+  const showAllColumns = () => setVisibleColumns(columns.map(c => c.id));
+  const hideAllColumns = () => setVisibleColumns(['id', 'parent1Name', 'status']);
 
   const getCellValue = (app: any, colId: string) => {
     const s1 = app.students?.[0];
@@ -177,7 +179,6 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
       case 'addressState': return app.address?.state;
       case 'addressZip': return app.address?.zip;
       case 'studentCount': return app.students?.length || 0;
-      // Student 1
       case 's1Status': return s1?.status;
       case 's1Name': return s1 ? `${s1.firstName} ${s1.middleName || ''} ${s1.lastName}` : '';
       case 's1Dob': return s1?.dob;
@@ -185,16 +186,13 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
       case 's1Grade': return s1?.lastGrade;
       case 's1Phone': return s1?.phone;
       case 's1Email': return s1?.email;
-      // Student 2
       case 's2Status': return s2?.status;
       case 's2Name': return s2 ? `${s2.firstName} ${s2.middleName || ''} ${s2.lastName}` : '';
       case 's2Dob': return s2?.dob;
       case 's2Gender': return s2?.gender;
       case 's2Grade': return s2?.lastGrade;
-      // Student 3
       case 's3Status': return s3?.status;
       case 's3Name': return s3 ? `${s3.firstName} ${s3.middleName || ''} ${s3.lastName}` : '';
-      // Program
       case 'program': return app.programOption;
       case 'payment': return app.paymentTier;
       case 'language': return app.languageOption;
@@ -207,8 +205,6 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
 
   const exportToCSV = () => {
     if (!filteredData.length) return;
-    
-    // Header row using all defined columns for full system export
     const exportHeaders = columns.map(c => c.label);
     const rows = filteredData.map(app => {
       return columns.map(col => {
@@ -216,18 +212,16 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
         return `"${String(val || '').replace(/"/g, '""')}"`;
       }).join(",");
     });
-
-    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
-      + exportHeaders.join(",") + "\n"
-      + rows.join("\n");
-
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + exportHeaders.join(",") + "\n" + rows.join("\n");
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csvContent));
-    link.setAttribute("download", `BBA_Detailed_Applications_${format(new Date(), 'yyyyMMdd_HHmm')}.csv`);
+    link.setAttribute("download", `BBA_Full_Export_${format(new Date(), 'yyyyMMdd_HHmm')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
+
+  const filteredCols = columns.filter(c => c.label.toLowerCase().includes(colSearch.toLowerCase()));
 
   return (
     <div className="space-y-6 pb-20">
@@ -241,10 +235,8 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
          </div>
       </div>
 
-      {/* Global Toolbar with Filters */}
       <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 space-y-4">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
-          {/* Search Box */}
           <div className="relative flex-1 group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input 
@@ -256,20 +248,13 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-              {/* Date From-To Filters */}
               <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-100">
                 <Calendar className="h-4 w-4 text-slate-400 ml-2" />
                 <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-8 w-32 border-none bg-transparent text-[10px] font-bold uppercase" />
                 <span className="text-[10px] font-black text-slate-300 px-1">TO</span>
                 <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-8 w-32 border-none bg-transparent text-[10px] font-bold uppercase" />
-                {(dateFrom || dateTo) && (
-                   <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-slate-200" onClick={() => { setDateFrom(''); setDateTo(''); }}>
-                      <X className="h-3 w-3" />
-                   </Button>
-                )}
               </div>
 
-              {/* State Filter */}
               <Select value={filterState} onValueChange={setFilterState}>
                 <SelectTrigger className="h-11 w-36 rounded-lg bg-slate-50 border-none font-black text-[10px] uppercase">
                   <MapPin className="h-3 w-3 mr-2 text-secondary" />
@@ -281,53 +266,61 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
                 </SelectContent>
               </Select>
 
-              {/* Program Filter */}
-              <Select value={filterProgram} onValueChange={setFilterProgram}>
-                <SelectTrigger className="h-11 w-36 rounded-lg bg-slate-50 border-none font-black text-[10px] uppercase">
-                  <GraduationCap className="h-3 w-3 mr-2 text-secondary" />
-                  <SelectValue placeholder="All Programs" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">{isAr ? 'كافة البرامج' : 'All Programs'}</SelectItem>
-                  <SelectItem value="grades-3-5">Foundation (3-5)</SelectItem>
-                  <SelectItem value="grades-6-12">Academics (6-12)</SelectItem>
-                  <SelectItem value="weekend">Weekend Remote</SelectItem>
-                </SelectContent>
-              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-50 shadow-sm px-6">
+                    <Columns className="h-4 w-4 text-secondary" />
+                    {isAr ? 'إدارة الأعمدة' : 'Manage Columns'}
+                    <ChevronDown className="h-3 w-3 opacity-30" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 p-0 rounded-xl shadow-2xl border-slate-100 overflow-hidden">
+                  <div className="p-4 bg-slate-50 border-b border-slate-100 flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                       <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Select Visible Fields</span>
+                       <div className="flex gap-2">
+                          <button onClick={showAllColumns} className="text-[9px] font-black text-secondary hover:underline uppercase">Show All</button>
+                          <span className="text-slate-300">|</span>
+                          <button onClick={hideAllColumns} className="text-[9px] font-black text-slate-400 hover:underline uppercase">Reset</button>
+                       </div>
+                    </div>
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                      <Input 
+                        placeholder="Search columns..." 
+                        value={colSearch} 
+                        onChange={(e) => setColSearch(e.target.value)}
+                        className="h-9 pl-9 bg-white border-slate-200 text-xs font-bold rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <ScrollArea className="h-80">
+                    <div className="p-2 space-y-1">
+                      {filteredCols.map(col => (
+                        <div 
+                          key={col.id} 
+                          onClick={() => toggleColumn(col.id)}
+                          className={cn(
+                            "flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-xs font-bold",
+                            visibleColumns.includes(col.id) ? "bg-primary/5 text-primary" : "text-slate-500 hover:bg-slate-50"
+                          )}
+                        >
+                          <span>{col.label}</span>
+                          {visibleColumns.includes(col.id) && <Check className="h-3.5 w-3.5 text-secondary" />}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
 
-              {/* Columns Toggle */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-50">
-                      <Columns className="h-4 w-4" />
-                      {isAr ? 'الأعمدة' : 'Columns'}
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 max-h-[400px] overflow-y-auto rounded-xl p-2 bg-white shadow-2xl border-slate-100">
-                    <DropdownMenuLabel className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Select Visible Fields</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {columns.map(col => (
-                      <DropdownMenuCheckboxItem
-                          key={col.id}
-                          checked={visibleColumns.includes(col.id)}
-                          onCheckedChange={() => toggleColumn(col.id)}
-                          className="rounded-lg font-bold text-xs py-2.5"
-                      >
-                          {col.label}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Full Export Button */}
-              <Button onClick={exportToCSV} variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-900 hover:text-white transition-all">
-                <Download className="h-4 w-4" /> Export ALL (CSV)
+              <Button onClick={exportToCSV} variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+                <Download className="h-4 w-4" /> Export (CSV)
               </Button>
           </div>
         </div>
       </div>
 
-      {/* Table Data Matrix */}
       <Card className="border border-slate-100 shadow-xl rounded-xl bg-white overflow-hidden">
          <CardContent className="p-0">
             <div className="overflow-x-auto max-h-[75vh]">
@@ -342,12 +335,12 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
                               </div>
                            </th>
                         ))}
-                        <th className="px-6 py-5 text-end bg-slate-900 sticky right-0 shadow-[-10px_0_15px_rgba(0,0,0,0.1)]"></th>
+                        <th className="px-6 py-5 text-end bg-slate-900 sticky right-0 shadow-[-10px_0_15px_rgba(0,0,0,0.15)] z-40"></th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                      {loading ? (
-                        [1,2,3,4,5].map(i => <tr key={i} className="animate-pulse"><td colSpan={visibleColumns.length + 1} className="h-14 bg-slate-50/50" /></tr>)
+                        [1,2,3,4,5].map(i => <tr key={i} className="animate-pulse"><td colSpan={visibleColumns.length + 1} className="h-16 bg-slate-50/50" /></tr>)
                      ) : filteredData.length === 0 ? (
                         <tr>
                            <td colSpan={visibleColumns.length + 1} className="py-32 text-center">
@@ -385,8 +378,8 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
                                 )}
                               </td>
                            ))}
-                           <td className="px-6 py-4 text-end sticky right-0 bg-white group-hover:bg-slate-50/50 shadow-[-10px_0_15px_rgba(0,0,0,0.02)]">
-                              <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg hover:bg-primary hover:text-white transition-all shadow-sm" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}>
+                           <td className="px-6 py-4 text-end sticky right-0 bg-white group-hover:bg-slate-50/50 shadow-[-10px_0_15px_rgba(0,0,0,0.05)] z-30">
+                              <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-primary hover:text-white transition-all shadow-sm" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}>
                                  <ChevronRight className={cn("h-4 w-4", isAr && "rotate-180")} />
                               </Button>
                            </td>
@@ -398,13 +391,12 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
          </CardContent>
       </Card>
       
-      {/* Footer Stats Matrix */}
       <div className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-4 rounded-xl shadow-sm border border-slate-100">
          <div>Total: {filteredData.length} records in view</div>
          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
                <Users className="h-3 w-3 text-secondary" />
-               Complete Data Matrix Active
+               Excel-Style Master Grid Active
             </div>
             <Settings2 className="h-3 w-3" />
          </div>
