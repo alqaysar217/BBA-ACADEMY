@@ -503,6 +503,52 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       });
   };
 
+  /**
+   * دالة ضغط الصور قبل التحويل لـ Base64
+   * لضمان عدم تجاوز حجم مستند Firestore (1MB)
+   */
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new (window as any).Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // تصغير الأبعاد إذا تجاوزت 1200 بكسل للحفاظ على مساحة Firestore
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // ضغط الصورة بجودة 0.7 كافية للمراجعة وبحجم صغير جداً
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -524,12 +570,19 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         const file = files[i];
         if (newFilesList.length >= 15) break;
 
-        const base64Data = await fileToBase64(file);
+        let finalData: string;
+        // ضغط الملفات إذا كانت صوراً لضمان عدم فشل الإرسال
+        if (file.type.startsWith('image/')) {
+          finalData = await compressImage(file);
+        } else {
+          finalData = await fileToBase64(file);
+        }
+
         newFilesList.push({
           name: file.name,
           type: file.type,
           size: file.size,
-          data: base64Data
+          data: finalData
         });
       }
       setFormData((prev: any) => ({ ...prev, files: newFilesList }));
@@ -768,8 +821,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Email, true) && "text-red-500")}>
                               <Mail className="h-3 w-3 text-secondary" />
                               {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
-                            </Label>
-                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent2Email, true) && "border-red-500 ring-red-50")} type="email" />
+                            </Label>                             <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent2Email, true) && "border-red-500 ring-red-50")} type="email" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship2) && "text-red-500")}>

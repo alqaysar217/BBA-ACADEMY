@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -448,9 +447,15 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                         <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100">
                           <TableCell className="py-4 px-8">
                              <div className="flex items-center gap-4">
-                                <div className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-secondary shadow-sm">
-                                   <FileText className="h-4 w-4" />
-                                </div>
+                                {file.type?.startsWith('image/') || file.data?.startsWith('data:image/') ? (
+                                   <div className="h-14 w-14 rounded-lg border border-slate-100 overflow-hidden shrink-0 shadow-sm">
+                                      <img src={file.data} className="h-full w-full object-cover" alt="preview" />
+                                   </div>
+                                ) : (
+                                   <div className="h-10 w-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-secondary shadow-sm">
+                                      <FileText className="h-4 w-4" />
+                                   </div>
+                                )}
                                 <div className="space-y-0.5">
                                    <p className="text-xs font-black text-primary truncate max-w-[200px]">{file.name}</p>
                                    <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Formal Document #{idx + 1}</p>
