@@ -4,7 +4,7 @@ import { use, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { 
   Users, 
   MapPin, 
@@ -12,40 +12,83 @@ import {
   CreditCard, 
   FileText, 
   CheckCircle2,
-  DownloadCloud,
   FileCheck,
   ExternalLink,
   ChevronRight,
   ChevronLeft,
   Clock,
   Layers,
-  Globe,
-  Trash2,
-  ShieldCheck,
   Briefcase,
-  AlertCircle,
-  MoreVertical,
   UserPlus,
   Mail,
-  Phone,
-  Layout,
-  Star
+  Send,
+  MessageSquare,
+  AlertCircle,
+  Check,
+  X,
+  FileWarning,
+  Info,
+  BadgeCheck
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+
+// 1. Email Templates Library (English)
+const EMAIL_TEMPLATES = [
+  {
+    id: 'received',
+    label: 'Application Received',
+    subject: 'BBA Academy: We have received your application',
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are writing to confirm that we have successfully received your enrollment application for ${data.studentCount} student(s).\n\nOur admissions team is currently reviewing your details. Please note that this confirmation does not imply final acceptance. We will contact you shortly if any further documentation or information is required.\n\nBest regards,\nBBA Admissions Office`
+  },
+  {
+    id: 'under_review',
+    label: 'Under Review',
+    subject: 'BBA Academy: Your application is under review',
+    body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). Your file is now "Under Review" by our academic committee.\n\nWe appreciate your patience during this process. No further action is required from your side at this moment.\n\nSincerely,\nBBA Academic Committee`
+  },
+  {
+    id: 'offer',
+    label: 'Admission Offer',
+    subject: 'Congratulations! Admission Offer from BBA Academy',
+    body: (data: any) => `Dear ${data.parentName},\n\nWe are pleased to inform you that the following student(s) have been accepted into Baneen and Banaat Academy:\n\n${data.acceptedStudents}\n\nWe are excited to have you join our learning community. An administrator will contact you within 48 hours to finalize the tuition setup and provide orientation details.\n\nWelcome to the family!\nBBA Administration`
+  },
+  {
+    id: 'missing_docs',
+    label: 'Missing Documents',
+    subject: 'Action Required: Missing Documentation for BBA Enrollment',
+    body: (data: any) => `Dear ${data.parentName},\n\nDuring the review of your application, we noticed that some required documents are missing or incomplete for ${data.targetStudents}.\n\nRequirements:\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nPlease upload these documents through the portal or reply to this email to proceed with the application.\n\nThank you,\nBBA Admissions Team`
+  },
+  {
+    id: 'not_accepted',
+    label: 'Admission Decision: Not Accepted',
+    subject: 'Update regarding your BBA Academy Application',
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Maximum capacity reached for the current semester.'}\n\nWe wish you and your family the very best in your educational journey.\n\nRespectfully,\nBBA Admissions Office`
+  }
+];
 
 export default function EnrollmentDetailPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -53,433 +96,474 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
   const firestore = useFirestore();
   const router = useRouter();
   const isAr = lang === 'ar';
+
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(EMAIL_TEMPLATES[0]);
+  const [msgReason, setReason] = useState('');
+  const [isMsgOpen, setIsMsgOpen] = useState(false);
 
-  const docRef = useMemo(() => {
-    if (!firestore || !id) return null;
-    return doc(firestore, 'enrollments', id);
-  }, [firestore, id]);
-
+  const docRef = useMemo(() => (firestore && id) ? doc(firestore, 'enrollments', id) : null, [firestore, id]);
   const { data: app, loading: dataLoading } = useDoc(docRef);
 
-  useEffect(() => {
-    const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
-    if (!authLoading && !user && !isTestAdmin) {
-      router.push(`/${lang}/admin/login`);
-    }
-  }, [user, authLoading, router, lang]);
-
-  const updateStatus = (newStatus: string) => {
-    if (!firestore || !app || !docRef) return;
-    setIsProcessing(true);
-    
-    const updateData = {
-      status: newStatus,
+  // Status Handlers
+  const updateAppStatus = (newStatus: string) => {
+    if (!docRef) return;
+    updateDoc(docRef, { 
+      status: newStatus, 
       updatedAt: serverTimestamp(),
       processedBy: user?.email || 'admin'
-    };
-
-    setDoc(docRef, updateData, { merge: true })
-      .then(() => {
-        toast({
-          title: isAr ? "تم تحديث الحالة" : "Status Updated",
-          description: isAr ? `تم تغيير حالة الطلب إلى: ${newStatus}` : `Application status changed to ${newStatus}.`,
-        });
-      })
-      .catch(async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'update',
-          requestResourceData: updateData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      })
-      .finally(() => setIsProcessing(false));
+    });
+    toast({ title: isAr ? "تم تحديث حالة الطلب" : "Application Status Updated" });
   };
 
-  const approveAndEnroll = () => {
+  const updateStudentStatus = (studentIdx: number, newStatus: string) => {
+    if (!docRef || !app) return;
+    const updatedStudents = [...app.students];
+    updatedStudents[studentIdx].status = newStatus;
+    updateDoc(docRef, { 
+      students: updatedStudents, 
+      updatedAt: serverTimestamp() 
+    });
+    toast({ title: isAr ? "تم تحديث حالة الطالب" : "Student Status Updated" });
+  };
+
+  // Enrollment Logic (Individual)
+  const enrollStudent = async (studentIdx: number) => {
     if (!firestore || !app || !docRef) return;
-    if (app.status === 'approved') {
-       toast({ variant: "destructive", title: isAr ? "الطلب معتمد بالفعل" : "Already Approved" });
-       return;
+    const student = app.students[studentIdx];
+    
+    if (student.isEnrolled) {
+      toast({ variant: "destructive", title: isAr ? "الطالب مسجل بالفعل" : "Student already enrolled" });
+      return;
     }
 
     setIsProcessing(true);
-    
-    const studentsCollection = collection(firestore, 'students');
-    
-    app.students.forEach((student: any) => {
-      const studentDoc = doc(studentsCollection);
+    try {
+      // 1. Check for duplicates
+      const studentIdStr = `${id}-${studentIdx}`;
+      const q = query(collection(firestore, 'students'), where('enrollmentRef', '==', studentIdStr));
+      const snapshot = await getDocs(q);
+      
+      if (!snapshot.empty) {
+        toast({ variant: "destructive", title: "Record already exists" });
+        setIsProcessing(false);
+        return;
+      }
+
+      // 2. Create Student Profile
+      const studentDoc = doc(collection(firestore, 'students'));
       const studentData = {
-        ...student,
-        enrollmentId: id,
-        parentId: user?.uid || 'anonymous',
-        parent1Name: app.parent1Name,
-        parent1Email: app.parent1Email,
-        parent1Phone: app.parent1Phone,
-        address: app.address,
-        programOption: app.programOption,
-        status: 'active',
+        firstName: student.firstName,
+        middleName: student.middleName || '',
+        lastName: student.lastName,
+        email: student.email,
+        phone: student.phone,
+        gender: student.gender,
+        dob: student.dob,
         gradeLevel: student.lastGrade,
-        academicPlan: {
-          courses: [],
-          progress: 0,
-          graduationYear: new Date().getFullYear() + (12 - parseInt(student.lastGrade || '0'))
-        },
+        enrollmentId: id,
+        enrollmentRef: studentIdStr,
+        parentId: app.userId || 'anonymous',
+        parentName: app.parent1Name,
+        parentEmail: app.parent1Email,
+        parentPhone: app.parent1Phone,
+        address: app.address,
+        program: app.programOption,
+        status: 'active',
+        academicPlan: { progress: 0, courses: [] },
         financialLedger: {
-          totalDue: app.programOption === 'weekend' ? 75 : (app.paymentTier === 'full-3-5' ? 2850 : 1650),
-          totalPaid: 0,
-          payments: [],
-          lastPaymentDate: null
+           totalDue: app.programOption === 'weekend' ? 75 : (app.paymentTier === 'full-3-5' ? 2850 : 1650),
+           totalPaid: 0,
+           payments: []
         },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
-      
-      setDoc(studentDoc, studentData).catch(async (err) => {
-        const pError = new FirestorePermissionError({
-          path: studentDoc.path,
-          operation: 'create',
-          requestResourceData: studentData,
-        });
-        errorEmitter.emit('permission-error', pError);
-      });
-    });
 
-    const enrollmentUpdate = { 
-      status: 'approved', 
-      updatedAt: serverTimestamp(),
-      approvedAt: serverTimestamp()
-    };
+      await setDoc(studentDoc, studentData);
 
-    setDoc(docRef, enrollmentUpdate, { merge: true })
-      .then(() => {
-        toast({
-          title: isAr ? "تم الاعتماد والتسجيل" : "Approved & Enrolled",
-          description: isAr ? "تم إنشاء ملفات الطلاب بنجاح." : "Student records have been created successfully.",
-        });
-        router.push(`/${lang}/admin/students`);
-      })
-      .catch(async (err) => {
-        const pError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'update',
-          requestResourceData: enrollmentUpdate,
-        });
-        errorEmitter.emit('permission-error', pError);
-      })
-      .finally(() => setIsProcessing(false));
+      // 3. Mark as Enrolled in Application
+      const updatedStudents = [...app.students];
+      updatedStudents[studentIdx].isEnrolled = true;
+      updatedStudents[studentIdx].status = 'Accepted';
+      await updateDoc(docRef, { students: updatedStudents });
+
+      toast({ title: isAr ? "تم إنشاء ملف الطالب بنجاح" : "Student profile created successfully" });
+    } catch (err) {
+      console.error(err);
+      toast({ variant: "destructive", title: "Error creating record" });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  if (authLoading || dataLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-           <div className="h-10 w-10 border-4 border-secondary border-t-transparent rounded-full animate-spin" />
-           <p className="text-[10px] font-black text-primary uppercase tracking-widest animate-pulse">
-              {isAr ? 'مزامنة السجلات...' : 'Syncing Records...'}
-           </p>
-        </div>
-      </div>
-    );
-  }
+  // Messaging Logic
+  const handleSendMessage = async () => {
+    if (!app || !docRef) return;
+    setIsProcessing(true);
 
-  if (!app) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center text-center p-8">
-        <div className="space-y-6 max-w-sm">
-           <div className="h-16 w-16 bg-white shadow-lg rounded-xl flex items-center justify-center mx-auto text-slate-200 border border-slate-100">
-              <FileText className="h-8 w-8" />
-           </div>
-           <h2 className="text-xl font-black text-primary uppercase">{isAr ? 'الطلب غير موجود' : 'Missing Entry'}</h2>
-           <Button onClick={() => router.back()} className="w-full bg-primary text-white rounded-lg h-12 font-black">
-              {isAr ? 'العودة للخلف' : 'Go Back'}
-           </Button>
-        </div>
-      </div>
-    );
-  }
+    const logEntry = {
+      templateId: selectedTemplate.id,
+      sentAt: new Date().toISOString(),
+      recipient: app.parent1Email,
+      subject: selectedTemplate.subject,
+      content: selectedTemplate.body({
+        parentName: app.parent1Name,
+        appId: id,
+        studentCount: app.students.length,
+        acceptedStudents: app.students.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
+        targetStudents: app.students.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
+        reason: msgReason
+      }),
+      sender: user?.email || 'admin'
+    };
 
-  const SectionHeader = ({ icon: Icon, title, subtitle, color = "bg-primary" }: { icon: any, title: string, subtitle: string, color?: string }) => (
-    <div className="flex items-center gap-4 mb-6 px-2">
-      <div className={cn("h-10 w-10 rounded-lg text-white flex items-center justify-center shadow-md", color)}>
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="space-y-0.5">
-        <h2 className="text-lg font-black text-primary uppercase tracking-tight leading-none">{title}</h2>
-        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{subtitle}</p>
-      </div>
+    try {
+      const existingLogs = app.communications || [];
+      await updateDoc(docRef, { 
+        communications: [logEntry, ...existingLogs],
+        lastCommunicationAt: serverTimestamp()
+      });
+      
+      toast({ title: "Message Sent (Logged)", description: "The official correspondence has been recorded." });
+      setIsMsgOpen(false);
+      setReason('');
+    } catch (err) {
+      toast({ variant: "destructive", title: "Failed to log message" });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (authLoading || dataLoading) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+      <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Accessing Secure Records...</p>
     </div>
   );
 
+  if (!app) return <div className="p-20 text-center font-black text-red-500">ENTRY NOT FOUND</div>;
+
   return (
-    <div className="space-y-10">
-      <header className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-xl p-4 shadow-sm sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="space-y-8 pb-20">
+      {/* Header Actions */}
+      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.back()} 
-            className="h-10 w-10 rounded-lg bg-slate-50 text-slate-400 hover:text-primary hover:bg-white hover:shadow-md transition-all border border-slate-100 flex items-center justify-center group"
-          >
-            {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </button>
+          <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-lg bg-slate-50">
+            {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          </Button>
           <div className="space-y-0.5">
-            <div className="flex items-center gap-3">
-               <h1 className="text-lg md:text-xl font-black text-primary truncate">{app.parent1Name}</h1>
-               <Badge className={cn(
-                 "h-5 px-2 rounded-md font-black uppercase text-[8px] tracking-widest border-none shadow-sm",
-                 app.status === 'approved' ? "bg-green-100 text-green-600" : 
-                 app.status === 'rejected' ? "bg-red-100 text-red-600" :
-                 app.status === 'reviewed' ? "bg-blue-100 text-blue-600" :
-                 "bg-amber-100 text-amber-600"
-               )}>
-                 {app.status}
-               </Badge>
-            </div>
-            <div className="flex items-center gap-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-               <span className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> {app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, HH:mm') : '-'}</span>
+            <h1 className="text-xl font-black text-primary truncate max-w-[200px] md:max-w-none">{app.parent1Name}</h1>
+            <div className="flex items-center gap-2">
+               <Badge className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">{app.status}</Badge>
+               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{id}</span>
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 w-full md:w-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex-1 md:flex-none rounded-lg h-10 border-slate-200 font-black text-[10px] uppercase tracking-widest bg-white hover:bg-slate-50">
+          {/* Main App Status Control */}
+          <Select value={app.status} onValueChange={updateAppStatus}>
+             <SelectTrigger className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase w-full md:w-44 bg-white shadow-sm">
                 <Layers className="h-3.5 w-3.5 mr-2 text-secondary" />
-                {isAr ? 'تغيير الحالة' : 'Update Status'}
+                <SelectValue />
+             </SelectTrigger>
+             <SelectContent className="rounded-xl p-1">
+                <SelectItem value="submitted" className="font-bold py-2.5">New Application</SelectItem>
+                <SelectItem value="reviewed" className="font-bold py-2.5">Under Review</SelectItem>
+                <SelectItem value="missing_info" className="font-bold py-2.5 text-amber-600">Awaiting Info</SelectItem>
+                <SelectItem value="partially_accepted" className="font-bold py-2.5 text-blue-600">Partially Accepted</SelectItem>
+                <SelectItem value="approved" className="font-bold py-2.5 text-green-600">Completed</SelectItem>
+                <SelectItem value="rejected" className="font-bold py-2.5 text-red-600">Rejected</SelectItem>
+             </SelectContent>
+          </Select>
+
+          {/* Messaging Dialog */}
+          <Dialog open={isMsgOpen} onOpenChange={setIsMsgOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary text-white h-11 px-6 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2">
+                <MessageSquare className="h-4 w-4 text-secondary" />
+                {isAr ? 'تواصل مع العائلة' : 'Send Message'}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-xl p-1.5 min-w-[200px] shadow-2xl border-slate-100">
-              <DropdownMenuItem onClick={() => updateStatus('reviewed')} className="font-bold text-primary p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
-                <div className="h-2 w-2 rounded-full bg-blue-500" /> {isAr ? 'تمت المراجعة' : 'Mark Reviewed'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('missing_docs')} className="font-bold text-amber-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
-                <div className="h-2 w-2 rounded-full bg-amber-500" /> {isAr ? 'وثائق مفقودة' : 'Missing Documents'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('rejected')} className="font-bold text-red-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
-                <div className="h-2 w-2 rounded-full bg-red-500" /> {isAr ? 'رفض الطلب' : 'Reject Application'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('approved')} className="font-bold text-emerald-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50">
-                <div className="h-2 w-2 rounded-full bg-emerald-500" /> {isAr ? 'مقبول' : 'Approve Application'}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button 
-            onClick={approveAndEnroll}
-            disabled={isProcessing || app.status === 'approved'}
-            className="flex-[2] md:flex-none rounded-lg h-10 bg-primary hover:bg-secondary text-white font-black px-6 shadow-xl transition-all gap-2 text-[10px] uppercase tracking-widest"
-          >
-            {isProcessing ? <Clock className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5 text-secondary" />}
-            {isAr ? 'اعتماد وتسجيل الطالب' : 'Approve & Enroll'}
-          </Button>
-        </div>
-      </header>
-
-      <div className="grid grid-cols-1 gap-12">
-        <section className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <SectionHeader 
-            icon={Users} 
-            title={isAr ? 'بيانات العائلة والتواصل' : 'Family Intelligence'} 
-            subtitle={isAr ? 'جدول الممثلين القانونيين وعنوان السكن' : 'Authorized Guardians & Residence'}
-          />
-          <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
-            <div className="overflow-x-auto">
-               <Table>
-                 <TableHeader className="bg-slate-50 border-b border-slate-100">
-                   <TableRow className="hover:bg-transparent h-12">
-                     <TableHead className="w-16 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">#</TableHead>
-                     <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest px-6 text-start">{isAr ? 'اسم ولي الأمر' : 'Guardian Name'}</TableHead>
-                     <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'رقم الهاتف' : 'Contact Phone'}</TableHead>
-                     <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'البريد الإلكتروني' : 'Email'}</TableHead>
-                     <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'القرابة' : 'Relation'}</TableHead>
-                     <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'الدور' : 'Role'}</TableHead>
-                   </TableRow>
-                 </TableHeader>
-                 <TableBody>
-                   <TableRow className="hover:bg-slate-50/50 border-slate-100 transition-colors">
-                     <TableCell className="text-center font-black text-slate-300 py-4">01</TableCell>
-                     <TableCell className="px-6 font-black text-primary text-sm text-start">{app.parent1Name}</TableCell>
-                     <TableCell className="font-bold text-slate-600 text-center text-xs" dir="ltr">{app.parent1Phone}</TableCell>
-                     <TableCell className="font-bold text-slate-600 text-center text-xs">{app.parent1Email}</TableCell>
-                     <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-md">{app.relationship1}</Badge></TableCell>
-                     <TableCell className="text-center"><Badge className="bg-secondary text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-md">Primary</Badge></TableCell>
-                   </TableRow>
-                   
-                   {app.parent2Name && (
-                     <TableRow className="hover:bg-slate-50/50 border-slate-100 transition-colors">
-                       <TableCell className="text-center font-black text-slate-300 py-4">02</TableCell>
-                       <TableCell className="px-6 font-black text-primary text-sm text-start">{app.parent2Name}</TableCell>
-                       <TableCell className="font-bold text-slate-600 text-center text-xs" dir="ltr">{app.parent2Phone}</TableCell>
-                       <TableCell className="font-bold text-slate-600 text-center text-xs">{app.parent2Email}</TableCell>
-                       <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-md">{app.relationship2}</Badge></TableCell>
-                       <TableCell className="text-center"><Badge className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-md">Secondary</Badge></TableCell>
-                     </TableRow>
-                   )}
-
-                   <TableRow className="bg-slate-50/30">
-                     <TableCell colSpan={6} className="p-4">
-                        <div className="bg-white p-6 rounded-lg border border-slate-100 flex flex-row items-center gap-8 shadow-sm overflow-x-auto no-scrollbar ring-1 ring-slate-100">
-                           <div className="flex items-center gap-4 shrink-0">
-                              <div className="h-10 w-10 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
-                                 <MapPin className="h-5 w-5" />
-                              </div>
-                              <div className="space-y-0.5">
-                                 <span className="font-black text-primary uppercase text-[10px] tracking-tight">{isAr ? 'عنوان السكن المعتمد' : 'Verified Address'}</span>
-                                 <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Shipping & Records</p>
-                              </div>
-                           </div>
-                           <div className="h-10 w-px bg-slate-100 shrink-0" />
-                           <div className="flex flex-row gap-10 text-xs font-bold text-slate-700 whitespace-nowrap">
-                              <div className="space-y-1">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'العنوان الأول' : 'Address 1'}</span>
-                                 <span className="text-primary font-black text-sm">{app.address?.line1 || '-'}</span>
-                              </div>
-                              <div className="space-y-1">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'العنوان الثاني' : 'Address 2'}</span>
-                                 <span className="text-primary font-black text-sm">{app.address?.line2 || '-'}</span>
-                              </div>
-                              <div className="space-y-1">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'المدينة' : 'City'}</span>
-                                 <span className="text-primary font-black text-sm">{app.address?.city || '-'}</span>
-                              </div>
-                              <div className="space-y-1">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'الولاية' : 'State'}</span>
-                                 <span className="text-primary font-black text-sm">{app.address?.state || '-'}</span>
-                              </div>
-                              <div className="space-y-1">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'الرمز البريدي' : 'ZIP Code'}</span>
-                                 <span className="text-secondary font-black text-sm">{app.address?.zip || '-'}</span>
-                              </div>
-                           </div>
-                        </div>
-                     </TableCell>
-                   </TableRow>
-                 </TableBody>
-               </Table>
-            </div>
-          </Card>
-        </section>
-
-        <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
-           <SectionHeader 
-              icon={GraduationCap} 
-              title={isAr ? 'سجل الطلاب الأكاديمي' : 'Student Roster'} 
-              subtitle={isAr ? 'البيانات الشخصية والأكاديمية لكافة الأبناء' : 'Sibling Academic Profiles'}
-              color="bg-secondary"
-            />
-            <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-slate-50 border-b border-slate-100">
-                    <TableRow className="hover:bg-transparent h-12">
-                      <TableHead className="w-16 text-center font-black text-[9px] uppercase text-slate-400 tracking-widest">#</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest px-6 text-start">{isAr ? 'اسم الطالب' : 'Full Name'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'الجنـس' : 'Gender'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'تاريخ الميلاد' : 'D.O.B'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'المستوى' : 'Level'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'الهاتف' : 'Phone'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'البريد' : 'Email'}</TableHead>
-                      <TableHead className="font-black text-[9px] uppercase text-slate-400 tracking-widest text-center">{isAr ? 'الحالة' : 'Status'}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {app.students?.map((student: any, idx: number) => (
-                      <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100 transition-colors">
-                        <TableCell className="text-center font-black text-slate-300 py-4">{idx + 1}</TableCell>
-                        <TableCell className="px-6 font-black text-primary text-sm text-start whitespace-nowrap">
-                          {student.firstName} {student.middleName} {student.lastName}
-                        </TableCell>
-                        <TableCell className="text-center font-bold text-slate-500 text-xs">
-                           {student.gender === 'Male' ? (isAr ? 'ذكر' : 'Male') : (isAr ? 'أنثى' : 'Female')}
-                        </TableCell>
-                        <TableCell className="font-bold text-slate-600 text-[10px] text-center whitespace-nowrap">{student.dob}</TableCell>
-                        <TableCell className="text-center whitespace-nowrap">
-                           <Badge variant="outline" className="rounded-md border-slate-100 bg-slate-50 text-primary font-black text-[8px] px-2 py-0.5">Grade {student.lastGrade}</Badge>
-                        </TableCell>
-                        <TableCell className="text-[10px] font-black text-slate-600 text-center whitespace-nowrap" dir="ltr">
-                          {student.phone}
-                        </TableCell>
-                        <TableCell className="text-[10px] font-bold text-slate-600 text-center whitespace-nowrap">
-                          {student.email}
-                        </TableCell>
-                        <TableCell className="text-center whitespace-nowrap">
-                          <Badge className="bg-secondary/10 text-secondary border-none font-black text-[8px] uppercase px-2 rounded-md">
-                             {student.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl rounded-xl border-none p-0 overflow-hidden shadow-2xl">
+              <div className="bg-primary p-6 text-white flex items-center gap-4">
+                 <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center"><Mail className="h-6 w-6 text-secondary" /></div>
+                 <div>
+                    <DialogTitle className="text-xl font-black uppercase tracking-tight">Official Correspondence</DialogTitle>
+                    <DialogDescription className="text-white/60 font-bold text-xs">Direct communication with ${app.parent1Email}</DialogDescription>
+                 </div>
               </div>
-            </Card>
-        </section>
+              <div className="p-8 space-y-6">
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Select Template</label>
+                    <Select onValueChange={(val) => setSelectedTemplate(EMAIL_TEMPLATES.find(t => t.id === val) || EMAIL_TEMPLATES[0])}>
+                       <SelectTrigger className="h-12 rounded-lg font-bold border-slate-100 bg-slate-50">
+                          <SelectValue placeholder="Choose a template..." />
+                       </SelectTrigger>
+                       <SelectContent>
+                          {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold">{t.label}</SelectItem>)}
+                       </SelectContent>
+                    </Select>
+                 </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-          <section className="space-y-6">
-             <SectionHeader icon={Briefcase} title={isAr ? 'المسار التعليمي' : 'Academic Track'} subtitle={isAr ? 'البرنامج المختار والرسوم' : 'Enrollment Path'} color="bg-accent" />
-             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 p-8 flex flex-col justify-center gap-6 min-h-[200px]">
-                <div className="space-y-1">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'خيار البرنامج' : 'Selected Program'}</p>
-                   <h3 className="text-xl font-black text-primary tracking-tight">{app.programOption}</h3>
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. Detailed Reason / Additional Info (Optional)</label>
+                    <Textarea 
+                      value={msgReason} 
+                      onChange={(e) => setReason(e.target.value)}
+                      placeholder="Type details about missing docs or rejection reasons here..." 
+                      className="min-h-[100px] bg-slate-50 border-none rounded-xl font-bold"
+                    />
+                 </div>
+
+                 <div className="bg-slate-900 rounded-xl p-6 space-y-4">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Preview (Final Result in English)</span>
+                       <Badge variant="outline" className="border-secondary text-secondary text-[8px] font-black uppercase">Official BBA Layout</Badge>
+                    </div>
+                    <div className="space-y-3">
+                       <p className="text-xs font-black text-secondary">Subject: {selectedTemplate.subject}</p>
+                       <p className="text-[11px] text-white/70 whitespace-pre-wrap font-medium leading-relaxed italic">
+                         {selectedTemplate.body({ 
+                            parentName: app.parent1Name, 
+                            appId: id, 
+                            studentCount: app.students.length,
+                            acceptedStudents: app.students.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
+                            targetStudents: app.students.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
+                            reason: msgReason || '...' 
+                         })}
+                       </p>
+                    </div>
+                 </div>
+              </div>
+              <DialogFooter className="bg-slate-50 p-6">
+                 <Button variant="ghost" onClick={() => setIsMsgOpen(false)} className="font-black text-[10px] uppercase">Cancel</Button>
+                 <Button onClick={handleSendMessage} disabled={isProcessing} className="bg-primary text-white px-8 rounded-lg h-12 font-black shadow-xl">
+                    {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                    Confirm & Log Message
+                 </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Forms & Data */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* Guardian Info Card */}
+          <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+             <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                   <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
+                   <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">Family Contacts & Residence</CardTitle>
                 </div>
-                <div className="h-px bg-slate-50 w-full" />
-                <div className="space-y-2">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'الرسوم الدراسية المقدرة' : 'Tuition Projection'}</p>
-                   <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-black text-secondary tracking-tighter">
-                         {app.programOption === 'weekend' ? '$75' : app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650'}
-                      </span>
-                      <span className="text-slate-300 font-bold text-[10px] uppercase tracking-widest">{app.programOption === 'weekend' ? '/ Month' : '/ One-Time'}</span>
+             </CardHeader>
+             <CardContent className="p-0">
+                <Table>
+                   <TableHeader className="bg-slate-50/30">
+                      <TableRow className="h-12">
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">#</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Guardian Name</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Email & Phone</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Relationship</TableHead>
+                      </TableRow>
+                   </TableHeader>
+                   <TableBody>
+                      <TableRow>
+                         <td className="py-5 pl-8 text-xs font-black text-slate-300">01</td>
+                         <td className="py-5"><p className="text-sm font-black text-primary">{app.parent1Name}</p></td>
+                         <td className="py-5">
+                            <p className="text-xs font-bold text-slate-600">{app.parent1Email}</p>
+                            <p className="text-[10px] font-bold text-slate-400" dir="ltr">{app.parent1Phone}</p>
+                         </td>
+                         <td className="py-5"><Badge variant="outline" className="text-[8px] font-black uppercase bg-slate-50 border-none">{app.relationship1}</Badge></td>
+                      </TableRow>
+                      {app.parent2Name && (
+                        <TableRow>
+                           <td className="py-5 pl-8 text-xs font-black text-slate-300">02</td>
+                           <td className="py-5"><p className="text-sm font-black text-primary">{app.parent2Name}</p></td>
+                           <td className="py-5">
+                              <p className="text-xs font-bold text-slate-600">{app.parent2Email}</p>
+                              <p className="text-[10px] font-bold text-slate-400" dir="ltr">{app.parent2Phone}</p>
+                           </td>
+                           <td className="py-5"><Badge variant="outline" className="text-[8px] font-black uppercase bg-slate-50 border-none">{app.relationship2}</Badge></td>
+                        </TableRow>
+                      )}
+                   </TableBody>
+                </Table>
+                
+                {/* Verified Address Sub-section */}
+                <div className="p-6 bg-slate-50/50 border-t border-slate-100">
+                   <div className="flex flex-col md:flex-row items-start md:items-center gap-8 bg-white p-6 rounded-xl border border-slate-100 shadow-inner">
+                      <div className="flex items-center gap-3 shrink-0">
+                         <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center"><MapPin className="h-5 w-5" /></div>
+                         <div className="space-y-0.5">
+                            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Residence</span>
+                            <p className="text-xs font-black text-primary">Verified Address</p>
+                         </div>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-[11px] font-bold text-slate-600">
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">Street 1</span><p className="text-primary truncate">{app.address?.line1 || '-'}</p></div>
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">Street 2</span><p className="text-primary truncate">{app.address?.line2 || '-'}</p></div>
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">City</span><p className="text-primary truncate">{app.address?.city || '-'}</p></div>
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">State</span><p className="text-primary truncate">{app.address?.state || '-'}</p></div>
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">ZIP</span><p className="text-secondary font-black">{app.address?.zip || '-'}</p></div>
+                      </div>
                    </div>
                 </div>
-             </Card>
-          </section>
+             </CardContent>
+          </Card>
 
-          <section className="space-y-6">
-             <SectionHeader icon={FileCheck} title={isAr ? 'الأرشيف الرقمي' : 'Digital Evidence'} subtitle={isAr ? 'الوثائق المرفقة' : 'Verified Uploads'} color="bg-slate-900" />
-             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 min-h-[200px]">
+          {/* Student Roster Card */}
+          <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+             <CardHeader className="bg-secondary/5 p-6 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                   <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
+                   <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">Sibling Academic Profiles</CardTitle>
+                </div>
+             </CardHeader>
+             <CardContent className="p-0">
                 <Table>
-                  <TableBody>
-                    {app.files && app.files.length > 0 ? (
-                      app.files.map((file: any, idx: number) => (
-                        <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100">
-                          <TableCell className="py-4 px-8">
-                             <div className="flex items-center gap-4">
-                                {file.type?.startsWith('image/') || file.data?.startsWith('data:image/') ? (
-                                   <div className="h-14 w-14 rounded-lg border border-slate-100 overflow-hidden shrink-0 shadow-sm">
-                                      <img src={file.data} className="h-full w-full object-cover" alt="preview" />
-                                   </div>
-                                ) : (
-                                   <div className="h-10 w-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-secondary shadow-sm">
-                                      <FileText className="h-4 w-4" />
-                                   </div>
-                                )}
-                                <div className="space-y-0.5">
-                                   <p className="text-xs font-black text-primary truncate max-w-[200px]">{file.name}</p>
-                                   <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Formal Document #{idx + 1}</p>
-                                </div>
-                             </div>
-                          </TableCell>
-                          <TableCell className="py-4 text-right pr-8">
-                             <Button 
-                                onClick={() => window.open(file.data, '_blank')} 
-                                variant="outline" 
-                                className="h-8 w-8 rounded-lg border-slate-200 text-slate-400 hover:text-secondary"
-                             >
-                                <ExternalLink className="h-3.5 w-3.5" />
-                             </Button>
-                          </TableCell>
+                   <TableHeader className="bg-slate-50/30">
+                      <TableRow className="h-12">
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Full Name</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Academic Info</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400 text-center">Status</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400 text-right pr-8">Actions</TableHead>
+                      </TableRow>
+                   </TableHeader>
+                   <TableBody>
+                      {app.students.map((st: any, i: number) => (
+                        <TableRow key={i} className="hover:bg-slate-50/30 transition-colors">
+                           <td className="py-6 pl-8">
+                              <div className="flex items-center gap-3">
+                                 <div className="h-9 w-9 rounded-lg bg-primary/5 text-primary flex items-center justify-center font-black text-xs">{i+1}</div>
+                                 <div>
+                                    <p className="text-sm font-black text-primary">{st.firstName} {st.middleName} {st.lastName}</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase">{st.gender} • {st.dob}</p>
+                                 </div>
+                              </div>
+                           </td>
+                           <td className="py-6">
+                              <p className="text-xs font-black text-secondary">Grade {st.lastGrade}</p>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase">{st.status || 'New Student'}</p>
+                           </td>
+                           <td className="py-6 text-center">
+                              <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
+                                 <SelectTrigger className="h-8 rounded-md text-[8px] font-black uppercase border-slate-100 bg-white w-28 mx-auto">
+                                    <SelectValue />
+                                 </SelectTrigger>
+                                 <SelectContent className="rounded-lg p-1">
+                                    <SelectItem value="Pending" className="text-[9px] font-bold">Pending Review</SelectItem>
+                                    <SelectItem value="Accepted" className="text-[9px] font-bold text-green-600">Accepted</SelectItem>
+                                    <SelectItem value="Missing Docs" className="text-[9px] font-bold text-amber-600">Missing Docs</SelectItem>
+                                    <SelectItem value="Rejected" className="text-[9px] font-bold text-red-600">Rejected</SelectItem>
+                                 </SelectContent>
+                              </Select>
+                           </td>
+                           <td className="py-6 text-right pr-8">
+                              {st.isEnrolled ? (
+                                <Badge className="bg-green-100 text-green-600 border-none font-black text-[8px] py-1.5 px-3 rounded-lg flex items-center gap-2 w-fit ml-auto">
+                                   <BadgeCheck className="h-3 w-3" /> ENROLLED
+                                </Badge>
+                              ) : (
+                                <Button 
+                                  onClick={() => enrollStudent(i)} 
+                                  disabled={isProcessing || st.status !== 'Accepted'}
+                                  className="bg-primary hover:bg-secondary text-white h-9 px-4 rounded-lg font-black text-[9px] uppercase shadow-lg shadow-primary/10"
+                                >
+                                   Create Profile
+                                </Button>
+                              )}
+                           </td>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow><TableCell colSpan={2} className="py-20 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">{isAr ? 'لا توجد مستندات مرفوعة' : 'No Digital Artifacts'}</TableCell></TableRow>
-                    )}
-                  </TableBody>
+                      ))}
+                   </TableBody>
                 </Table>
-             </Card>
-          </section>
+             </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column: Summaries & Files */}
+        <div className="space-y-8">
+           {/* Program Selection Card */}
+           <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-primary text-white p-8 space-y-6 relative">
+              <div className="absolute top-0 right-0 p-6 opacity-10"><Briefcase className="h-24 w-24" /></div>
+              <div className="space-y-1 relative z-10">
+                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Enrolling Path</p>
+                 <h3 className="text-xl font-black uppercase tracking-tight">{app.programOption}</h3>
+              </div>
+              <div className="h-px bg-white/5 w-full" />
+              <div className="space-y-2 relative z-10">
+                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Projected One-Time Payment</p>
+                 <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black text-secondary">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</span>
+                    <span className="text-[9px] font-bold text-white/30 uppercase">{app.programOption === 'weekend' ? '/ month' : '/ reg'}</span>
+                 </div>
+              </div>
+           </Card>
+
+           {/* Communication Logs Card */}
+           <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+              <CardHeader className="p-6 border-b border-slate-50 flex flex-row items-center justify-between">
+                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><Clock className="h-3.5 w-3.5 text-secondary" /> History Logs</CardTitle>
+                 <Badge variant="outline" className="text-[8px] border-slate-100 text-slate-400">{app.communications?.length || 0} Events</Badge>
+              </CardHeader>
+              <CardContent className="p-6">
+                 <div className="space-y-4 max-h-[300px] overflow-y-auto no-scrollbar pr-2">
+                    {app.communications?.length > 0 ? app.communications.map((log: any, idx: number) => (
+                      <div key={idx} className="flex gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all border border-transparent hover:border-slate-200 group">
+                         <div className="h-9 w-9 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0"><Mail className="h-4 w-4 text-slate-300 group-hover:text-secondary transition-colors" /></div>
+                         <div className="space-y-1 flex-1">
+                            <div className="flex justify-between items-start">
+                               <p className="text-[10px] font-black text-primary uppercase">{log.templateId}</p>
+                               <span className="text-[8px] font-bold text-slate-400 uppercase">{format(new Date(log.sentAt), 'MMM dd')}</span>
+                            </div>
+                            <p className="text-[10px] font-medium text-slate-500 line-clamp-1">{log.subject}</p>
+                            <p className="text-[9px] font-bold text-slate-400 mt-1 italic">By: {log.sender}</p>
+                         </div>
+                      </div>
+                    )) : (
+                      <div className="py-12 text-center space-y-3">
+                         <Info className="h-8 w-8 text-slate-100 mx-auto" />
+                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No previous correspondence</p>
+                      </div>
+                    )}
+                 </div>
+              </CardContent>
+           </Card>
+
+           {/* Attachments Card */}
+           <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+              <CardHeader className="p-6 border-b border-slate-50">
+                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><FileCheck className="h-3.5 w-3.5 text-secondary" /> Verified Artifacts</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                 <div className="divide-y divide-slate-50">
+                    {app.files?.length > 0 ? app.files.map((file: any, idx: number) => (
+                      <div key={idx} className="p-5 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                         <div className="flex items-center gap-4">
+                            {file.type?.startsWith('image/') || file.data?.startsWith('data:image/') ? (
+                              <div className="h-12 w-12 rounded-lg border-2 border-white shadow-sm overflow-hidden shrink-0"><img src={file.data} className="h-full w-full object-cover" alt="preview" /></div>
+                            ) : (
+                              <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"><FileText className="h-4 w-4 text-slate-400" /></div>
+                            )}
+                            <div className="min-w-0">
+                               <p className="text-[10px] font-black text-primary truncate max-w-[120px]">{file.name}</p>
+                               <p className="text-[8px] font-bold text-slate-400 uppercase">{file.type?.split('/')[1] || 'DOC'}</p>
+                            </div>
+                         </div>
+                         <Button onClick={() => window.open(file.data, '_blank')} variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-300 hover:text-secondary hover:bg-white transition-all"><ExternalLink className="h-4 w-4" /></Button>
+                      </div>
+                    )) : (
+                      <div className="py-20 text-center text-slate-300 font-bold uppercase text-[9px]">No Digital Artifacts</div>
+                    )}
+                 </div>
+              </CardContent>
+           </Card>
         </div>
       </div>
     </div>
