@@ -92,25 +92,24 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
   };
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto">
-      {/* 1. Toolbar - Added border-slate-100 */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
          <div className="flex-1 w-full lg:max-w-md relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-secondary transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input 
                placeholder={isAr ? 'بحث بالاسم أو البريد...' : 'Search by name or email...'} 
-               className="pl-12 h-12 rounded-xl bg-slate-50 border-none font-bold"
+               className="pl-10 h-10 rounded-lg bg-slate-50 border-none font-bold"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
             />
          </div>
 
-         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-               <SelectTrigger className="w-40 h-12 rounded-xl bg-slate-50 border-none font-bold">
+               <SelectTrigger className="w-36 h-10 rounded-lg bg-slate-50 border-none font-bold">
                   <SelectValue placeholder={isAr ? 'الحالة' : 'Status'} />
                </SelectTrigger>
-               <SelectContent className="rounded-xl">
+               <SelectContent className="rounded-lg">
                   <SelectItem value="all">{isAr ? 'كافة الحالات' : 'All Status'}</SelectItem>
                   <SelectItem value="submitted">{isAr ? 'مكتمل' : 'Submitted'}</SelectItem>
                   <SelectItem value="draft">{isAr ? 'مسودة' : 'Draft'}</SelectItem>
@@ -118,10 +117,10 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
             </Select>
 
             <Select value={filterProgram} onValueChange={setFilterProgram}>
-               <SelectTrigger className="w-40 h-12 rounded-xl bg-slate-50 border-none font-bold">
+               <SelectTrigger className="w-36 h-10 rounded-lg bg-slate-50 border-none font-bold">
                   <SelectValue placeholder={isAr ? 'البرنامج' : 'Program'} />
                </SelectTrigger>
-               <SelectContent className="rounded-xl">
+               <SelectContent className="rounded-lg">
                   <SelectItem value="all">{isAr ? 'كافة البرامج' : 'All Programs'}</SelectItem>
                   <SelectItem value="grades-3-5">{isAr ? 'تأسيس' : 'Foundation'}</SelectItem>
                   <SelectItem value="grades-6-12">{isAr ? 'أكاديمي' : 'Academics'}</SelectItem>
@@ -129,14 +128,12 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                </SelectContent>
             </Select>
 
-            <div className="h-10 w-px bg-slate-100 mx-2 hidden sm:block" />
-
-            <div className="flex bg-slate-50 p-1 rounded-xl">
+            <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
                <Button 
                   variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
                   size="icon" 
                   onClick={() => setViewMode('table')}
-                  className={cn("rounded-lg h-10 w-10", viewMode === 'table' && "bg-white shadow-sm border border-slate-100")}
+                  className={cn("rounded-md h-8 w-8", viewMode === 'table' && "bg-white shadow-sm border border-slate-100")}
                >
                   <TableIcon className="h-4 w-4" />
                </Button>
@@ -144,87 +141,77 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                   variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
                   size="icon" 
                   onClick={() => setViewMode('grid')}
-                  className={cn("rounded-lg h-10 w-10", viewMode === 'grid' && "bg-white shadow-sm border border-slate-100")}
+                  className={cn("rounded-md h-8 w-8", viewMode === 'grid' && "bg-white shadow-sm border border-slate-100")}
                >
                   <LayoutGrid className="h-4 w-4" />
                </Button>
             </div>
 
-            <Button onClick={exportToCSV} variant="outline" className="h-12 rounded-xl border-slate-200 font-black text-xs uppercase tracking-widest gap-2">
+            <Button onClick={exportToCSV} variant="outline" className="h-10 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2">
                <Download className="h-4 w-4" />
                {isAr ? 'تصدير' : 'Export'}
             </Button>
          </div>
       </div>
 
-      {/* 2. List Content */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           {[1,2,3,4,5,6].map(i => <div key={i} className="h-64 bg-white rounded-3xl border border-slate-100 animate-pulse" />)}
+           {[1,2,3,4,5,6].map(i => <div key={i} className="h-48 bg-white rounded-xl border border-slate-100 animate-pulse" />)}
         </div>
       ) : viewMode === 'table' ? (
-        <Card className="border border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden">
+        <Card className="border border-slate-100 shadow-sm rounded-xl bg-white overflow-hidden">
            <CardContent className="p-0">
               <div className="overflow-x-auto">
                  <table className="w-full">
                     <thead>
-                       <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
-                          <th className="px-8 py-5 text-start">{isAr ? 'ولي الأمر والطلاب' : 'Guardian & Students'}</th>
-                          <th className="px-8 py-5 text-center">{isAr ? 'البرنامج' : 'Program'}</th>
-                          <th className="px-8 py-5 text-center">{isAr ? 'الموقع' : 'Location'}</th>
-                          <th className="px-8 py-5 text-center">{isAr ? 'الحالة' : 'Status'}</th>
-                          <th className="px-8 py-5 text-center">{isAr ? 'التاريخ' : 'Date'}</th>
-                          <th className="px-8 py-5 text-end"></th>
+                       <tr className="bg-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                          <th className="px-6 py-4 text-start">{isAr ? 'ولي الأمر والطلاب' : 'Guardian & Students'}</th>
+                          <th className="px-6 py-4 text-center">{isAr ? 'البرنامج' : 'Program'}</th>
+                          <th className="px-6 py-4 text-center">{isAr ? 'الموقع' : 'Location'}</th>
+                          <th className="px-6 py-4 text-center">{isAr ? 'الحالة' : 'Status'}</th>
+                          <th className="px-6 py-4 text-center">{isAr ? 'التاريخ' : 'Date'}</th>
+                          <th className="px-6 py-4 text-end"></th>
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                        {filteredData.map((app: any) => (
-                          <tr key={app.id} className="hover:bg-slate-50/50 transition-colors group cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/enrollments/${app.id}`}>
-                             <td className="px-8 py-6 text-start">
-                                <div className="flex items-center gap-4">
-                                   <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-lg shrink-0">
+                          <tr key={app.id} className="hover:bg-slate-50/30 transition-colors group cursor-pointer" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}>
+                             <td className="px-6 py-5 text-start">
+                                <div className="flex items-center gap-3">
+                                   <div className="h-10 w-10 rounded-lg bg-primary text-white flex items-center justify-center font-black shrink-0">
                                       {app.parent1Name?.charAt(0)}
                                    </div>
-                                   <div className="space-y-1 min-w-0">
-                                      <p className="text-base font-black text-primary leading-none truncate">{app.parent1Name}</p>
-                                      <div className="flex items-center gap-3">
-                                         <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
-                                            <Users className="h-3 w-3" /> {app.students?.length} {isAr ? 'طلاب' : 'Students'}
-                                         </span>
-                                         <span className="text-[10px] text-slate-300">•</span>
-                                         <span className="text-[10px] text-slate-400 font-bold truncate">{app.parent1Email}</span>
-                                      </div>
+                                   <div className="space-y-0.5 min-w-0">
+                                      <p className="text-sm font-black text-primary leading-tight truncate">{app.parent1Name}</p>
+                                      <p className="text-[9px] text-slate-400 font-bold truncate">{app.parent1Email}</p>
                                    </div>
                                 </div>
                              </td>
-                             <td className="px-8 py-6 text-center">
-                                <div className="space-y-1">
-                                   <Badge variant="outline" className="text-[9px] font-black uppercase bg-secondary/5 border-secondary/10 text-secondary">
-                                      {app.programOption}
-                                   </Badge>
-                                   <p className="text-[10px] text-slate-400 font-bold uppercase">{app.languageOption || 'Default'}</p>
+                             <td className="px-6 py-5 text-center">
+                                <Badge variant="outline" className="text-[8px] font-black uppercase bg-secondary/5 border-secondary/10 text-secondary">
+                                   {app.programOption}
+                                </Badge>
+                             </td>
+                             <td className="px-6 py-5 text-center">
+                                <div className="flex items-center justify-center gap-1.5">
+                                   <MapPin className="h-3 w-3 text-slate-300" />
+                                   <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">{app.address?.city}, {app.address?.state}</span>
                                 </div>
                              </td>
-                             <td className="px-8 py-6 text-center">
-                                <div className="flex items-center justify-center gap-2">
-                                   <MapPin className="h-3.5 w-3.5 text-slate-300" />
-                                   <span className="text-xs font-bold text-slate-600 whitespace-nowrap">{app.address?.city}, {app.address?.state}</span>
-                                </div>
-                             </td>
-                             <td className="px-8 py-6 text-center">
+                             <td className="px-6 py-5 text-center">
                                 <Badge className={cn(
-                                   "text-[9px] font-black uppercase rounded-lg border-none mx-auto",
+                                   "text-[8px] font-black uppercase rounded-md border-none mx-auto",
                                    app.status === 'submitted' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
                                 )}>
                                    {app.status}
                                 </Badge>
                              </td>
-                             <td className="px-8 py-6 text-center">
-                                <p className="text-xs font-bold text-slate-600 whitespace-nowrap">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</p>
+                             <td className="px-6 py-5 text-center">
+                                <p className="text-[11px] font-bold text-slate-600 whitespace-nowrap">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</p>
                              </td>
-                             <td className="px-8 py-6 text-end">
-                                <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-slate-100">
-                                   <ChevronRight className={cn("h-5 w-5 text-slate-300 group-hover:text-primary transition-colors", isAr && "rotate-180")} />
+                             <td className="px-6 py-5 text-end">
+                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-md">
+                                   <ChevronRight className={cn("h-4 w-4 text-slate-300", isAr && "rotate-180")} />
                                 </Button>
                              </td>
                           </tr>
@@ -235,59 +222,41 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
            </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
            {filteredData.map((app: any) => (
-             <Card key={app.id} className="border border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden group hover:shadow-2xl transition-all duration-500 cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/enrollments/${app.id}`}>
-                <div className="h-32 bg-primary relative p-8">
-                   <div className="absolute top-0 right-0 p-8 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-1000">
-                      <GraduationCap className="h-24 w-24 text-white" />
+             <Card key={app.id} className="border border-slate-100 shadow-sm rounded-xl bg-white overflow-hidden group hover:shadow-md transition-all cursor-pointer" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}>
+                <div className="h-24 bg-primary relative p-5 flex items-center gap-4">
+                   <div className="h-12 w-12 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-white text-xl font-black border border-white/20 relative z-10">
+                      {app.parent1Name?.charAt(0)}
                    </div>
-                   <div className="flex items-center gap-4 relative z-10">
-                      <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white text-2xl font-black border border-white/20">
-                         {app.parent1Name?.charAt(0)}
-                      </div>
-                      <div>
-                         <h3 className="text-white font-black text-lg truncate w-40">{app.parent1Name}</h3>
-                         <Badge className="bg-secondary text-white text-[8px] font-black uppercase tracking-widest">{app.status}</Badge>
-                      </div>
+                   <div className="relative z-10">
+                      <h3 className="text-white font-black text-base truncate w-40 leading-tight">{app.parent1Name}</h3>
+                      <Badge className="bg-secondary text-white text-[7px] font-black uppercase tracking-widest mt-1">{app.status}</Badge>
                    </div>
                 </div>
-                <CardContent className="p-8 space-y-6">
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'البرنامج' : 'Program'}</p>
-                         <p className="text-xs font-bold text-primary truncate">{app.programOption}</p>
+                <CardContent className="p-5 space-y-4">
+                   <div className="grid grid-cols-2 gap-4 border-b border-slate-50 pb-4">
+                      <div className="space-y-0.5">
+                         <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'البرنامج' : 'Program'}</p>
+                         <p className="text-[11px] font-bold text-primary truncate">{app.programOption}</p>
                       </div>
-                      <div className="space-y-1">
-                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'الطلاب' : 'Students'}</p>
-                         <p className="text-xs font-bold text-primary">{app.students?.length}</p>
+                      <div className="space-y-0.5">
+                         <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'الطلاب' : 'Students'}</p>
+                         <p className="text-[11px] font-bold text-primary">{app.students?.length}</p>
                       </div>
                    </div>
-                   <div className="pt-6 border-t border-slate-50 flex items-center justify-between">
+                   <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-slate-400">
-                         <Calendar className="h-3.5 w-3.5" />
+                         <Calendar className="h-3 w-3" />
                          <span className="text-[10px] font-bold">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</span>
                       </div>
-                      <div className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-primary group-hover:bg-secondary group-hover:text-white transition-colors">
-                         <ChevronRight className={cn("h-4 w-4", isAr && "rotate-180")} />
+                      <div className="h-7 w-7 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center text-primary group-hover:bg-secondary group-hover:text-white transition-colors">
+                         <ChevronRight className={cn("h-3.5 w-3.5", isAr && "rotate-180")} />
                       </div>
                    </div>
                 </CardContent>
              </Card>
            ))}
-        </div>
-      )}
-
-      {(!filteredData || filteredData.length === 0) && !loading && (
-        <div className="py-32 text-center bg-white rounded-3xl border-2 border-dashed border-slate-100">
-           <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-200 mb-6 border border-slate-100">
-              <FileText className="h-10 w-10" />
-           </div>
-           <h3 className="text-xl font-black text-primary uppercase">{isAr ? 'لا توجد نتائج' : 'No Results Found'}</h3>
-           <p className="text-slate-400 font-bold text-sm mt-2">{isAr ? 'جرب تعديل معايير البحث أو الفلترة' : 'Try adjusting your search or filters'}</p>
-           <Button onClick={() => {setSearchTerm(''); setFilterStatus('all'); setFilterProgram('all');}} variant="ghost" className="mt-6 text-secondary font-black">
-              {isAr ? 'إعادة تعيين' : 'Clear All Filters'}
-           </Button>
         </div>
       )}
     </div>

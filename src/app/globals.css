@@ -24,7 +24,7 @@
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 224 78% 20%;
-    --radius: 1rem; /* Slightly larger radius for smoother elder-friendly feel */
+    --radius: 0.6rem; /* Moderated radius for a sharper, more professional feel */
   }
 
   /* Standard dark mode for main site components if ever used */
@@ -50,7 +50,7 @@
 }
 
 .premium-card {
-  @apply bg-white border border-slate-200/60 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-secondary/20;
+  @apply bg-white border border-slate-200/60 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 hover:border-secondary/20;
 }
 
 .hero-gradient {
@@ -68,7 +68,7 @@
 
 /* Custom shadow for admin tables/cards */
 .shadow-premium {
-  box-shadow: 0 20px 25px -5px rgba(11, 31, 91, 0.03), 0 8px 10px -6px rgba(11, 31, 91, 0.02);
+  box-shadow: 0 10px 15px -3px rgba(11, 31, 91, 0.03), 0 4px 6px -4px rgba(11, 31, 91, 0.02);
 }
 
 /* Scrollbar hide for cleaner menus */
