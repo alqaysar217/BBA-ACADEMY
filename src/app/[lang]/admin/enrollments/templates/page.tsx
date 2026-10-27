@@ -33,7 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
-// Official BBA Template Library (Initial Set)
+// Official BBA Template Library
 const INITIAL_LIBRARY = [
   {
     id: 'app_received',
@@ -86,15 +86,6 @@ const INITIAL_LIBRARY = [
   }
 ];
 
-const VARIABLE_REF = [
-  { name: '{{parentName}}', ar: 'اسم ولي الأمر الأساسي', source: 'Parent 1 Field' },
-  { name: '{{studentNames}}', ar: 'قائمة أسماء الطلاب', source: 'Students Array' },
-  { name: '{{applicationNumber}}', ar: 'رقم مرجع الطلب', source: 'Document ID' },
-  { name: '{{programName}}', ar: 'اسم البرنامج التعليمي', source: 'Program Selection' },
-  { name: '{{missingInformation}}', ar: 'البيانات الناقصة (يدوي)', source: 'Staff Input' },
-  { name: '{{decisionReason}}', ar: 'سبب القرار (يدوي)', source: 'Staff Input' },
-];
-
 export default function EmailTemplatesPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
   const isAr = lang === 'ar';
@@ -104,9 +95,41 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const filteredTemplates = templates.filter(t => {
-    const matchesSearch = t.label.toLowerCase().includes(searchTerm.toLowerCase()) || t.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCat = activeCategory === 'all' || t.category === activeCategory;
+  const t = {
+    title: isAr ? 'قوالب المراسلات الرسمية' : 'Official Email Templates',
+    subtitle: isAr ? 'إدارة مكتبة الرسائل والمتغيرات الذكية' : 'Manage global library of dynamic academy messages',
+    btnNew: isAr ? 'إنشاء قالب جديد' : 'Create New Template',
+    searchPlaceholder: isAr ? 'بحث في القوالب...' : 'Search templates...',
+    catAll: isAr ? 'الكل' : 'All',
+    catAdmissions: isAr ? 'القبول' : 'Admissions',
+    catAcademic: isAr ? 'الأكاديمية' : 'Academic',
+    catFinancial: isAr ? 'المالية' : 'Financial',
+    catFollowup: isAr ? 'المتابعة' : 'Follow-up',
+    varRef: isAr ? 'مرجع المتغيرات الذكية' : 'Variable Dictionary',
+    editorTitle: isAr ? 'محرر القوالب' : 'Template Composer',
+    editingLabel: isAr ? 'تعديل:' : 'Editing:',
+    btnSave: isAr ? 'حفظ التغييرات' : 'Save Changes',
+    fieldLabel: isAr ? 'اسم القالب (للإدارة)' : 'Internal Label',
+    fieldCategory: isAr ? 'التصنيف' : 'Category',
+    fieldSubject: isAr ? 'عنوان البريد الإلكتروني' : 'Email Subject',
+    fieldBody: isAr ? 'محتوى الرسالة (يدعم المتغيرات)' : 'Message Body (Dynamic)',
+    emptyTitle: isAr ? 'اختر قالباً للتعديل أو العرض' : 'Select a Template to Begin',
+    emptySubtitle: isAr ? 'إدارة مراسلات الأكاديمية الرسمية مع ربط البيانات الذكي.' : 'Manage the official academy correspondence library with smart data binding.',
+    toastSaved: isAr ? 'تم حفظ القالب بنجاح' : 'Template Saved Successfully',
+    toastCopied: isAr ? 'تم نسخ المتغير' : 'Variable Copied',
+    variables: [
+      { name: '{{parentName}}', desc: isAr ? 'اسم ولي الأمر الأساسي' : 'Primary Parent Name' },
+      { name: '{{studentNames}}', desc: isAr ? 'قائمة أسماء الطلاب' : 'List of student names' },
+      { name: '{{applicationNumber}}', desc: isAr ? 'رقم مرجع الطلب' : 'Application Reference ID' },
+      { name: '{{programName}}', desc: isAr ? 'اسم البرنامج التعليمي' : 'Educational Program Name' },
+      { name: '{{missingInformation}}', desc: isAr ? 'البيانات الناقصة (يدوي)' : 'Missing Info (Manual Input)' },
+      { name: '{{decisionReason}}', desc: isAr ? 'سبب القرار (يدوي)' : 'Decision Reason (Manual Input)' },
+    ]
+  };
+
+  const filteredTemplates = templates.filter(tpl => {
+    const matchesSearch = tpl.label.toLowerCase().includes(searchTerm.toLowerCase()) || tpl.subject.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCat = activeCategory === 'all' || tpl.category === activeCategory;
     return matchesSearch && matchesCat;
   });
 
@@ -117,16 +140,14 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
       if (exists) return prev.map(t => t.id === selectedTemplate.id ? selectedTemplate : t);
       return [selectedTemplate, ...prev];
     });
-    toast({ title: isAr ? "تم حفظ القالب" : "Template Saved" });
+    toast({ title: t.toastSaved });
     setSelectedTemplate(null);
   };
 
   const copyVar = (name: string) => {
     navigator.clipboard.writeText(name);
-    toast({ title: isAr ? "تم النسخ" : "Variable Copied", description: name });
+    toast({ title: t.toastCopied, description: name });
   };
-
-  const categories = ['Admissions', 'Academic', 'Financial', 'Follow-up'];
 
   return (
     <div className="space-y-10 pb-20">
@@ -134,12 +155,12 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
          <div className="space-y-1">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
                <LayoutTemplate className="h-8 w-8 text-secondary" />
-               {isAr ? 'قوالب المراسلات الرسمية' : 'Official Email Templates'}
+               {t.title}
             </h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'إدارة مكتبة الرسائل والمتغيرات الذكية' : 'Manage global library of dynamic academy messages'}</p>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{t.subtitle}</p>
          </div>
-         <Button onClick={() => setSelectedTemplate({ id: `custom_${Date.now()}`, category: 'Admissions', label: 'New Template', subject: '', body: '' })} className="h-14 rounded-xl bg-primary text-white font-black px-8 shadow-xl shadow-primary/20">
-            <Plus className="h-5 w-5 mr-2" /> {isAr ? 'إنشاء قالب جديد' : 'Create New Template'}
+         <Button onClick={() => setSelectedTemplate({ id: `custom_${Date.now()}`, category: 'Admissions', label: isAr ? 'قالب جديد' : 'New Template', subject: '', body: '' })} className="h-14 rounded-xl bg-primary text-white font-black px-8 shadow-xl shadow-primary/10">
+            <Plus className="h-5 w-5 mr-2" /> {t.btnNew}
          </Button>
       </div>
 
@@ -149,37 +170,37 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
             <Card className="border-none shadow-premium rounded-2xl bg-white p-4">
                <div className="space-y-4">
                   <div className="relative">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                     <Search className={cn("absolute top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300", isAr ? "right-3" : "left-3")} />
                      <Input 
-                        placeholder={isAr ? 'بحث في القوالب...' : 'Search templates...'} 
-                        className="pl-10 h-11 bg-slate-50 border-none rounded-xl text-xs font-bold"
+                        placeholder={t.searchPlaceholder} 
+                        className={cn("h-11 bg-slate-50 border-none rounded-xl text-xs font-bold", isAr ? "pr-10" : "pl-10")}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                      />
                   </div>
                   <div className="flex flex-wrap gap-2">
-                     <button onClick={() => setActiveCategory('all')} className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", activeCategory === 'all' ? "bg-primary text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-100")}>All</button>
-                     {categories.map(c => (
-                        <button key={c} onClick={() => setActiveCategory(c)} className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", activeCategory === c ? "bg-secondary text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-100")}>{c}</button>
-                     ))}
+                     <button onClick={() => setActiveCategory('all')} className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", activeCategory === 'all' ? "bg-primary text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-100")}>{t.catAll}</button>
+                     <button onClick={() => setActiveCategory('Admissions')} className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", activeCategory === 'Admissions' ? "bg-secondary text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-100")}>{t.catAdmissions}</button>
+                     <button onClick={() => setActiveCategory('Academic')} className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", activeCategory === 'Academic' ? "bg-secondary text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-100")}>{t.catAcademic}</button>
+                     <button onClick={() => setActiveCategory('Financial')} className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all", activeCategory === 'Financial' ? "bg-secondary text-white" : "bg-slate-50 text-slate-400 hover:bg-slate-100")}>{t.catFinancial}</button>
                   </div>
                </div>
                
                <div className="mt-6 space-y-2 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                  {filteredTemplates.map(t => (
+                  {filteredTemplates.map(tpl => (
                      <div 
-                        key={t.id} 
-                        onClick={() => setSelectedTemplate({...t})}
+                        key={tpl.id} 
+                        onClick={() => setSelectedTemplate({...tpl})}
                         className={cn(
                            "p-4 rounded-xl border cursor-pointer transition-all group flex items-center justify-between",
-                           selectedTemplate?.id === t.id ? "bg-secondary/5 border-secondary shadow-md" : "bg-white border-slate-100 hover:border-slate-200"
+                           selectedTemplate?.id === tpl.id ? "bg-secondary/5 border-secondary shadow-md" : "bg-white border-slate-100 hover:border-slate-200"
                         )}
                      >
                         <div className="space-y-1 overflow-hidden">
-                           <p className="text-[10px] font-black text-primary uppercase truncate">{t.label}</p>
-                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t.category}</p>
+                           <p className="text-[10px] font-black text-primary uppercase truncate">{tpl.label}</p>
+                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{tpl.category}</p>
                         </div>
-                        <ChevronRight className={cn("h-4 w-4 text-slate-200 group-hover:text-secondary", selectedTemplate?.id === t.id && "text-secondary")} />
+                        <ChevronRight className={cn("h-4 w-4 text-slate-200 group-hover:text-secondary", selectedTemplate?.id === tpl.id && "text-secondary", isAr && "rotate-180")} />
                      </div>
                   ))}
                </div>
@@ -188,14 +209,14 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
             <Card className="border-none shadow-sm bg-slate-900 text-white rounded-2xl p-6 space-y-6">
                <div className="flex items-center gap-3">
                   <Tag className="h-5 w-5 text-secondary" />
-                  <h3 className="text-xs font-black uppercase tracking-widest">{isAr ? 'مرجع المتغيرات الذكية' : 'Variable Dictionary'}</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest">{t.varRef}</h3>
                </div>
                <div className="space-y-3">
-                  {VARIABLE_REF.map(v => (
+                  {t.variables.map(v => (
                      <div key={v.name} className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-all">
                         <div className="space-y-0.5">
                            <code className="text-[10px] font-black text-secondary">{v.name}</code>
-                           <p className="text-[9px] font-bold text-white/40 uppercase">{isAr ? v.ar : v.name.replace('{{', '').replace('}}', '')}</p>
+                           <p className="text-[9px] font-bold text-white/40 uppercase">{v.desc}</p>
                         </div>
                         <Button onClick={() => copyVar(v.name)} size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-white/20 hover:text-white hover:bg-white/10">
                            <Copy className="h-3.5 w-3.5" />
@@ -214,21 +235,21 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
                      <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><PencilLine className="h-6 w-6" /></div>
                         <div>
-                           <CardTitle className="text-lg font-black uppercase text-primary">{isAr ? 'محرر القوالب' : 'Template Composer'}</CardTitle>
-                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Editing: {selectedTemplate.label}</p>
+                           <CardTitle className="text-lg font-black uppercase text-primary">{t.editorTitle}</CardTitle>
+                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.editingLabel} {selectedTemplate.label}</p>
                         </div>
                      </div>
                      <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-red-400 hover:text-red-500 hover:bg-red-50"><Trash2 className="h-5 w-5" /></Button>
                         <Button onClick={handleSave} className="h-12 rounded-xl bg-primary text-white font-black px-6 shadow-xl shadow-primary/10 gap-2">
-                           <Save className="h-4 w-4 text-secondary" /> {isAr ? 'حفظ القالب' : 'Save Changes'}
+                           <Save className="h-4 w-4 text-secondary" /> {t.btnSave}
                         </Button>
                      </div>
                   </CardHeader>
                   <CardContent className="p-8 space-y-8">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                           <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'اسم القالب (للإدارة)' : 'Internal Label'}</label>
+                           <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.fieldLabel}</label>
                            <Input 
                               value={selectedTemplate.label}
                               onChange={(e) => setSelectedTemplate({...selectedTemplate, label: e.target.value})}
@@ -236,20 +257,23 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
                            />
                         </div>
                         <div className="space-y-2">
-                           <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'التصنيف' : 'Category'}</label>
+                           <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.fieldCategory}</label>
                            <Select value={selectedTemplate.category} onValueChange={(v) => setSelectedTemplate({...selectedTemplate, category: v})}>
                               <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
                                  <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="rounded-xl">
-                                 {categories.map(c => <SelectItem key={c} value={c} className="font-bold py-3">{c}</SelectItem>)}
+                                 <SelectItem value="Admissions" className="font-bold py-3">{t.catAdmissions}</SelectItem>
+                                 <SelectItem value="Academic" className="font-bold py-3">{t.catAcademic}</SelectItem>
+                                 <SelectItem value="Financial" className="font-bold py-3">{t.catFinancial}</SelectItem>
+                                 <SelectItem value="Follow-up" className="font-bold py-3">{t.catFollowup}</SelectItem>
                               </SelectContent>
                            </Select>
                         </div>
                      </div>
 
                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'عنوان البريد الإلكتروني' : 'Email Subject'}</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.fieldSubject}</label>
                         <Input 
                            value={selectedTemplate.subject}
                            onChange={(e) => setSelectedTemplate({...selectedTemplate, subject: e.target.value})}
@@ -258,7 +282,7 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
                      </div>
 
                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'محتوى الرسالة (يدعم المتغيرات)' : 'Message Body (Dynamic)'}</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.fieldBody}</label>
                         <Textarea 
                            value={selectedTemplate.body}
                            onChange={(e) => setSelectedTemplate({...selectedTemplate, body: e.target.value})}
@@ -273,8 +297,8 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
                      <Mail className="h-12 w-12" />
                   </div>
                   <div className="space-y-2">
-                     <h3 className="text-xl font-black text-slate-300 uppercase tracking-tight">{isAr ? 'اختر قالباً للتعديل أو العرض' : 'Select a Template to Begin'}</h3>
-                     <p className="text-sm font-bold text-slate-400 max-w-sm mx-auto">Manage the official academy correspondence library with smart data binding.</p>
+                     <h3 className="text-xl font-black text-slate-300 uppercase tracking-tight">{t.emptyTitle}</h3>
+                     <p className="text-sm font-bold text-slate-400 max-w-sm mx-auto">{t.emptySubtitle}</p>
                   </div>
                </div>
             )}
@@ -296,4 +320,3 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
-

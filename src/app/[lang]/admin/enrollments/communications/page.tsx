@@ -41,15 +41,14 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
-// Standard Academy Templates (Sync with the templates page)
-const TEMPLATES_CATALOG = [
-  { id: 'app_received', label: 'Application Received & Welcome', cat: 'Admissions' },
-  { id: 'app_review', label: 'Application Under Review', cat: 'Admissions' },
-  { id: 'info_required', label: 'Additional Information Required', cat: 'Admissions', needsField: 'missingInformation' },
-  { id: 'docs_required', label: 'Additional Documents Required', cat: 'Admissions', needsField: 'missingDocuments' },
-  { id: 'admission_offer', label: 'Admission Accepted - Full', cat: 'Admissions', needsField: 'nextSteps' },
-  { id: 'admission_rejected', label: 'Admission Decision: Not Accepted', cat: 'Admissions', needsField: 'decisionReason' },
-  { id: 'payment_reminder', label: 'Payment Reminder', cat: 'Financial', needsField: 'paymentAmount' },
+const TEMPLATES_CATALOG = (isAr: boolean) => [
+  { id: 'app_received', label: isAr ? 'تأكيد استلام الطلب والترحيب' : 'Application Received & Welcome', cat: 'Admissions' },
+  { id: 'app_review', label: isAr ? 'الطلب قيد المراجعة الأكاديمية' : 'Application Under Review', cat: 'Admissions' },
+  { id: 'info_required', label: isAr ? 'طلب استكمال بيانات ناقصة' : 'Additional Information Required', cat: 'Admissions', needsField: 'missingInformation' },
+  { id: 'docs_required', label: isAr ? 'طلب مستندات إضافية' : 'Additional Documents Required', cat: 'Admissions', needsField: 'missingDocuments' },
+  { id: 'admission_offer', label: isAr ? 'إشعار القبول النهائي' : 'Admission Accepted - Full', cat: 'Admissions', needsField: 'nextSteps' },
+  { id: 'admission_rejected', label: isAr ? 'إشعار عدم القبول' : 'Admission Decision: Not Accepted', cat: 'Admissions', needsField: 'decisionReason' },
+  { id: 'payment_reminder', label: isAr ? 'تذكير بالرسوم المستحقة' : 'Payment Reminder', cat: 'Financial', needsField: 'paymentAmount' },
 ];
 
 export default function ParentCommunicationsHub({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -67,7 +66,34 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
   const [customField, setCustomField] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fetch enrollments for selection
+  const t = {
+    title: isAr ? 'مركز المراسلات الموحد' : 'Unified Comms Hub',
+    subtitle: isAr ? 'إرسال الرسائل الرسمية ومتابعة سجل التفاعل' : 'Broadcast official messages & track parent engagement',
+    tabCompose: isAr ? 'إرسال رسالة جديدة' : 'Compose Message',
+    tabHistory: isAr ? 'سجل الصادر' : 'Broadcast History',
+    step1: isAr ? '1. اختيار الطلب والمستلمين' : '1. Select Enrollment & Recipients',
+    searchPlaceholder: isAr ? 'ابحث باسم ولي الأمر أو رقم الطلب...' : 'Search by name or App ID...',
+    activeTarget: isAr ? 'الهدف النشط' : 'Active Target',
+    recipientSelection: isAr ? 'تحديد المستلمين' : 'Recipient Selection',
+    targetStudents: isAr ? 'الطلاب المعنيين' : 'Target Students',
+    step2: isAr ? '2. اختيار القالب وصياغة المحتوى' : '2. Message Content & Logic',
+    templateLabel: isAr ? 'اختر القالب الرسمي' : 'Select Official Template',
+    templatePlaceholder: isAr ? 'اختر من المكتبة...' : 'Choose from library...',
+    requiredInfo: isAr ? 'معلومات إضافية مطلوبة' : 'Required Information',
+    customFieldPlaceholder: isAr ? 'أدخل البيانات المطلوبة هنا ليتم دمجها في القالب...' : 'Type specific reasons or data here...',
+    btnDispatch: isAr ? 'تأكيد وإرسال المراسلة' : 'Confirm & Dispatch Message',
+    archiveNotice: isAr ? 'سيتم أرشفة نسخة دائمة من هذه الرسالة فوراً.' : 'A permanent record of this message will be archived instantly.',
+    previewTitle: isAr ? 'معاينة البريد الصادر' : 'Live Email Preview',
+    previewFrom: isAr ? 'من:' : 'From:',
+    previewTo: isAr ? 'إلى:' : 'To:',
+    previewSubject: isAr ? 'الموضوع:' : 'Subject:',
+    previewEmpty: isAr ? 'اختر مستلماً وقالباً لعرض المعاينة' : 'Choose a recipient and template to see the preview',
+    officialBadge: isAr ? 'مراسلة رسمية موثقة' : 'Verified Official Communication',
+    historyTitle: isAr ? 'سجلات المراسلات الصادرة' : 'Outbox Logs',
+    statusDelivered: isAr ? 'تم التسليم' : 'DELIVERED',
+    toastSent: isAr ? 'تم إرسال الرسالة وتسجيلها في النظام' : 'Message Sent & Logged Successfully'
+  };
+
   const appsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'enrollments'), orderBy('updatedAt', 'desc'));
@@ -83,10 +109,9 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
   }, [allApps, searchApp]);
 
   const selectedTemplate = useMemo(() => {
-    return TEMPLATES_CATALOG.find(t => t.id === selectedTemplateId);
-  }, [selectedTemplateId]);
+    return TEMPLATES_CATALOG(isAr).find(tpl => tpl.id === selectedTemplateId);
+  }, [selectedTemplateId, isAr]);
 
-  // Template Engine
   const resolveTemplate = (content: string, data: any) => {
     if (!content) return '';
     let resolved = content;
@@ -134,7 +159,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
         lastCommunicationAt: serverTimestamp()
       });
 
-      toast({ title: isAr ? "تم إرسال الرسالة وتسجيلها" : "Message Sent & Logged" });
+      toast({ title: t.toastSent });
       setSelectedApp(null);
       setSelectedTemplateId('');
       setCustomField('');
@@ -152,37 +177,36 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
          <div className="space-y-1">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
                <MessageSquare className="h-8 w-8 text-secondary" />
-               {isAr ? 'مركز المراسلات الموحد' : 'Unified Comms Hub'}
+               {t.title}
             </h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{isAr ? 'إرسال الرسائل الرسمية ومتابعة السجلات' : 'Broadcast official messages & track parent engagement'}</p>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{t.subtitle}</p>
          </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
          <TabsList className="bg-white p-1 rounded-xl h-14 shadow-sm border border-slate-100 inline-flex">
             <TabsTrigger value="send" className="rounded-lg font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full">
-               <Send className="h-4 w-4 mr-2" /> {isAr ? 'إرسال رسالة جديدة' : 'Compose Message'}
+               <Send className="h-4 w-4 mr-2" /> {t.tabCompose}
             </TabsTrigger>
             <TabsTrigger value="history" className="rounded-lg font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full">
-               <History className="h-4 w-4 mr-2" /> {isAr ? 'سجل المراسلات' : 'Broadcast History'}
+               <History className="h-4 w-4 mr-2" /> {t.tabHistory}
             </TabsTrigger>
          </TabsList>
 
          <TabsContent value="send" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-               {/* Left: Configuration Form */}
+               {/* Left: Form */}
                <div className="lg:col-span-7 space-y-8">
-                  {/* Step 1: Select Application */}
                   <Card className="border-none shadow-premium rounded-2xl bg-white p-8 space-y-6">
                      <div className="flex items-center gap-3 mb-2">
                         <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary font-black shadow-inner">1</div>
-                        <h3 className="text-sm font-black uppercase text-primary tracking-widest">{isAr ? 'البحث عن الطلب والمستلمين' : 'Select Enrollment & Recipients'}</h3>
+                        <h3 className="text-sm font-black uppercase text-primary tracking-widest">{t.step1}</h3>
                      </div>
                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                        <Search className={cn("absolute top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300", isAr ? "right-3" : "left-3")} />
                         <Input 
-                           placeholder={isAr ? 'ابحث عن اسم ولي الأمر أو رقم الطلب...' : 'Search by name or App ID...'} 
-                           className="pl-10 h-12 bg-slate-50 border-none rounded-xl font-bold"
+                           placeholder={t.searchPlaceholder} 
+                           className={cn("h-12 bg-slate-50 border-none rounded-xl font-bold", isAr ? "pr-10" : "pl-10")}
                            value={searchApp}
                            onChange={(e) => setSearchApp(e.target.value)}
                         />
@@ -198,7 +222,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                                        <p className="font-black text-primary text-sm uppercase">{app.parent1Name}</p>
                                        <p className="text-[10px] font-bold text-slate-400">{app.parent1Email} • ID: {app.id}</p>
                                     </div>
-                                    <ChevronRight className="h-4 w-4 text-slate-300" />
+                                    <ChevronRight className={cn("h-4 w-4 text-slate-300", isAr && "rotate-180")} />
                                  </div>
                               ))}
                            </div>
@@ -209,7 +233,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                         <div className="p-6 bg-secondary/5 rounded-2xl border border-secondary/10 space-y-6 animate-in zoom-in-95">
                            <div className="flex justify-between items-start">
                               <div className="space-y-1">
-                                 <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase px-3 py-1 rounded-full mb-2">Active Target</Badge>
+                                 <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase px-3 py-1 rounded-full mb-2">{t.activeTarget}</Badge>
                                  <h4 className="font-black text-primary text-lg">{selectedApp.parent1Name}</h4>
                                  <p className="text-xs font-bold text-slate-500 uppercase">{selectedApp.programOption}</p>
                               </div>
@@ -217,8 +241,8 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                            </div>
 
                            <div className="space-y-4">
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'تحديد المستلمين' : 'Recipient Selection'}</p>
-                              <div className="grid grid-cols-2 gap-4">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.recipientSelection}</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                  <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
                                     <Checkbox id="p1" checked={recipients.p1} onCheckedChange={(v) => setRecipients({...recipients, p1: !!v})} />
                                     <label htmlFor="p1" className="text-xs font-bold text-slate-700 truncate">{selectedApp.parent1Email}</label>
@@ -233,7 +257,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                            </div>
 
                            <div className="space-y-4">
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'الطلاب المعنيين بالمراسلة' : 'Target Students'}</p>
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.targetStudents}</p>
                               <div className="flex flex-wrap gap-2">
                                  {selectedApp.students?.map((s:any, i:number) => {
                                     const isSelected = selectedStudents.includes(`${i}`);
@@ -256,25 +280,24 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                      )}
                   </Card>
 
-                  {/* Step 2: Choose Template and Details */}
                   <Card className="border-none shadow-premium rounded-2xl bg-white p-8 space-y-8">
                      <div className="flex items-center gap-3 mb-2">
                         <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary font-black shadow-inner">2</div>
-                        <h3 className="text-sm font-black uppercase text-primary tracking-widest">{isAr ? 'اختيار الرسالة وتفاصيلها' : 'Message Content & Logic'}</h3>
+                        <h3 className="text-sm font-black uppercase text-primary tracking-widest">{t.step2}</h3>
                      </div>
 
                      <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'اختر القالب المناسب' : 'Select Official Template'}</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.templateLabel}</label>
                         <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
                            <SelectTrigger className="h-14 bg-slate-50 border-none rounded-xl font-bold">
-                              <SelectValue placeholder={isAr ? 'اختر من المكتبة...' : 'Choose from library...'} />
+                              <SelectValue placeholder={t.templatePlaceholder} />
                            </SelectTrigger>
                            <SelectContent className="rounded-xl">
-                              {TEMPLATES_CATALOG.map(t => (
-                                 <SelectItem key={t.id} value={t.id} className="font-bold py-3">
+                              {TEMPLATES_CATALOG(isAr).map(tpl => (
+                                 <SelectItem key={tpl.id} value={tpl.id} className="font-bold py-3">
                                     <div className="flex items-center justify-between w-full">
-                                       <span>{t.label}</span>
-                                       <Badge variant="outline" className="text-[8px] ml-4 bg-slate-50 border-none opacity-50 uppercase">{t.cat}</Badge>
+                                       <span>{tpl.label}</span>
+                                       <Badge variant="outline" className="text-[8px] ml-4 bg-slate-50 border-none opacity-50 uppercase">{tpl.cat}</Badge>
                                     </div>
                                  </SelectItem>
                               ))}
@@ -286,12 +309,12 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                         <div className="space-y-4 animate-in slide-in-from-top-4">
                            <label className="text-[10px] font-black uppercase text-secondary tracking-widest flex items-center gap-2">
                               <Info className="h-3 w-3" />
-                              {isAr ? 'تفاصيل إضافية مطلوبة لهذا القالب' : `Required Info: ${selectedTemplate.needsField}`}
+                              {t.requiredInfo}
                            </label>
                            <Textarea 
                               value={customField}
                               onChange={(e) => setCustomField(e.target.value)}
-                              placeholder={isAr ? 'أدخل البيانات المطلوبة هنا لتضمينها في الرسالة...' : 'Type specific reasons or data here...'}
+                              placeholder={t.customFieldPlaceholder}
                               className="min-h-[120px] bg-slate-50 border-none rounded-xl font-bold p-5"
                            />
                         </div>
@@ -303,11 +326,11 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                            disabled={isProcessing || !selectedApp || !selectedTemplateId}
                            className="h-16 w-full rounded-xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/10 gap-3 group"
                         >
-                           {isProcessing ? <Loader2 className="h-6 w-6 animate-spin" /> : <Send className="h-6 w-6 text-secondary group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
-                           {isAr ? 'تأكيد وإرسال المراسلة' : 'Confirm & Dispatch Message'}
+                           {isProcessing ? <Loader2 className="h-6 w-6 animate-spin" /> : <Send className={cn("h-6 w-6 text-secondary transition-transform", isAr ? "group-hover:-translate-x-1" : "group-hover:translate-x-1")} />}
+                           {t.btnDispatch}
                         </Button>
                         <p className="text-[9px] font-bold text-slate-400 text-center uppercase tracking-widest mt-4">
-                           {isAr ? 'سيتم تسجيل نسخة من هذه الرسالة في سجل الطالب فوراً.' : 'A permanent record of this message will be archived instantly.'}
+                           {t.archiveNotice}
                         </p>
                      </div>
                   </Card>
@@ -318,7 +341,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                   <div className="sticky top-28 space-y-6">
                      <div className="flex items-center gap-3">
                         <Eye className="h-5 w-5 text-secondary" />
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{isAr ? 'معاينة البريد الصادر' : 'Live Email Preview'}</h3>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{t.previewTitle}</h3>
                      </div>
 
                      <Card className="border-none shadow-premium rounded-3xl bg-slate-900 overflow-hidden border-4 border-slate-800">
@@ -334,9 +357,9 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                            {selectedApp && selectedTemplateId ? (
                               <div className="space-y-8 animate-in fade-in duration-500">
                                  <div className="space-y-1 pb-6 border-b border-slate-100">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase">From: <span className="text-primary">BBA Academy &lt;banaatacademy@gmail.com&gt;</span></p>
-                                    <p className="text-[9px] font-black text-slate-400 uppercase">To: <span className="text-secondary">{[...(recipients.p1 ? [selectedApp.parent1Email] : []), ...(recipients.p2 ? [selectedApp.parent2Email] : [])].join(', ')}</span></p>
-                                    <p className="text-sm font-black text-slate-900 mt-4">Subject: BBA Update - {selectedTemplate?.label}</p>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase">{t.previewFrom} <span className="text-primary">BBA Academy &lt;banaatacademy@gmail.com&gt;</span></p>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase">{t.previewTo} <span className="text-secondary">{[...(recipients.p1 ? [selectedApp.parent1Email] : []), ...(recipients.p2 ? [selectedApp.parent2Email] : [])].join(', ')}</span></p>
+                                    <p className="text-sm font-black text-slate-900 mt-4">{t.previewSubject} BBA Update - {selectedTemplate?.label}</p>
                                  </div>
                                  <div className="space-y-6">
                                     <div className="flex justify-center">
@@ -351,14 +374,14 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                                  <div className="pt-10 border-t border-slate-100 space-y-4">
                                     <div className="flex items-center gap-4">
                                        <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center"><CheckCircle2 className="h-5 w-5 text-green-500" /></div>
-                                       <p className="text-[10px] font-bold text-slate-400 leading-tight uppercase tracking-widest">Verified Official Communication</p>
+                                       <p className="text-[10px] font-bold text-slate-400 leading-tight uppercase tracking-widest">{t.officialBadge}</p>
                                     </div>
                                  </div>
                               </div>
                            ) : (
                               <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30 pt-40">
                                  <Mail className="h-20 w-20 text-slate-200" />
-                                 <p className="text-sm font-black text-slate-300 uppercase tracking-tighter">Choose a recipient and template to see the preview</p>
+                                 <p className="text-sm font-black text-slate-300 uppercase tracking-tighter">{t.previewEmpty}</p>
                               </div>
                            )}
                         </div>
@@ -373,7 +396,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                <CardHeader className="p-8 border-b border-slate-50 flex flex-row items-center justify-between">
                   <div className="flex items-center gap-3">
                      <History className="h-5 w-5 text-secondary" />
-                     <h3 className="text-sm font-black uppercase text-primary">{isAr ? 'السجلات الصادرة' : 'Outbox Logs'}</h3>
+                     <h3 className="text-sm font-black uppercase text-primary">{t.historyTitle}</h3>
                   </div>
                </CardHeader>
                <CardContent className="p-0">
@@ -393,7 +416,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                                  </div>
                               </div>
                               <div className="flex items-center gap-3">
-                                 <Badge className="bg-green-100 text-green-600 border-none font-black text-[8px] px-3 py-1 rounded-md">DELIVERED</Badge>
+                                 <Badge className="bg-green-100 text-green-600 border-none font-black text-[8px] px-3 py-1 rounded-md">{t.statusDelivered}</Badge>
                                  <Button variant="ghost" size="icon" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)} className="h-10 w-10 rounded-xl hover:bg-white hover:shadow-sm"><ChevronRight className={cn("h-5 w-5", isAr && "rotate-180")} /></Button>
                               </div>
                            </div>
@@ -407,4 +430,3 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
     </div>
   );
 }
-
