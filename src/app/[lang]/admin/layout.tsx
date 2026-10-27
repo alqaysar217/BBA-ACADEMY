@@ -313,7 +313,7 @@ export default function AdminLayout({
       </Sheet>
 
       <div className={cn(
-        "flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out", 
+        "flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out min-w-0 overflow-hidden", 
         isSidebarOpen ? (isAr ? "lg:mr-64" : "lg:ml-64") : (isAr ? "lg:mr-20" : "lg:ml-20")
       )}>
         <header className="lg:hidden h-16 bg-white/80 backdrop-blur-xl border-b border-black/5 flex items-center px-6 justify-between sticky top-0 z-40">
@@ -326,8 +326,8 @@ export default function AdminLayout({
            </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-8 lg:p-10 animate-in fade-in duration-700">
-          <div className="max-w-[1500px] mx-auto relative">
+        <main className="flex-1 p-4 md:p-8 lg:p-10 animate-in fade-in duration-700 w-full overflow-hidden flex flex-col">
+          <div className="w-full max-w-[1500px] mx-auto relative flex-1 min-w-0 flex flex-col">
             {children}
           </div>
         </main>

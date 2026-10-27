@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -223,8 +224,8 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
   const filteredCols = columns.filter(c => c.label.toLowerCase().includes(colSearch.toLowerCase()));
 
   return (
-    <div className="space-y-6 max-w-full overflow-hidden">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+    <div className="flex flex-col h-full w-full max-w-full overflow-hidden space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 shrink-0">
          <div className="space-y-1">
             <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
                <FileSpreadsheet className="h-6 w-6 text-secondary" />
@@ -234,19 +235,19 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
          </div>
       </div>
 
-      <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 space-y-4 max-w-full">
+      <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 space-y-4 shrink-0">
         <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-4">
-          <div className="relative flex-1 group min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <div className="relative flex-1 group min-w-0">
+              <Search className={cn("absolute top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400", isAr ? "right-3" : "left-3")} />
               <Input 
                 placeholder={isAr ? 'بحث سريع (اسم، هاتف، بريد، رقم طلب)...' : 'Quick Search (Name, Phone, Email, ID)...'} 
-                className="pl-10 h-11 rounded-lg bg-slate-50 border-none font-bold text-sm w-full"
+                className={cn("h-11 rounded-lg bg-slate-50 border-none font-bold text-sm w-full", isAr ? "pr-10" : "pl-10")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <div className="flex flex-wrap items-center gap-2 overflow-hidden">
               <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-100 shrink-0">
                 <Calendar className="h-4 w-4 text-slate-400 ml-2" />
                 <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-8 w-32 border-none bg-transparent text-[10px] font-bold uppercase" />
@@ -320,9 +321,9 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
         </div>
       </div>
 
-      <Card className="border border-slate-100 shadow-xl rounded-xl bg-white overflow-hidden max-w-full">
-         <CardContent className="p-0 overflow-hidden">
-            <div className="overflow-x-auto max-h-[75vh] w-full custom-scrollbar">
+      <Card className="border border-slate-100 shadow-xl rounded-xl bg-white overflow-hidden flex-1 min-h-0 flex flex-col">
+         <CardContent className="p-0 flex-1 min-h-0 relative overflow-hidden">
+            <div className="absolute inset-0 overflow-auto custom-scrollbar">
                <table className="w-full border-collapse min-w-max">
                   <thead className="sticky top-0 z-30 bg-slate-900 text-white">
                      <tr>
@@ -334,7 +335,7 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
                               </div>
                            </th>
                         ))}
-                        <th className="px-6 py-5 text-end bg-slate-900 sticky right-0 shadow-[-10px_0_15px_rgba(0,0,0,0.15)] z-40"></th>
+                        <th className={cn("px-6 py-5 text-end bg-slate-900 sticky z-40 shadow-[-10px_0_15px_rgba(0,0,0,0.15)]", isAr ? "left-0" : "right-0")}></th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -377,7 +378,10 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
                                 )}
                               </td>
                            ))}
-                           <td className="px-6 py-4 text-end sticky right-0 bg-white group-hover:bg-slate-50/50 shadow-[-10px_0_15px_rgba(0,0,0,0.05)] z-30">
+                           <td className={cn(
+                             "px-6 py-4 text-end sticky bg-white group-hover:bg-slate-50/50 shadow-[-10px_0_15px_rgba(0,0,0,0.05)] z-30",
+                             isAr ? "left-0" : "right-0"
+                           )}>
                               <Button size="icon" variant="ghost" className="h-9 w-9 rounded-lg hover:bg-primary hover:text-white transition-all shadow-sm" onClick={() => router.push(`/${lang}/admin/enrollments/${app.id}`)}>
                                  <ChevronRight className={cn("h-4 w-4", isAr && "rotate-180")} />
                               </Button>
@@ -390,7 +394,7 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
          </CardContent>
       </Card>
       
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-4 rounded-xl shadow-sm border border-slate-100 max-w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-4 rounded-xl shadow-sm border border-slate-100 shrink-0">
          <div>Total: {filteredData.length} records in view</div>
          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
