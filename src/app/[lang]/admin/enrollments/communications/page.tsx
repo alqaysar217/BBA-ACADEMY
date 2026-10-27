@@ -26,7 +26,10 @@ import {
   Info,
   ShieldCheck,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Building,
+  Star,
+  GraduationCap
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,14 +44,21 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
+// Sync with Templates Library Categories & Fields
 const TEMPLATES_CATALOG = (isAr: boolean) => [
   { id: 'app_received', label: isAr ? 'تأكيد استلام الطلب والترحيب' : 'Application Received & Welcome', cat: 'Admissions' },
   { id: 'app_review', label: isAr ? 'الطلب قيد المراجعة الأكاديمية' : 'Application Under Review', cat: 'Admissions' },
   { id: 'info_required', label: isAr ? 'طلب استكمال بيانات ناقصة' : 'Additional Information Required', cat: 'Admissions', needsField: 'missingInformation' },
   { id: 'docs_required', label: isAr ? 'طلب مستندات إضافية' : 'Additional Documents Required', cat: 'Admissions', needsField: 'missingDocuments' },
+  { id: 'docs_received', label: isAr ? 'تأكيد استلام المستندات' : 'Documents Received Acknowledgment', cat: 'Admissions' },
   { id: 'admission_offer', label: isAr ? 'إشعار القبول النهائي' : 'Admission Accepted - Full', cat: 'Admissions', needsField: 'nextSteps' },
   { id: 'admission_rejected', label: isAr ? 'إشعار عدم القبول' : 'Admission Decision: Not Accepted', cat: 'Admissions', needsField: 'decisionReason' },
+  { id: 'reg_completed', label: isAr ? 'تأكيد اكتمال التسجيل' : 'Registration Completed Confirmation', cat: 'Admissions' },
+  { id: 'welcome_onboard', label: isAr ? 'ترحيب الطالب (Onboarding)' : 'Welcome to the Academy (Onboarding)', cat: 'Academic' },
+  { id: 'records_request', label: isAr ? 'طلب سجلات أكاديمية' : 'Academic Records Request', cat: 'Academic' },
   { id: 'payment_reminder', label: isAr ? 'تذكير بالرسوم المستحقة' : 'Payment Reminder', cat: 'Financial', needsField: 'paymentAmount' },
+  { id: 'payment_received', label: isAr ? 'تأكيد استلام دفعة' : 'Payment Received Acknowledgment', cat: 'Financial', needsField: 'paymentAmount' },
+  { id: 'graduation_notice', label: isAr ? 'إشعار التخرج وإكمال البرنامج' : 'Graduation / Program Completion', cat: 'Academic' },
 ];
 
 export default function ParentCommunicationsHub({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -62,7 +72,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [recipients, setRecipients] = useState({ p1: true, p2: false });
-  const [selectedStudents, setSelectedStudentIds] = useState<string[]>([]);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [customField, setCustomField] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -75,7 +85,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
     searchPlaceholder: isAr ? 'ابحث باسم ولي الأمر أو رقم الطلب...' : 'Search by name or App ID...',
     activeTarget: isAr ? 'الهدف النشط' : 'Active Target',
     recipientSelection: isAr ? 'تحديد المستلمين' : 'Recipient Selection',
-    targetStudents: isAr ? 'الطلاب المعنيين' : 'Target Students',
+    targetStudents: isAr ? 'الطلاب المعنيين بالرسالة' : 'Target Students for this Message',
     step2: isAr ? '2. اختيار القالب وصياغة المحتوى' : '2. Message Content & Logic',
     templateLabel: isAr ? 'اختر القالب الرسمي' : 'Select Official Template',
     templatePlaceholder: isAr ? 'اختر من المكتبة...' : 'Choose from library...',
@@ -112,25 +122,51 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
     return TEMPLATES_CATALOG(isAr).find(tpl => tpl.id === selectedTemplateId);
   }, [selectedTemplateId, isAr]);
 
-  const resolveTemplate = (content: string, data: any) => {
-    if (!content) return '';
-    let resolved = content;
-    const vars = {
-      parentName: data.parent1Name || 'Valued Parent',
-      applicationNumber: data.id || 'N/A',
-      studentNames: data.students?.filter((s:any, i:number) => selectedStudents.includes(`${i}`)).map((s:any) => `${s.firstName} ${s.lastName}`).join(', ') || 'Your student(s)',
-      programName: data.programOption || 'N/A',
-      missingInformation: customField,
-      missingDocuments: customField,
-      decisionReason: customField,
-      nextSteps: customField,
-      paymentAmount: customField,
+  // Logic to resolve template variables into a final string
+  const getResolvedBody = (app: any) => {
+    if (!app || !selectedTemplateId) return '';
+    
+    // Find the actual body from the INITIAL_LIBRARY or similar source
+    // For this prototype, we'll simulate the logic based on the templates defined in the other page
+    let content = "Dear {{parentName}},\n\nTemplate content loading...";
+    
+    // We would normally fetch this from the Firestore templates collection
+    // Here we define the simplified logic for preview
+    const studentNamesStr = app.students
+      ?.filter((_: any, i: number) => selectedStudentIds.includes(`${i}`))
+      .map((s: any) => `${s.firstName} ${s.lastName}`)
+      .join(', ') || 'your student(s)';
+
+    const vars: any = {
+      parentName: app.parent1Name || 'Valued Parent',
+      applicationNumber: app.id || 'N/A',
+      studentNames: studentNamesStr,
+      programName: app.programOption || 'BBA Program',
+      missingInformation: customField || '[Pending Information]',
+      missingDocuments: customField || '[Pending Documents]',
+      decisionReason: customField || '[Decision Reason]',
+      nextSteps: customField || '[Next Steps]',
+      paymentAmount: customField || '[Amount]',
+      paymentDueDate: 'the 1st of next month',
+      outstandingBalance: customField || '[Total Balance]',
+      paymentReference: 'REF-' + Math.floor(Math.random()*10000),
       academyEmail: 'banaatacademy@gmail.com'
     };
+
+    // Find sample body text based on template ID
+    const sampleBodies: Record<string, string> = {
+      app_received: "Thank you for choosing Baneen and Banaat Academy. We are pleased to confirm that we have successfully received your enrollment application (Ref: {{applicationNumber}}) for the following student(s):\n\n{{studentNames}}\n\nOur admissions team is currently conducting an initial review of the submitted information. We will contact you shortly should any additional information be required.\n\nBest regards,\nBBA Admissions Office",
+      admission_offer: "On behalf of the academic committee, I am delighted to inform you that {{studentNames}} has been accepted into Baneen and Banaat Academy for the {{programName}} program.\n\nNext Steps:\n{{nextSteps}}\n\nAn academy administrator will contact you within 48 hours to finalize details. Welcome to the family!\n\nBest regards,\nDr. Mustafa Ali",
+      admission_rejected: "Thank you for your interest in Baneen and Banaat Academy. After a thorough review of the application for {{studentNames}}, we regret to inform you that we are unable to offer admission at this time.\n\nDecision Details:\n{{decisionReason}}\n\nWe wish you and your family the best in your educational journey.\n\nRespectfully,\nBBA Admissions Office",
+      info_required: "During the preliminary review of your application ({{applicationNumber}}), our team identified that certain details require further clarification.\n\nPlease provide the following information:\n\n{{missingInformation}}\n\nPlease reply directly to this email to proceed.\n\nRegards,\nBBA Admissions Team"
+    };
+
+    let resolved = sampleBodies[selectedTemplateId] || "Official communication regarding {{studentNames}} for application {{applicationNumber}}.\n\nDetails: {{decisionReason}}";
 
     Object.entries(vars).forEach(([key, val]) => {
       resolved = resolved.split(`{{${key}}}`).join(String(val));
     });
+
     return resolved;
   };
 
@@ -138,6 +174,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
     if (!firestore || !selectedApp || !selectedTemplateId) return;
     setIsProcessing(true);
 
+    const finalBody = getResolvedBody(selectedApp);
     const logEntry = {
       templateId: selectedTemplateId,
       sentAt: new Date().toISOString(),
@@ -146,9 +183,10 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
         ...(recipients.p2 && selectedApp.parent2Email ? [selectedApp.parent2Email] : [])
       ],
       subject: `BBA Update: ${selectedTemplate?.label}`,
-      content: resolveTemplate("Selected template body goes here after resolving variables...", selectedApp),
-      studentsMailed: selectedStudents,
-      status: 'sent'
+      content: finalBody,
+      studentsMailed: selectedStudentIds,
+      status: 'sent',
+      sender: 'Admin'
     };
 
     try {
@@ -260,7 +298,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.targetStudents}</p>
                               <div className="flex flex-wrap gap-2">
                                  {selectedApp.students?.map((s:any, i:number) => {
-                                    const isSelected = selectedStudents.includes(`${i}`);
+                                    const isSelected = selectedStudentIds.includes(`${i}`);
                                     return (
                                        <button 
                                           key={i}
@@ -350,7 +388,7 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                            <div className="h-3 w-3 rounded-full bg-amber-500/30" />
                            <div className="h-3 w-3 rounded-full bg-green-500/30" />
                            <div className="flex-1 h-6 bg-slate-900/50 rounded-lg flex items-center px-4">
-                              <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Official BBA Comms</span>
+                              <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Official BBA Comms Preview</span>
                            </div>
                         </div>
                         <div className="p-10 space-y-8 bg-white min-h-[600px] mx-4 my-4 rounded-2xl shadow-inner overflow-y-auto">
@@ -358,17 +396,21 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                               <div className="space-y-8 animate-in fade-in duration-500">
                                  <div className="space-y-1 pb-6 border-b border-slate-100">
                                     <p className="text-[9px] font-black text-slate-400 uppercase">{t.previewFrom} <span className="text-primary">BBA Academy &lt;banaatacademy@gmail.com&gt;</span></p>
-                                    <p className="text-[9px] font-black text-slate-400 uppercase">{t.previewTo} <span className="text-secondary">{[...(recipients.p1 ? [selectedApp.parent1Email] : []), ...(recipients.p2 ? [selectedApp.parent2Email] : [])].join(', ')}</span></p>
-                                    <p className="text-sm font-black text-slate-900 mt-4">{t.previewSubject} BBA Update - {selectedTemplate?.label}</p>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase">{t.previewTo} <span className="text-secondary">{[...(recipients.p1 ? [selectedApp.parent1Email] : []), ...(recipients.p2 && selectedApp.parent2Email && recipients.p2 ? [selectedApp.parent2Email] : [])].join(', ')}</span></p>
+                                    <p className="text-sm font-black text-slate-900 mt-4">{t.previewSubject} BBA Academy Update - {selectedTemplate?.label}</p>
                                  </div>
                                  <div className="space-y-6">
                                     <div className="flex justify-center">
                                        <img src="/logo.png" className="h-16 w-16 object-contain" alt="BBA Logo" />
                                     </div>
                                     <div className="prose prose-slate max-w-none">
-                                       <p className="text-slate-600 leading-relaxed font-medium italic whitespace-pre-wrap">
-                                          {resolveTemplate("Dear {{parentName}},\n\nThank you for choosing BBA Academy. Regarding the enrollment for {{studentNames}}, we are writing to update you that your application ({{applicationNumber}}) is currently being processed.\n\nDetails:\n{{decisionReason}}\n\nSincerely,\nBBA Administration", selectedApp)}
+                                       <p className="text-slate-600 leading-relaxed font-medium whitespace-pre-wrap text-sm">
+                                          {getResolvedBody(selectedApp)}
                                        </p>
+                                    </div>
+                                    <div className="pt-8 space-y-1">
+                                       <p className="font-black text-primary text-xs">Dr. Mustafa Ali</p>
+                                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Academy Director</p>
                                     </div>
                                  </div>
                                  <div className="pt-10 border-t border-slate-100 space-y-4">
@@ -412,6 +454,8 @@ export default function ParentCommunicationsHub({ params }: { params: Promise<{ 
                                        <span className="uppercase text-secondary">{app.parent1Name}</span>
                                        <span className="opacity-40">|</span>
                                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {format(new Date(log.sentAt), 'MMM dd, HH:mm')}</span>
+                                       <span className="opacity-40">|</span>
+                                       <span className="text-[8px] px-1.5 py-0.5 rounded bg-slate-100">By: {log.sender || 'Admin'}</span>
                                     </div>
                                  </div>
                               </div>

@@ -22,7 +22,10 @@ import {
   Layers,
   GraduationCap,
   CreditCard,
-  History
+  History,
+  FileText,
+  UserCheck,
+  AlertCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,56 +36,112 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
-// Official BBA Template Library
+// Official BBA Template Library - Full Content
 const INITIAL_LIBRARY = [
   {
     id: 'app_received',
     category: 'Admissions',
     label: 'Application Received & Welcome',
     subject: 'BBA Academy: Application Received - {{parentName}}',
-    body: 'Dear {{parentName}},\n\nThank you for choosing Baneen and Banaat Academy. We are writing to confirm that we have successfully received your enrollment application (Ref: {{applicationNumber}}) for the following student(s):\n\n{{studentNames}}\n\nOur admissions team is currently conducting an initial review of your details. Please note that this confirmation does not imply final acceptance. We will contact you shortly regarding the next steps or if additional information is required.\n\nBest regards,\nBBA Admissions Office\nbanaatacademy@gmail.com'
+    body: 'Dear {{parentName}},\n\nThank you for choosing Baneen and Banaat Academy. We are pleased to confirm that we have successfully received your enrollment application (Ref: {{applicationNumber}}) for the following student(s):\n\n{{studentNames}}\n\nOur admissions team is currently conducting an initial review of the submitted information. Please note that this confirmation acknowledges receipt of your application and does not imply final acceptance into the academy. We will contact you shortly should any additional information be required or to update you on the status of the review process.\n\nShould you have any immediate questions, please feel free to reply to this email.\n\nBest regards,\nBBA Admissions Office\nbanaatacademy@gmail.com'
   },
   {
     id: 'app_review',
     category: 'Admissions',
     label: 'Application Under Review',
     subject: 'Update: Your application is now under review',
-    body: 'Dear {{parentName}},\n\nThis is an update regarding application {{applicationNumber}}. Your file is now "Under Review" by our academic committee for {{studentNames}}.\n\nWe appreciate your patience during this process. No further action is required from your side at this moment.\n\nSincerely,\nBBA Academic Committee'
+    body: 'Dear {{parentName}},\n\nWe are writing to provide you with an update regarding application {{applicationNumber}}. The files for {{studentNames}} have been moved to the "Under Review" stage and are currently being evaluated by our academic committee.\n\nWe appreciate your patience during this evaluation period. No further action is required from your side at this moment. We will notify you as soon as a decision has been reached or if further clarification is needed.\n\nSincerely,\nBBA Academic Committee'
   },
   {
     id: 'info_required',
     category: 'Admissions',
     label: 'Additional Information Required',
     subject: 'Action Required: Information missing for your BBA application',
-    body: 'Dear {{parentName}},\n\nDuring the review of your application ({{applicationNumber}}), we noticed that some information is missing or requires clarification.\n\nDetails needed:\n{{missingInformation}}\n\nPlease provide these details by replying to this email so we can proceed with your application.\n\nThank you,\nBBA Admissions Team'
+    body: 'Dear {{parentName}},\n\nDuring the preliminary review of your application ({{applicationNumber}}), our team identified that certain details require further clarification or are currently missing from the record.\n\nPlease provide the following information at your earliest convenience:\n\n{{missingInformation}}\n\nYou may provide these details by replying directly to this email. Please be advised that we cannot proceed with the final evaluation of {{studentNames}} until this information is received.\n\nThank you for your cooperation,\nBBA Admissions Team'
   },
   {
     id: 'docs_required',
     category: 'Admissions',
     label: 'Additional Documents Required',
     subject: 'Document Request: BBA Enrollment ({{applicationNumber}})',
-    body: 'Dear {{parentName}},\n\nTo complete the evaluation of the application for {{studentNames}}, we require the following documents:\n\n{{missingDocuments}}\n\nYou may upload these files through the student portal or reply directly to this email with attachments.\n\nRegards,\nBBA Administration'
+    body: 'Dear {{parentName}},\n\nTo complete the formal evaluation of the application for {{studentNames}}, we require the following supporting documentation:\n\n{{missingDocuments}}\n\nYou may upload these files through the student portal using your account or reply directly to this email with the attachments. We recommend providing these documents within the next few business days to avoid any delays in the enrollment process.\n\nRegards,\nBBA Administration'
+  },
+  {
+    id: 'docs_received',
+    category: 'Admissions',
+    label: 'Documents Received Acknowledgment',
+    subject: 'Confirmation: Documents Received - {{applicationNumber}}',
+    body: 'Dear {{parentName}},\n\nWe are writing to confirm that we have successfully received the documents you provided for {{studentNames}}. \n\nOur team will now review these materials to ensure they meet our academic and administrative requirements. Please note that this email confirms the physical receipt of the files; a separate update will be sent once the verification process is complete.\n\nThank you for your prompt response.\n\nSincerely,\nBBA Registrar'
   },
   {
     id: 'admission_offer',
     category: 'Admissions',
-    label: 'Admission Accepted - Full',
+    label: 'Admission Accepted - Full Offer',
     subject: 'Congratulations! Admission Offer from BBA Academy',
-    body: 'Dear {{parentName}},\n\nWe are pleased to inform you that the application for {{studentNames}} has been accepted into Baneen and Banaat Academy for the {{programName}} program.\n\nNext Steps:\n{{nextSteps}}\n\nAn administrator will contact you within 48 hours to finalize the orientation details. Welcome to the family!\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director'
+    body: 'Dear {{parentName}},\n\nOn behalf of the academic committee, I am delighted to inform you that {{studentNames}} has been accepted into Baneen and Banaat Academy for the {{programName}} program.\n\nWe were impressed by the application and believe that BBA will provide a nurturing environment for your child to excel both academically and spiritually.\n\nNext Steps:\n{{nextSteps}}\n\nAn academy administrator will contact you within 48 hours to finalize the orientation details and tuition setup. We are honored to welcome your family to our learning community.\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director'
   },
   {
     id: 'admission_rejected',
     category: 'Admissions',
     label: 'Admission Decision: Not Accepted',
     subject: 'Update regarding your BBA Application ({{applicationNumber}})',
-    body: 'Dear {{parentName}},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for {{studentNames}}, we regret to inform you that we are unable to offer admission at this time.\n\nDecision Details:\n{{decisionReason}}\n\nWe wish you and your family the very best in your educational journey.\n\nRespectfully,\nBBA Admissions Office'
+    body: 'Dear {{parentName}},\n\nThank you for your interest in Baneen and Banaat Academy and for giving us the opportunity to review the application for {{studentNames}}.\n\nAfter a careful and thorough review of the current enrollment capacity and academic requirements, we regret to inform you that we are unable to offer admission at this time.\n\nDecision Details:\n{{decisionReason}}\n\nWe understand this may be disappointing news, and we wish you and your family the very best in your future educational journey. Your files will be kept on record should our capacity change in the future.\n\nRespectfully,\nBBA Admissions Office'
+  },
+  {
+    id: 'reg_completed',
+    category: 'Admissions',
+    label: 'Registration Completed Confirmation',
+    subject: 'Official Confirmation: Registration Complete - {{studentNames}}',
+    body: 'Dear {{parentName}},\n\nWe are pleased to inform you that all administrative and financial requirements for {{studentNames}} have been successfully met. The registration process is now officially complete.\n\nYou will receive a separate email containing orientation materials, login credentials for our learning systems, and the final academic calendar for the current session.\n\nWelcome once again to BBA Academy. We look forward to a successful and productive year ahead.\n\nSincerely,\nBBA Administration'
+  },
+  {
+    id: 'welcome_onboard',
+    category: 'Academic',
+    label: 'Welcome to the Academy (Onboarding)',
+    subject: 'Welcome to BBA Academy! Getting Started Guide',
+    body: 'Dear {{parentName}},\n\nWelcome to the BBA family! We are excited to begin this educational journey with {{studentNames}}. \n\nTo ensure a smooth transition, please review the following onboarding steps:\n1. Log in to your parent dashboard to review the final schedule.\n2. Ensure your child has access to a reliable device and stable internet.\n3. Mark your calendar for the upcoming virtual orientation session.\n\nWe are committed to providing {{studentNames}} with an exceptional learning experience rooted in values and academic excellence.\n\nBest regards,\nBBA Academic Support Team'
+  },
+  {
+    id: 'records_request',
+    category: 'Academic',
+    label: 'Academic Records Request',
+    subject: 'Request for Academic Records: {{studentNames}}',
+    body: 'Dear {{parentName}},\n\nTo ensure proper placement and continuity of instruction for {{studentNames}}, we require official copies of previous academic records or transcripts.\n\nPlease provide these documents at your earliest convenience. If you prefer, we can contact the previous educational institution directly if you provide us with their contact details and a signed release form.\n\nAccurate records are essential for developing a personalized learning plan that meets the specific needs of your child.\n\nThank you,\nBBA Registrar Office'
+  },
+  {
+    id: 'followup_reminder',
+    category: 'Academic',
+    label: 'Follow-up Reminder',
+    subject: 'Friendly Reminder: Pending Action for {{applicationNumber}}',
+    body: 'Dear {{parentName}},\n\nThis is a friendly follow-up regarding our previous communication concerning the application for {{studentNames}}. We noticed that we are still awaiting a response or the submission of required details.\n\nTo avoid any interruption in the processing of your request, please provide the necessary information as soon as possible. If you have already taken action, please disregard this message.\n\nWe appreciate your attention to this matter.\n\nSincerely,\nBBA Follow-up Team'
   },
   {
     id: 'payment_reminder',
     category: 'Financial',
     label: 'Payment Reminder',
     subject: 'Invoice Reminder: BBA Tuition Fee',
-    body: 'Dear {{parentName}},\n\nThis is a friendly reminder regarding the outstanding balance for {{studentNames}}.\n\nDue Amount: {{paymentAmount}}\nDue Date: {{paymentDueDate}}\n\nPlease ensure payment is settled to maintain active enrollment status. If you have already made the payment, please disregard this notice.\n\nSincerely,\nBBA Financial Department'
+    body: 'Dear {{parentName}},\n\nThis is a friendly reminder regarding the outstanding tuition balance for {{studentNames}}. \n\nAccording to our records, the following amount is currently due:\nDue Amount: {{paymentAmount}}\nDue Date: {{paymentDueDate}}\n\nPlease ensure that the payment is settled by the due date to maintain active enrollment status. You may complete the payment through your secure parent portal or by following the instructions provided in your initial invoice.\n\nIf you have recently made this payment, please disregard this notice.\n\nSincerely,\nBBA Financial Department'
+  },
+  {
+    id: 'payment_received',
+    category: 'Financial',
+    label: 'Payment Received Acknowledgment',
+    subject: 'Receipt: Payment Successfully Processed',
+    body: 'Dear {{parentName}},\n\nWe are writing to confirm that we have successfully received and processed your payment for {{studentNames}}.\n\nTransaction Details:\nAmount: {{paymentAmount}}\nReference: {{paymentReference}}\n\nA formal receipt has been added to your parent account for your records. Thank you for your prompt payment and continued support of the academy.\n\nBest regards,\nBBA Billing Team'
+  },
+  {
+    id: 'balance_notice',
+    category: 'Financial',
+    label: 'Outstanding Balance Notice',
+    subject: 'Important: Outstanding Balance - {{studentNames}}',
+    body: 'Dear {{parentName}},\n\nWe are contacting you regarding an outstanding balance on your account for {{studentNames}}. \n\nOur records indicate a current balance of {{outstandingBalance}}. We kindly request that you review your account and arrange for payment at your earliest convenience to ensure there is no disruption to the educational services provided.\n\nIf you have any questions or would like to discuss a payment arrangement, please contact our financial office directly.\n\nRespectfully,\nBBA Financial Office'
+  },
+  {
+    id: 'graduation_notice',
+    category: 'Academic',
+    label: 'Graduation / Program Completion',
+    subject: 'Congratulations on Your Graduation from BBA Academy!',
+    body: 'Dear {{parentName}},\n\nIt is with great pride and joy that we announce the successful completion of the {{programName}} program by {{studentNames}}! \n\nThis achievement is a testament to the hard work, dedication, and perseverance shown throughout the academic year. We are honored to have played a part in your child\'s growth and success. \n\nInformation regarding the issuance of the official certificate and the final transcript will be sent to you in the coming days. We wish {{studentNames}} the very best in all future endeavors.\n\nCongratulations once again!\n\nDr. Mustafa Ali\nAcademy Director'
   }
 ];
 
@@ -119,11 +178,15 @@ export default function EmailTemplatesPage({ params }: { params: Promise<{ lang:
     toastCopied: isAr ? 'تم نسخ المتغير' : 'Variable Copied',
     variables: [
       { name: '{{parentName}}', desc: isAr ? 'اسم ولي الأمر الأساسي' : 'Primary Parent Name' },
-      { name: '{{studentNames}}', desc: isAr ? 'قائمة أسماء الطلاب' : 'List of student names' },
-      { name: '{{applicationNumber}}', desc: isAr ? 'رقم مرجع الطلب' : 'Application Reference ID' },
+      { name: '{{studentNames}}', desc: isAr ? 'قائمة أسماء الطلاب المشمولين' : 'List of selected student names' },
+      { name: '{{applicationNumber}}', desc: isAr ? 'رقم مرجع الطلب (ID)' : 'Application Reference ID' },
       { name: '{{programName}}', desc: isAr ? 'اسم البرنامج التعليمي' : 'Educational Program Name' },
       { name: '{{missingInformation}}', desc: isAr ? 'البيانات الناقصة (يدوي)' : 'Missing Info (Manual Input)' },
-      { name: '{{decisionReason}}', desc: isAr ? 'سبب القرار (يدوي)' : 'Decision Reason (Manual Input)' },
+      { name: '{{missingDocuments}}', desc: isAr ? 'المستندات المطلوبة (يدوي)' : 'Missing Documents (Manual Input)' },
+      { name: '{{decisionReason}}', desc: isAr ? 'سبب القرار الإداري (يدوي)' : 'Decision Reason (Manual Input)' },
+      { name: '{{nextSteps}}', desc: isAr ? 'الخطوات التالية (يدوي)' : 'Next Steps Instructions (Manual)' },
+      { name: '{{paymentAmount}}', desc: isAr ? 'المبلغ المستحق أو المدفوع' : 'Due or Paid Amount' },
+      { name: '{{outstandingBalance}}', desc: isAr ? 'الرصيد المتبقي الإجمالي' : 'Total Outstanding Balance' },
     ]
   };
 
