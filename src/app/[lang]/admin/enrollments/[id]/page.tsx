@@ -266,7 +266,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
             title={isAr ? 'بيانات العائلة والتواصل' : 'Family Intelligence'} 
             subtitle={isAr ? 'جدول الممثلين القانونيين وعنوان السكن' : 'Authorized Guardians & Residence'}
           />
-          <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+          <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100">
             <div className="overflow-x-auto">
                <Table>
                  <TableHeader className="bg-slate-50 border-b border-slate-100">
@@ -302,7 +302,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
                    <TableRow className="bg-slate-50/30">
                      <TableCell colSpan={6} className="p-6">
-                        <div className="bg-white p-6 rounded-lg border border-slate-100 flex flex-col lg:flex-row items-start lg:items-center gap-8 shadow-sm">
+                        <div className="bg-white p-6 rounded-lg border border-slate-100 flex flex-row items-center gap-8 shadow-sm overflow-x-auto no-scrollbar">
                            <div className="flex items-center gap-4 shrink-0">
                               <div className="h-11 w-11 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
                                  <MapPin className="h-5 w-5" />
@@ -312,12 +312,13 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                                  <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Global Shipping Address</p>
                               </div>
                            </div>
-                           <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-700">
-                              <div className="px-4 py-3 bg-slate-50 rounded-lg border border-slate-100">
+                           <div className="h-10 w-px bg-slate-100 shrink-0 hidden md:block" />
+                           <div className="flex flex-row gap-4 text-xs font-bold text-slate-700 whitespace-nowrap">
+                              <div className="px-4 py-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center">
                                  <span className="text-[8px] text-slate-400 uppercase tracking-widest block mb-0.5">{isAr ? 'تفاصيل الموقع' : 'Location Details'}</span>
                                  <span className="text-primary font-black">{app.address?.line1} {app.address?.line2}</span>
                               </div>
-                              <div className="px-4 py-3 bg-slate-50 rounded-lg border border-slate-100">
+                              <div className="px-4 py-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center">
                                  <span className="text-[8px] text-slate-400 uppercase tracking-widest block mb-0.5">{isAr ? 'المنطقة والرمز' : 'Region & ZIP'}</span>
                                  <span className="text-secondary font-black">{app.address?.city}, {app.address?.state} {app.address?.zip}</span>
                               </div>
@@ -339,7 +340,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
               subtitle={isAr ? 'البيانات الشخصية والأكاديمية لكافة الأبناء' : 'Sibling Academic Profiles'}
               color="bg-secondary"
             />
-            <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+            <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100">
               <Table>
                 <TableHeader className="bg-slate-50 border-b border-slate-100">
                   <TableRow className="hover:bg-transparent h-14">
@@ -385,7 +386,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500 delay-200">
           <section className="space-y-6">
              <SectionHeader icon={Briefcase} title={isAr ? 'المسار التعليمي' : 'Academic Track'} subtitle={isAr ? 'البرنامج المختار والرسوم' : 'Enrollment Path'} color="bg-accent" />
-             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 p-8 flex flex-col justify-center gap-6 min-h-[240px]">
+             <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100 p-8 flex flex-col justify-center gap-6 min-h-[240px]">
                 <div className="space-y-1">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'خيار البرنامج' : 'Selected Program'}</p>
                    <h3 className="text-2xl font-black text-primary tracking-tight">{app.programOption}</h3>
@@ -405,7 +406,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
           <section className="space-y-6">
              <SectionHeader icon={FileCheck} title={isAr ? 'الأرشيف الرقمي' : 'Digital Evidence'} subtitle={isAr ? 'الوثائق المرفقة' : 'Verified Uploads'} color="bg-slate-900" />
-             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 min-h-[240px]">
+             <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100 min-h-[240px]">
                 <Table>
                   <TableBody>
                     {app.files && app.files.length > 0 ? (
