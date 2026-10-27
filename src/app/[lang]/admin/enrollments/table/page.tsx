@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -224,7 +223,7 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
   const filteredCols = columns.filter(c => c.label.toLowerCase().includes(colSearch.toLowerCase()));
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 max-w-full overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
          <div className="space-y-1">
             <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
@@ -235,20 +234,20 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
          </div>
       </div>
 
-      <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 space-y-4">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
-          <div className="relative flex-1 group">
+      <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 space-y-4 max-w-full">
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-4">
+          <div className="relative flex-1 group min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input 
                 placeholder={isAr ? 'بحث سريع (اسم، هاتف، بريد، رقم طلب)...' : 'Quick Search (Name, Phone, Email, ID)...'} 
-                className="pl-10 h-11 rounded-lg bg-slate-50 border-none font-bold text-sm"
+                className="pl-10 h-11 rounded-lg bg-slate-50 border-none font-bold text-sm w-full"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-100">
+          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-100 shrink-0">
                 <Calendar className="h-4 w-4 text-slate-400 ml-2" />
                 <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-8 w-32 border-none bg-transparent text-[10px] font-bold uppercase" />
                 <span className="text-[10px] font-black text-slate-300 px-1">TO</span>
@@ -256,7 +255,7 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
               </div>
 
               <Select value={filterState} onValueChange={setFilterState}>
-                <SelectTrigger className="h-11 w-36 rounded-lg bg-slate-50 border-none font-black text-[10px] uppercase">
+                <SelectTrigger className="h-11 w-36 rounded-lg bg-slate-50 border-none font-black text-[10px] uppercase shrink-0">
                   <MapPin className="h-3 w-3 mr-2 text-secondary" />
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
@@ -268,7 +267,7 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-50 shadow-sm px-6">
+                  <Button variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-50 shadow-sm px-6 shrink-0">
                     <Columns className="h-4 w-4 text-secondary" />
                     {isAr ? 'إدارة الأعمدة' : 'Manage Columns'}
                     <ChevronDown className="h-3 w-3 opacity-30" />
@@ -314,17 +313,17 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
                 </PopoverContent>
               </Popover>
 
-              <Button onClick={exportToCSV} variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+              <Button onClick={exportToCSV} variant="outline" className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 bg-white hover:bg-slate-900 hover:text-white transition-all shadow-sm shrink-0">
                 <Download className="h-4 w-4" /> Export (CSV)
               </Button>
           </div>
         </div>
       </div>
 
-      <Card className="border border-slate-100 shadow-xl rounded-xl bg-white overflow-hidden">
-         <CardContent className="p-0">
-            <div className="overflow-x-auto max-h-[75vh]">
-               <table className="w-full border-collapse">
+      <Card className="border border-slate-100 shadow-xl rounded-xl bg-white overflow-hidden max-w-full">
+         <CardContent className="p-0 overflow-hidden">
+            <div className="overflow-x-auto max-h-[75vh] w-full custom-scrollbar">
+               <table className="w-full border-collapse min-w-max">
                   <thead className="sticky top-0 z-30 bg-slate-900 text-white">
                      <tr>
                         {columns.map(col => visibleColumns.includes(col.id) && (
@@ -391,7 +390,7 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
          </CardContent>
       </Card>
       
-      <div className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-4 rounded-xl shadow-sm border border-slate-100 max-w-full overflow-hidden">
          <div>Total: {filteredData.length} records in view</div>
          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -401,6 +400,25 @@ export default function ComprehensiveTablePage({ params }: { params: Promise<{ l
             <Settings2 className="h-3 w-3" />
          </div>
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 10px;
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 5px;
+          border: 2px solid #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+      `}</style>
     </div>
   );
 }
