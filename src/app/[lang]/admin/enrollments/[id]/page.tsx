@@ -191,7 +191,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
   }
 
   const SectionHeader = ({ icon: Icon, title, subtitle, color = "bg-primary" }: { icon: any, title: string, subtitle: string, color?: string }) => (
-    <div className="flex items-center gap-4 mb-6">
+    <div className="flex items-center gap-4 mb-6 px-2">
       <div className={cn("h-12 w-12 rounded-2xl text-white flex items-center justify-center shadow-lg", color)}>
         <Icon className="h-6 w-6" />
       </div>
@@ -269,7 +269,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
             title={isAr ? 'بيانات العائلة والتواصل' : 'Family & Guardians Information'} 
             subtitle={isAr ? 'جدول الممثلين القانونيين وعنوان السكن المشترك' : 'Legal Representatives & Shared Residence'}
           />
-          <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white">
+          <Card className="border border-slate-100 shadow-premium rounded-[2rem] overflow-hidden bg-white">
             <Table>
               <TableHeader className="bg-slate-50 border-b border-slate-100">
                 <TableRow className="hover:bg-transparent">
@@ -283,7 +283,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
               </TableHeader>
               <TableBody>
                 {/* Parent 1 */}
-                <TableRow className="hover:bg-slate-50/50 border-slate-50">
+                <TableRow className="hover:bg-slate-50/50 border-slate-100">
                   <TableCell className="text-center font-black text-slate-300 py-6">01</TableCell>
                   <TableCell className="px-6 font-black text-primary text-base">{app.parent1Name}</TableCell>
                   <TableCell className="font-bold text-slate-600" dir="ltr">{app.parent1Phone}</TableCell>
@@ -294,7 +294,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                 
                 {/* Parent 2 (If Exists) */}
                 {app.parent2Name && (
-                  <TableRow className="hover:bg-slate-50/50 border-slate-50">
+                  <TableRow className="hover:bg-slate-50/50 border-slate-100">
                     <TableCell className="text-center font-black text-slate-300 py-6">02</TableCell>
                     <TableCell className="px-6 font-black text-primary text-base">{app.parent2Name}</TableCell>
                     <TableCell className="font-bold text-slate-600" dir="ltr">{app.parent2Phone}</TableCell>
@@ -309,7 +309,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                   <TableCell colSpan={6} className="p-8">
                      <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
                         <div className="flex items-center gap-3 shrink-0">
-                           <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-secondary">
+                           <div className="h-10 w-10 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-secondary">
                               <MapPin className="h-5 w-5" />
                            </div>
                            <span className="font-black text-primary uppercase text-xs tracking-widest">{isAr ? 'عنوان السكن المشترك:' : 'Shared Residence Address:'}</span>
@@ -340,7 +340,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
               subtitle={isAr ? 'البيانات الشخصية والأكاديمية المفصلة لكافة الأبناء' : 'Comprehensive Profiles for Enrolled Siblings'}
               color="bg-secondary"
             />
-            <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white">
+            <Card className="border border-slate-100 shadow-premium rounded-[2rem] overflow-hidden bg-white">
               <Table>
                 <TableHeader className="bg-slate-50 border-b border-slate-100">
                   <TableRow className="hover:bg-transparent">
@@ -355,7 +355,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                 </TableHeader>
                 <TableBody>
                   {app.students?.map((student: any, idx: number) => (
-                    <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-50 group">
+                    <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100 group">
                       <TableCell className="text-center font-black text-slate-300 py-6">{idx + 1}</TableCell>
                       <TableCell className="px-6 font-black text-primary text-base">
                         {student.firstName} {student.middleName} {student.lastName}
@@ -386,10 +386,10 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <section>
              <SectionHeader icon={Briefcase} title={isAr ? 'البرنامج التعليمي' : 'Academic Program'} subtitle={isAr ? 'المسار والخيارات المالية' : 'Selected Track & Financials'} />
-             <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white">
+             <Card className="border border-slate-100 shadow-premium rounded-[2rem] overflow-hidden bg-white">
                 <Table>
                   <TableBody>
-                    <TableRow className="hover:bg-transparent border-slate-50">
+                    <TableRow className="hover:bg-transparent border-slate-100">
                       <TableCell className="w-1/3 bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest py-6 pl-8">{isAr ? 'نوع البرنامج' : 'Program Option'}</TableCell>
                       <TableCell className="font-black text-primary text-lg py-6">{app.programOption}</TableCell>
                     </TableRow>
@@ -408,21 +408,21 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
           <section>
              <SectionHeader icon={FileCheck} title={isAr ? 'المستندات المرفوعة' : 'Uploaded Files'} subtitle={isAr ? 'الوثائق الرسمية للطلب' : 'Digital PDF & Image Evidence'} color="bg-slate-900" />
-             <Card className="border-none shadow-premium rounded-[2rem] overflow-hidden bg-white h-full min-h-[200px]">
+             <Card className="border border-slate-100 shadow-premium rounded-[2rem] overflow-hidden bg-white h-full min-h-[200px]">
                 <Table>
                   <TableBody>
                     {app.files && app.files.length > 0 ? (
                       app.files.map((file: any, idx: number) => (
-                        <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-50">
+                        <TableRow key={idx} className="hover:bg-slate-50/50 border-slate-100">
                           <TableCell className="py-5 px-8">
                              <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-secondary"><FileText className="h-5 w-5" /></div>
+                                <div className="h-10 w-10 rounded-xl bg-slate-100 border border-slate-100 flex items-center justify-center text-secondary"><FileText className="h-5 w-5" /></div>
                                 <p className="text-xs font-black text-primary truncate max-w-[200px]">{file.name}</p>
                              </div>
                           </TableCell>
                           <TableCell className="py-5 text-right pr-8">
                              <div className="flex justify-end gap-2">
-                                <button onClick={() => window.open(file.data, '_blank')} className="h-9 w-9 rounded-xl bg-slate-50 text-slate-400 hover:text-secondary flex items-center justify-center border border-slate-100"><ExternalLink className="h-4 w-4" /></button>
+                                <button onClick={() => window.open(file.data, '_blank')} className="h-9 w-9 rounded-xl bg-slate-50 text-slate-400 hover:text-secondary flex items-center justify-center border border-slate-100 shadow-sm transition-all active:scale-95"><ExternalLink className="h-4 w-4" /></button>
                              </div>
                           </TableCell>
                         </TableRow>
