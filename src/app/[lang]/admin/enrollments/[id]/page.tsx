@@ -35,7 +35,9 @@ import {
   Building,
   Hash,
   Type,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Eye,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -63,37 +65,37 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
-// Official English Email Templates
+// Official English Email Templates (Professional Versions)
 const EMAIL_TEMPLATES = [
   {
     id: 'received',
     label: 'Application Received',
     subject: 'BBA Academy: We have received your application',
-    body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are writing to confirm that we have successfully received your enrollment application for ${data.studentCount} student(s).\n\nOur admissions team is currently reviewing your details. Please note that this confirmation does not imply final acceptance. We will contact you shortly if any further documentation is required.\n\nBest regards,\nBBA Admissions Office`
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are writing to confirm that we have successfully received your enrollment application (ID: ${data.appId}) for ${data.studentCount} student(s).\n\nOur admissions team is currently conducting an initial review of the submitted information. Please note that this confirmation acknowledges receipt of your application and does not imply final acceptance into the academy. We will contact you shortly should any additional information be required.\n\nBest regards,\nBBA Admissions Office`
   },
   {
     id: 'under_review',
     label: 'Under Review',
-    subject: 'BBA Academy: Your application is under review',
-    body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). Your file is now "Under Review" by our academic committee.\n\nWe appreciate your patience during this process. No further action is required from your side at this moment.\n\nSincerely,\nBBA Academic Committee`
+    subject: 'BBA Academy: Your application is now under review',
+    body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). The files for ${data.targetStudents} have been moved to the "Under Review" stage and are currently being evaluated by our academic committee.\n\nWe appreciate your patience during this evaluation period. No further action is required from your side at this moment. We will notify you as soon as a decision has been reached.\n\nSincerely,\nBBA Academic Committee`
   },
   {
     id: 'offer',
     label: 'Admission Offer',
     subject: 'Congratulations! Admission Offer from BBA Academy',
-    body: (data: any) => `Dear ${data.parentName},\n\nWe are pleased to inform you that the following student(s) have been accepted into Baneen and Banaat Academy:\n\n${data.acceptedStudents}\n\nWe are excited to have you join our learning community. An administrator will contact you within 48 hours to finalize the tuition setup and provide orientation details.\n\nWelcome to the family!\nBBA Administration`
+    body: (data: any) => `Dear ${data.parentName},\n\nOn behalf of the academic committee, I am delighted to inform you that the following student(s) have been accepted into Baneen and Banaat Academy:\n\n${data.acceptedStudents}\n\nWe are excited to have you join our learning community. An academy administrator will contact you within 48 hours to finalize the tuition setup and provide orientation details.\n\nDetails/Next Steps: ${data.reason || 'Welcome to the family!'}\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director`
   },
   {
     id: 'missing_docs',
     label: 'Missing Documents',
     subject: 'Action Required: Missing Documentation for BBA Enrollment',
-    body: (data: any) => `Dear ${data.parentName},\n\nDuring the review of your application, we noticed that some required documents are missing or incomplete for ${data.targetStudents}.\n\nRequirements:\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nPlease upload these documents through the portal or reply to this email to proceed with the application.\n\nThank you,\nBBA Admissions Team`
+    body: (data: any) => `Dear ${data.parentName},\n\nDuring the preliminary review of your application (ID: ${data.appId}), our team identified that certain supporting documents are missing or require clarification for ${data.targetStudents}.\n\nRequirements:\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nYou may provide these details by replying directly to this email. Please be advised that we cannot proceed with the final evaluation until this information is received.\n\nThank you,\nBBA Admissions Team`
   },
   {
     id: 'not_accepted',
     label: 'Admission Decision: Not Accepted',
     subject: 'Update regarding your BBA Application',
-    body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Maximum capacity reached for the current semester.'}\n\nWe wish you and your family the very best in your educational journey.\n\nRespectfully,\nBBA Admissions Office`
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Maximum enrollment capacity reached for the current term.'}\n\nWe wish you and your family the very best in your educational journey.\n\nRespectfully,\nBBA Admissions Office`
   }
 ];
 
@@ -162,11 +164,14 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       decline: isAr ? 'رفض الطلب' : 'Decline Application',
     },
     dialog: {
-      title: isAr ? 'مراسلة ولي الأمر' : 'Parent Correspondence',
-      template: isAr ? '1. اختر القالب' : '1. Select Template',
-      reason: isAr ? '2. التفاصيل / الأسباب' : '2. Details / Reasons',
-      preview: isAr ? 'معاينة البريد' : 'Email Preview',
-      placeholder: isAr ? 'اكتب الأسباب أو التفاصيل هنا...' : 'Type details here (reason, missing docs, etc)...',
+      title: isAr ? 'مركز مراسلة ولي الأمر' : 'Parent Correspondence Hub',
+      template: isAr ? '1. اختيار القالب الرسمي' : '1. Select Official Template',
+      reason: isAr ? '2. التفاصيل الإضافية / الأسباب' : '2. Additional Details / Reasons',
+      preview: isAr ? 'معاينة البريد الصادر (مباشر)' : 'Live Outgoing Email Preview',
+      placeholder: isAr ? 'اكتب الأسباب أو المستندات الناقصة هنا ليتم دمجها في الرسالة...' : 'Type specific reasons or missing details here to be merged...',
+      from: isAr ? 'من:' : 'From:',
+      to: isAr ? 'إلى:' : 'To:',
+      subject: isAr ? 'الموضوع:' : 'Subject:',
     },
     program: {
       tuition: isAr ? 'تقدير الرسوم الأولية' : 'Base Tuition Estimate',
@@ -356,52 +361,92 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                 {t.actions.sendMessage}
               </Button>
             </DialogTrigger>
-            <DialogContent className={cn("max-w-2xl rounded-2xl border-none p-0 overflow-hidden shadow-2xl", isAr && "font-arabic")}>
-              <div className="bg-primary p-6 text-white flex items-center gap-4">
-                 <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center"><Mail className="h-6 w-6 text-secondary" /></div>
-                 <DialogTitle className="text-xl font-black uppercase tracking-tight">{t.dialog.title}</DialogTitle>
+            <DialogContent className={cn("max-w-5xl rounded-3xl border-none p-0 overflow-hidden shadow-2xl", isAr && "font-arabic")}>
+              <div className="grid grid-cols-1 lg:grid-cols-12 h-[80vh] max-h-[800px]">
+                {/* Form Side */}
+                <div className="lg:col-span-6 p-8 flex flex-col h-full overflow-y-auto border-r border-slate-100">
+                  <DialogHeader className="mb-8">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20"><Mail className="h-6 w-6 text-secondary" /></div>
+                      <div className="space-y-0.5 text-start">
+                        <DialogTitle className="text-xl font-black uppercase text-primary tracking-tight">{t.dialog.title}</DialogTitle>
+                        <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Official Correspondence Dispatcher</DialogDescription>
+                      </div>
+                    </div>
+                  </DialogHeader>
+
+                  <div className="flex-1 space-y-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.dialog.template}</label>
+                      <Select onValueChange={(val) => setSelectedTemplate(EMAIL_TEMPLATES.find(t => t.id === val) || EMAIL_TEMPLATES[0])}>
+                        <SelectTrigger className="h-14 rounded-xl font-bold border-slate-100 bg-slate-50 text-slate-700">
+                           <SelectValue placeholder="..." />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                           {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold py-3">{t.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.dialog.reason}</label>
+                      <Textarea 
+                        value={msgReason} 
+                        onChange={(e) => setReason(e.target.value)}
+                        placeholder={t.dialog.placeholder} 
+                        className="min-h-[180px] bg-slate-50 border-none rounded-2xl font-bold p-6 text-slate-700 leading-relaxed shadow-inner"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-8 mt-8 border-t border-slate-100 flex items-center justify-between gap-4">
+                    <Button onClick={handleSendMessage} disabled={isProcessing} className="flex-1 bg-primary text-white px-10 rounded-xl h-16 font-black shadow-xl shadow-primary/10 transition-all hover:bg-primary/90 active:scale-95">
+                      {isProcessing ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5 mr-3 text-secondary" />}
+                      {t.actions.logMessage}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Preview Side */}
+                <div className="lg:col-span-6 bg-slate-50 p-8 flex flex-col h-full overflow-hidden">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="h-2 w-2 rounded-full bg-secondary animate-pulse" />
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.dialog.preview}</span>
+                  </div>
+
+                  <div className="flex-1 bg-white rounded-2xl shadow-inner border border-slate-200/50 flex flex-col overflow-hidden">
+                    {/* Fake Email Header */}
+                    <div className="p-6 border-b border-slate-50 space-y-2 bg-slate-50/50 shrink-0">
+                       <p className="text-[9px] font-black text-slate-400 uppercase">{t.dialog.from} <span className="text-primary">BBA Academy &lt;banaatacademy@gmail.com&gt;</span></p>
+                       <p className="text-[9px] font-black text-slate-400 uppercase">{t.dialog.to} <span className="text-secondary">{app.parent1Email}</span></p>
+                       <p className="text-xs font-black text-slate-900 mt-3">{t.dialog.subject} {selectedTemplate.subject}</p>
+                    </div>
+
+                    {/* Email Content Body */}
+                    <div className="flex-1 p-8 overflow-y-auto custom-scrollbar space-y-8">
+                       <div className="flex justify-center">
+                          <img src="/logo.png" className="h-14 w-14 object-contain opacity-80" alt="BBA Logo" />
+                       </div>
+                       <div className="prose prose-slate max-w-none">
+                          <p className="text-slate-600 leading-relaxed font-medium whitespace-pre-wrap text-sm italic">
+                             {selectedTemplate.body({ 
+                                parentName: app.parent1Name, 
+                                appId: id, 
+                                studentCount: app.students?.length || 0,
+                                acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n') || '',
+                                targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', ') || '',
+                                reason: msgReason || '...' 
+                             })}
+                          </p>
+                       </div>
+                       <div className="pt-10 border-t border-slate-50 space-y-1 opacity-60">
+                          <p className="font-black text-primary text-[10px]">Dr. Mustafa Ali</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Academy Director | Baneen & Banaat Academy</p>
+                       </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="p-8 space-y-6">
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.dialog.template}</label>
-                    <Select onValueChange={(val) => setSelectedTemplate(EMAIL_TEMPLATES.find(t => t.id === val) || EMAIL_TEMPLATES[0])}>
-                       <SelectTrigger className="h-14 rounded-xl font-bold border-slate-100 bg-slate-50">
-                          <SelectValue placeholder="..." />
-                       </SelectTrigger>
-                       <SelectContent className="rounded-xl">
-                          {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold py-3">{t.label}</SelectItem>)}
-                       </SelectContent>
-                    </Select>
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.dialog.reason}</label>
-                    <Textarea 
-                      value={msgReason} 
-                      onChange={(e) => setReason(e.target.value)}
-                      placeholder={t.dialog.placeholder} 
-                      className="min-h-[120px] bg-slate-50 border-none rounded-xl font-bold p-5"
-                    />
-                 </div>
-                 <div className="bg-slate-900 rounded-2xl p-6 space-y-3">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t.dialog.preview}</span>
-                    <p className="text-[11px] text-white/80 whitespace-pre-wrap font-medium leading-relaxed italic">
-                      {selectedTemplate.body({ 
-                         parentName: app.parent1Name, 
-                         appId: id, 
-                         studentCount: app.students?.length || 0,
-                         acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n') || '',
-                         targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', ') || '',
-                         reason: msgReason || '...' 
-                      })}
-                    </p>
-                 </div>
-              </div>
-              <DialogFooter className="bg-slate-50 p-6">
-                 <Button onClick={handleSendMessage} disabled={isProcessing} className="bg-primary text-white px-10 rounded-xl h-14 font-black shadow-xl w-full sm:w-auto">
-                    {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                    {t.actions.logMessage}
-                 </Button>
-              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
