@@ -7,20 +7,12 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { 
   Search, 
-  Filter, 
   Download, 
   LayoutGrid, 
   Table as TableIcon,
   ChevronRight,
-  MoreVertical,
-  Mail,
   MapPin,
-  Calendar,
-  GraduationCap,
-  ArrowUpDown,
-  X,
-  Users,
-  FileText
+  Calendar
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -29,7 +21,6 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function EnrollmentsListPage({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -95,71 +86,75 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-         <div className="flex-1 w-full lg:max-w-md relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+      {/* Toolbar: All in one line */}
+      <div className="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100 overflow-x-auto no-scrollbar">
+         {/* Search Input */}
+         <div className="relative group min-w-[240px] flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
             <Input 
                placeholder={isAr ? 'بحث بالاسم أو البريد...' : 'Search by name or email...'} 
-               className="pl-10 h-10 rounded-lg bg-slate-50 border-none font-bold"
+               className="pl-10 h-10 rounded-lg bg-slate-50 border-none font-bold focus:bg-white focus:ring-1 focus:ring-slate-100"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
             />
          </div>
 
-         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-               <SelectTrigger className="w-36 h-10 rounded-lg bg-slate-50 border-none font-bold">
-                  <SelectValue placeholder={isAr ? 'الحالة' : 'Status'} />
-               </SelectTrigger>
-               <SelectContent className="rounded-lg">
-                  <SelectItem value="all">{isAr ? 'كافة الحالات' : 'All Status'}</SelectItem>
-                  <SelectItem value="submitted">{isAr ? 'مكتمل' : 'Submitted'}</SelectItem>
-                  <SelectItem value="draft">{isAr ? 'مسودة' : 'Draft'}</SelectItem>
-               </SelectContent>
-            </Select>
+         {/* Status Filter */}
+         <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-36 h-10 rounded-lg bg-slate-50 border-none font-bold shrink-0">
+               <SelectValue placeholder={isAr ? 'الحالة' : 'Status'} />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg">
+               <SelectItem value="all">{isAr ? 'كافة الحالات' : 'All Status'}</SelectItem>
+               <SelectItem value="submitted">{isAr ? 'مكتمل' : 'Submitted'}</SelectItem>
+               <SelectItem value="draft">{isAr ? 'مسودة' : 'Draft'}</SelectItem>
+            </SelectContent>
+         </Select>
 
-            <Select value={filterProgram} onValueChange={setFilterProgram}>
-               <SelectTrigger className="w-36 h-10 rounded-lg bg-slate-50 border-none font-bold">
-                  <SelectValue placeholder={isAr ? 'البرنامج' : 'Program'} />
-               </SelectTrigger>
-               <SelectContent className="rounded-lg">
-                  <SelectItem value="all">{isAr ? 'كافة البرامج' : 'All Programs'}</SelectItem>
-                  <SelectItem value="grades-3-5">{isAr ? 'تأسيس' : 'Foundation'}</SelectItem>
-                  <SelectItem value="grades-6-12">{isAr ? 'أكاديمي' : 'Academics'}</SelectItem>
-                  <SelectItem value="weekend">{isAr ? 'عطلة الأسبوع' : 'Weekend'}</SelectItem>
-               </SelectContent>
-            </Select>
+         {/* Program Filter */}
+         <Select value={filterProgram} onValueChange={setFilterProgram}>
+            <SelectTrigger className="w-36 h-10 rounded-lg bg-slate-50 border-none font-bold shrink-0">
+               <SelectValue placeholder={isAr ? 'البرنامج' : 'Program'} />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg">
+               <SelectItem value="all">{isAr ? 'كافة البرامج' : 'All Programs'}</SelectItem>
+               <SelectItem value="grades-3-5">{isAr ? 'تأسيس' : 'Foundation'}</SelectItem>
+               <SelectItem value="grades-6-12">{isAr ? 'أكاديمي' : 'Academics'}</SelectItem>
+               <SelectItem value="weekend">{isAr ? 'عطلة الأسبوع' : 'Weekend'}</SelectItem>
+            </SelectContent>
+         </Select>
 
-            <div className="flex bg-slate-100/50 p-1 rounded-lg border border-slate-200/50">
-               <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => setViewMode('table')}
-                  className={cn(
-                    "rounded-md h-8 w-8 transition-all", 
-                    viewMode === 'table' ? "bg-primary text-white shadow-md" : "text-primary hover:bg-white"
-                  )}
-               >
-                  <TableIcon className="h-4 w-4" />
-               </Button>
-               <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => setViewMode('grid')}
-                  className={cn(
-                    "rounded-md h-8 w-8 transition-all", 
-                    viewMode === 'grid' ? "bg-primary text-white shadow-md" : "text-primary hover:bg-white"
-                  )}
-               >
-                  <LayoutGrid className="h-4 w-4" />
-               </Button>
-            </div>
-
-            <Button onClick={exportToCSV} variant="outline" className="h-10 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2">
-               <Download className="h-4 w-4 text-primary" />
-               {isAr ? 'تصدير' : 'Export'}
+         {/* View Mode Toggle */}
+         <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100 shrink-0">
+            <Button 
+               variant="ghost" 
+               size="icon" 
+               onClick={() => setViewMode('table')}
+               className={cn(
+                 "rounded-md h-8 w-8 transition-all", 
+                 viewMode === 'table' ? "bg-primary text-white shadow-md hover:bg-primary" : "text-primary hover:bg-white"
+               )}
+            >
+               <TableIcon className="h-4 w-4" />
+            </Button>
+            <Button 
+               variant="ghost" 
+               size="icon" 
+               onClick={() => setViewMode('grid')}
+               className={cn(
+                 "rounded-md h-8 w-8 transition-all", 
+                 viewMode === 'grid' ? "bg-primary text-white shadow-md hover:bg-primary" : "text-primary hover:bg-white"
+               )}
+            >
+               <LayoutGrid className="h-4 w-4" />
             </Button>
          </div>
+
+         {/* Export Button */}
+         <Button onClick={exportToCSV} variant="outline" className="h-10 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2 shrink-0">
+            <Download className="h-4 w-4 text-primary" />
+            {isAr ? 'تصدير' : 'Export'}
+         </Button>
       </div>
 
       {loading ? (
