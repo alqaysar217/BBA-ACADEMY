@@ -89,8 +89,8 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
             <Button variant="outline" className="h-10 rounded-lg font-black px-5 text-xs hover:bg-slate-50 border-slate-200 transition-all">
                {isAr ? 'تقارير السنة' : 'AY 2026 Reports'}
             </Button>
-            <Button asChild className="h-10 rounded-lg bg-secondary text-white font-black px-5 shadow-xl shadow-secondary/10 text-xs hover:bg-secondary/90 active:scale-95 transition-all">
-               <Link href={`/${lang}/admin/admissions/new`}>
+            <Button asChild className="h-10 rounded-lg bg-secondary text-white font-black px-5 shadow-xl shadow-secondary/20 text-xs hover:bg-secondary/90 active:scale-95 transition-all">
+               <Link href={`/${lang}/admin/enrollments`}>
                   {isAr ? 'مراجعة الطلبات' : 'Review Apps'}
                </Link>
             </Button>
@@ -140,7 +140,7 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                         { name: 'Jan', apps: 75, active: stats.activeStudents },
                      ]}>
                         <defs>
-                          <linearGradient id="colorApps" x1="0" y1="0" x2="0" y2="1">
+                          <linearGradient id="colorApps" x1="0" x2="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#1A73E8" stopOpacity={0.2}/>
                             <stop offset="95%" stopColor="#1A73E8" stopOpacity={0}/>
                           </linearGradient>
