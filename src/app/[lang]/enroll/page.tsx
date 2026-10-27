@@ -503,10 +503,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       });
   };
 
-  /**
-   * دالة ضغط الصور قبل التحويل لـ Base64
-   * لضمان عدم تجاوز حجم مستند Firestore (1MB)
-   */
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -518,8 +514,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-
-          // تصغير الأبعاد إذا تجاوزت 1200 بكسل للحفاظ على مساحة Firestore
           const MAX_WIDTH = 1200;
           const MAX_HEIGHT = 1200;
           if (width > height) {
@@ -533,13 +527,10 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
               height = MAX_HEIGHT;
             }
           }
-
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
-          
-          // ضغط الصورة بجودة 0.7 كافية للمراجعة وبحجم صغير جداً
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
           resolve(compressedBase64);
         };
@@ -571,7 +562,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         if (newFilesList.length >= 15) break;
 
         let finalData: string;
-        // ضغط الملفات إذا كانت صوراً لضمان عدم فشل الإرسال
         if (file.type.startsWith('image/')) {
           finalData = await compressImage(file);
         } else {
@@ -607,38 +597,40 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
   if (isSubmitted) {
     return (
-      <div className="container py-32 px-4 flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in duration-500">
-        <div className="h-24 w-24 rounded-full bg-green-100 text-green-600 flex items-center justify-center shadow-inner">
-          <Check className="h-12 w-12" />
+      <div className="container py-12 sm:py-32 px-4 flex flex-col items-center text-center space-y-6 sm:space-y-8 animate-in fade-in zoom-in duration-500">
+        <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-green-100 text-green-600 flex items-center justify-center shadow-inner">
+          <Check className="h-10 w-10 sm:h-12 sm:w-12" />
         </div>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-black text-primary uppercase tracking-tight">
+        <div className="space-y-4 w-full">
+          <h1 className="text-2xl sm:text-4xl font-black text-primary uppercase tracking-tight px-2">
             {isAr ? 'تم استلام طلبكم بنجاح!' : 'Application Submitted!'}
           </h1>
           
-          <div className="p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 max-w-sm mx-auto group">
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'رقم مرجع الطلب' : 'Application Reference ID'}</p>
-             <div className="flex items-center justify-center gap-3">
-                <p className="text-2xl font-black text-secondary select-all">{submissionId}</p>
-                <button onClick={() => { navigator.clipboard.writeText(submissionId); toast({ title: isAr ? 'تم النسخ' : 'Copied' }); }} className="p-2 hover:bg-white rounded-lg transition-colors text-slate-400 hover:text-secondary"><Copy className="h-4 w-4" /></button>
+          <div className="p-4 sm:p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 max-w-sm mx-auto group w-full">
+             <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'رقم مرجع الطلب' : 'Application Reference ID'}</p>
+             <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <p className="text-base sm:text-2xl font-black text-secondary select-all break-all">{submissionId}</p>
+                <button onClick={() => { navigator.clipboard.writeText(submissionId); toast({ title: isAr ? 'تم النسخ' : 'Copied' }); }} className="p-1.5 sm:p-2 hover:bg-white rounded-lg transition-colors text-slate-400 hover:text-secondary shrink-0">
+                  <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </button>
              </div>
           </div>
 
-          <p className="text-lg text-slate-500 max-w-md font-medium leading-relaxed">
+          <p className="text-sm sm:text-lg text-slate-500 max-w-md mx-auto font-medium leading-relaxed px-2">
             {isAr 
               ? 'شكراً لانضمامكم لأكاديمية بنين وبنات. سيقوم فريقنا بمراجعة طلبكم والتواصل معكم عبر بيانات الاتصال المزودة.' 
               : 'Thank you for joining Baneen and Banaat Academy. Our team will review your application and contact you using the details provided.'}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full max-w-xl px-4">
-          <Button onClick={() => window.open(`https://wa.me/13136555778?text=${encodeURIComponent(isAr ? `مرحباً، لقد قدمت طلباً برقم: ${submissionId}` : `Hello, I submitted an app with ID: ${submissionId}`)}`)} className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2">
-            <MessageCircle className="h-5 w-5" /> {isAr ? 'واتساب' : 'WhatsApp'}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 w-full max-w-xl px-2">
+          <Button onClick={() => window.open(`https://wa.me/13136555778?text=${encodeURIComponent(isAr ? `مرحباً، لقد قدمت طلباً برقم: ${submissionId}` : `Hello, I submitted an app with ID: ${submissionId}`)}`)} className="h-12 sm:h-14 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 text-sm sm:text-base w-full sm:w-auto">
+            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" /> {isAr ? 'واتساب' : 'WhatsApp'}
           </Button>
-          <Button onClick={() => window.open(`mailto:info@baneenbanaat.org?subject=New Enrollment ${submissionId}`)} className="flex-1 bg-primary text-white rounded-xl h-14 font-bold shadow-xl flex items-center justify-center gap-2">
-            <Mail className="h-5 w-5" /> {isAr ? 'بريد إلكتروني' : 'Email'}
+          <Button onClick={() => window.open(`mailto:info@baneenbanaat.org?subject=New Enrollment ${submissionId}`)} className="h-12 sm:h-14 bg-primary text-white rounded-xl font-bold shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 text-sm sm:text-base w-full sm:w-auto">
+            <Mail className="h-4 w-4 sm:h-5 sm:w-5" /> {isAr ? 'بريد إلكتروني' : 'Email'}
           </Button>
-          <Button asChild variant="outline" className="flex-1 rounded-xl h-14 font-bold border-slate-200">
+          <Button asChild variant="outline" className="h-12 sm:h-14 rounded-xl font-bold border-slate-200 text-sm sm:text-base transition-all active:scale-95 w-full sm:w-auto">
             <Link href={`/${lang}`}>{isAr ? 'الرئيسية' : 'Home'}</Link>
           </Button>
         </div>
@@ -821,7 +813,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Email, true) && "text-red-500")}>
                               <Mail className="h-3 w-3 text-secondary" />
                               {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
-                            </Label>                             <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent2Email, true) && "border-red-500 ring-red-50")} type="email" />
+                            </Label>
+                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent2Email, true) && "border-red-500 ring-red-50")} type="email" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship2) && "text-red-500")}>
