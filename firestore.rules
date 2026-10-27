@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Open access for testing - In production, restrict to authenticated users
+    // Open access for testing - Allows the admin/admin bypass to work with Firestore
     match /{document=**} {
       allow read, write: if true;
     }

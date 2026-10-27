@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -33,8 +32,10 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
         setLoading(false);
         setError(null);
       },
-      async (serverError) => {
-        // محاولة استخراج المسار من الاستعلام بشكل برمجى أدق للتشخيص
+      (serverError) => {
+        console.error("Firestore useCollection Error:", serverError);
+        
+        // Safely extract path from query internal structure
         const queryPath = (query as any)._query?.path?.segments?.join('/') || 'collection';
         
         const permissionError = new FirestorePermissionError({
@@ -42,7 +43,7 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
           operation: 'list',
         } satisfies SecurityRuleContext);
 
-        // إرسال الخطأ للمستمع المركزي (Next.js Error Overlay)
+        // Emit for central listeners (like the Next.js Error Overlay)
         errorEmitter.emit('permission-error', permissionError);
         setError(permissionError);
         setLoading(false);
