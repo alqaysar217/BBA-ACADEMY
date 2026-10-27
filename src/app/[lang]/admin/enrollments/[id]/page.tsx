@@ -69,8 +69,8 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     }
   }, [user, authLoading, router, lang]);
 
-  const updateStatus = async (newStatus: string) => {
-    if (!firestore || !app) return;
+  const updateStatus = (newStatus: string) => {
+    if (!firestore || !app || !docRef) return;
     setIsProcessing(true);
     
     const updateData = {
@@ -79,7 +79,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       processedBy: user?.email || 'admin'
     };
 
-    setDoc(docRef!, updateData, { merge: true })
+    setDoc(docRef, updateData, { merge: true })
       .then(() => {
         toast({
           title: isAr ? "تم تحديث الحالة" : "Status Updated",
@@ -88,7 +88,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       })
       .catch(async (err) => {
         const permissionError = new FirestorePermissionError({
-          path: docRef!.path,
+          path: docRef.path,
           operation: 'update',
           requestResourceData: updateData,
         });
@@ -97,65 +97,80 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       .finally(() => setIsProcessing(false));
   };
 
-  const approveAndEnroll = async () => {
-    if (!firestore || !app) return;
+  const approveAndEnroll = () => {
+    if (!firestore || !app || !docRef) return;
     if (app.status === 'approved') {
        toast({ variant: "destructive", title: isAr ? "الطلب معتمد بالفعل" : "Already Approved" });
        return;
     }
 
     setIsProcessing(true);
-    try {
-      const studentsCollection = collection(firestore, 'students');
-      const creationPromises = app.students.map((student: any) => {
-        const studentDoc = doc(studentsCollection);
-        const studentData = {
-          ...student,
-          enrollmentId: id,
-          parentId: user?.uid || 'anonymous',
-          parent1Name: app.parent1Name,
-          parent1Email: app.parent1Email,
-          parent1Phone: app.parent1Phone,
-          address: app.address,
-          programOption: app.programOption,
-          status: 'active',
-          gradeLevel: student.lastGrade,
-          academicPlan: {
-            courses: [],
-            progress: 0,
-            graduationYear: new Date().getFullYear() + (12 - parseInt(student.lastGrade || '0'))
-          },
-          financialLedger: {
-            totalDue: app.programOption === 'weekend' ? 75 : (app.paymentTier === 'full-3-5' ? 2850 : 1650),
-            totalPaid: 0,
-            payments: [],
-            lastPaymentDate: null
-          },
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        };
-        return setDoc(studentDoc, studentData);
+    
+    const studentsCollection = collection(firestore, 'students');
+    
+    // Create student records
+    app.students.forEach((student: any) => {
+      const studentDoc = doc(studentsCollection);
+      const studentData = {
+        ...student,
+        enrollmentId: id,
+        parentId: user?.uid || 'anonymous',
+        parent1Name: app.parent1Name,
+        parent1Email: app.parent1Email,
+        parent1Phone: app.parent1Phone,
+        address: app.address,
+        programOption: app.programOption,
+        status: 'active',
+        gradeLevel: student.lastGrade,
+        academicPlan: {
+          courses: [],
+          progress: 0,
+          graduationYear: new Date().getFullYear() + (12 - parseInt(student.lastGrade || '0'))
+        },
+        financialLedger: {
+          totalDue: app.programOption === 'weekend' ? 75 : (app.paymentTier === 'full-3-5' ? 2850 : 1650),
+          totalPaid: 0,
+          payments: [],
+          lastPaymentDate: null
+        },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      
+      setDoc(studentDoc, studentData).catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: studentDoc.path,
+          operation: 'create',
+          requestResourceData: studentData,
+        });
+        errorEmitter.emit('permission-error', pError);
       });
+    });
 
-      await Promise.all(creationPromises);
+    // Update enrollment status
+    const enrollmentUpdate = { 
+      status: 'approved', 
+      updatedAt: serverTimestamp(),
+      approvedAt: serverTimestamp()
+    };
 
-      await setDoc(docRef!, { 
-        status: 'approved', 
-        updatedAt: serverTimestamp(),
-        approvedAt: serverTimestamp()
-      }, { merge: true });
-
-      toast({
-        title: isAr ? "تم الاعتماد والتسجيل" : "Approved & Enrolled",
-        description: isAr ? "تم إنشاء ملفات الطلاب بنجاح." : "Student records have been created successfully.",
-      });
-      router.push(`/${lang}/admin/students`);
-    } catch (err) {
-      console.error(err);
-      toast({ variant: "destructive", title: "Error during enrollment" });
-    } finally {
-      setIsProcessing(false);
-    }
+    setDoc(docRef, enrollmentUpdate, { merge: true })
+      .then(() => {
+        toast({
+          title: isAr ? "تم الاعتماد والتسجيل" : "Approved & Enrolled",
+          description: isAr ? "تم إنشاء ملفات الطلاب بنجاح." : "Student records have been created successfully.",
+        });
+        router.push(`/${lang}/admin/students`);
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'update',
+          requestResourceData: enrollmentUpdate,
+        });
+        errorEmitter.emit('permission-error', pError);
+      })
+      .finally(() => setIsProcessing(false));
   };
 
   if (authLoading || dataLoading) {

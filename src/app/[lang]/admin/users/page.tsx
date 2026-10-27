@@ -36,6 +36,8 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function UserRegistryPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -66,36 +68,54 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
       });
   }, [rawUsers, searchTerm, roleFilter]);
 
-  const toggleUserStatus = async (user: any) => {
+  const toggleUserStatus = (user: any) => {
     if (!firestore) return;
     const newStatus = user.status === 'active' ? 'blocked' : 'active';
-    try {
-      await updateDoc(doc(firestore, 'admin_users', user.id), {
-        status: newStatus,
-        updatedAt: serverTimestamp()
+    const userRef = doc(firestore, 'admin_users', user.id);
+    const updateData = {
+      status: newStatus,
+      updatedAt: serverTimestamp()
+    };
+
+    updateDoc(userRef, updateData)
+      .then(() => {
+        toast({
+          title: isAr ? "تم تحديث الحالة" : "Status Updated",
+          description: isAr ? `تم ${newStatus === 'blocked' ? 'حظر' : 'تفعيل'} الحساب بنجاح.` : `Account successfully ${newStatus === 'blocked' ? 'blocked' : 'activated'}.`,
+        });
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', pError);
       });
-      toast({
-        title: isAr ? "تم تحديث الحالة" : "Status Updated",
-        description: isAr ? `تم ${newStatus === 'blocked' ? 'حظر' : 'تفعيل'} الحساب بنجاح.` : `Account successfully ${newStatus === 'blocked' ? 'blocked' : 'activated'}.`,
-      });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Error", description: "Failed to update status." });
-    }
   };
 
-  const confirmArchive = async () => {
+  const confirmArchive = () => {
     if (!firestore || !userToArchive) return;
-    try {
-      await updateDoc(doc(firestore, 'admin_users', userToArchive.id), {
-        status: 'archived',
-        updatedAt: serverTimestamp(),
-        archivedAt: serverTimestamp()
+    const userRef = doc(firestore, 'admin_users', userToArchive.id);
+    const updateData = {
+      status: 'archived',
+      updatedAt: serverTimestamp(),
+      archivedAt: serverTimestamp()
+    };
+
+    updateDoc(userRef, updateData)
+      .then(() => {
+        toast({ title: isAr ? "تم الإلغاء بنجاح" : "Deactivated", description: isAr ? "تم نقل الحساب لسلة المهملات." : "Account moved to trash bin." });
+        setIsDeleteDialogOpen(false);
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', pError);
       });
-      toast({ title: isAr ? "تم الإلغاء بنجاح" : "Deactivated", description: isAr ? "تم نقل الحساب لسلة المهملات." : "Account moved to trash bin." });
-      setIsDeleteDialogOpen(false);
-    } catch (err) {
-      toast({ variant: "destructive", title: "Error" });
-    }
   };
 
   return (
@@ -105,26 +125,26 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
             <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'سجل الحسابات' : 'Account Registry'}</h1>
             <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em]">{isAr ? 'استعراض كافة الموظفين والمديرين' : 'List of all authorized personnel'}</p>
          </div>
-         <Button asChild className="h-14 rounded-2xl bg-primary text-white font-black px-8 shadow-xl shadow-primary/20">
+         <Button asChild className="h-14 rounded-xl bg-primary text-white font-black px-8 shadow-xl shadow-primary/20">
             <Link href={`/${lang}/admin/users/new`}>
                <UserPlus className="h-5 w-5 mr-2" /> {isAr ? 'إضافة موظف جديد' : 'Register New Staff'}
             </Link>
          </Button>
       </div>
 
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-6 flex flex-col md:flex-row gap-6">
+      <Card className="border-none shadow-premium rounded-xl bg-white p-6 flex flex-col md:flex-row gap-6 border border-slate-100">
          <div className="relative flex-1 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-secondary transition-colors" />
             <Input 
                placeholder={isAr ? 'بحث بالاسم أو البريد...' : 'Search by name or email...'} 
-               className="pl-12 h-14 rounded-2xl bg-slate-50 border-none font-bold focus:bg-white focus:ring-2 focus:ring-secondary/20"
+               className="pl-12 h-14 rounded-xl bg-slate-50 border-none font-bold focus:bg-white focus:ring-2 focus:ring-secondary/20"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
             />
          </div>
          <div className="w-full md:w-64">
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-               <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
+               <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-none font-bold">
                   <SelectValue placeholder={isAr ? 'تصفية حسب الدور' : 'Filter by Role'} />
                </SelectTrigger>
                <SelectContent className="rounded-xl">
@@ -138,7 +158,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
          </div>
       </Card>
 
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+      <Card className="border-none shadow-premium rounded-xl bg-white overflow-hidden border border-slate-100">
          <div className="overflow-x-auto">
             <TooltipProvider delayDuration={0}>
               <table className="w-full">
@@ -157,7 +177,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                       <tr key={user.id} className="hover:bg-slate-50/50 transition-all group">
                          <td className="px-10 py-6">
                             <div className="flex items-center gap-4">
-                               <div className="h-12 w-12 rounded-2xl bg-primary/10 overflow-hidden flex items-center justify-center border-2 border-white shadow-sm">
+                               <div className="h-12 w-12 rounded-lg bg-primary/10 overflow-hidden flex items-center justify-center border-2 border-white shadow-sm">
                                   <Image 
                                     src={user.photoURL || '/logo.png'} 
                                     alt={user.displayName} 
@@ -190,7 +210,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
                             <div className="flex justify-end gap-2">
                                <Tooltip>
                                   <TooltipTrigger asChild>
-                                     <Button size="icon" variant="outline" className="h-10 w-10 rounded-xl border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" asChild>
+                                     <Button size="icon" variant="outline" className="h-10 w-10 rounded-lg border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" asChild>
                                         <Link href={`/${lang}/admin/users/${user.id}`}>
                                            <PencilLine className="h-4 w-4" />
                                         </Link>
@@ -201,7 +221,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
 
                                <Tooltip>
                                   <TooltipTrigger asChild>
-                                     <Button size="icon" variant="outline" className="h-10 w-10 rounded-xl border-purple-100 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white transition-all shadow-sm" asChild>
+                                     <Button size="icon" variant="outline" className="h-10 w-10 rounded-lg border-purple-100 bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white transition-all shadow-sm" asChild>
                                         <Link href={`/${lang}/admin/users/permissions/${user.id}`}>
                                            <KeyRound className="h-4 w-4" />
                                         </Link>
@@ -212,7 +232,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
 
                                <Tooltip>
                                   <TooltipTrigger asChild>
-                                     <Button onClick={() => toggleUserStatus(user)} size="icon" variant="outline" className="h-10 w-10 rounded-xl border-amber-100 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all shadow-sm">
+                                     <Button onClick={() => toggleUserStatus(user)} size="icon" variant="outline" className="h-10 w-10 rounded-lg border-amber-100 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all shadow-sm">
                                         <Ban className="h-4 w-4" />
                                      </Button>
                                   </TooltipTrigger>
@@ -221,7 +241,7 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
 
                                <Tooltip>
                                   <TooltipTrigger asChild>
-                                     <Button onClick={() => { setUserToArchive(user); setIsDeleteDialogOpen(true); }} size="icon" variant="outline" className="h-10 w-10 rounded-xl border-red-100 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                                     <Button onClick={() => { setUserToArchive(user); setIsDeleteDialogOpen(true); }} size="icon" variant="outline" className="h-10 w-10 rounded-lg border-red-100 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm">
                                         <Trash2 className="h-4 w-4" />
                                      </Button>
                                   </TooltipTrigger>
@@ -238,9 +258,9 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
       </Card>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent className="max-w-md border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden bg-white">
+        <AlertDialogContent className="max-w-md border-none shadow-2xl rounded-xl p-0 overflow-hidden bg-white">
           <div className="bg-primary p-8 text-white flex flex-col items-center gap-4 text-center">
-             <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl">
+             <div className="h-16 w-16 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl">
                 <Shield className="h-8 w-8 text-secondary" />
              </div>
              <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">{isAr ? 'تأكيد إجراء إداري' : 'Confirm Admin Action'}</AlertDialogTitle>

@@ -20,6 +20,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function NewUserPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -105,19 +107,28 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
         updatedAt: serverTimestamp(),
       };
 
-      await setDoc(newUserRef, userData);
-      
-      toast({
-        title: isAr ? "تم إنشاء الحساب بنجاح" : "Account Created",
-        description: isAr ? "تم تزويد الموظف بالحساب بنجاح." : "Staff account provisioned successfully.",
-      });
-      
-      router.push(`/${lang}/admin/users`);
+      setDoc(newUserRef, userData)
+        .then(() => {
+          toast({
+            title: isAr ? "تم إنشاء الحساب بنجاح" : "Account Created",
+            description: isAr ? "تم تزويد الموظف بالحساب بنجاح." : "Staff account provisioned successfully.",
+          });
+          router.push(`/${lang}/admin/users`);
+        })
+        .catch(async (err) => {
+           const pError = new FirestorePermissionError({
+            path: newUserRef.path,
+            operation: 'create',
+            requestResourceData: userData,
+          });
+          errorEmitter.emit('permission-error', pError);
+        });
+        
     } catch (err: any) {
       console.error(err);
       toast({ variant: "destructive", title: "Error", description: err.message });
     } finally {
-      if (tempApp) await deleteApp(tempApp);
+      if (tempApp) deleteApp(tempApp);
       setLoading(false);
     }
   };
@@ -134,10 +145,10 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
          </div>
       </div>
 
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+      <Card className="border-none shadow-premium rounded-xl bg-white overflow-hidden">
          <CardHeader className="p-10 border-b border-slate-50 bg-slate-50/50">
             <div className="flex items-center gap-4">
-               <div className="h-12 w-12 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg"><ShieldCheck className="h-6 w-6" /></div>
+               <div className="h-12 w-12 rounded-lg bg-secondary text-white flex items-center justify-center shadow-lg"><ShieldCheck className="h-6 w-6" /></div>
                <div>
                   <CardTitle className="text-xl font-black uppercase text-primary">{isAr ? 'بيانات الاعتماد الذكية' : 'Credential Intelligence'}</CardTitle>
                   <CardDescription className="font-bold">Create direct login credentials and system role.</CardDescription>
@@ -236,7 +247,7 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
                </div>
 
                <div className="flex justify-end pt-6">
-                  <Button type="submit" disabled={loading} className="h-16 rounded-2xl bg-primary text-white font-black px-12 shadow-xl shadow-primary/20 gap-3 text-lg transition-all active:scale-95">
+                  <Button type="submit" disabled={loading} className="h-16 rounded-xl bg-primary text-white font-black px-12 shadow-xl shadow-primary/20 gap-3 text-lg transition-all active:scale-95">
                      {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isAr ? 'إنشاء الحساب' : 'Create Account')}
                   </Button>
                </div>
