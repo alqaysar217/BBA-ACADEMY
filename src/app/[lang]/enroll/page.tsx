@@ -9,27 +9,27 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Check, 
-  ChevronRight, 
-  ChevronLeft, 
-  Upload, 
-  Save, 
-  User, 
-  GraduationCap, 
-  FileText, 
-  Plus, 
-  AlertCircle, 
-  Loader2, 
-  ChevronDown, 
-  UserCircle2, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Users, 
-  Building, 
-  Hash, 
-  Calendar as CalendarIcon, 
-  ShieldCheck,
+   Check, 
+   ChevronRight, 
+   ChevronLeft, 
+   Upload, 
+   Save, 
+   User, 
+   GraduationCap, 
+   FileText, 
+   Plus, 
+   AlertCircle, 
+   Loader2, 
+   ChevronDown, 
+   UserCircle2, 
+   MapPin, 
+   Phone, 
+   Mail, 
+   Users, 
+   Building, 
+   Hash, 
+   Calendar as CalendarIcon, 
+   ShieldCheck,
   Type,
   Briefcase,
   UserPlus,
@@ -514,24 +514,23 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          const MAX_WIDTH = 1200;
-          const MAX_HEIGHT = 1200;
+          const MAX_SIZE = 800;
           if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
             }
           } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
             }
           }
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
           resolve(compressedBase64);
         };
         img.onerror = reject;
