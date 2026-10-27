@@ -14,6 +14,7 @@ import { Lock, Mail, Loader2, ArrowLeft, ArrowRight, ShieldCheck, User, AlertTri
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 export default function AdminLoginPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -86,7 +87,10 @@ export default function AdminLoginPage({ params }: { params: Promise<{ lang: Loc
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+    <div className={cn(
+      "min-h-screen flex items-center justify-center bg-slate-50 p-4",
+      isAr ? "font-arabic" : "font-sans"
+    )}>
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-6">
           <Link href={`/${lang}`} className="inline-flex items-center gap-2 text-slate-400 hover:text-primary font-bold text-sm transition-colors">

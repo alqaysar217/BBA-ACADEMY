@@ -177,6 +177,7 @@ export default function AdminLayout({
   const SidebarInner = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={cn(
       "flex flex-col h-full transition-all duration-300 relative z-10",
+      isAr ? "font-arabic" : "font-sans",
       isDarkMode 
         ? "bg-slate-950 text-slate-100" 
         : "bg-primary text-white"
@@ -285,7 +286,8 @@ export default function AdminLayout({
 
   return (
     <div className={cn(
-      "min-h-screen flex overflow-hidden font-sans transition-colors duration-500",
+      "min-h-screen flex overflow-hidden transition-colors duration-500",
+      isAr ? "font-arabic" : "font-sans",
       isDarkMode ? "bg-slate-900" : "bg-slate-50/50"
     )}>
       <aside className={cn(
