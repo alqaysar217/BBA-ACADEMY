@@ -4,8 +4,8 @@
 import { use, useMemo } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
-import { UserPlus, ChevronRight, Mail, Calendar, Search } from 'lucide-react';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { UserPlus, ChevronRight, Calendar, Search } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,16 +18,20 @@ export default function NewAdmissionsPage({ params }: { params: Promise<{ lang: 
   const isAr = lang === 'ar';
   const firestore = useFirestore();
 
-  const newAppsQuery = useMemo(() => {
+  // Query all ordered by time, filter status in memory to avoid Index requirements
+  const allAppsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(
       collection(firestore, 'enrollments'),
-      where('status', '==', 'submitted'),
       orderBy('updatedAt', 'desc')
     );
   }, [firestore]);
 
-  const { data: apps, loading } = useCollection(newAppsQuery);
+  const { data: allApps, loading } = useCollection(allAppsQuery);
+
+  const newApps = useMemo(() => {
+    return allApps.filter((app: any) => app.status === 'submitted');
+  }, [allApps]);
 
   return (
     <div className="space-y-8">
@@ -48,8 +52,8 @@ export default function NewAdmissionsPage({ params }: { params: Promise<{ lang: 
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-           {apps.map((app: any) => (
-             <Card key={app.id} className="border-none shadow-premium rounded-[2rem] bg-white overflow-hidden group hover:shadow-2xl transition-all">
+           {newApps.map((app: any) => (
+             <Card key={app.id} className="border-none shadow-premium rounded-xl bg-white overflow-hidden group hover:shadow-2xl transition-all">
                 <CardContent className="p-8 space-y-6">
                    <div className="flex items-center gap-4">
                       <div className="h-14 w-14 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center font-black text-xl">
@@ -76,8 +80,8 @@ export default function NewAdmissionsPage({ params }: { params: Promise<{ lang: 
         </div>
       )}
       
-      {!loading && apps.length === 0 && (
-        <div className="py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+      {!loading && newApps.length === 0 && (
+        <div className="py-32 text-center bg-white rounded-xl border-2 border-dashed border-slate-100">
            <UserPlus className="h-16 w-16 text-slate-100 mx-auto mb-4" />
            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">{isAr ? 'لا توجد طلبات جديدة حالياً' : 'No new applications at this moment'}</p>
         </div>

@@ -4,7 +4,7 @@
 import { use, useState, useMemo } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { 
   Search, 
   ChevronRight, 
@@ -30,24 +30,27 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ la
   
   const [searchTerm, setSearchTerm] = useState('');
 
-  const reviewQuery = useMemo(() => {
+  // Fetch all ordered, filter in memory to bypass Firestore Index requirement
+  const allAppsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(
       collection(firestore, 'enrollments'), 
-      where('status', 'in', ['submitted', 'reviewed']),
       orderBy('updatedAt', 'desc')
     );
   }, [firestore]);
 
-  const { data: apps, loading } = useCollection(reviewQuery);
+  const { data: allApps, loading } = useCollection(allAppsQuery);
+
+  const reviewApps = useMemo(() => {
+    return allApps.filter((app: any) => ['submitted', 'reviewed'].includes(app.status));
+  }, [allApps]);
 
   const filteredApps = useMemo(() => {
-    if (!apps) return [];
-    return apps.filter(app => 
+    return reviewApps.filter(app => 
       app.parent1Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.id?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [apps, searchTerm]);
+  }, [reviewApps, searchTerm]);
 
   return (
     <div className="space-y-8 pb-20">
@@ -75,7 +78,7 @@ export default function ApplicationReviewPage({ params }: { params: Promise<{ la
             <div className="h-12 w-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary"><Clock className="h-6 w-6" /></div>
             <div>
                <p className="text-[10px] font-black text-slate-400 uppercase">Pending</p>
-               <h3 className="text-xl font-black text-primary">{apps?.length || 0} Apps</h3>
+               <h3 className="text-xl font-black text-primary">{reviewApps.length} Apps</h3>
             </div>
          </Card>
       </div>
