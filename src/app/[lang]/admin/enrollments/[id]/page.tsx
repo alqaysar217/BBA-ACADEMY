@@ -242,6 +242,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
               <DropdownMenuItem onClick={() => updateStatus('reviewed')} className="font-bold text-primary p-2.5 rounded-md">{isAr ? 'تمت المراجعة' : 'Mark Reviewed'}</DropdownMenuItem>
               <DropdownMenuItem onClick={() => updateStatus('missing_docs')} className="font-bold text-amber-600 p-2.5 rounded-md">{isAr ? 'وثائق مفقودة' : 'Missing Docs'}</DropdownMenuItem>
               <DropdownMenuItem onClick={() => updateStatus('rejected')} className="font-bold text-red-600 p-2.5 rounded-md">{isAr ? 'رفض الطلب' : 'Reject'}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateStatus('approved')} className="font-bold text-green-600 p-2.5 rounded-md">{isAr ? 'مقبول' : 'Accept'}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
