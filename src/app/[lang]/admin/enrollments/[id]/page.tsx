@@ -112,6 +112,70 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
   const docRef = useMemo(() => (firestore && id) ? doc(firestore, 'enrollments', id) : null, [firestore, id]);
   const { data: app, loading: dataLoading } = useDoc(docRef);
 
+  const t = {
+    topTitle: isAr ? 'مراجعة تفاصيل الطلب' : 'Application Review Detail',
+    syncing: isAr ? 'جاري مزامنة البيانات...' : 'Syncing Application...',
+    notFound: isAr ? 'الطلب غير موجود' : 'Application Not Found',
+    status: {
+      submitted: isAr ? 'طلب جديد' : 'New Submission',
+      reviewed: isAr ? 'قيد المراجعة' : 'Under Review',
+      missing_info: isAr ? 'نقص بيانات' : 'Awaiting Info',
+      approved: isAr ? 'مكتمل / مقبول' : 'Completed / Approved',
+      rejected: isAr ? 'مرفوض' : 'Rejected',
+    },
+    actions: {
+      sendMessage: isAr ? 'تواصل مع ولي الأمر' : 'Send Message',
+      provision: isAr ? 'تفعيل الملف' : 'Provision',
+      enrolled: isAr ? 'تم التسجيل' : 'ENROLLED',
+      logMessage: isAr ? 'تسجيل وأرشفة المراسلة' : 'Log & Record Correspondence',
+    },
+    sections: {
+      guardians: isAr ? 'بيانات أولياء الأمور' : 'Guardians Information',
+      address: isAr ? 'تفاصيل العنوان السكني' : 'Physical Address Details',
+      students: isAr ? 'سجل بيانات الطلاب المفصل' : 'Detailed Student Records',
+      program: isAr ? 'البرنامج التعليمي المختار' : 'Program Selection',
+      logs: isAr ? 'سجل المراسلات والأحداث' : 'Correspondence Logs',
+      artifacts: isAr ? 'المرفقات والمستندات' : 'Document Artifacts',
+    },
+    table: {
+      type: isAr ? 'الفئة' : 'Type',
+      name: isAr ? 'الاسم الكامل' : 'Full Name',
+      phone: isAr ? 'رقم الهاتف' : 'Phone Number',
+      email: isAr ? 'البريد الإلكتروني' : 'Email Address',
+      relation: isAr ? 'الصلة' : 'Relationship',
+      addr1: isAr ? 'العنوان 1' : 'Address 1',
+      addr2: isAr ? 'العنوان 2' : 'Address 2',
+      city: isAr ? 'المدينة' : 'City',
+      state: isAr ? 'الولاية' : 'State',
+      zip: isAr ? 'الرمز البريدي' : 'ZIP',
+      studentType: isAr ? 'نوع الطالب' : 'Student Type',
+      dob: isAr ? 'الميلاد' : 'DOB',
+      gender: isAr ? 'الجنس' : 'Gender',
+      grade: isAr ? 'المستوى' : 'Grade',
+      decision: isAr ? 'قرار الأهلية' : 'Decision',
+      action: isAr ? 'إجراء' : 'Action',
+    },
+    decisions: {
+      pending: isAr ? 'قيد المراجعة' : 'Pending Review',
+      accept: isAr ? 'قبول الطالب' : 'Accept Candidate',
+      missing: isAr ? 'نقص مستندات' : 'Request More Docs',
+      decline: isAr ? 'رفض الطلب' : 'Decline Application',
+    },
+    dialog: {
+      title: isAr ? 'مراسلة ولي الأمر' : 'Parent Correspondence',
+      template: isAr ? '1. اختر القالب' : '1. Select Template',
+      reason: isAr ? '2. التفاصيل / الأسباب' : '2. Details / Reasons',
+      preview: isAr ? 'معاينة البريد' : 'Email Preview',
+      placeholder: isAr ? 'اكتب الأسباب أو التفاصيل هنا...' : 'Type details here (reason, missing docs, etc)...',
+    },
+    program: {
+      tuition: isAr ? 'تقدير الرسوم الأولية' : 'Base Tuition Estimate',
+      events: isAr ? 'أحداث' : 'Events',
+      noLogs: isAr ? 'لا توجد سجلات مراسلة' : 'No communication history',
+      noFiles: isAr ? 'لم يتم رفع أي مستندات مع هذا الطلب.' : 'No artifacts were uploaded with this application.',
+    }
+  };
+
   const updateAppStatus = (newStatus: string) => {
     if (!docRef) return;
     updateDoc(docRef, { 
@@ -227,7 +291,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         lastCommunicationAt: serverTimestamp()
       });
       
-      toast({ title: "Message Logged", description: "Correspondence record added to application." });
+      toast({ title: isAr ? "تم تسجيل الرسالة" : "Message Logged", description: isAr ? "تم إضافة المراسلة لسجل الطلب." : "Correspondence record added to application." });
       setIsMsgOpen(false);
       setReason('');
     } catch (err) {
@@ -240,11 +304,11 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
   if (authLoading || dataLoading) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
       <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Application...</p>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">{t.syncing}</p>
     </div>
   );
 
-  if (!app) return <div className="p-20 text-center font-black text-red-500 uppercase">Application Not Found</div>;
+  if (!app) return <div className="p-20 text-center font-black text-red-500 uppercase">{t.notFound}</div>;
 
   return (
     <div className="space-y-8 pb-20">
@@ -263,7 +327,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                  app.status === 'approved' ? "bg-green-100 text-green-600" :
                  "bg-secondary/10 text-secondary"
                )}>
-                 {app.status}
+                 {t.status[app.status as keyof typeof t.status] || app.status}
                </Badge>
                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">ID: {id}</span>
             </div>
@@ -277,11 +341,11 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                 <SelectValue />
              </SelectTrigger>
              <SelectContent className="rounded-xl p-1">
-                <SelectItem value="submitted" className="font-bold py-3">New Submission</SelectItem>
-                <SelectItem value="reviewed" className="font-bold py-3">Under Review</SelectItem>
-                <SelectItem value="missing_info" className="font-bold py-3 text-amber-600">Awaiting Info</SelectItem>
-                <SelectItem value="approved" className="font-bold py-3 text-green-600">Completed / Approved</SelectItem>
-                <SelectItem value="rejected" className="font-bold py-3 text-red-600">Rejected</SelectItem>
+                <SelectItem value="submitted" className="font-bold py-3">{t.status.submitted}</SelectItem>
+                <SelectItem value="reviewed" className="font-bold py-3">{t.status.reviewed}</SelectItem>
+                <SelectItem value="missing_info" className="font-bold py-3 text-amber-600">{t.status.missing_info}</SelectItem>
+                <SelectItem value="approved" className="font-bold py-3 text-green-600">{t.status.approved}</SelectItem>
+                <SelectItem value="rejected" className="font-bold py-3 text-red-600">{t.status.rejected}</SelectItem>
              </SelectContent>
           </Select>
 
@@ -289,20 +353,20 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
             <DialogTrigger asChild>
               <Button className="bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2 hover:bg-primary/90 transition-all">
                 <MessageSquare className="h-4 w-4 text-secondary" />
-                {isAr ? 'تواصل مع ولي الأمر' : 'Send Message'}
+                {t.actions.sendMessage}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl rounded-2xl border-none p-0 overflow-hidden shadow-2xl">
+            <DialogContent className={cn("max-w-2xl rounded-2xl border-none p-0 overflow-hidden shadow-2xl", isAr && "font-arabic")}>
               <div className="bg-primary p-6 text-white flex items-center gap-4">
                  <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center"><Mail className="h-6 w-6 text-secondary" /></div>
-                 <DialogTitle className="text-xl font-black uppercase tracking-tight">Parent Correspondence</DialogTitle>
+                 <DialogTitle className="text-xl font-black uppercase tracking-tight">{t.dialog.title}</DialogTitle>
               </div>
               <div className="p-8 space-y-6">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Select Template</label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.dialog.template}</label>
                     <Select onValueChange={(val) => setSelectedTemplate(EMAIL_TEMPLATES.find(t => t.id === val) || EMAIL_TEMPLATES[0])}>
                        <SelectTrigger className="h-14 rounded-xl font-bold border-slate-100 bg-slate-50">
-                          <SelectValue placeholder="Select Template..." />
+                          <SelectValue placeholder="..." />
                        </SelectTrigger>
                        <SelectContent className="rounded-xl">
                           {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold py-3">{t.label}</SelectItem>)}
@@ -310,16 +374,16 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                     </Select>
                  </div>
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. Details / Reasons</label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.dialog.reason}</label>
                     <Textarea 
                       value={msgReason} 
                       onChange={(e) => setReason(e.target.value)}
-                      placeholder="Type details here (reason for rejection, missing docs, etc)..." 
+                      placeholder={t.dialog.placeholder} 
                       className="min-h-[120px] bg-slate-50 border-none rounded-xl font-bold p-5"
                     />
                  </div>
                  <div className="bg-slate-900 rounded-2xl p-6 space-y-3">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Email Preview</span>
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t.dialog.preview}</span>
                     <p className="text-[11px] text-white/80 whitespace-pre-wrap font-medium leading-relaxed italic">
                       {selectedTemplate.body({ 
                          parentName: app.parent1Name, 
@@ -335,7 +399,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
               <DialogFooter className="bg-slate-50 p-6">
                  <Button onClick={handleSendMessage} disabled={isProcessing} className="bg-primary text-white px-10 rounded-xl h-14 font-black shadow-xl w-full sm:w-auto">
                     {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                    Log & Record Correspondence
+                    {t.actions.logMessage}
                  </Button>
               </DialogFooter>
             </DialogContent>
@@ -343,24 +407,24 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </div>
       </div>
 
-      {/* 2. FAMILY INFORMATION TABLES (PARENTS & ADDRESS) */}
+      {/* 2. FAMILY INFORMATION TABLES */}
       <div className="space-y-6">
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-100/80 p-6 border-b border-slate-200">
+           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
-                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'بيانات أولياء الأمور' : 'Guardians Information'}</CardTitle>
+                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.guardians}</CardTitle>
               </div>
            </CardHeader>
            <CardContent className="p-0 overflow-hidden">
               <Table className="border-collapse">
                 <TableHeader className="bg-slate-100/80">
                   <TableRow className="border-b border-slate-200 hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{isAr ? 'الفئة' : 'Guardian Type'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{isAr ? 'الاسم الكامل' : 'Full Name'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{isAr ? 'رقم الهاتف' : 'Phone Number'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 text-center">{isAr ? 'صلة القرابة' : 'Relationship'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.type}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.name}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.phone}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.email}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 text-center">{t.table.relation}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -390,21 +454,21 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </Card>
 
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-100/80 p-6 border-b border-slate-200">
+           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><MapPin className="h-5 w-5" /></div>
-                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'عنوان السكن' : 'Physical Address Details'}</CardTitle>
+                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.address}</CardTitle>
               </div>
            </CardHeader>
            <CardContent className="p-0 overflow-hidden">
               <Table className="border-collapse">
                 <TableHeader className="bg-slate-100/80">
                   <TableRow className="border-b border-slate-200 hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{isAr ? 'العنوان الأول' : 'Address Line 1'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{isAr ? 'العنوان الثاني' : 'Address Line 2'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{isAr ? 'المدينة' : 'City'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{isAr ? 'الولاية' : 'State'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 text-center">{isAr ? 'الرمز البريدي' : 'ZIP Code'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.addr1}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.addr2}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.city}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.state}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 text-center">{t.table.zip}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -421,12 +485,12 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </Card>
       </div>
 
-      {/* 3. STUDENT REVIEW QUEUE TABLE - EXPANDED */}
+      {/* 3. STUDENT REVIEW QUEUE TABLE */}
       <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-         <CardHeader className="bg-slate-100/80 p-6 border-b border-slate-200">
+         <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
             <div className="flex items-center gap-3">
                <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
-               <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'بيانات الطلاب المفصلة' : 'Detailed Student Records'}</CardTitle>
+               <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.students}</CardTitle>
             </div>
          </CardHeader>
          <CardContent className="p-0 overflow-hidden">
@@ -434,15 +498,15 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
               <Table className="border-collapse min-w-[1200px]">
                  <TableHeader className="bg-slate-100/80">
                     <TableRow className="h-14 border-b border-slate-200 hover:bg-transparent">
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'نوع الطالب' : 'Student Type'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-start">{isAr ? 'الاسم الكامل' : 'Full Name'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'تاريخ الميلاد' : 'DOB'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'الجنس' : 'Gender'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'المستوى' : 'Grade'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'رقم الهاتف' : 'Phone'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'البريد الإلكتروني' : 'Email'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'قرار الأهلية' : 'Decision'}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 text-center px-6">{isAr ? 'إجراء إداري' : 'Action'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.studentType}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-start">{t.table.name}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.dob}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.gender}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.grade}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.phone}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.email}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.decision}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 text-center px-6">{t.table.action}</TableHead>
                     </TableRow>
                  </TableHeader>
                  <TableBody>
@@ -450,7 +514,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                       <TableRow key={i} className="hover:bg-white/60 transition-colors border-b border-slate-50 h-24">
                          <TableCell className="px-6 border-r border-slate-50/50 text-center">
                             <Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">
-                               {st.entryType || (st.status === 'New Student' || st.status === 'Returning Student' ? st.status : '-')}
+                               {isAr ? (st.entryType === 'New Student' ? 'طالب جديد' : st.entryType === 'Returning Student' ? 'طالب عائد' : st.entryType) : st.entryType}
                             </Badge>
                          </TableCell>
                          <TableCell className="px-6 border-r border-slate-50/50">
@@ -461,7 +525,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                          </TableCell>
                          <TableCell className="px-6 border-r border-slate-50/50 text-center">
                             <Badge variant="outline" className="bg-primary/5 text-primary border-none font-black text-[8px] uppercase">
-                               {st.gender}
+                               {isAr ? (st.gender === 'Male' ? 'ذكر' : st.gender === 'Female' ? 'أنثى' : st.gender) : st.gender}
                             </Badge>
                          </TableCell>
                          <TableCell className="px-6 border-r border-slate-50/50 text-center">
@@ -478,18 +542,18 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                                <SelectTrigger className="h-10 rounded-lg text-[10px] font-black uppercase border-slate-200 bg-white w-36 mx-auto shadow-sm">
                                   <SelectValue />
                                </SelectTrigger>
-                               <SelectContent className="rounded-xl p-1">
-                                  <SelectItem value="Pending" className="text-[10px] font-bold py-2.5">Pending Review</SelectItem>
-                                  <SelectItem value="Accepted" className="text-[10px] font-bold text-green-600 py-2.5">Accept Candidate</SelectItem>
-                                  <SelectItem value="Missing Docs" className="text-[10px] font-bold text-amber-600 py-2.5">Request More Docs</SelectItem>
-                                  <SelectItem value="Rejected" className="text-[10px] font-bold text-red-600 py-2.5">Decline Application</SelectItem>
+                               <SelectContent className="rounded-xl p-1" dir={isAr ? 'rtl' : 'ltr'}>
+                                  <SelectItem value="Pending" className="text-[10px] font-bold py-2.5">{t.decisions.pending}</SelectItem>
+                                  <SelectItem value="Accepted" className="text-[10px] font-bold text-green-600 py-2.5">{t.decisions.accept}</SelectItem>
+                                  <SelectItem value="Missing Docs" className="text-[10px] font-bold text-amber-600 py-2.5">{t.decisions.missing}</SelectItem>
+                                  <SelectItem value="Rejected" className="text-[10px] font-bold text-red-600 py-2.5">{t.decisions.decline}</SelectItem>
                                </SelectContent>
                             </Select>
                          </TableCell>
                          <TableCell className="px-6 text-center">
                             {st.isEnrolled ? (
                               <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit mx-auto shadow-sm">
-                                 <BadgeCheck className="h-4 w-4" /> ENROLLED
+                                 <BadgeCheck className="h-4 w-4" /> {t.actions.enrolled}
                               </Badge>
                             ) : (
                               <Button 
@@ -497,7 +561,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                                 disabled={isProcessing || st.status !== 'Accepted'}
                                 className="bg-primary hover:bg-secondary text-white h-10 px-6 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-primary/10 transition-all active:scale-95"
                               >
-                                 Provision
+                                 {t.actions.provision}
                               </Button>
                             )}
                          </TableCell>
@@ -514,26 +578,35 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
          <div className="lg:col-span-2 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                {/* Program Selection Card */}
-               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-primary text-white p-10 space-y-10 relative">
-                  <div className="absolute top-0 right-0 p-8 opacity-10"><Briefcase className="h-32 w-32" /></div>
-                  <div className="space-y-2 relative z-10">
-                     <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{isAr ? 'البرنامج المختار' : 'Program Selection'}</p>
-                     <h3 className="text-2xl font-black uppercase tracking-tight leading-tight">{app.programOption}</h3>
-                     <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase tracking-widest">{app.paymentTier || 'Standard'}</Badge>
-                  </div>
-                  <div className="space-y-2 relative z-10 pt-6 border-t border-white/5">
-                     <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">{isAr ? 'الرسوم الأولية' : 'Base Tuition Estimate'}</p>
-                     <div className="text-5xl font-black text-secondary tracking-tighter">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</div>
-                  </div>
+               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col h-full">
+                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Briefcase className="h-5 w-5" /></div>
+                        <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.program}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-8 space-y-8 flex-1 flex flex-col justify-center">
+                     <div className="space-y-2">
+                        <h3 className="text-2xl font-black text-primary uppercase tracking-tight leading-tight">{app.programOption}</h3>
+                        <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full">{app.paymentTier || 'Standard'}</Badge>
+                     </div>
+                     <div className="space-y-1 pt-6 border-t border-slate-50">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.program.tuition}</p>
+                        <div className="text-5xl font-black text-primary tracking-tighter">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</div>
+                     </div>
+                  </CardContent>
                </Card>
 
                {/* Communication Logs Card */}
-               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
-                  <CardHeader className="p-6 border-b border-slate-50 flex flex-row items-center justify-between">
-                     <CardTitle className="text-[11px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><Clock className="h-4 w-4 text-secondary" /> Correspondence Logs</CardTitle>
-                     <Badge variant="outline" className="text-[9px] border-slate-100 text-slate-400 px-3">{app.communications?.length || 0} Events</Badge>
+               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 h-full flex flex-col">
+                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 flex flex-row items-center justify-between">
+                     <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-lg"><Clock className="h-5 w-5" /></div>
+                        <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.logs}</CardTitle>
+                     </div>
+                     <Badge variant="outline" className="text-[9px] border-slate-200 text-slate-400 px-3">{app.communications?.length || 0} {t.program.events}</Badge>
                   </CardHeader>
-                  <CardContent className="p-6">
+                  <CardContent className="p-6 flex-1">
                      <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                         {app.communications?.length > 0 ? app.communications.map((log: any, idx: number) => (
                           <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-200 group transition-all">
@@ -549,7 +622,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                         )) : (
                           <div className="py-20 text-center flex flex-col items-center gap-3">
                              <Mail className="h-10 w-10 text-slate-100" />
-                             <p className="text-slate-300 font-bold uppercase text-[10px] tracking-widest">No communication history</p>
+                             <p className="text-slate-300 font-bold uppercase text-[10px] tracking-widest">{t.program.noLogs}</p>
                           </div>
                         )}
                      </div>
@@ -558,11 +631,13 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
             </div>
          </div>
 
-         {/* Verification Files (Full Height in Column) */}
+         {/* Verification Files */}
          <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col">
-            <CardHeader className="p-6 border-b border-slate-100 bg-slate-50/30">
-               <CardTitle className="text-[11px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><FileCheck className="h-4 w-4 text-secondary" /> Document Artifacts</CardTitle>
-               <CardDescription className="text-[10px] font-bold">Verification files uploaded by parents.</CardDescription>
+            <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
+               <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><FileCheck className="h-5 w-5" /></div>
+                  <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.artifacts}</CardTitle>
+               </div>
             </CardHeader>
             <CardContent className="p-0 flex-1">
                <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto custom-scrollbar">
@@ -584,7 +659,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                   )) : (
                     <div className="py-32 text-center flex flex-col items-center gap-4">
                        <FileWarning className="h-12 w-12 text-slate-100" />
-                       <p className="text-slate-300 font-black uppercase text-[10px] tracking-widest px-10">No artifacts were uploaded with this application.</p>
+                       <p className="text-slate-300 font-black uppercase text-[10px] tracking-widest px-10">{t.program.noFiles}</p>
                     </div>
                   )}
                </div>
