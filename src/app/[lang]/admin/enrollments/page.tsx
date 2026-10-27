@@ -93,7 +93,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
 
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
-      {/* 1. Toolbar */}
+      {/* 1. Toolbar - Added border-slate-100 */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
          <div className="flex-1 w-full lg:max-w-md relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-secondary transition-colors" />
@@ -136,7 +136,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                   variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
                   size="icon" 
                   onClick={() => setViewMode('table')}
-                  className={cn("rounded-lg h-10 w-10", viewMode === 'table' && "bg-white shadow-sm")}
+                  className={cn("rounded-lg h-10 w-10", viewMode === 'table' && "bg-white shadow-sm border border-slate-100")}
                >
                   <TableIcon className="h-4 w-4" />
                </Button>
@@ -144,7 +144,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                   variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
                   size="icon" 
                   onClick={() => setViewMode('grid')}
-                  className={cn("rounded-lg h-10 w-10", viewMode === 'grid' && "bg-white shadow-sm")}
+                  className={cn("rounded-lg h-10 w-10", viewMode === 'grid' && "bg-white shadow-sm border border-slate-100")}
                >
                   <LayoutGrid className="h-4 w-4" />
                </Button>
@@ -163,7 +163,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
            {[1,2,3,4,5,6].map(i => <div key={i} className="h-64 bg-white rounded-3xl border border-slate-100 animate-pulse" />)}
         </div>
       ) : viewMode === 'table' ? (
-        <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
+        <Card className="border border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden">
            <CardContent className="p-0">
               <div className="overflow-x-auto">
                  <table className="w-full">
@@ -223,7 +223,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                                 <p className="text-xs font-bold text-slate-600 whitespace-nowrap">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</p>
                              </td>
                              <td className="px-8 py-6 text-end">
-                                <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md">
+                                <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-slate-100">
                                    <ChevronRight className={cn("h-5 w-5 text-slate-300 group-hover:text-primary transition-colors", isAr && "rotate-180")} />
                                 </Button>
                              </td>
@@ -237,7 +237,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
            {filteredData.map((app: any) => (
-             <Card key={app.id} className="border-none shadow-sm rounded-3xl bg-white overflow-hidden group hover:shadow-2xl transition-all duration-500 cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/enrollments/${app.id}`}>
+             <Card key={app.id} className="border border-slate-100 shadow-sm rounded-3xl bg-white overflow-hidden group hover:shadow-2xl transition-all duration-500 cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/enrollments/${app.id}`}>
                 <div className="h-32 bg-primary relative p-8">
                    <div className="absolute top-0 right-0 p-8 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-1000">
                       <GraduationCap className="h-24 w-24 text-white" />
@@ -268,7 +268,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                          <Calendar className="h-3.5 w-3.5" />
                          <span className="text-[10px] font-bold">{app.updatedAt ? format(app.updatedAt.toDate(), 'MMM dd, yyyy') : '-'}</span>
                       </div>
-                      <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-primary group-hover:bg-secondary group-hover:text-white transition-colors">
+                      <div className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-primary group-hover:bg-secondary group-hover:text-white transition-colors">
                          <ChevronRight className={cn("h-4 w-4", isAr && "rotate-180")} />
                       </div>
                    </div>
@@ -280,7 +280,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
 
       {(!filteredData || filteredData.length === 0) && !loading && (
         <div className="py-32 text-center bg-white rounded-3xl border-2 border-dashed border-slate-100">
-           <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-200 mb-6">
+           <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-200 mb-6 border border-slate-100">
               <FileText className="h-10 w-10" />
            </div>
            <h3 className="text-xl font-black text-primary uppercase">{isAr ? 'لا توجد نتائج' : 'No Results Found'}</h3>
