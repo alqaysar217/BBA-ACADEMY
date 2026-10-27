@@ -1,7 +1,7 @@
 
 'use client';
 
-import { use, useState, useMemo } from 'react';
+import { use, useState, useMemo, useEffect } from 'react';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
@@ -68,7 +68,7 @@ export default function ApplicationsTablePage({ params }: { params: Promise<{ la
   const filteredData = useMemo(() => {
     if (!enrollments) return [];
     return enrollments.filter(app => {
-      const searchStr = `${app.parent1Name} ${app.parent1Email} ${app.parent1Phone} ${app.programOption} ${app.status} ${app.address?.city} ${app.address?.state}`.toLowerCase();
+      const searchStr = `${app.parent1Name || ''} ${app.parent1Email || ''} ${app.parent1Phone || ''} ${app.programOption || ''} ${app.status || ''} ${app.address?.city || ''} ${app.address?.state || ''}`.toLowerCase();
       return searchStr.includes(searchTerm.toLowerCase());
     });
   }, [enrollments, searchTerm]);
@@ -85,15 +85,21 @@ export default function ApplicationsTablePage({ params }: { params: Promise<{ la
     const headers = columns.filter(c => visibleColumns.includes(c.id)).map(c => c.label);
     const rows = filteredData.map(app => {
       const row: any = [];
-      if (visibleColumns.includes('parentName')) row.push(app.parent1Name);
-      if (visibleColumns.includes('email')) row.push(app.parent1Email);
-      if (visibleColumns.includes('phone')) row.push(app.parent1Phone);
-      if (visibleColumns.includes('location')) row.push(`${app.address?.city}, ${app.address?.state}`);
-      if (visibleColumns.includes('program')) row.push(app.programOption);
+      if (visibleColumns.includes('parentName')) row.push(app.parent1Name || '');
+      if (visibleColumns.includes('email')) row.push(app.parent1Email || '');
+      if (visibleColumns.includes('phone')) row.push(app.parent1Phone || '');
+      if (visibleColumns.includes('location')) row.push(`${app.address?.city || ''}, ${app.address?.state || ''}`);
+      if (visibleColumns.includes('program')) row.push(app.programOption || '');
       if (visibleColumns.includes('payment')) row.push(app.paymentTier || '-');
       if (visibleColumns.includes('count')) row.push(app.students?.length || 0);
-      if (visibleColumns.includes('status')) row.push(app.status);
-      if (visibleColumns.includes('date')) row.push(app.updatedAt ? format(app.updatedAt.toDate(), 'yyyy-MM-dd HH:mm') : '');
+      if (visibleColumns.includes('status')) row.push(app.status || '');
+      if (visibleColumns.includes('date')) {
+        try {
+          row.push(app.updatedAt ? format(app.updatedAt.toDate(), 'yyyy-MM-dd HH:mm') : '');
+        } catch (e) {
+          row.push('');
+        }
+      }
       return row;
     });
 
@@ -141,7 +147,7 @@ export default function ApplicationsTablePage({ params }: { params: Promise<{ la
                      {isAr ? 'الأعمدة' : 'Columns'}
                   </Button>
                </DropdownMenuTrigger>
-               <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
+               <DropdownMenuContent align="end" className="w-56 rounded-xl p-2 bg-white shadow-2xl border-slate-100">
                   <DropdownMenuLabel className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{isAr ? 'إظهار/إخفاء الأعمدة' : 'Toggle Columns'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {columns.map(col => (
@@ -198,20 +204,20 @@ export default function ApplicationsTablePage({ params }: { params: Promise<{ la
                      ) : filteredData.map((app: any) => (
                         <tr key={app.id} className="hover:bg-slate-50/50 transition-colors group">
                            {visibleColumns.includes('parentName') && (
-                              <td className="px-5 py-4 text-sm font-black text-slate-900 border-r border-slate-50">{app.parent1Name}</td>
+                              <td className="px-5 py-4 text-sm font-black text-slate-900 border-r border-slate-50">{app.parent1Name || '-'}</td>
                            )}
                            {visibleColumns.includes('email') && (
-                              <td className="px-5 py-4 text-xs font-bold text-slate-500 border-r border-slate-50 lowercase">{app.parent1Email}</td>
+                              <td className="px-5 py-4 text-xs font-bold text-slate-500 border-r border-slate-50 lowercase">{app.parent1Email || '-'}</td>
                            )}
                            {visibleColumns.includes('phone') && (
-                              <td className="px-5 py-4 text-xs font-bold text-slate-500 border-r border-slate-50" dir="ltr">{app.parent1Phone}</td>
+                              <td className="px-5 py-4 text-xs font-bold text-slate-500 border-r border-slate-50" dir="ltr">{app.parent1Phone || '-'}</td>
                            )}
                            {visibleColumns.includes('location') && (
-                              <td className="px-5 py-4 text-xs font-bold text-slate-600 border-r border-slate-50">{app.address?.city}, {app.address?.state}</td>
+                              <td className="px-5 py-4 text-xs font-bold text-slate-600 border-r border-slate-50">{app.address?.city || ''}, {app.address?.state || ''}</td>
                            )}
                            {visibleColumns.includes('program') && (
                               <td className="px-5 py-4 border-r border-slate-50">
-                                 <Badge variant="outline" className="text-[9px] font-black uppercase bg-secondary/5 text-secondary border-none">{app.programOption}</Badge>
+                                 <Badge variant="outline" className="text-[9px] font-black uppercase bg-secondary/5 text-secondary border-none">{app.programOption || '-'}</Badge>
                               </td>
                            )}
                            {visibleColumns.includes('payment') && (
@@ -231,13 +237,13 @@ export default function ApplicationsTablePage({ params }: { params: Promise<{ la
                                     app.status === 'reviewed' ? "bg-blue-100 text-blue-600" :
                                     "bg-slate-100 text-slate-500"
                                  )}>
-                                    {app.status}
+                                    {app.status || 'draft'}
                                  </Badge>
                               </td>
                            )}
                            {visibleColumns.includes('date') && (
                               <td className="px-5 py-4 text-[10px] font-bold text-slate-400 border-r border-slate-50 whitespace-nowrap">
-                                 {app.updatedAt ? format(app.updatedAt.toDate(), 'yyyy-MM-dd HH:mm') : '-'}
+                                 {app.updatedAt && typeof app.updatedAt.toDate === 'function' ? format(app.updatedAt.toDate(), 'yyyy-MM-dd HH:mm') : '-'}
                               </td>
                            )}
                            <td className="px-5 py-4 text-end">

@@ -67,25 +67,31 @@ export default function AdminLayout({
   const { data: profile } = useDoc(profileRef);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('bba_admin_theme');
-    if (savedTheme === 'dark') setIsDarkMode(true);
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('bba_admin_theme');
+      if (savedTheme === 'dark') setIsDarkMode(true);
+    }
   }, []);
 
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
     setIsDarkMode(newTheme);
-    localStorage.setItem('bba_admin_theme', newTheme ? 'dark' : 'light');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bba_admin_theme', newTheme ? 'dark' : 'light');
+    }
   };
 
   useEffect(() => {
-    const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
-    if (!loading && !user && !isTestAdmin && pathname && !pathname.includes('/login')) {
-      router.push(`/${lang}/admin/login`);
+    if (typeof window !== 'undefined') {
+      const isTestAdmin = localStorage.getItem('bba_test_admin') === 'true';
+      if (!loading && !user && !isTestAdmin && pathname && !pathname.includes('/login')) {
+        router.push(`/${lang}/admin/login`);
+      }
     }
   }, [user, loading, router, lang, pathname]);
 
   const hasPermission = (module: string, action: 'read' | 'write' | 'delete' | 'execute' = 'read') => {
-    if (localStorage.getItem('bba_test_admin') === 'true') return true;
+    if (typeof window !== 'undefined' && localStorage.getItem('bba_test_admin') === 'true') return true;
     if (!profile) return true; 
     if (profile.role === 'admin') return true;
     return profile.permissions?.[module]?.[action] || false;
