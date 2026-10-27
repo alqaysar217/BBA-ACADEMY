@@ -343,42 +343,42 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
       {/* 2. FAMILY INFORMATION TABLES (PARENTS & ADDRESS) */}
       <div className="space-y-6">
-        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
-           <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100">
+        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
+           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-100">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
-                 <CardTitle className="text-sm font-black text-primary uppercase">{isAr ? 'بيانات أولياء الأمور' : 'Guardians Information'}</CardTitle>
+                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'بيانات أولياء الأمور' : 'Guardians Information'}</CardTitle>
               </div>
            </CardHeader>
-           <CardContent className="p-0">
-              <Table>
-                <TableHeader className="bg-slate-50/30">
-                  <TableRow className="border-slate-100 h-12">
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400 pl-8">{isAr ? 'الفئة' : 'Guardian Type'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'الاسم الكامل' : 'Full Name'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'رقم الهاتف' : 'Phone Number'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400 pr-8">{isAr ? 'صلة القرابة' : 'Relationship'}</TableHead>
+           <CardContent className="p-0 overflow-hidden">
+              <Table className="border-collapse">
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="border-b border-slate-100 hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 pl-8 h-14 border-r border-slate-100/50">{isAr ? 'الفئة' : 'Guardian Type'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 h-14 border-r border-slate-100/50">{isAr ? 'الاسم الكامل' : 'Full Name'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 h-14 border-r border-slate-100/50">{isAr ? 'رقم الهاتف' : 'Phone Number'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 h-14 border-r border-slate-100/50">{isAr ? 'البريد الإلكتروني' : 'Email Address'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 pr-8 h-14">{isAr ? 'صلة القرابة' : 'Relationship'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="border-slate-50 hover:bg-slate-50/30">
-                    <TableCell className="pl-8">
+                  <TableRow className="border-b border-slate-50 hover:bg-white/60 transition-colors">
+                    <TableCell className="pl-8 border-r border-slate-50/50">
                        <Badge variant="outline" className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">{isAr ? 'الأول (الأساسي)' : 'Parent 1 (Primary)'}</Badge>
                     </TableCell>
-                    <TableCell className="font-black text-primary text-sm">{app.parent1Name}</TableCell>
-                    <TableCell className="text-xs font-bold text-slate-600" dir="ltr">{app.parent1Phone}</TableCell>
-                    <TableCell className="text-xs font-bold text-slate-500 lowercase">{app.parent1Email}</TableCell>
+                    <TableCell className="font-black text-primary text-sm border-r border-slate-50/50">{app.parent1Name}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-600 border-r border-slate-50/50" dir="ltr">{app.parent1Phone}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-500 lowercase border-r border-slate-50/50">{app.parent1Email}</TableCell>
                     <TableCell className="pr-8"><Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship1}</Badge></TableCell>
                   </TableRow>
                   {app.parent2Name && (
-                    <TableRow className="border-slate-50 hover:bg-slate-50/30">
-                      <TableCell className="pl-8">
+                    <TableRow className="border-none hover:bg-white/60 transition-colors">
+                      <TableCell className="pl-8 border-r border-slate-50/50">
                          <Badge variant="outline" className="bg-slate-50 text-slate-400 border-none font-black text-[9px] uppercase">{isAr ? 'الثاني' : 'Parent 2'}</Badge>
                       </TableCell>
-                      <TableCell className="font-black text-primary text-sm">{app.parent2Name}</TableCell>
-                      <TableCell className="text-xs font-bold text-slate-600" dir="ltr">{app.parent2Phone}</TableCell>
-                      <TableCell className="text-xs font-bold text-slate-500 lowercase">{app.parent2Email}</TableCell>
+                      <TableCell className="font-black text-primary text-sm border-r border-slate-50/50">{app.parent2Name}</TableCell>
+                      <TableCell className="text-xs font-bold text-slate-600 border-r border-slate-50/50" dir="ltr">{app.parent2Phone}</TableCell>
+                      <TableCell className="text-xs font-bold text-slate-500 lowercase border-r border-slate-50/50">{app.parent2Email}</TableCell>
                       <TableCell className="pr-8"><Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship2}</Badge></TableCell>
                     </TableRow>
                   )}
@@ -387,30 +387,30 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
            </CardContent>
         </Card>
 
-        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
-           <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100">
+        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
+           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-100">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><MapPin className="h-5 w-5" /></div>
-                 <CardTitle className="text-sm font-black text-primary uppercase">{isAr ? 'عنوان السكن' : 'Physical Address Details'}</CardTitle>
+                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'عنوان السكن' : 'Physical Address Details'}</CardTitle>
               </div>
            </CardHeader>
-           <CardContent className="p-0">
-              <Table>
-                <TableHeader className="bg-slate-50/30">
-                  <TableRow className="border-slate-100 h-12">
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400 pl-8">{isAr ? 'العنوان الأول' : 'Address Line 1'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'العنوان الثاني' : 'Address Line 2'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'المدينة' : 'City'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'الولاية' : 'State'}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-400 pr-8">{isAr ? 'الرمز البريدي' : 'ZIP Code'}</TableHead>
+           <CardContent className="p-0 overflow-hidden">
+              <Table className="border-collapse">
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="border-b border-slate-100 hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 pl-8 h-14 border-r border-slate-100/50">{isAr ? 'العنوان الأول' : 'Address Line 1'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 h-14 border-r border-slate-100/50">{isAr ? 'العنوان الثاني' : 'Address Line 2'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 h-14 border-r border-slate-100/50">{isAr ? 'المدينة' : 'City'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 h-14 border-r border-slate-100/50">{isAr ? 'الولاية' : 'State'}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-500 pr-8 h-14">{isAr ? 'الرمز البريدي' : 'ZIP Code'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="border-none hover:bg-slate-50/30">
-                    <TableCell className="pl-8 text-sm font-bold text-primary">{app.address?.line1}</TableCell>
-                    <TableCell className="text-sm font-medium text-slate-500">{app.address?.line2 || '-'}</TableCell>
-                    <TableCell className="text-sm font-bold text-slate-600">{app.address?.city}</TableCell>
-                    <TableCell className="text-sm font-black text-secondary">{app.address?.state}</TableCell>
+                  <TableRow className="border-none hover:bg-white/60 transition-colors">
+                    <TableCell className="pl-8 text-sm font-bold text-primary border-r border-slate-50/50">{app.address?.line1}</TableCell>
+                    <TableCell className="text-sm font-medium text-slate-500 border-r border-slate-50/50">{app.address?.line2 || '-'}</TableCell>
+                    <TableCell className="text-sm font-bold text-slate-600 border-r border-slate-50/50">{app.address?.city}</TableCell>
+                    <TableCell className="text-sm font-black text-secondary border-r border-slate-50/50">{app.address?.state}</TableCell>
                     <TableCell className="pr-8 text-sm font-mono font-bold text-slate-400">{app.address?.zip}</TableCell>
                   </TableRow>
                 </TableBody>
@@ -420,40 +420,40 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       </div>
 
       {/* 3. STUDENT REVIEW QUEUE TABLE */}
-      <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
-         <CardHeader className="bg-secondary/5 p-6 border-b border-slate-100">
+      <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
+         <CardHeader className="bg-secondary/10 p-6 border-b border-slate-100">
             <div className="flex items-center gap-3">
                <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
-               <CardTitle className="text-sm font-black text-primary uppercase">{isAr ? 'بيانات الطلاب' : 'Student Academic Records'}</CardTitle>
+               <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'بيانات الطلاب' : 'Student Academic Records'}</CardTitle>
             </div>
          </CardHeader>
-         <CardContent className="p-0">
-            <Table>
+         <CardContent className="p-0 overflow-hidden">
+            <Table className="border-collapse">
                <TableHeader className="bg-slate-50/50">
-                  <TableRow className="h-14 border-none">
-                     <TableHead className="text-[10px] font-black uppercase text-slate-400 pl-8 w-1/3">{isAr ? 'اسم الطالب وبياناته' : 'Full Name & Details'}</TableHead>
-                     <TableHead className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'المستوى الدراسي' : 'Academic Level'}</TableHead>
-                     <TableHead className="text-[10px] font-black uppercase text-slate-400 text-center">{isAr ? 'قرار الأهلية' : 'Eligibility Decision'}</TableHead>
-                     <TableHead className="text-[10px] font-black uppercase text-slate-400 text-right pr-8">{isAr ? 'إجراء إداري' : 'Administrative Action'}</TableHead>
+                  <TableRow className="h-14 border-b border-slate-100 hover:bg-transparent">
+                     <TableHead className="text-[10px] font-black uppercase text-slate-500 pl-8 w-1/3 border-r border-slate-100/50">{isAr ? 'اسم الطالب وبياناته' : 'Full Name & Details'}</TableHead>
+                     <TableHead className="text-[10px] font-black uppercase text-slate-500 border-r border-slate-100/50 text-center">{isAr ? 'المستوى الدراسي' : 'Academic Level'}</TableHead>
+                     <TableHead className="text-[10px] font-black uppercase text-slate-500 text-center border-r border-slate-100/50">{isAr ? 'قرار الأهلية' : 'Eligibility Decision'}</TableHead>
+                     <TableHead className="text-[10px] font-black uppercase text-slate-500 text-center pr-8">{isAr ? 'إجراء إداري' : 'Administrative Action'}</TableHead>
                   </TableRow>
                </TableHeader>
                <TableBody>
                   {app.students?.map((st: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-slate-50/30 transition-colors border-slate-50 h-24">
-                       <td className="pl-8">
+                    <TableRow key={i} className="hover:bg-white/60 transition-colors border-b border-slate-50 h-24">
+                       <td className="pl-8 border-r border-slate-50/50">
                           <div className="flex items-center gap-4">
-                             <div className="h-10 w-10 rounded-full bg-primary/5 text-primary flex items-center justify-center font-black">{i+1}</div>
+                             <div className="h-10 w-10 rounded-full bg-primary/5 text-primary flex items-center justify-center font-black border border-primary/10">{i+1}</div>
                              <div>
                                 <p className="text-sm font-black text-primary">{st.firstName} {st.lastName}</p>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{st.gender} • DOB: {st.dob}</p>
                              </div>
                           </div>
                        </td>
-                       <td>
-                          <p className="text-xs font-black text-secondary">Target: Grade {st.lastGrade}</p>
+                       <td className="text-center border-r border-slate-50/50">
+                          <p className="text-xs font-black text-secondary uppercase">Target: Grade {st.lastGrade}</p>
                           <Badge variant="outline" className="bg-white border-slate-100 text-[8px] font-black uppercase text-slate-400 mt-1">{st.status || 'NEW ENTRY'}</Badge>
                        </td>
-                       <td className="text-center">
+                       <td className="text-center border-r border-slate-50/50">
                           <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
                              <SelectTrigger className="h-10 rounded-lg text-[10px] font-black uppercase border-slate-200 bg-white w-40 mx-auto shadow-sm">
                                 <SelectValue />
@@ -466,9 +466,9 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                              </SelectContent>
                           </Select>
                        </td>
-                       <td className="text-right pr-8">
+                       <td className="text-center pr-8">
                           {st.isEnrolled ? (
-                            <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit ml-auto shadow-sm">
+                            <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit mx-auto shadow-sm">
                                <BadgeCheck className="h-4 w-4" /> ENROLLED & ACTIVE
                             </Badge>
                           ) : (
