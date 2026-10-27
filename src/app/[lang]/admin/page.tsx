@@ -81,15 +81,15 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
          <div className="space-y-1">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">{isAr ? 'نظرة عامة على الأكاديمية' : 'Executive Dashboard'}</h1>
             <p className="text-slate-500 font-bold text-xs flex items-center gap-2">
-               <Calendar className="h-3.5 w-3.5" />
+               <Calendar className="h-3.5 w-3.5 text-secondary" />
                {format(new Date(), 'MMMM dd, yyyy')} • {isAr ? 'بيانات النظام الموحدة' : 'Live System Intelligence'}
             </p>
          </div>
          <div className="flex gap-2">
-            <Button variant="outline" className="h-10 rounded-lg font-black px-5 text-xs">
+            <Button variant="outline" className="h-10 rounded-lg font-black px-5 text-xs hover:bg-slate-50 border-slate-200 transition-all">
                {isAr ? 'تقارير السنة' : 'AY 2026 Reports'}
             </Button>
-            <Button asChild className="h-10 rounded-lg bg-secondary text-white font-black px-5 shadow-md shadow-secondary/10 text-xs">
+            <Button asChild className="h-10 rounded-lg bg-secondary text-white font-black px-5 shadow-xl shadow-secondary/10 text-xs hover:bg-secondary/90 active:scale-95 transition-all">
                <Link href={`/${lang}/admin/admissions/new`}>
                   {isAr ? 'مراجعة الطلبات' : 'Review Apps'}
                </Link>
@@ -104,19 +104,19 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
            { label: isAr ? 'طلبات بانتظار الإجراء' : 'Action Required', value: stats.pendingApps, icon: AlertTriangle, color: 'bg-primary', trend: 'Urgent' },
            { label: isAr ? 'تحت التحصيل' : 'Receivables', value: `$${stats.outstanding.toLocaleString()}`, icon: CreditCard, color: 'bg-amber-500', trend: '-5%' },
          ].map((stat, i) => (
-           <Card key={i} className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 transition-all hover:shadow-md">
+           <Card key={i} className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 transition-all hover:shadow-md hover:-translate-y-0.5">
               <CardContent className="p-6">
                  <div className="flex justify-between items-start">
-                    <div className={cn("h-11 w-11 rounded-lg flex items-center justify-center text-white shadow-md", stat.color)}>
+                    <div className={cn("h-11 w-11 rounded-lg flex items-center justify-center text-white shadow-xl", stat.color)}>
                        <stat.icon className="h-5.5 w-5.5" />
                     </div>
-                    <Badge className="bg-slate-50 text-slate-500 border-none rounded-md px-2 py-0.5 font-black text-[9px]">
+                    <Badge className="bg-slate-50 text-slate-500 border-none rounded-lg px-2 py-0.5 font-black text-[9px] tracking-widest uppercase">
                        {stat.trend}
                     </Badge>
                  </div>
                  <div className="mt-6">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-1">{stat.value}</h3>
+                    <h3 className="text-2xl font-black text-slate-900 mt-1 tracking-tight">{stat.value}</h3>
                  </div>
               </CardContent>
            </Card>
@@ -124,10 +124,10 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-         <Card className="lg:col-span-2 border-none shadow-sm rounded-xl bg-white border border-slate-100">
+         <Card className="lg:col-span-2 border border-slate-100 shadow-sm rounded-xl bg-white">
             <CardHeader className="p-6 pb-0">
-               <CardTitle className="text-lg font-black uppercase text-slate-900">{isAr ? 'نمو الأكاديمية والطلاب' : 'Academy Growth Matrix'}</CardTitle>
-               <CardDescription className="text-xs font-bold">{isAr ? 'مقارنة الطلبات والتحويل لطلاب نشطين' : 'Monthly conversion metrics'}</CardDescription>
+               <CardTitle className="text-lg font-black uppercase text-slate-900 tracking-tight">{isAr ? 'نمو الأكاديمية والطلاب' : 'Academy Growth Matrix'}</CardTitle>
+               <CardDescription className="text-xs font-bold text-slate-400 uppercase tracking-widest">{isAr ? 'مقارنة الطلبات والتحويل لطلاب نشطين' : 'Monthly conversion metrics'}</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
                <div className="h-64 w-full">
@@ -157,9 +157,9 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
             </CardContent>
          </Card>
 
-         <Card className="border-none shadow-sm rounded-xl bg-white border border-slate-100">
+         <Card className="border border-slate-100 shadow-sm rounded-xl bg-white">
             <CardHeader className="p-6">
-               <CardTitle className="text-lg font-black uppercase text-slate-900">{isAr ? 'توزيع البرامج' : 'Program Penetration'}</CardTitle>
+               <CardTitle className="text-lg font-black uppercase text-slate-900 tracking-tight">{isAr ? 'توزيع البرامج' : 'Program Penetration'}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
                <div className="h-48 w-full">
@@ -186,10 +186,10 @@ export default function AdminDashboard({ params }: { params: Promise<{ lang: Loc
                     { label: isAr ? 'المتوسط والثانوي' : 'Academics', color: 'bg-secondary' },
                     { label: isAr ? 'عطلة الأسبوع' : 'Weekend', color: 'bg-orange-500' },
                   ].map((item, i) => (
-                    <div key={i} className="flex justify-between p-2.5 bg-slate-50 rounded-lg">
+                    <div key={i} className="flex justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-all border border-transparent hover:border-slate-200">
                        <div className="flex items-center gap-2">
-                          <div className={cn("h-2 w-2 rounded-full", item.color)} />
-                          <span className="text-[9px] font-black uppercase text-slate-500">{item.label}</span>
+                          <div className={cn("h-2 w-2 rounded-full shadow-sm", item.color)} />
+                          <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">{item.label}</span>
                        </div>
                     </div>
                   ))}

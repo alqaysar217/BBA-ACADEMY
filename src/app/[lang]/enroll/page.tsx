@@ -421,33 +421,28 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       lastStep: currentStep
     };
 
-    try {
-      const draftId = localStorage.getItem('bba_draft_id');
-      const docRef = draftId 
-        ? doc(firestore, 'enrollments', draftId) 
-        : doc(collection(firestore, 'enrollments'));
+    const draftId = localStorage.getItem('bba_draft_id');
+    const docRef = draftId 
+      ? doc(firestore, 'enrollments', draftId) 
+      : doc(collection(firestore, 'enrollments'));
 
-      setDoc(docRef, draftData, { merge: true })
-        .catch(async (err) => {
-           const permissionError = new FirestorePermissionError({
-            path: docRef.path,
-            operation: 'write',
-            requestResourceData: draftData,
-          });
-          errorEmitter.emit('permission-error', permissionError);
+    setDoc(docRef, draftData, { merge: true })
+      .then(() => {
+        if (!draftId) localStorage.setItem('bba_draft_id', docRef.id);
+        toast({
+          title: isAr ? 'تم حفظ المسودة' : 'Draft Saved',
+          description: isAr ? 'تم تأمين بياناتك سحابياً ومحلياً.' : 'Your data is secured in the cloud and locally.',
         });
-
-      if (!draftId) localStorage.setItem('bba_draft_id', docRef.id);
-      
-      toast({
-        title: isAr ? 'تم حفظ المسودة' : 'Draft Saved',
-        description: isAr ? 'تم تأمين بياناتك سحابياً ومحلياً.' : 'Your data is secured in the cloud and locally.',
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSavingDraft(false);
-    }
+      })
+      .catch(async (err) => {
+         const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'write',
+          requestResourceData: draftData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      })
+      .finally(() => setIsSavingDraft(false));
   };
 
   const handleSubmit = async () => {
@@ -475,43 +470,38 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
     setIsSubmitting(true);
 
-    try {
-      const finalData = {
-        ...formData,
-        status: 'submitted',
-        submittedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        userId: user?.uid || 'anonymous',
-        lang
-      };
+    const finalData = {
+      ...formData,
+      status: 'submitted',
+      submittedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      userId: user?.uid || 'anonymous',
+      lang
+    };
 
-      const draftId = localStorage.getItem('bba_draft_id');
-      const docRef = draftId 
-        ? doc(firestore, 'enrollments', draftId) 
-        : doc(collection(firestore, 'enrollments'));
+    const draftId = localStorage.getItem('bba_draft_id');
+    const docRef = draftId 
+      ? doc(firestore, 'enrollments', draftId) 
+      : doc(collection(firestore, 'enrollments'));
 
-      setSubmissionId(docRef.id);
+    setSubmissionId(docRef.id);
 
-      setDoc(docRef, finalData)
-        .then(() => {
-          localStorage.removeItem('bba_enrollment_draft');
-          localStorage.removeItem('bba_enrollment_step');
-          localStorage.removeItem('bba_draft_id');
-          setIsSubmitted(true);
-        })
-        .catch(async (err) => {
-          const permissionError = new FirestorePermissionError({
-            path: docRef.path,
-            operation: 'write',
-            requestResourceData: finalData,
-          });
-          errorEmitter.emit('permission-error', permissionError);
-          setIsSubmitting(false);
+    setDoc(docRef, finalData)
+      .then(() => {
+        localStorage.removeItem('bba_enrollment_draft');
+        localStorage.removeItem('bba_enrollment_step');
+        localStorage.removeItem('bba_draft_id');
+        setIsSubmitted(true);
+      })
+      .catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'write',
+          requestResourceData: finalData,
         });
-    } catch (err) {
-      console.error(err);
-      setIsSubmitting(false);
-    }
+        errorEmitter.emit('permission-error', permissionError);
+        setIsSubmitting(false);
+      });
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -574,7 +564,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
             {isAr ? 'تم استلام طلبكم بنجاح!' : 'Application Submitted!'}
           </h1>
           
-          <div className="p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 max-w-sm mx-auto group">
+          <div className="p-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 max-w-sm mx-auto group">
              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{isAr ? 'رقم مرجع الطلب' : 'Application Reference ID'}</p>
              <div className="flex items-center justify-center gap-3">
                 <p className="text-2xl font-black text-secondary select-all">{submissionId}</p>
@@ -615,7 +605,6 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
         </div>
       )}
 
-      {/* Dynamic Geometric Header Section */}
       <section className="bg-primary pt-12 pb-16 relative overflow-hidden">
         <div className="absolute inset-0">
            <svg className="absolute inset-0 h-full w-full opacity-[0.1]" xmlns="http://www.w3.org/2000/svg">
@@ -648,13 +637,13 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       <div className="container-tight -mt-8 relative z-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto space-y-6">
           
-          <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-2xl p-4 md:p-6 ring-1 ring-white/20">
+          <Card className="bg-white/95 backdrop-blur-md border-none shadow-2xl rounded-xl p-4 md:p-6 ring-1 ring-white/20">
             <div className="relative flex justify-between items-center px-4" dir={isAr ? 'rtl' : 'ltr'}>
               <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
               {steps.map((step) => (
                 <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
                   <div className={cn(
-                    "w-10 h-10 md:w-14 md:h-14 rounded-2xl flex items-center justify-center border-2 transition-all duration-500",
+                    "w-10 h-10 md:w-14 md:h-14 rounded-xl flex items-center justify-center border-2 transition-all duration-500",
                     currentStep === step.id ? "bg-secondary border-secondary text-white scale-110 shadow-xl shadow-secondary/30" : 
                     currentStep > step.id ? "bg-primary border-primary text-white" : 
                     "bg-white border-slate-200 text-slate-400"
@@ -666,7 +655,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
             </div>
           </Card>
 
-          <Card className="border-none shadow-2xl rounded-2xl overflow-hidden bg-white relative">
+          <Card className="border-none shadow-2xl rounded-xl overflow-hidden bg-white relative">
             <CardHeader className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 p-4 md:p-6 relative z-10">
               <div className="flex justify-between items-center">
                 <div className="space-y-0.5 overflow-hidden">
@@ -687,7 +676,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </h3>
                     
                     <div className={cn(
-                      "rounded-2xl border transition-all duration-300",
+                      "rounded-xl border transition-all duration-300",
                       openParent === 'p1' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200",
                       attemptedNext && (!formData.parent1Name || !formData.parent1Phone || isFieldInvalid(formData.parent1Email, true) || !formData.relationship1) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                     )} onClick={() => setOpenParent('p1')}>
@@ -709,21 +698,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <User className="h-3 w-3 text-secondary" />
                               {isAr ? 'الاسم الكامل *' : 'Full Name *'}
                             </Label>
-                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Name) && "border-red-500 ring-red-50")} placeholder="John Doe" />
+                            <Input value={formData.parent1Name} onChange={(e) => updateField('parent1Name', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent1Name) && "border-red-500 ring-red-50")} placeholder="John Doe" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Phone) && "text-red-500")}>
                               <Phone className="h-3 w-3 text-secondary" />
                               {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
                             </Label>
-                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
+                            <Input value={formData.parent1Phone} onChange={(e) => updateField('parent1Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent1Phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent1Email, true) && "text-red-500")}>
                               <Mail className="h-3 w-3 text-secondary" />
                               {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
                             </Label>
-                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent1Email, true) && "border-red-500 ring-red-50")} type="email" placeholder="example@mail.com" />
+                            <Input value={formData.parent1Email} onChange={(e) => updateField('parent1Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent1Email, true) && "border-red-500 ring-red-50")} type="email" placeholder="example@mail.com" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship1) && "text-red-500")}>
@@ -731,7 +720,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               {isAr ? 'صلة القرابة *' : 'Relationship *'}
                             </Label>
                             <Select value={formData.relationship1} onValueChange={(v) => updateField('relationship1', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                              <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.relationship1) && "border-red-500 ring-red-50")}>
+                              <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.relationship1) && "border-red-500 ring-red-50")}>
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
                               </SelectTrigger>
                               <SelectContent>
@@ -746,7 +735,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
 
                     <div className={cn(
-                      "rounded-2xl border transition-all duration-300",
+                      "rounded-xl border transition-all duration-300",
                       openParent === 'p2' ? "border-secondary bg-secondary/5 p-6" : "border-slate-100 bg-white p-4 cursor-pointer hover:border-slate-200",
                       attemptedNext && (!formData.parent2Name || !formData.parent2Phone || isFieldInvalid(formData.parent2Email, true) || !formData.relationship2) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                     )} onClick={() => setOpenParent('p2')}>
@@ -767,21 +756,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               <User className="h-3 w-3 text-secondary" />
                               {isAr ? 'الاسم الكامل *' : 'Full Name *'}
                             </Label>
-                            <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent2Name) && "border-red-500 ring-red-50")} />
+                            <Input value={formData.parent2Name} onChange={(e) => updateField('parent2Name', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent2Name) && "border-red-500 ring-red-50")} />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Phone) && "text-red-500")}>
                               <Phone className="h-3 w-3 text-secondary" />
                               {isAr ? 'رقم الهاتف *' : 'Phone Number *'}
                             </Label>
-                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent2Phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
+                            <Input value={formData.parent2Phone} onChange={(e) => updateField('parent2Phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent2Phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.parent2Email, true) && "text-red-500")}>
                               <Mail className="h-3 w-3 text-secondary" />
                               {isAr ? 'البريد الإلكتروني *' : 'Email Address *'}
                             </Label>
-                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.parent2Email, true) && "border-red-500 ring-red-50")} type="email" />
+                            <Input value={formData.parent2Email} onChange={(e) => updateField('parent2Email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.parent2Email, true) && "border-red-500 ring-red-50")} type="email" />
                           </div>
                           <div className="space-y-2">
                             <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.relationship2) && "text-red-500")}>
@@ -789,7 +778,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               {isAr ? 'صلة القرابة *' : 'Relationship *'}
                             </Label>
                             <Select value={formData.relationship2} onValueChange={(v) => updateField('relationship2', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                              <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(formData.relationship2) && "border-red-500 ring-red-50")}>
+                              <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(formData.relationship2) && "border-red-500 ring-red-50")}>
                                 <SelectValue placeholder={isAr ? 'اختر الصلة' : 'Select'} />
                               </SelectTrigger>
                               <SelectContent>
@@ -815,14 +804,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           <Type className="h-3 w-3 text-secondary" />
                           {isAr ? 'العنوان (السطر 1) *' : 'Address Line 1 *'}
                         </Label>
-                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.line1) && "border-red-500 ring-red-50")} placeholder="123 Academy St." />
+                        <Input value={formData.address.line1} onChange={(e) => updateAddress('line1', e.target.value)} className={cn("h-12 bg-slate-50 border-slate-100 rounded-lg font-bold", isFieldInvalid(formData.address.line1) && "border-red-500 ring-red-50")} placeholder="123 Academy St." />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                           <Hash className="h-3 w-3 text-secondary" />
                           {isAr ? 'العنوان (السطر 2)' : 'Address Line 2'}
                         </Label>
-                        <Input value={formData.address.line2} onChange={(e) => updateAddress('line2', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" placeholder="Apt 4B" />
+                        <Input value={formData.address.line2} onChange={(e) => updateAddress('line2', e.target.value)} className="h-12 bg-slate-50 border-slate-100 rounded-lg font-bold" placeholder="Apt 4B" />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="space-y-2">
@@ -830,7 +819,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <Building className="h-3 w-3 text-secondary" />
                             {isAr ? 'المدينة *' : 'City *'}
                           </Label>
-                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.city) && "border-red-500 ring-red-50")} />
+                          <Input value={formData.address.city} onChange={(e) => updateAddress('city', e.target.value)} className={cn("h-12 bg-slate-50 border-slate-100 rounded-lg font-bold", isFieldInvalid(formData.address.city) && "border-red-500 ring-red-50")} />
                         </div>
                         <div className="space-y-2">
                           <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(formData.address.state) && "text-red-500")}>
@@ -838,7 +827,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             {isAr ? 'الولاية *' : 'State *'}
                           </Label>
                           <Select value={formData.address.state} onValueChange={(v) => updateAddress('state', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                            <SelectTrigger className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.state) && "border-red-500 ring-red-50")}>
+                            <SelectTrigger className={cn("h-12 bg-slate-50 border-slate-100 rounded-lg font-bold", isFieldInvalid(formData.address.state) && "border-red-500 ring-red-50")}>
                               <SelectValue placeholder={isAr ? 'الولاية' : 'State'} />
                             </SelectTrigger>
                             <SelectContent>
@@ -866,7 +855,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             <Hash className="h-3 w-3 text-secondary" />
                             {isAr ? 'الرمز البريدي *' : 'ZIP Code *'}
                           </Label>
-                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', formatZipCode(e.target.value))} className={cn("h-12 bg-slate-50 border-slate-100 rounded-xl font-bold", isFieldInvalid(formData.address.zip) && "border-red-500 ring-red-50")} maxLength={5} inputMode="numeric" />
+                          <Input value={formData.address.zip} onChange={(e) => updateAddress('zip', formatZipCode(e.target.value))} className={cn("h-12 bg-slate-50 border-slate-100 rounded-lg font-bold", isFieldInvalid(formData.address.zip) && "border-red-500 ring-red-50")} maxLength={5} inputMode="numeric" />
                         </div>
                       </div>
                     </div>
@@ -876,7 +865,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
               {currentStep === 2 && (
                 <div className="space-y-12">
-                  <div className="bg-slate-50/80 p-4 md:p-8 rounded-2xl border border-slate-100 space-y-6 relative overflow-hidden">
+                  <div className="bg-slate-50/80 p-4 md:p-8 rounded-xl border border-slate-100 space-y-6 relative overflow-hidden">
                     <div className="text-center space-y-2">
                       <Label className="text-sm font-black text-primary uppercase tracking-widest flex items-center justify-center gap-2">
                         <Users className="h-4 w-4 text-secondary" />
@@ -893,7 +882,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         const isSelected = formData.siblingCount === n;
                         return (
                           <Label key={n} htmlFor={`count-${n}`} className={cn(
-                            "flex items-center justify-center p-6 rounded-2xl cursor-pointer transition-all duration-300 gap-3 border-2",
+                            "flex items-center justify-center p-6 rounded-xl cursor-pointer transition-all duration-300 gap-3 border-2",
                             isSelected 
                               ? "bg-secondary border-secondary text-white shadow-xl scale-110" 
                               : "bg-white border-slate-100 text-slate-500 hover:border-secondary/30"
@@ -972,21 +961,21 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   <User className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأول *' : 'First Name *'}
                                 </Label>
-                                <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.firstName) && "border-red-500 ring-red-50")} />
+                                <Input value={student.firstName} onChange={(e) => updateStudent(idx, 'firstName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(student.firstName) && "border-red-500 ring-red-50")} />
                               </div>
                               <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                                   <Type className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأوسط' : 'Middle Name'}
                                 </Label>
-                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-xl font-bold" />
+                                <Input value={student.middleName} onChange={(e) => updateStudent(idx, 'middleName', e.target.value)} className="h-12 bg-white border-slate-200 rounded-lg font-bold" />
                               </div>
                               <div className="space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.lastName) && "text-red-500")}>
                                   <User className="h-3 w-3 text-secondary" />
                                   {isAr ? 'الاسم الأخير *' : 'Last Name *'}
                                 </Label>
-                                <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastName) && "border-red-500 ring-red-50")} />
+                                <Input value={student.lastName} onChange={(e) => updateStudent(idx, 'lastName', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(student.lastName) && "border-red-500 ring-red-50")} />
                               </div>
 
                               <div className="space-y-2">
@@ -994,7 +983,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   <CalendarIcon className="h-3 w-3 text-secondary" />
                                   {isAr ? 'تاريخ الميلاد *' : 'Date of Birth *'}
                                 </Label>
-                                <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.dob) && "border-red-500 ring-red-50")} />
+                                <Input type="date" value={student.dob} onChange={(e) => updateStudent(idx, 'dob', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(student.dob) && "border-red-500 ring-red-50")} />
                               </div>
                               <div className="space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.gender) && "text-red-500")}>
@@ -1002,7 +991,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   {isAr ? 'الجنس *' : 'Gender *'}
                                 </Label>
                                 <Select value={student.gender} onValueChange={(v) => updateStudent(idx, 'gender', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                                  <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.gender) && "border-red-500 ring-red-50")}>
+                                  <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(student.gender) && "border-red-500 ring-red-50")}>
                                     <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -1017,7 +1006,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   {isAr ? 'آخر مرحلة دراسية *' : 'Last Grade *'}
                                 </Label>
                                 <Select value={student.lastGrade} onValueChange={(v) => updateStudent(idx, 'lastGrade', v)} dir={isAr ? 'rtl' : 'ltr'}>
-                                  <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.lastGrade) && "border-red-500 ring-red-50")}>
+                                  <SelectTrigger className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(student.lastGrade) && "border-red-500 ring-red-50")}>
                                     <SelectValue placeholder={isAr ? 'اختر' : 'Select'} />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -1033,14 +1022,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                   <Phone className="h-3 w-3 text-secondary" />
                                   {isAr ? 'رقم هاتف الطالب *' : 'Student Phone *'}
                                 </Label>
-                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
+                                <Input value={student.phone} onChange={(e) => updateStudent(idx, 'phone', formatPhoneNumber(e.target.value))} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(student.phone) && "border-red-500 ring-red-50")} placeholder="(777) 777-7777" inputMode="numeric" />
                               </div>
                               <div className="md:col-span-2 space-y-2">
                                 <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2", isFieldInvalid(student.email, true) && "text-red-500")}>
                                   <Mail className="h-3 w-3 text-secondary" />
                                   {isAr ? 'البريد الإلكتروني للطالب *' : 'Student Email *'}
                                 </Label>
-                                <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-xl font-bold", isFieldInvalid(student.email, true) && "border-red-500 ring-red-50")} placeholder="student@example.com" />
+                                <Input type="email" value={student.email} onChange={(e) => updateStudent(idx, 'email', e.target.value)} className={cn("h-12 bg-white border-slate-200 rounded-lg font-bold", isFieldInvalid(student.email, true) && "border-red-500 ring-red-50")} placeholder="student@example.com" />
                               </div>
                             </div>
                           </div>
@@ -1074,9 +1063,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   >
                     {availablePrograms.map((prog) => (
                       <Label key={prog.id} htmlFor={`opt-${prog.id}`} className={cn(
-                        "relative group rounded-[2rem] overflow-hidden border-4 cursor-pointer transition-all duration-500 h-56 md:h-64",
+                        "relative group rounded-xl overflow-hidden border-4 cursor-pointer transition-all duration-500 h-56 md:h-64",
                         formData.programOption === prog.id 
-                          ? "border-secondary shadow-[0_0_40px_rgba(var(--secondary),0.3)] scale-[1.05] z-10 bg-secondary/5" 
+                          ? "border-secondary shadow-xl scale-[1.05] z-10 bg-secondary/5" 
                           : "border-slate-100 hover:border-slate-300"
                       )}>
                         <RadioGroupItem value={prog.id} id={`opt-${prog.id}`} className="sr-only" />
@@ -1098,7 +1087,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </div>
                         <div className="absolute inset-0 z-10 p-5 md:p-6 flex flex-col justify-end text-white space-y-2">
                           <div className="flex justify-between items-start">
-                             <div className={cn("h-8 w-8 md:h-12 md:w-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:rotate-12", `bg-${prog.color} text-white`)}>
+                             <div className={cn("h-8 w-8 md:h-12 md:w-12 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:rotate-12", `bg-${prog.color} text-white`)}>
                                 <prog.icon className="h-4 w-4 md:h-6 md:w-6" />
                              </div>
                              {formData.programOption === prog.id && (
@@ -1119,7 +1108,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   {/* Program Details: Grades 3-5 */}
                   {formData.programOption === 'grades-3-5' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
-                      <Card className={cn("border-2 rounded-[2rem] overflow-hidden shadow-premium", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-secondary/20 bg-secondary/5")}>
+                      <Card className={cn("border-2 rounded-xl overflow-hidden shadow-premium", isFieldInvalid(formData.paymentTier) ? "border-red-300" : "border-secondary/20 bg-secondary/5")}>
                         <CardHeader className="bg-secondary text-white p-6 md:p-8 relative overflow-hidden">
                           <CardTitle className="text-xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-4">
                             <BookOpen className="h-8 w-8" />
@@ -1129,7 +1118,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         <CardContent className="p-5 md:p-10 space-y-10">
                           <RadioGroup value={formData.paymentTier} onValueChange={(v) => updateField('paymentTier', v)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Label htmlFor="pay-3-5-a" className={cn(
-                              "relative flex flex-col p-6 md:p-8 rounded-[2rem] border-2 cursor-pointer transition-all bg-white group",
+                              "relative flex flex-col p-6 md:p-8 rounded-xl border-2 cursor-pointer transition-all bg-white group",
                               formData.paymentTier === 'initial-3-5' ? "border-secondary shadow-2xl scale-[1.02] bg-secondary/5" : "border-slate-100 hover:border-secondary/30",
                               isFieldInvalid(formData.paymentTier) && "border-red-100"
                             )}>
@@ -1145,7 +1134,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                             </Label>
 
                             <Label htmlFor="pay-3-5-b" className={cn(
-                              "relative flex flex-col p-6 md:p-8 rounded-[2rem] border-2 cursor-pointer transition-all bg-white group",
+                              "relative flex flex-col p-6 md:p-8 rounded-xl border-2 cursor-pointer transition-all bg-white group",
                               formData.paymentTier === 'full-3-5' ? "border-secondary shadow-2xl scale-[1.02] bg-secondary/5" : "border-slate-100 hover:border-secondary/30",
                               isFieldInvalid(formData.paymentTier) && "border-red-100"
                             )}>
@@ -1183,7 +1172,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               { id: 'english-arabic', label: isAr ? 'الدراسة بالإنجليزية والعربية' : 'Study in English & Arabic', icon: BookOpen }
                            ].map(opt => (
                               <Label key={opt.id} htmlFor={`var-${opt.id}`} className={cn(
-                                 "flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 text-center transition-all cursor-pointer shadow-premium group hover:scale-[1.02]",
+                                 "flex flex-col items-center justify-center p-8 rounded-xl border-2 text-center transition-all cursor-pointer shadow-premium group hover:scale-[1.02]",
                                  formData.languageOption === opt.id ? "bg-primary text-white border-primary shadow-2xl" : "bg-white border-slate-100 hover:border-primary/20 text-primary",
                                  isFieldInvalid(formData.languageOption) && "border-red-100"
                               )}>
@@ -1196,9 +1185,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       </div>
 
                       {formData.languageOption && (
-                        <Card className="border-2 border-primary/20 bg-primary/5 rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in duration-500">
+                        <Card className="border-2 border-primary/20 bg-primary/5 rounded-xl overflow-hidden shadow-2xl animate-in zoom-in duration-500">
                            <CardContent className="p-8 md:p-12 text-center space-y-6">
-                              <div className="h-20 w-20 rounded-3xl bg-primary text-white flex items-center justify-center mx-auto shadow-xl">
+                              <div className="h-20 w-20 rounded-xl bg-primary text-white flex items-center justify-center mx-auto shadow-xl">
                                 <DollarSign className="h-10 w-10 text-secondary" />
                               </div>
                               <div className="space-y-2">
@@ -1215,9 +1204,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                   {/* Program Details: Weekend */}
                   {formData.programOption === 'weekend' && (
                     <div className="space-y-10 animate-in slide-in-from-top-6 duration-700">
-                       <Card className="border-2 border-accent/20 bg-accent/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+                       <Card className="border-2 border-accent/20 bg-accent/5 rounded-xl overflow-hidden shadow-2xl">
                           <CardContent className="p-8 md:p-16 text-center space-y-8">
-                             <div className="h-20 w-20 rounded-3xl bg-accent text-white flex items-center justify-center mx-auto shadow-xl">
+                             <div className="h-20 w-20 rounded-xl bg-accent text-white flex items-center justify-center mx-auto shadow-xl">
                                <Clock className="h-10 w-10" />
                              </div>
                              <div className="space-y-2">
@@ -1226,7 +1215,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                 <p className="text-slate-400 font-black uppercase text-[10px] md:text-xs tracking-[0.2em]">{isAr ? 'لكل طالب مسجل' : 'Per Registered Student'}</p>
                              </div>
                              
-                             <div className="max-w-md mx-auto p-6 bg-white rounded-2xl border-2 border-dashed border-accent/30 shadow-inner">
+                             <div className="max-w-md mx-auto p-6 bg-white rounded-xl border-2 border-dashed border-accent/30 shadow-inner">
                                <div className="flex items-start gap-4 text-start">
                                  <div className="h-10 w-10 rounded-full bg-accent/10 text-accent flex items-center justify-center shrink-0">
                                    <Info className="h-5 w-5" />
@@ -1278,9 +1267,9 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           i: FileText 
                         }
                       ].map((item, idx) => (
-                        <div key={idx} className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100 flex flex-col gap-5 shadow-sm hover:shadow-xl transition-all duration-500 group">
+                        <div key={idx} className="p-6 bg-slate-50/50 rounded-xl border border-slate-100 flex flex-col gap-5 shadow-sm hover:shadow-xl transition-all duration-500 group">
                           <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-2xl bg-white text-secondary flex items-center justify-center shadow-lg group-hover:bg-secondary group-hover:text-white transition-colors">
+                            <div className="h-12 w-12 rounded-lg bg-white text-secondary flex items-center justify-center shadow-lg group-hover:bg-secondary group-hover:text-white transition-colors">
                               <item.i className="h-6 w-6" />
                             </div>
                             <span className="text-sm md:text-lg font-black text-primary uppercase tracking-tight leading-tight">{item.t}</span>
@@ -1294,7 +1283,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                     <div 
                       className={cn(
-                        "relative p-12 md:p-24 border-2 border-dashed rounded-[3rem] flex flex-col items-center text-center space-y-8 transition-all group mx-2",
+                        "relative p-12 md:p-24 border-2 border-dashed rounded-xl flex flex-col items-center text-center space-y-8 transition-all group mx-2",
                         isProcessingFile ? "bg-secondary/5 border-secondary animate-pulse" : "bg-slate-50/30 border-slate-200 hover:bg-white hover:border-secondary/50 hover:shadow-2xl",
                         attemptedNext && (!formData.files || formData.files.length === 0) && "border-red-500 bg-red-50/10 shadow-[0_0_20px_rgba(239,68,68,0.1)]"
                       )}
@@ -1310,7 +1299,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                        {isProcessingFile ? (
                          <Loader2 className="h-20 w-20 text-secondary animate-spin" />
                        ) : (
-                         <div className="h-24 w-24 rounded-3xl bg-white shadow-2xl flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 ring-1 ring-slate-100">
+                         <div className="h-24 w-24 rounded-xl bg-white shadow-2xl flex items-center justify-center text-slate-300 group-hover:text-secondary group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 ring-1 ring-slate-100">
                            <Upload className="h-12 w-12" />
                          </div>
                        )}
@@ -1341,16 +1330,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {formData.files.map((file: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between p-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:border-secondary/20 transition-all hover:shadow-lg group">
+                            <div key={idx} className="flex items-center justify-between p-5 bg-white rounded-xl border border-slate-100 shadow-sm hover:border-secondary/20 transition-all hover:shadow-lg group">
                               <div className="flex items-center gap-4 min-w-0">
-                                 <div className="h-10 w-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                                 <div className="h-10 w-10 rounded-lg bg-green-50 text-green-500 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                                     <FileCheck className="h-5 w-5" />
                                  </div>
                                  <span className="text-xs md:text-sm font-bold text-slate-600 truncate">{file.name}</span>
                               </div>
                               <button 
                                onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
-                               className="h-10 w-10 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                               className="h-10 w-10 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all active:scale-90"
                               >
                                 <X className="h-5 w-5" />
                               </button>
@@ -1363,7 +1352,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
 
                   <div className="space-y-8 pt-10 border-t border-slate-100 mx-2">
                     <div className="flex items-center gap-4 mb-8">
-                      <div className="h-12 w-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner">
+                      <div className="h-12 w-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-inner">
                          <Eye className="h-6 w-6" />
                       </div>
                       <h3 className="text-xl md:text-4xl font-black text-primary uppercase tracking-tight">
@@ -1372,8 +1361,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
 
                     <div className="grid grid-cols-1 gap-8">
-                      <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
-                        <button onClick={() => setCurrentStep(1)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
+                      <Card className="rounded-xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
+                        <button onClick={() => setCurrentStep(1)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-lg flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4 relative overflow-hidden">
                            <UserCircle2 className="h-6 w-6 text-secondary relative z-10" />
                            <CardTitle className="text-xs md:text-lg font-black uppercase tracking-widest relative z-10">{isAr ? 'بيانات أولياء الأمور والعنوان' : 'Parents & Address'}</CardTitle>
@@ -1395,7 +1384,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                           </div>
                           <div>
                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">{isAr ? 'عنوان السكن' : 'Home Address'}</div>
-                             <div className="font-bold text-primary text-sm md:text-lg leading-relaxed bg-white p-5 rounded-2xl border border-slate-100 shadow-inner">
+                             <div className="font-bold text-primary text-sm md:text-lg leading-relaxed bg-white p-5 rounded-xl border border-slate-100 shadow-inner">
                                {formData.address.line1}, {formData.address.line2 && `${formData.address.line2}, `}
                                <br />
                                <span className="text-secondary">{formData.address.city}, {formData.address.state} {formData.address.zip}</span>
@@ -1404,8 +1393,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
-                      <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
-                        <button onClick={() => setCurrentStep(2)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
+                      <Card className="rounded-xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
+                        <button onClick={() => setCurrentStep(2)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-lg flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4">
                            <GraduationCap className="h-6 w-6 text-secondary" />
                            <CardTitle className="text-xs md:text-lg font-black uppercase tracking-widest">{isAr ? 'الطلاب المسجلون' : 'Registered Students'}</CardTitle>
@@ -1413,7 +1402,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         <CardContent className="p-0">
                           {formData.students.map((st: any, i: number) => (
                             <div key={i} className={cn("p-6 md:p-10 flex items-start gap-6 transition-colors hover:bg-white", i !== formData.students.length - 1 && "border-b border-slate-100")}>
-                               <div className="h-10 w-10 md:h-12 md:w-12 rounded-2xl bg-white border border-slate-100 shadow-md flex items-center justify-center font-black text-primary shrink-0 text-lg">
+                               <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-white border border-slate-100 shadow-md flex items-center justify-center font-black text-primary shrink-0 text-lg">
                                  {i + 1}
                                </div>
                                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1435,8 +1424,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         </CardContent>
                       </Card>
 
-                      <Card className="rounded-3xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
-                        <button onClick={() => setCurrentStep(3)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
+                      <Card className="rounded-xl border-slate-100 bg-slate-50/50 overflow-hidden shadow-sm hover:shadow-premium transition-all duration-500 relative">
+                        <button onClick={() => setCurrentStep(3)} className="absolute top-4 right-4 h-10 w-10 bg-white shadow-xl rounded-lg flex items-center justify-center text-secondary hover:text-primary transition-all z-20"><PencilLine className="h-5 w-5" /></button>
                         <CardHeader className="bg-primary p-5 text-white flex flex-row items-center gap-4">
                            <CreditCard className="h-6 w-6 text-secondary" />
                            <CardTitle className="text-xs md:text-lg font-black uppercase tracking-widest">{isAr ? 'البرنامج التعليمي والدفع' : 'Program & Payment'}</CardTitle>
@@ -1449,14 +1438,14 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                                    {availablePrograms.find(p => p.id === formData.programOption)?.title}
                                  </div>
                                  {formData.languageOption && (
-                                   <div className="mt-3 px-3 py-1 inline-block bg-secondary/10 text-secondary rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest ring-1 ring-secondary/20">
+                                   <div className="mt-3 px-3 py-1 inline-block bg-secondary/10 text-secondary rounded-lg font-black text-[10px] md:text-xs uppercase tracking-widest ring-1 ring-secondary/20">
                                      {formData.languageOption === 'english-only' ? (isAr ? 'الإنجليزية فقط' : 'English Only') : 
                                       formData.languageOption === 'english-arabic' ? (isAr ? 'الإنجليزية والعربية' : 'English & Arabic') : ''}
                                    </div>
                                  )}
                               </div>
                            </div>
-                           <div className="flex flex-col justify-center bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-inner group">
+                           <div className="flex flex-col justify-center bg-white p-6 md:p-8 rounded-xl border border-slate-100 shadow-inner group">
                               <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">{isAr ? 'المبلغ المستحق' : 'Amount Due'}</div>
                               <div className="font-black text-secondary text-4xl md:text-6xl drop-shadow-sm group-hover:scale-110 transition-transform">
                                  {formData.programOption === 'weekend' ? '$75' : 
@@ -1471,7 +1460,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     </div>
                   </div>
 
-                  <div className="p-10 md:p-16 bg-primary text-white rounded-[3rem] shadow-2xl relative overflow-hidden space-y-8 mx-2 border-b-8 border-secondary group">
+                  <div className="p-10 md:p-16 bg-primary text-white rounded-xl shadow-2xl relative overflow-hidden space-y-8 mx-2 border-b-8 border-secondary group">
                     <div className="absolute top-0 right-0 p-12 opacity-[0.05] group-hover:scale-110 group-hover:rotate-12 transition-transform duration-1000">
                        <Send className="h-48 w-48" />
                     </div>
@@ -1494,7 +1483,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       variant="outline" 
                       onClick={handleBack} 
                       disabled={isSubmitting}
-                      className="flex-1 h-14 md:h-20 rounded-[1.5rem] border-2 border-slate-100 text-slate-500 font-black hover:bg-slate-50 gap-3 transition-all active:scale-95 text-xs md:text-lg"
+                      className="flex-1 h-14 md:h-20 rounded-xl border-2 border-slate-100 text-slate-500 font-black hover:bg-slate-50 gap-3 transition-all active:scale-95 text-xs md:text-lg"
                     >
                       {isAr ? <ArrowRight className="h-5 w-5 md:h-6 md:w-6" /> : <ArrowLeft className="h-5 w-5 md:h-6 md:w-6" />}
                       {isAr ? 'السابق' : 'Back'}
@@ -1505,7 +1494,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                     onClick={currentStep < 4 ? handleNext : handleSubmit} 
                     disabled={isSubmitting}
                     className={cn(
-                      "h-14 md:h-20 rounded-[1.5rem] font-black text-sm md:text-2xl transition-all gap-4 shadow-2xl active:scale-95 group",
+                      "h-14 md:h-20 rounded-xl font-black text-sm md:text-2xl transition-all gap-4 shadow-2xl active:scale-95 group",
                       currentStep > 1 ? "flex-[3]" : "w-full",
                       "bg-secondary text-white hover:bg-secondary/90 shadow-secondary/30"
                     )}
@@ -1516,7 +1505,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                         : (isSubmitting ? (isAr ? 'جاري الإرسال...' : 'Submitting...') : (isAr ? 'تأكيد وإرسال' : 'Confirm & Submit'))
                       }
                     </span>
-                    <div className="h-10 w-10 md:h-14 md:w-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                    <div className="h-10 w-10 md:h-14 md:w-14 rounded-lg bg-white/20 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                       {currentStep < 4 ? (
                         isAr ? <ArrowLeft className="h-6 w-6 md:h-8 md:w-8" /> : <ArrowRight className="h-6 w-6 md:h-8 md:w-8" />
                       ) : (

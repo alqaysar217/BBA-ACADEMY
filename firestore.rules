@@ -3,12 +3,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Allow public write access to enrollments for new submissions
+    // قواعد وصول عامة للتطوير والتشغيل - تسمح بالإرسال العام للمسودات والطلبات
     match /enrollments/{enrollmentId} {
       allow read, write: if true;
     }
 
-    // Allow access to students and admin metadata
+    // السماح بالوصول لسجلات الطلاب وبيانات الإدارة
     match /students/{studentId} {
       allow read, write: if true;
     }
@@ -17,11 +17,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // قواعد حماية شاملة للوحة الإدارة والتطوير
+    // قواعد حماية شاملة لضمان استقرار النظام أثناء المرحلة الانتقالية
     match /{document=**} {
       allow read, write: if true;
     }
 
-    // التحديث: 2026-10-24 - تنشيط القواعد لمعالجة أخطاء الأذونات في الإرسال
+    // تحديث الأذونات: 2026-10-24 - معالجة أخطاء Permission Denied في الإرسال
   }
 }

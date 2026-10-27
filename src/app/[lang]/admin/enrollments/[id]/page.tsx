@@ -29,7 +29,8 @@ import {
   UserPlus,
   Mail,
   Phone,
-  Layout
+  Layout,
+  Star
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -108,7 +109,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     
     const studentsCollection = collection(firestore, 'students');
     
-    // Create student records
+    // Create student records - Avoiding await for instant UI feel
     app.students.forEach((student: any) => {
       const studentDoc = doc(studentsCollection);
       const studentData = {
@@ -216,7 +217,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
   return (
     <div className="space-y-10">
-      {/* Sharp Header Container */}
+      {/* Premium Header - Glassmorphism */}
       <header className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-xl p-5 shadow-sm sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button 
@@ -232,7 +233,8 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                  "h-6 px-3 rounded-lg font-black uppercase text-[9px] tracking-widest border-none shadow-sm",
                  app.status === 'approved' ? "bg-green-100 text-green-600" : 
                  app.status === 'rejected' ? "bg-red-100 text-red-600" :
-                 "bg-blue-100 text-blue-600"
+                 app.status === 'reviewed' ? "bg-blue-100 text-blue-600" :
+                 "bg-amber-100 text-amber-600"
                )}>
                  {app.status}
                </Badge>
@@ -248,23 +250,31 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         <div className="flex items-center gap-3 w-full md:w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex-1 md:flex-none rounded-lg h-11 border-slate-200 font-black text-[10px] uppercase tracking-widest bg-white">
+              <Button variant="outline" className="flex-1 md:flex-none rounded-lg h-11 border-slate-200 font-black text-[10px] uppercase tracking-widest bg-white hover:bg-slate-50">
                 <Layers className="h-4 w-4 mr-2 text-secondary" />
-                {isAr ? 'تغيير الحالة' : 'Status'}
+                {isAr ? 'تغيير الحالة' : 'Update Status'}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-lg p-1.5 min-w-[200px] shadow-xl border-slate-100">
-              <DropdownMenuItem onClick={() => updateStatus('reviewed')} className="font-bold text-primary p-2.5 rounded-md">{isAr ? 'تمت المراجعة' : 'Mark Reviewed'}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('missing_docs')} className="font-bold text-amber-600 p-2.5 rounded-md">{isAr ? 'وثائق مفقودة' : 'Missing Docs'}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('rejected')} className="font-bold text-red-600 p-2.5 rounded-md">{isAr ? 'رفض الطلب' : 'Reject'}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateStatus('approved')} className="font-bold text-green-600 p-2.5 rounded-md">{isAr ? 'مقبول' : 'Accept'}</DropdownMenuItem>
+            <DropdownMenuContent align="end" className="rounded-xl p-1.5 min-w-[200px] shadow-2xl border-slate-100">
+              <DropdownMenuItem onClick={() => updateStatus('reviewed')} className="font-bold text-primary p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                <div className="h-2 w-2 rounded-full bg-blue-500" /> {isAr ? 'تمت المراجعة' : 'Mark Reviewed'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateStatus('missing_docs')} className="font-bold text-amber-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                <div className="h-2 w-2 rounded-full bg-amber-500" /> {isAr ? 'وثائق مفقودة' : 'Missing Documents'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateStatus('rejected')} className="font-bold text-red-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                <div className="h-2 w-2 rounded-full bg-red-500" /> {isAr ? 'رفض الطلب' : 'Reject Application'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateStatus('approved')} className="font-bold text-emerald-600 p-3 rounded-lg cursor-pointer flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                <div className="h-2 w-2 rounded-full bg-emerald-500" /> {isAr ? 'مقبول' : 'Approve Application'}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <Button 
             onClick={approveAndEnroll}
             disabled={isProcessing || app.status === 'approved'}
-            className="flex-[2] md:flex-none rounded-lg h-11 bg-primary hover:bg-secondary text-white font-black px-8 shadow-md transition-all gap-2 text-xs active:scale-95"
+            className="flex-[2] md:flex-none rounded-lg h-11 bg-primary hover:bg-secondary text-white font-black px-8 shadow-xl transition-all gap-2 text-xs active:scale-95"
           >
             {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4 text-secondary" />}
             {isAr ? 'اعتماد وتسجيل الطالب' : 'Approve & Enroll'}
@@ -276,13 +286,13 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       <div className="grid grid-cols-1 gap-12">
         
         {/* SECTION 1: GUARDIANS */}
-        <section className="animate-in fade-in duration-500">
+        <section className="animate-in fade-in slide-in-from-bottom-8 duration-700">
           <SectionHeader 
             icon={Users} 
             title={isAr ? 'بيانات العائلة والتواصل' : 'Family Intelligence'} 
             subtitle={isAr ? 'جدول الممثلين القانونيين وعنوان السكن' : 'Authorized Guardians & Residence'}
           />
-          <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100">
+          <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
             <div className="overflow-x-auto">
                <Table>
                  <TableHeader className="bg-slate-50 border-b border-slate-100">
@@ -296,29 +306,29 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                    </TableRow>
                  </TableHeader>
                  <TableBody>
-                   <TableRow className="hover:bg-slate-50/50 border-slate-100">
+                   <TableRow className="hover:bg-slate-50/50 border-slate-100 transition-colors">
                      <TableCell className="text-center font-black text-slate-300 py-6">01</TableCell>
                      <TableCell className="px-6 font-black text-primary text-base text-start">{app.parent1Name}</TableCell>
                      <TableCell className="font-bold text-slate-600 text-center" dir="ltr">{app.parent1Phone}</TableCell>
                      <TableCell className="font-bold text-slate-600 text-center">{app.parent1Email}</TableCell>
-                     <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase">{app.relationship1}</Badge></TableCell>
-                     <TableCell className="text-center"><Badge className="bg-secondary text-white text-[8px] font-black uppercase tracking-widest px-2">Primary</Badge></TableCell>
+                     <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-lg">{app.relationship1}</Badge></TableCell>
+                     <TableCell className="text-center"><Badge className="bg-secondary text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-lg">Primary</Badge></TableCell>
                    </TableRow>
                    
                    {app.parent2Name && (
-                     <TableRow className="hover:bg-slate-50/50 border-slate-100">
+                     <TableRow className="hover:bg-slate-50/50 border-slate-100 transition-colors">
                        <TableCell className="text-center font-black text-slate-300 py-6">02</TableCell>
                        <TableCell className="px-6 font-black text-primary text-base text-start">{app.parent2Name}</TableCell>
                        <TableCell className="font-bold text-slate-600 text-center" dir="ltr">{app.parent2Phone}</TableCell>
                        <TableCell className="font-bold text-slate-600 text-center">{app.parent2Email}</TableCell>
-                       <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase">{app.relationship2}</Badge></TableCell>
-                       <TableCell className="text-center"><Badge className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-2">Secondary</Badge></TableCell>
+                       <TableCell className="text-center"><Badge variant="outline" className="bg-slate-50 text-slate-500 border-none font-black text-[8px] uppercase rounded-lg">{app.relationship2}</Badge></TableCell>
+                       <TableCell className="text-center"><Badge className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-2 rounded-lg">Secondary</Badge></TableCell>
                      </TableRow>
                    )}
 
                    <TableRow className="bg-slate-50/30">
                      <TableCell colSpan={6} className="p-6">
-                        <div className="bg-white p-6 rounded-lg border border-slate-100 flex flex-row items-center gap-8 shadow-sm overflow-x-auto no-scrollbar">
+                        <div className="bg-white p-6 rounded-xl border border-slate-100 flex flex-row items-center gap-8 shadow-sm overflow-x-auto no-scrollbar ring-1 ring-slate-100">
                            <div className="flex items-center gap-4 shrink-0">
                               <div className="h-11 w-11 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
                                  <MapPin className="h-5 w-5" />
@@ -361,14 +371,14 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         </section>
 
         {/* SECTION 2: STUDENT ROSTER */}
-        <section className="animate-in fade-in duration-500 delay-100">
+        <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
            <SectionHeader 
               icon={GraduationCap} 
               title={isAr ? 'سجل الطلاب الأكاديمي' : 'Student Roster'} 
               subtitle={isAr ? 'البيانات الشخصية والأكاديمية لكافة الأبناء' : 'Sibling Academic Profiles'}
               color="bg-secondary"
             />
-            <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100">
+            <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-slate-50 border-b border-slate-100">
@@ -404,7 +414,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                           {student.email}
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap">
-                          <Badge className="bg-secondary/10 text-secondary border-none font-black text-[8px] uppercase px-2">
+                          <Badge className="bg-secondary/10 text-secondary border-none font-black text-[8px] uppercase px-2 rounded-lg">
                              {student.status}
                           </Badge>
                         </TableCell>
@@ -417,10 +427,10 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         </section>
 
         {/* SECTION 3: BOTTOM GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500 delay-200">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
           <section className="space-y-6">
              <SectionHeader icon={Briefcase} title={isAr ? 'المسار التعليمي' : 'Academic Track'} subtitle={isAr ? 'البرنامج المختار والرسوم' : 'Enrollment Path'} color="bg-accent" />
-             <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100 p-8 flex flex-col justify-center gap-6 min-h-[240px]">
+             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 p-8 flex flex-col justify-center gap-6 min-h-[240px]">
                 <div className="space-y-1">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'خيار البرنامج' : 'Selected Program'}</p>
                    <h3 className="text-2xl font-black text-primary tracking-tight">{app.programOption}</h3>
@@ -440,7 +450,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
           <section className="space-y-6">
              <SectionHeader icon={FileCheck} title={isAr ? 'الأرشيف الرقمي' : 'Digital Evidence'} subtitle={isAr ? 'الوثائق المرفقة' : 'Verified Uploads'} color="bg-slate-900" />
-             <Card className="border-none shadow-sm rounded-lg overflow-hidden bg-white border border-slate-100 min-h-[240px]">
+             <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100 min-h-[240px]">
                 <Table>
                   <TableBody>
                     {app.files && app.files.length > 0 ? (

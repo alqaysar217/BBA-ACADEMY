@@ -127,7 +127,7 @@ export default function AdminLayout({
       title: isAr ? 'الأكاديميا' : 'Academic',
       show: hasPermission('academic'),
       items: [
-        { label: isAr ? 'الخطط الدراسية' : 'Study Plans', href: `/${lang}/admin/academic/plans`, icon: BookOpen, show: true },
+        { label: isAr ? 'الخطط الدراسية' : 'Study Plans', icon: BookOpen, href: `/${lang}/admin/academic/plans`, show: true },
       ]
     },
     {
@@ -183,24 +183,32 @@ export default function AdminLayout({
 
   const SidebarInner = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={cn(
-      "flex flex-col h-full transition-all duration-300",
-      isDarkMode ? "bg-slate-950 text-slate-100" : "bg-primary text-white"
+      "flex flex-col h-full transition-all duration-300 shadow-2xl relative z-10",
+      isDarkMode 
+        ? "bg-slate-950 text-slate-100" 
+        : "bg-gradient-to-b from-primary via-primary to-accent text-white"
     )}>
-      <div className="p-6 border-b border-white/5 relative z-10">
+      {/* Decorative Blur in Background */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+         <div className="absolute top-1/4 right-0 w-32 h-32 bg-secondary blur-[50px] rounded-full" />
+         <div className="absolute bottom-1/4 left-0 w-32 h-32 bg-blue-400 blur-[60px] rounded-full" />
+      </div>
+
+      <div className="p-6 border-b border-white/5 relative z-10 flex flex-col gap-4">
         <Link href={`/${lang}`} className="flex items-center gap-4 group">
-          <div className="h-12 w-12 rounded-lg bg-white p-2 shrink-0 shadow-xl transition-all duration-300 group-hover:scale-105">
+          <div className="h-12 w-12 rounded-xl bg-white p-2 shrink-0 shadow-xl transition-all duration-500 group-hover:rotate-12 group-hover:scale-110">
             <Image src="/logo.png" alt="BBA Logo" width={40} height={40} className="object-contain" unoptimized />
           </div>
           {(isSidebarOpen || isMobile) && (
-            <div className="flex flex-col">
-              <span className="font-black text-xl tracking-tighter leading-none">BBA <span className="text-secondary">OS</span></span>
-              <span className="text-[8px] uppercase tracking-[0.2em] text-white/40 font-black mt-1">Management Portal</span>
+            <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
+              <span className="font-black text-xl tracking-tighter leading-none">BBA <span className="text-secondary drop-shadow-[0_0_8px_rgba(var(--secondary),0.5)]">OS</span></span>
+              <span className="text-[8px] uppercase tracking-[0.3em] text-white/40 font-black mt-1">Management Portal</span>
             </div>
           )}
         </Link>
       </div>
 
-      <nav className="flex-1 py-6 px-3 space-y-4 overflow-y-auto relative z-10 no-scrollbar">
+      <nav className="flex-1 py-6 px-3 space-y-6 overflow-y-auto relative z-10 no-scrollbar">
         {menuGroups.map((group, gIdx) => {
           if (!group.show) return null;
           const isGroupOpen = openGroups.includes(group.title);
@@ -215,13 +223,14 @@ export default function AdminLayout({
               {(isSidebarOpen || isMobile) ? (
                 <>
                   <CollapsibleTrigger className={cn(
-                    "w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all group font-black text-[10px] uppercase tracking-[0.15em] relative",
-                    isGroupOpen ? "bg-white/10 text-white" : "text-white/30 hover:bg-white/5 hover:text-white"
+                    "w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group font-black text-[10px] uppercase tracking-[0.2em] relative overflow-hidden",
+                    isGroupOpen ? "bg-white/10 text-white shadow-inner" : "text-white/30 hover:bg-white/5 hover:text-white"
                   )}>
+                    {isGroupOpen && <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary shadow-[0_0_15px_rgba(var(--secondary),0.5)]" />}
                     <span className="truncate">{group.title}</span>
-                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-300", !isGroupOpen && (isAr ? "rotate-90" : "-rotate-90"))} />
+                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-500", !isGroupOpen && (isAr ? "rotate-90" : "-rotate-90"))} />
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-1 mt-1 overflow-hidden">
+                  <CollapsibleContent className="space-y-1 mt-1 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
                     {group.items.map((item, iIdx) => {
                       if (!item.show) return null;
                       const active = pathname === item.href;
@@ -231,13 +240,18 @@ export default function AdminLayout({
                           href={item.href}
                           onClick={() => isMobile && setMobileMenuOpen(false)}
                           className={cn(
-                            "flex items-center gap-3 p-2.5 rounded-lg transition-all group border border-transparent",
+                            "flex items-center gap-3 p-3 rounded-xl transition-all group border border-transparent mx-1",
                             active 
-                              ? "bg-secondary text-white shadow-lg" 
+                              ? "bg-secondary text-white shadow-xl shadow-secondary/20" 
                               : "hover:bg-white/5 text-white/50 hover:text-white"
                           )}
                         >
-                          <item.icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-105", active ? "text-white" : "text-secondary/60")} />
+                          <div className={cn(
+                             "h-8 w-8 rounded-lg flex items-center justify-center transition-all",
+                             active ? "bg-white/20 text-white" : "bg-white/5 text-secondary/60 group-hover:bg-white/10 group-hover:text-secondary"
+                          )}>
+                             <item.icon className="h-4 w-4" />
+                          </div>
                           <span className="font-bold text-[13px] tracking-tight truncate">{item.label}</span>
                         </Link>
                       );
@@ -245,7 +259,7 @@ export default function AdminLayout({
                   </CollapsibleContent>
                 </>
               ) : (
-                <div className="space-y-2 flex flex-col items-center">
+                <div className="space-y-3 flex flex-col items-center">
                   {group.items.map((item, iIdx) => {
                     if (!item.show) return null;
                     const active = pathname === item.href;
@@ -254,11 +268,12 @@ export default function AdminLayout({
                         key={`${item.label}-${iIdx}`}
                         href={item.href}
                         className={cn(
-                          "flex items-center justify-center h-10 w-10 rounded-lg transition-all group relative",
-                          active ? "bg-secondary text-white shadow-lg" : "hover:bg-white/5 text-white/60"
+                          "flex items-center justify-center h-12 w-12 rounded-xl transition-all group relative",
+                          active ? "bg-secondary text-white shadow-xl shadow-secondary/30" : "bg-white/5 text-white/30 hover:bg-white/10 hover:text-white"
                         )}
                       >
-                        <item.icon className="h-4.5 w-4.5" />
+                        <item.icon className="h-5 w-5" />
+                        {active && <div className="absolute -left-1 w-1 h-6 bg-secondary rounded-full" />}
                       </Link>
                     );
                   })}
@@ -271,10 +286,10 @@ export default function AdminLayout({
 
       <div className="p-4 space-y-2 border-t border-white/5 relative z-10">
         <div className="flex gap-2">
-          <button onClick={toggleTheme} className="flex-1 p-3 bg-white/5 rounded-lg text-white/50 flex items-center justify-center hover:text-white transition-all">
+          <button onClick={toggleTheme} className="flex-1 p-3 bg-white/5 rounded-xl text-white/50 flex items-center justify-center hover:bg-white/10 hover:text-white transition-all shadow-sm">
             {isDarkMode ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
           </button>
-          <Link href={redirectedPathname(isAr ? 'en' : 'ar')} className="flex-1 p-3 bg-white/5 rounded-lg text-white/50 flex items-center justify-center gap-2 hover:text-white transition-all">
+          <Link href={redirectedPathname(isAr ? 'en' : 'ar')} className="flex-1 p-3 bg-white/5 rounded-xl text-white/50 flex items-center justify-center gap-2 hover:bg-white/10 hover:text-white transition-all shadow-sm">
             <Languages className="h-4.5 w-4.5 text-secondary" />
             {(isSidebarOpen || isMobile) && <span className="text-[10px] font-black tracking-widest">{isAr ? 'EN' : 'AR'}</span>}
           </Link>
@@ -285,11 +300,11 @@ export default function AdminLayout({
 
   return (
     <div className={cn(
-      "min-h-screen flex overflow-hidden font-sans transition-colors duration-300",
+      "min-h-screen flex overflow-hidden font-sans transition-colors duration-500",
       isDarkMode ? "bg-slate-900" : "bg-slate-50/50"
     )}>
       <aside className={cn(
-        "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-300 ease-in-out border-r border-black/5 shadow-sm",
+        "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-500 ease-in-out border-r border-black/5 shadow-2xl",
         isSidebarOpen ? "w-64" : "w-20",
         isAr ? "right-0" : "left-0"
       )}>
@@ -297,7 +312,7 @@ export default function AdminLayout({
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
           className={cn(
-            "absolute top-10 h-8 w-8 rounded-lg bg-white text-primary flex items-center justify-center shadow-lg transition-all z-[60] border border-slate-100 hover:scale-105 active:scale-95", 
+            "absolute top-10 h-8 w-8 rounded-lg bg-white text-primary flex items-center justify-center shadow-2xl transition-all z-[60] border border-slate-100 hover:scale-110 active:scale-90", 
             isAr ? "-left-4" : "-right-4"
           )}
         >
@@ -313,21 +328,21 @@ export default function AdminLayout({
       </Sheet>
 
       <div className={cn(
-        "flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out", 
+        "flex-1 flex flex-col min-h-screen transition-all duration-500 ease-in-out", 
         isSidebarOpen ? (isAr ? "lg:mr-64" : "lg:ml-64") : (isAr ? "lg:mr-20" : "lg:ml-20")
       )}>
         <header className="lg:hidden h-16 bg-white/80 backdrop-blur-xl border-b border-black/5 flex items-center px-6 justify-between sticky top-0 z-40">
-           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)} className="rounded-lg bg-slate-50">
+           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)} className="rounded-xl bg-slate-100">
              <Menu className="h-5 w-5 text-primary" />
            </Button>
            <span className="font-black text-primary uppercase tracking-tighter text-lg">BBA <span className="text-secondary">OS</span></span>
-           <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-primary/30">
-              <UserCog className="h-4 w-4" />
+           <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary/30 border border-slate-200 shadow-inner">
+              <UserCog className="h-5 w-5" />
            </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-8 lg:p-12 animate-in fade-in duration-500">
-          <div className="max-w-[1400px] mx-auto relative">
+        <main className="flex-1 p-6 md:p-8 lg:p-10 animate-in fade-in duration-700">
+          <div className="max-w-[1500px] mx-auto relative">
             {children}
           </div>
         </main>

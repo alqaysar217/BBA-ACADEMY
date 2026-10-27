@@ -42,28 +42,28 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
   return (
     <div className="space-y-8">
       {/* Toolbar */}
-      <div className="bg-white p-6 rounded-[2rem] shadow-premium flex flex-col lg:flex-row justify-between items-center gap-6">
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col lg:flex-row justify-between items-center gap-6">
          <div className="relative w-full lg:max-w-md group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input 
                placeholder={isAr ? 'بحث عن طالب، ولي أمر...' : 'Search student or parent...'} 
-               className="pl-12 h-14 rounded-2xl bg-slate-50 border-none font-bold focus:bg-white focus:ring-2 focus:ring-secondary/20"
+               className="pl-12 h-14 rounded-lg bg-slate-50 border-none font-bold focus:bg-white focus:ring-2 focus:ring-secondary/20 transition-all"
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
             />
          </div>
          <div className="flex gap-3 w-full lg:w-auto">
-            <Button variant="outline" className="h-14 rounded-2xl px-6 border-slate-200 font-black gap-2">
+            <Button variant="outline" className="h-14 rounded-lg px-6 border-slate-200 font-black gap-2 hover:bg-slate-50">
                <Filter className="h-4 w-4" /> {isAr ? 'فلترة' : 'Filters'}
             </Button>
-            <Button variant="outline" className="h-14 rounded-2xl px-6 border-slate-200 font-black gap-2">
+            <Button variant="outline" className="h-14 rounded-lg px-6 border-slate-200 font-black gap-2 hover:bg-slate-50">
                <Download className="h-4 w-4" /> {isAr ? 'تصدير CSV' : 'Export'}
             </Button>
          </div>
       </div>
 
       {/* Registry Table */}
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+      <Card className="border border-slate-100 shadow-sm rounded-xl bg-white overflow-hidden">
          <div className="overflow-x-auto">
             <table className="w-full">
                <thead>
@@ -83,7 +83,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                     <tr key={student.id} className="hover:bg-slate-50/50 transition-all group cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/students/${student.id}`}>
                        <td className="px-10 py-6">
                           <div className="flex items-center gap-4">
-                             <div className="h-12 w-12 rounded-2xl bg-slate-900 text-secondary flex items-center justify-center font-black">
+                             <div className="h-12 w-12 rounded-lg bg-slate-900 text-secondary flex items-center justify-center font-black shadow-md">
                                 {student.firstName?.charAt(0)}
                              </div>
                              <div>
@@ -110,15 +110,15 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                        </td>
                        <td className="px-10 py-6">
                           <div className="space-y-1">
-                             <p className="text-sm font-black text-primary">${(student.financialLedger?.totalDue - student.financialLedger?.totalPaid).toLocaleString()}</p>
+                             <p className="text-sm font-black text-primary">${((student.financialLedger?.totalDue || 0) - (student.financialLedger?.totalPaid || 0)).toLocaleString()}</p>
                              <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500" style={{ width: `${(student.financialLedger?.totalPaid / student.financialLedger?.totalDue) * 100}%` }} />
+                                <div className="h-full bg-green-500" style={{ width: `${((student.financialLedger?.totalPaid || 0) / (student.financialLedger?.totalDue || 1)) * 100}%` }} />
                              </div>
                           </div>
                        </td>
                        <td className="px-10 py-6 text-right">
-                          <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md">
-                             <ChevronRight className={cn("h-5 w-5 text-slate-300 group-hover:text-secondary transition-colors", isAr && "rotate-180")} />
+                          <Button size="sm" variant="ghost" className="h-10 w-10 p-0 rounded-lg group-hover:bg-primary group-hover:text-white transition-all">
+                             <ChevronRight className={cn("h-5 w-5 text-slate-300", isAr && "rotate-180")} />
                           </Button>
                        </td>
                     </tr>
