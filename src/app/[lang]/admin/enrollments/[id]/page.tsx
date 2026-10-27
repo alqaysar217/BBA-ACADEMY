@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -28,7 +29,8 @@ import {
   X,
   FileWarning,
   Info,
-  BadgeCheck
+  BadgeCheck,
+  PencilLine
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +58,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
-// 1. Email Templates Library (English)
+// Official English Email Templates
 const EMAIL_TEMPLATES = [
   {
     id: 'received',
@@ -90,7 +92,7 @@ const EMAIL_TEMPLATES = [
   }
 ];
 
-export default function EnrollmentDetailPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
+export default function ApplicationReviewDetailPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
   const { user, loading: authLoading } = useUser();
   const firestore = useFirestore();
@@ -105,7 +107,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
   const docRef = useMemo(() => (firestore && id) ? doc(firestore, 'enrollments', id) : null, [firestore, id]);
   const { data: app, loading: dataLoading } = useDoc(docRef);
 
-  // Status Handlers
   const updateAppStatus = (newStatus: string) => {
     if (!docRef) return;
     updateDoc(docRef, { 
@@ -127,7 +128,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     toast({ title: isAr ? "تم تحديث حالة الطالب" : "Student Status Updated" });
   };
 
-  // Enrollment Logic (Individual)
   const enrollStudent = async (studentIdx: number) => {
     if (!firestore || !app || !docRef) return;
     const student = app.students[studentIdx];
@@ -139,7 +139,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
     setIsProcessing(true);
     try {
-      // 1. Check for duplicates
       const studentIdStr = `${id}-${studentIdx}`;
       const q = query(collection(firestore, 'students'), where('enrollmentRef', '==', studentIdStr));
       const snapshot = await getDocs(q);
@@ -150,7 +149,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         return;
       }
 
-      // 2. Create Student Profile
       const studentDoc = doc(collection(firestore, 'students'));
       const studentData = {
         firstName: student.firstName,
@@ -182,7 +180,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
 
       await setDoc(studentDoc, studentData);
 
-      // 3. Mark as Enrolled in Application
       const updatedStudents = [...app.students];
       updatedStudents[studentIdx].isEnrolled = true;
       updatedStudents[studentIdx].status = 'Accepted';
@@ -197,7 +194,6 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
     }
   };
 
-  // Messaging Logic
   const handleSendMessage = async () => {
     if (!app || !docRef) return;
     setIsProcessing(true);
@@ -225,7 +221,7 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
         lastCommunicationAt: serverTimestamp()
       });
       
-      toast({ title: "Message Sent (Logged)", description: "The official correspondence has been recorded." });
+      toast({ title: "Message Logged", description: "Correspondence record added to application." });
       setIsMsgOpen(false);
       setReason('');
     } catch (err) {
@@ -238,110 +234,94 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
   if (authLoading || dataLoading) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
       <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Accessing Secure Records...</p>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Application...</p>
     </div>
   );
 
-  if (!app) return <div className="p-20 text-center font-black text-red-500">ENTRY NOT FOUND</div>;
+  if (!app) return <div className="p-20 text-center font-black text-red-500 uppercase">Application Not Found</div>;
 
   return (
     <div className="space-y-8 pb-20">
-      {/* Header Actions */}
-      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-100 sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 sticky top-4 z-40 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-lg bg-slate-50">
             {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </Button>
           <div className="space-y-0.5">
-            <h1 className="text-xl font-black text-primary truncate max-w-[200px] md:max-w-none">{app.parent1Name}</h1>
+            <h1 className="text-xl font-black text-primary truncate max-w-[250px]">{app.parent1Name}</h1>
             <div className="flex items-center gap-2">
                <Badge className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">{app.status}</Badge>
-               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{id}</span>
+               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">ID: {id}</span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
-          {/* Main App Status Control */}
           <Select value={app.status} onValueChange={updateAppStatus}>
-             <SelectTrigger className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase w-full md:w-44 bg-white shadow-sm">
+             <SelectTrigger className="h-11 rounded-lg border-slate-200 font-black text-[10px] uppercase w-full md:w-44 bg-white">
                 <Layers className="h-3.5 w-3.5 mr-2 text-secondary" />
                 <SelectValue />
              </SelectTrigger>
              <SelectContent className="rounded-xl p-1">
-                <SelectItem value="submitted" className="font-bold py-2.5">New Application</SelectItem>
+                <SelectItem value="submitted" className="font-bold py-2.5">New Submission</SelectItem>
                 <SelectItem value="reviewed" className="font-bold py-2.5">Under Review</SelectItem>
                 <SelectItem value="missing_info" className="font-bold py-2.5 text-amber-600">Awaiting Info</SelectItem>
-                <SelectItem value="partially_accepted" className="font-bold py-2.5 text-blue-600">Partially Accepted</SelectItem>
                 <SelectItem value="approved" className="font-bold py-2.5 text-green-600">Completed</SelectItem>
                 <SelectItem value="rejected" className="font-bold py-2.5 text-red-600">Rejected</SelectItem>
              </SelectContent>
           </Select>
 
-          {/* Messaging Dialog */}
           <Dialog open={isMsgOpen} onOpenChange={setIsMsgOpen}>
             <DialogTrigger asChild>
               <Button className="bg-primary text-white h-11 px-6 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2">
                 <MessageSquare className="h-4 w-4 text-secondary" />
-                {isAr ? 'تواصل مع العائلة' : 'Send Message'}
+                {isAr ? 'تواصل' : 'Contact'}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl rounded-xl border-none p-0 overflow-hidden shadow-2xl">
               <div className="bg-primary p-6 text-white flex items-center gap-4">
                  <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center"><Mail className="h-6 w-6 text-secondary" /></div>
-                 <div>
-                    <DialogTitle className="text-xl font-black uppercase tracking-tight">Official Correspondence</DialogTitle>
-                    <DialogDescription className="text-white/60 font-bold text-xs">Direct communication with ${app.parent1Email}</DialogDescription>
-                 </div>
+                 <DialogTitle className="text-xl font-black uppercase tracking-tight">Parent Correspondence</DialogTitle>
               </div>
               <div className="p-8 space-y-6">
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Select Template</label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Choose English Template</label>
                     <Select onValueChange={(val) => setSelectedTemplate(EMAIL_TEMPLATES.find(t => t.id === val) || EMAIL_TEMPLATES[0])}>
                        <SelectTrigger className="h-12 rounded-lg font-bold border-slate-100 bg-slate-50">
-                          <SelectValue placeholder="Choose a template..." />
+                          <SelectValue placeholder="Select Template..." />
                        </SelectTrigger>
                        <SelectContent>
                           {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold">{t.label}</SelectItem>)}
                        </SelectContent>
                     </Select>
                  </div>
-
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. Detailed Reason / Additional Info (Optional)</label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. Decision Reason / Notes</label>
                     <Textarea 
                       value={msgReason} 
                       onChange={(e) => setReason(e.target.value)}
-                      placeholder="Type details about missing docs or rejection reasons here..." 
+                      placeholder="Type reason here (will be included in email)..." 
                       className="min-h-[100px] bg-slate-50 border-none rounded-xl font-bold"
                     />
                  </div>
-
-                 <div className="bg-slate-900 rounded-xl p-6 space-y-4">
-                    <div className="flex justify-between items-center border-b border-white/5 pb-3">
-                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Preview (Final Result in English)</span>
-                       <Badge variant="outline" className="border-secondary text-secondary text-[8px] font-black uppercase">Official BBA Layout</Badge>
-                    </div>
-                    <div className="space-y-3">
-                       <p className="text-xs font-black text-secondary">Subject: {selectedTemplate.subject}</p>
-                       <p className="text-[11px] text-white/70 whitespace-pre-wrap font-medium leading-relaxed italic">
-                         {selectedTemplate.body({ 
-                            parentName: app.parent1Name, 
-                            appId: id, 
-                            studentCount: app.students.length,
-                            acceptedStudents: app.students.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
-                            targetStudents: app.students.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
-                            reason: msgReason || '...' 
-                         })}
-                       </p>
-                    </div>
+                 <div className="bg-slate-900 rounded-xl p-6 space-y-3">
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Preview (Email Content)</span>
+                    <p className="text-[11px] text-white/80 whitespace-pre-wrap font-medium leading-relaxed italic">
+                      {selectedTemplate.body({ 
+                         parentName: app.parent1Name, 
+                         appId: id, 
+                         studentCount: app.students.length,
+                         acceptedStudents: app.students.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
+                         targetStudents: app.students.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
+                         reason: msgReason || '...' 
+                      })}
+                    </p>
                  </div>
               </div>
               <DialogFooter className="bg-slate-50 p-6">
-                 <Button variant="ghost" onClick={() => setIsMsgOpen(false)} className="font-black text-[10px] uppercase">Cancel</Button>
                  <Button onClick={handleSendMessage} disabled={isProcessing} className="bg-primary text-white px-8 rounded-lg h-12 font-black shadow-xl">
                     {isProcessing ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                    Confirm & Log Message
+                    Confirm & Record Message
                  </Button>
               </DialogFooter>
             </DialogContent>
@@ -350,31 +330,27 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Forms & Data */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Guardian Info Card */}
-          <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+          <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
              <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                    <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
-                   <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">Family Contacts & Residence</CardTitle>
+                   <CardTitle className="text-sm font-black text-primary uppercase">Family Information</CardTitle>
                 </div>
              </CardHeader>
              <CardContent className="p-0">
                 <Table>
                    <TableHeader className="bg-slate-50/30">
-                      <TableRow className="h-12">
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">#</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Guardian Name</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Email & Phone</TableHead>
-                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Relationship</TableHead>
+                      <TableRow className="h-12 border-none">
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Guardian</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Contact Details</TableHead>
+                         <TableHead className="text-[9px] font-black uppercase text-slate-400">Relation</TableHead>
                       </TableRow>
                    </TableHeader>
                    <TableBody>
-                      <TableRow>
-                         <td className="py-5 pl-8 text-xs font-black text-slate-300">01</td>
-                         <td className="py-5"><p className="text-sm font-black text-primary">{app.parent1Name}</p></td>
+                      <TableRow className="border-slate-50">
+                         <td className="py-5 pl-8 font-black text-primary text-sm">{app.parent1Name}</td>
                          <td className="py-5">
                             <p className="text-xs font-bold text-slate-600">{app.parent1Email}</p>
                             <p className="text-[10px] font-bold text-slate-400" dir="ltr">{app.parent1Phone}</p>
@@ -382,9 +358,8 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                          <td className="py-5"><Badge variant="outline" className="text-[8px] font-black uppercase bg-slate-50 border-none">{app.relationship1}</Badge></td>
                       </TableRow>
                       {app.parent2Name && (
-                        <TableRow>
-                           <td className="py-5 pl-8 text-xs font-black text-slate-300">02</td>
-                           <td className="py-5"><p className="text-sm font-black text-primary">{app.parent2Name}</p></td>
+                        <TableRow className="border-none">
+                           <td className="py-5 pl-8 font-black text-primary text-sm">{app.parent2Name}</td>
                            <td className="py-5">
                               <p className="text-xs font-bold text-slate-600">{app.parent2Email}</p>
                               <p className="text-[10px] font-bold text-slate-400" dir="ltr">{app.parent2Phone}</p>
@@ -395,40 +370,31 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                    </TableBody>
                 </Table>
                 
-                {/* Verified Address Sub-section */}
                 <div className="p-6 bg-slate-50/50 border-t border-slate-100">
-                   <div className="flex flex-col md:flex-row items-start md:items-center gap-8 bg-white p-6 rounded-xl border border-slate-100 shadow-inner">
-                      <div className="flex items-center gap-3 shrink-0">
-                         <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center"><MapPin className="h-5 w-5" /></div>
-                         <div className="space-y-0.5">
-                            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Residence</span>
-                            <p className="text-xs font-black text-primary">Verified Address</p>
-                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-[11px] font-bold text-slate-600">
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">Street 1</span><p className="text-primary truncate">{app.address?.line1 || '-'}</p></div>
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">Street 2</span><p className="text-primary truncate">{app.address?.line2 || '-'}</p></div>
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">City</span><p className="text-primary truncate">{app.address?.city || '-'}</p></div>
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">State</span><p className="text-primary truncate">{app.address?.state || '-'}</p></div>
-                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">ZIP</span><p className="text-secondary font-black">{app.address?.zip || '-'}</p></div>
+                   <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-inner flex items-center gap-8">
+                      <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0"><MapPin className="h-5 w-5" /></div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-[11px] font-bold text-slate-600 w-full">
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">Address</span><p className="text-primary truncate">{app.address?.line1}</p></div>
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">City</span><p className="text-primary">{app.address?.city}</p></div>
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">State</span><p className="text-primary">{app.address?.state}</p></div>
+                         <div className="space-y-1"><span className="text-[8px] uppercase text-slate-400">ZIP</span><p className="text-secondary font-black">{app.address?.zip}</p></div>
                       </div>
                    </div>
                 </div>
              </CardContent>
           </Card>
 
-          {/* Student Roster Card */}
-          <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+          <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
              <CardHeader className="bg-secondary/5 p-6 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                    <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
-                   <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">Sibling Academic Profiles</CardTitle>
+                   <CardTitle className="text-sm font-black text-primary uppercase">Student Review Queue</CardTitle>
                 </div>
              </CardHeader>
              <CardContent className="p-0">
                 <Table>
                    <TableHeader className="bg-slate-50/30">
-                      <TableRow className="h-12">
+                      <TableRow className="h-12 border-none">
                          <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Full Name</TableHead>
                          <TableHead className="text-[9px] font-black uppercase text-slate-400">Academic Info</TableHead>
                          <TableHead className="text-[9px] font-black uppercase text-slate-400 text-center">Status</TableHead>
@@ -437,19 +403,14 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                    </TableHeader>
                    <TableBody>
                       {app.students.map((st: any, i: number) => (
-                        <TableRow key={i} className="hover:bg-slate-50/30 transition-colors">
+                        <TableRow key={i} className="hover:bg-slate-50/30 transition-colors border-slate-50">
                            <td className="py-6 pl-8">
-                              <div className="flex items-center gap-3">
-                                 <div className="h-9 w-9 rounded-lg bg-primary/5 text-primary flex items-center justify-center font-black text-xs">{i+1}</div>
-                                 <div>
-                                    <p className="text-sm font-black text-primary">{st.firstName} {st.middleName} {st.lastName}</p>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase">{st.gender} • {st.dob}</p>
-                                 </div>
-                              </div>
+                              <p className="text-sm font-black text-primary">{st.firstName} {st.lastName}</p>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase">{st.gender} • {st.dob}</p>
                            </td>
                            <td className="py-6">
                               <p className="text-xs font-black text-secondary">Grade {st.lastGrade}</p>
-                              <p className="text-[9px] font-bold text-slate-400 uppercase">{st.status || 'New Student'}</p>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase">{st.status || 'Initial Entry'}</p>
                            </td>
                            <td className="py-6 text-center">
                               <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
@@ -487,59 +448,48 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
           </Card>
         </div>
 
-        {/* Right Column: Summaries & Files */}
         <div className="space-y-8">
-           {/* Program Selection Card */}
-           <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-primary text-white p-8 space-y-6 relative">
+           <Card className="border shadow-sm rounded-xl overflow-hidden bg-primary text-white p-8 space-y-6 relative">
               <div className="absolute top-0 right-0 p-6 opacity-10"><Briefcase className="h-24 w-24" /></div>
               <div className="space-y-1 relative z-10">
-                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Enrolling Path</p>
+                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Program Selection</p>
                  <h3 className="text-xl font-black uppercase tracking-tight">{app.programOption}</h3>
               </div>
               <div className="h-px bg-white/5 w-full" />
               <div className="space-y-2 relative z-10">
-                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Projected One-Time Payment</p>
-                 <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-secondary">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</span>
-                    <span className="text-[9px] font-bold text-white/30 uppercase">{app.programOption === 'weekend' ? '/ month' : '/ reg'}</span>
-                 </div>
+                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Payment Tier</p>
+                 <div className="text-4xl font-black text-secondary">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</div>
               </div>
            </Card>
 
-           {/* Communication Logs Card */}
-           <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+           <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
               <CardHeader className="p-6 border-b border-slate-50 flex flex-row items-center justify-between">
-                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><Clock className="h-3.5 w-3.5 text-secondary" /> History Logs</CardTitle>
+                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><Clock className="h-3.5 w-3.5 text-secondary" /> Application Logs</CardTitle>
                  <Badge variant="outline" className="text-[8px] border-slate-100 text-slate-400">{app.communications?.length || 0} Events</Badge>
               </CardHeader>
               <CardContent className="p-6">
-                 <div className="space-y-4 max-h-[300px] overflow-y-auto no-scrollbar pr-2">
+                 <div className="space-y-4 max-h-[350px] overflow-y-auto no-scrollbar">
                     {app.communications?.length > 0 ? app.communications.map((log: any, idx: number) => (
-                      <div key={idx} className="flex gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all border border-transparent hover:border-slate-200 group">
-                         <div className="h-9 w-9 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0"><Mail className="h-4 w-4 text-slate-300 group-hover:text-secondary transition-colors" /></div>
+                      <div key={idx} className="flex gap-4 p-4 rounded-xl bg-slate-50 border border-transparent hover:border-slate-200 group transition-all">
+                         <div className="h-9 w-9 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0"><Mail className="h-4 w-4 text-slate-300" /></div>
                          <div className="space-y-1 flex-1">
                             <div className="flex justify-between items-start">
                                <p className="text-[10px] font-black text-primary uppercase">{log.templateId}</p>
                                <span className="text-[8px] font-bold text-slate-400 uppercase">{format(new Date(log.sentAt), 'MMM dd')}</span>
                             </div>
                             <p className="text-[10px] font-medium text-slate-500 line-clamp-1">{log.subject}</p>
-                            <p className="text-[9px] font-bold text-slate-400 mt-1 italic">By: {log.sender}</p>
                          </div>
                       </div>
                     )) : (
-                      <div className="py-12 text-center space-y-3">
-                         <Info className="h-8 w-8 text-slate-100 mx-auto" />
-                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No previous correspondence</p>
-                      </div>
+                      <div className="py-12 text-center text-slate-300 font-bold uppercase text-[9px]">No logs yet</div>
                     )}
                  </div>
               </CardContent>
            </Card>
 
-           {/* Attachments Card */}
-           <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white border border-slate-100">
+           <Card className="border shadow-sm rounded-xl overflow-hidden bg-white border-slate-100">
               <CardHeader className="p-6 border-b border-slate-50">
-                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><FileCheck className="h-3.5 w-3.5 text-secondary" /> Verified Artifacts</CardTitle>
+                 <CardTitle className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"><FileCheck className="h-3.5 w-3.5 text-secondary" /> Verification Files</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                  <div className="divide-y divide-slate-50">
@@ -547,19 +497,16 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                       <div key={idx} className="p-5 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
                          <div className="flex items-center gap-4">
                             {file.type?.startsWith('image/') || file.data?.startsWith('data:image/') ? (
-                              <div className="h-12 w-12 rounded-lg border-2 border-white shadow-sm overflow-hidden shrink-0"><img src={file.data} className="h-full w-full object-cover" alt="preview" /></div>
+                              <div className="h-10 w-10 rounded-lg border border-slate-200 overflow-hidden shrink-0"><img src={file.data} className="h-full w-full object-cover" alt="preview" /></div>
                             ) : (
                               <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"><FileText className="h-4 w-4 text-slate-400" /></div>
                             )}
-                            <div className="min-w-0">
-                               <p className="text-[10px] font-black text-primary truncate max-w-[120px]">{file.name}</p>
-                               <p className="text-[8px] font-bold text-slate-400 uppercase">{file.type?.split('/')[1] || 'DOC'}</p>
-                            </div>
+                            <p className="text-[10px] font-black text-primary truncate max-w-[120px]">{file.name}</p>
                          </div>
                          <Button onClick={() => window.open(file.data, '_blank')} variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-300 hover:text-secondary hover:bg-white transition-all"><ExternalLink className="h-4 w-4" /></Button>
                       </div>
                     )) : (
-                      <div className="py-20 text-center text-slate-300 font-bold uppercase text-[9px]">No Digital Artifacts</div>
+                      <div className="py-20 text-center text-slate-300 font-bold uppercase text-[9px]">No artifacts found</div>
                     )}
                  </div>
               </CardContent>

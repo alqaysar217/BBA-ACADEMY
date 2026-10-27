@@ -31,7 +31,9 @@ import {
   MessageSquare,
   Search,
   Settings,
-  TableProperties
+  TableProperties,
+  LayoutTemplate,
+  UserCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -106,22 +108,15 @@ export default function AdminLayout({
       ]
     },
     {
-      title: isAr ? 'إدارة المستخدمين' : 'User Management',
-      show: hasPermission('users'),
-      items: [
-        { label: isAr ? 'سجل الحسابات' : 'Account Registry', href: `/${lang}/admin/users`, icon: Users2, show: true },
-        { label: isAr ? 'إضافة مستخدم' : 'Register User', href: `/${lang}/admin/users/new`, icon: UserPlus, show: hasPermission('users', 'write') },
-        { label: isAr ? 'تعديل مستخدم' : 'Edit User', href: `/${lang}/admin/users/edit`, icon: UserCog, show: hasPermission('users', 'write') },
-        { label: isAr ? 'تحديد الصلاحيات' : 'Permissions Hub', href: `/${lang}/admin/users/permissions`, icon: KeyRound, show: hasPermission('users', 'execute') },
-      ]
-    },
-    {
-      title: isAr ? 'القبول والتسجيل' : 'Admissions',
+      title: isAr ? 'القبول والتسجيل' : 'Admissions & Enrollment',
       show: hasPermission('enrollments'),
       items: [
-        { label: isAr ? 'كافة الطلبات' : 'All Applications', href: `/${lang}/admin/enrollments`, icon: FileText, show: true },
-        { label: isAr ? 'جدول البيانات الشامل' : 'Applications Table', href: `/${lang}/admin/admissions/table`, icon: TableProperties, show: true },
-        { label: isAr ? 'طلبات جديدة' : 'New Submissions', href: `/${lang}/admin/admissions/new`, icon: UserPlus, show: true },
+        { label: isAr ? 'سجل الطلبات' : 'Admissions Register', href: `/${lang}/admin/enrollments`, icon: FileText, show: true },
+        { label: isAr ? 'مراجعة الطلبات' : 'Application Review', href: `/${lang}/admin/enrollments/review`, icon: Search, show: true },
+        { label: isAr ? 'مراسلات أولياء الأمور' : 'Parent Communications', href: `/${lang}/admin/enrollments/communications`, icon: MessageSquare, show: true },
+        { label: isAr ? 'الطلاب المقبولون' : 'Accepted Students', href: `/${lang}/admin/enrollments/accepted`, icon: UserCheck, show: true },
+        { label: isAr ? 'قوالب الرسائل' : 'Email Templates', href: `/${lang}/admin/enrollments/templates`, icon: LayoutTemplate, show: true },
+        { label: isAr ? 'جدول الطلبات الشامل' : 'Comprehensive Table', href: `/${lang}/admin/enrollments/table`, icon: TableProperties, show: true },
       ]
     },
     {
@@ -132,37 +127,27 @@ export default function AdminLayout({
       ]
     },
     {
-      title: isAr ? 'الأكاديميا' : 'Academic',
-      show: hasPermission('academic'),
+      title: isAr ? 'إدارة المستخدمين' : 'User Management',
+      show: hasPermission('users'),
       items: [
-        { label: isAr ? 'الخطط الدراسية' : 'Study Plans', icon: BookOpen, href: `/${lang}/admin/academic/plans`, show: true },
+        { label: isAr ? 'سجل الحسابات' : 'Account Registry', href: `/${lang}/admin/users`, icon: Users2, show: true },
+        { label: isAr ? 'إضافة موظف' : 'Register Staff', href: `/${lang}/admin/users/new`, icon: UserPlus, show: hasPermission('users', 'write') },
+        { label: isAr ? 'صلاحيات الوصول' : 'Access Privileges', href: `/${lang}/admin/users/permissions`, icon: KeyRound, show: hasPermission('users', 'execute') },
       ]
     },
     {
-      title: isAr ? 'المالية' : 'Finances',
-      show: hasPermission('finances'),
+      title: isAr ? 'الأكاديميا والمالية' : 'Academic & Finance',
+      show: true,
       items: [
-        { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard, show: true },
-      ]
-    },
-    {
-      title: isAr ? 'إدارة المحتوى' : 'CMS',
-      show: hasPermission('cms'),
-      items: [
-        { label: isAr ? 'منصة المحتوى' : 'Content CMS', href: `/${lang}/admin/cms`, icon: Briefcase, show: true },
-      ]
-    },
-    {
-      title: isAr ? 'التواصل' : 'Communication',
-      show: hasPermission('communication'),
-      items: [
-        { label: isAr ? 'مركز المراسلات' : 'Comms Hub', href: `/${lang}/admin/communication`, icon: MessageSquare, show: true },
+        { label: isAr ? 'الخطط الدراسية' : 'Study Plans', icon: BookOpen, href: `/${lang}/admin/academic/plans`, show: hasPermission('academic') },
+        { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard, show: hasPermission('finances') },
       ]
     },
     {
       title: isAr ? 'التقارير والإعدادات' : 'Reports & Settings',
       show: true,
       items: [
+        { label: isAr ? 'إدارة المحتوى' : 'CMS', href: `/${lang}/admin/cms`, icon: Briefcase, show: hasPermission('cms') },
         { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3, show: true },
         { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2, show: true },
       ]
@@ -172,7 +157,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (!pathname) return;
     menuGroups.forEach(group => {
-      const hasActiveChild = group.items.some(item => pathname === item.href);
+      const hasActiveChild = group.items.some(item => pathname === item.href || (item.href !== `/${lang}/admin` && pathname.startsWith(item.href)));
       if (hasActiveChild && !openGroups.includes(group.title)) {
         setOpenGroups(prev => [...prev, group.title]);
       }
@@ -234,7 +219,7 @@ export default function AdminLayout({
                   <CollapsibleContent className="space-y-1 mt-1 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
                     {group.items.map((item, iIdx) => {
                       if (!item.show) return null;
-                      const active = pathname === item.href;
+                      const active = pathname === item.href || (item.href !== `/${lang}/admin` && pathname.startsWith(item.href));
                       return (
                         <Link
                           key={`${item.label}-${iIdx}`}
@@ -263,7 +248,7 @@ export default function AdminLayout({
                 <div className="space-y-3 flex flex-col items-center">
                   {group.items.map((item, iIdx) => {
                     if (!item.show) return null;
-                    const active = pathname === item.href;
+                    const active = pathname === item.href || (item.href !== `/${lang}/admin` && pathname.startsWith(item.href));
                     return (
                       <Link
                         key={`${item.label}-${iIdx}`}
