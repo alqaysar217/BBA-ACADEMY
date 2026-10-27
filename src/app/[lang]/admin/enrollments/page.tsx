@@ -30,11 +30,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function EnrollmentsListPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
   const isAr = lang === 'ar';
   const firestore = useFirestore();
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -92,7 +94,7 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
          <div className="flex-1 w-full lg:max-w-md relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -128,27 +130,33 @@ export default function EnrollmentsListPage({ params }: { params: Promise<{ lang
                </SelectContent>
             </Select>
 
-            <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
+            <div className="flex bg-slate-100/50 p-1 rounded-lg border border-slate-200/50">
                <Button 
-                  variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
+                  variant="ghost" 
                   size="icon" 
                   onClick={() => setViewMode('table')}
-                  className={cn("rounded-md h-8 w-8", viewMode === 'table' && "bg-white shadow-sm border border-slate-100")}
+                  className={cn(
+                    "rounded-md h-8 w-8 transition-all", 
+                    viewMode === 'table' ? "bg-primary text-white shadow-md" : "text-primary hover:bg-white"
+                  )}
                >
                   <TableIcon className="h-4 w-4" />
                </Button>
                <Button 
-                  variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
+                  variant="ghost" 
                   size="icon" 
                   onClick={() => setViewMode('grid')}
-                  className={cn("rounded-md h-8 w-8", viewMode === 'grid' && "bg-white shadow-sm border border-slate-100")}
+                  className={cn(
+                    "rounded-md h-8 w-8 transition-all", 
+                    viewMode === 'grid' ? "bg-primary text-white shadow-md" : "text-primary hover:bg-white"
+                  )}
                >
                   <LayoutGrid className="h-4 w-4" />
                </Button>
             </div>
 
             <Button onClick={exportToCSV} variant="outline" className="h-10 rounded-lg border-slate-200 font-black text-[10px] uppercase tracking-widest gap-2">
-               <Download className="h-4 w-4" />
+               <Download className="h-4 w-4 text-primary" />
                {isAr ? 'تصدير' : 'Export'}
             </Button>
          </div>
