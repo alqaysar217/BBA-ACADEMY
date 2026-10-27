@@ -30,7 +30,8 @@ import {
   ShieldAlert,
   MessageSquare,
   Search,
-  Settings
+  Settings,
+  TableProperties
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -113,6 +114,7 @@ export default function AdminLayout({
       show: hasPermission('enrollments'),
       items: [
         { label: isAr ? 'كافة الطلبات' : 'All Applications', href: `/${lang}/admin/enrollments`, icon: FileText, show: true },
+        { label: isAr ? 'جدول البيانات الشامل' : 'Applications Table', href: `/${lang}/admin/admissions/table`, icon: TableProperties, show: true },
         { label: isAr ? 'طلبات جديدة' : 'New Submissions', href: `/${lang}/admin/admissions/new`, icon: UserPlus, show: true },
       ]
     },
