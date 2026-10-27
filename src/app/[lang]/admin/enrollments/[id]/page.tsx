@@ -315,16 +315,24 @@ export default function EnrollmentDetailPage({ params }: { params: Promise<{ lan
                            <div className="h-10 w-px bg-slate-100 shrink-0" />
                            <div className="flex flex-row gap-8 text-xs font-bold text-slate-700 whitespace-nowrap">
                               <div className="space-y-1">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'العنوان' : 'Street Address'}</span>
-                                 <span className="text-primary font-black text-sm">{app.address?.line1} {app.address?.line2}</span>
+                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'العنوان الأول' : 'Address 1'}</span>
+                                 <span className="text-primary font-black text-sm">{app.address?.line1 || '-'}</span>
                               </div>
                               <div className="space-y-1">
-                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'المدينة والولاية' : 'City & State'}</span>
-                                 <span className="text-primary font-black text-sm">{app.address?.city}, {app.address?.state}</span>
+                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'العنوان الثاني' : 'Address 2'}</span>
+                                 <span className="text-primary font-black text-sm">{app.address?.line2 || '-'}</span>
+                              </div>
+                              <div className="space-y-1">
+                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'المدينة' : 'City'}</span>
+                                 <span className="text-primary font-black text-sm">{app.address?.city || '-'}</span>
+                              </div>
+                              <div className="space-y-1">
+                                 <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'الولاية' : 'State'}</span>
+                                 <span className="text-primary font-black text-sm">{app.address?.state || '-'}</span>
                               </div>
                               <div className="space-y-1">
                                  <span className="text-[8px] text-slate-400 uppercase tracking-widest block">{isAr ? 'الرمز البريدي' : 'ZIP Code'}</span>
-                                 <span className="text-secondary font-black text-sm">{app.address?.zip}</span>
+                                 <span className="text-secondary font-black text-sm">{app.address?.zip || '-'}</span>
                               </div>
                            </div>
                         </div>
