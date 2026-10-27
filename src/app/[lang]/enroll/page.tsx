@@ -159,7 +159,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     },
     siblingCount: '1',
     students: [{
-      status: '', 
+      entryType: '', 
+      status: 'Pending',
       firstName: '',
       middleName: '',
       lastName: '',
@@ -327,7 +328,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     }
     if (stepId === 2) {
       return formData.students.length > 0 && formData.students.every((st: any) => 
-        st.status && st.firstName?.trim() && st.lastName?.trim() && st.dob && st.gender && st.lastGrade && st.phone?.trim() && isValidEmail(st.email)
+        st.entryType && st.firstName?.trim() && st.lastName?.trim() && st.dob && st.gender && st.lastGrade && st.phone?.trim() && isValidEmail(st.email)
       );
     }
     if (stepId === 3) {
@@ -358,7 +359,8 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     if (n > newStudents.length) {
       for (let i = newStudents.length; i < n; i++) {
         newStudents.push({
-          status: '', 
+          entryType: '', 
+          status: 'Pending',
           firstName: '',
           middleName: '',
           lastName: '',
@@ -948,7 +950,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                       <div key={idx} className={cn(
                         "rounded-xl border transition-all duration-300 overflow-hidden",
                         openStudentIdx === idx ? "border-primary shadow-xl ring-1 ring-primary/5" : "border-slate-100 bg-white cursor-pointer hover:border-slate-200",
-                        attemptedNext && (!student.status || !student.firstName || !student.lastName || !student.dob || !student.gender || !student.lastGrade || !student.phone || isFieldInvalid(student.email, true)) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                        attemptedNext && (!student.entryType || !student.firstName || !student.lastName || !student.dob || !student.gender || !student.lastGrade || !student.phone || isFieldInvalid(student.email, true)) && "border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                       )} onClick={() => setOpenStudentIdx(idx)}>
                         <div className={cn("flex justify-between items-center p-5 transition-colors", openStudentIdx === idx ? "bg-primary text-white" : "bg-white")}>
                           <div className="flex items-center gap-3">
@@ -960,38 +962,38 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                               {student.firstName && ` - ${student.firstName}`}
                             </span>
                           </div>
-                          {openStudentIdx !== idx && attemptedNext && (!student.status || !student.firstName || !student.lastName) && <AlertCircle className="h-4 w-4 text-red-500 animate-pulse" />}
+                          {openStudentIdx !== idx && attemptedNext && (!student.entryType || !student.firstName || !student.lastName) && <AlertCircle className="h-4 w-4 text-red-500 animate-pulse" />}
                           {openStudentIdx !== idx ? (isAr ? <ChevronLeft className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />) : <ChevronDown className="h-4 w-4" />}
                         </div>
 
                         {openStudentIdx === idx && (
                           <div className="p-4 md:p-8 space-y-10 animate-in slide-in-from-top-4 duration-500 relative" onClick={(e) => e.stopPropagation()}>
                             <div className="space-y-4">
-                              <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1", isFieldInvalid(student.status) && "text-red-500")}>
+                              <Label className={cn("text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1", isFieldInvalid(student.entryType) && "text-red-500")}>
                                 <ShieldCheck className="h-3 w-3 text-secondary" />
                                 {isAr ? 'حالة الطالب في الأكاديمية' : 'Student Status at Academy'}
                               </Label>
                               <RadioGroup 
-                                 value={student.status}
-                                 onValueChange={(v) => updateStudent(idx, 'status', v)}
+                                 value={student.entryType}
+                                 onValueChange={(v) => updateStudent(idx, 'entryType', v)}
                                 className="grid grid-cols-1 gap-3"
                                 dir={isAr ? 'rtl' : 'ltr'}
                               >
-                                {['New Student', 'Returning Student'].map(status => (
+                                {['New Student', 'Returning Student'].map(type => (
                                   <Label 
-                                     key={status} 
-                                     htmlFor={`status-${idx}-${status}`}
+                                     key={type} 
+                                     htmlFor={`status-${idx}-${type}`}
                                     className={cn(
                                       "relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all",
-                                      student.status === status 
+                                      student.entryType === type 
                                          ? "bg-secondary/5 border-secondary shadow-md" 
                                          : "bg-white border-slate-100 hover:border-slate-200",
-                                      isFieldInvalid(status) && "border-red-200 bg-red-50/10"
+                                      isFieldInvalid(student.entryType) && "border-red-200 bg-red-50/10"
                                     )}
                                   >
-                                    <RadioGroupItem value={status} id={`status-${idx}-${status}`} className="h-5 w-5 text-secondary border-slate-300" />
+                                    <RadioGroupItem value={type} id={`status-${idx}-${type}`} className="h-5 w-5 text-secondary border-slate-300" />
                                     <span className="font-black text-sm text-primary">
-                                      {isAr ? (status === 'New Student' ? 'طالب جديد' : 'طالب عائد') : status}
+                                      {isAr ? (type === 'New Student' ? 'طالب جديد' : 'طالب عائد') : type}
                                     </span>
                                   </Label>
                                 ))}
@@ -1124,7 +1126,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
                              unoptimized 
                            />
                           <div className={cn(
-                            "absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity",
+                            "absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent transition-opacity",
                             formData.programOption === prog.id ? "opacity-100" : "opacity-80"
                           )} />
                         </div>

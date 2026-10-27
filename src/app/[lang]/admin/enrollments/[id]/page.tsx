@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -34,7 +33,9 @@ import {
   Phone,
   Home,
   Building,
-  Hash
+  Hash,
+  Type,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -68,7 +69,7 @@ const EMAIL_TEMPLATES = [
     id: 'received',
     label: 'Application Received',
     subject: 'BBA Academy: We have received your application',
-    body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are writing to confirm that we have successfully received your enrollment application for ${data.studentCount} student(s).\n\nOur admissions team is currently reviewing your details. Please note that this confirmation does not imply final acceptance. We will contact you shortly if any further documentation or information is required.\n\nBest regards,\nBBA Admissions Office`
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are writing to confirm that we have successfully received your enrollment application for ${data.studentCount} student(s).\n\nOur admissions team is currently reviewing your details. Please note that this confirmation does not imply final acceptance. We will contact you shortly if any further documentation is required.\n\nBest regards,\nBBA Admissions Office`
   },
   {
     id: 'under_review',
@@ -163,6 +164,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         gender: student.gender,
         dob: student.dob,
         gradeLevel: student.lastGrade,
+        entryType: student.entryType || '',
         enrollmentId: id,
         enrollmentRef: studentIdStr,
         parentId: app.userId || 'anonymous',
@@ -344,7 +346,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       {/* 2. FAMILY INFORMATION TABLES (PARENTS & ADDRESS) */}
       <div className="space-y-6">
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-100">
+           <CardHeader className="bg-slate-100/80 p-6 border-b border-slate-200">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
                  <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'بيانات أولياء الأمور' : 'Guardians Information'}</CardTitle>
@@ -388,7 +390,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </Card>
 
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-100">
+           <CardHeader className="bg-slate-100/80 p-6 border-b border-slate-200">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><MapPin className="h-5 w-5" /></div>
                  <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'عنوان السكن' : 'Physical Address Details'}</CardTitle>
@@ -419,72 +421,91 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </Card>
       </div>
 
-      {/* 3. STUDENT REVIEW QUEUE TABLE */}
+      {/* 3. STUDENT REVIEW QUEUE TABLE - EXPANDED */}
       <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-         <CardHeader className="bg-secondary/10 p-6 border-b border-slate-100">
+         <CardHeader className="bg-slate-100/80 p-6 border-b border-slate-200">
             <div className="flex items-center gap-3">
                <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
-               <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'بيانات الطلاب' : 'Student Academic Records'}</CardTitle>
+               <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{isAr ? 'بيانات الطلاب المفصلة' : 'Detailed Student Records'}</CardTitle>
             </div>
          </CardHeader>
          <CardContent className="p-0 overflow-hidden">
-            <Table className="border-collapse">
-               <TableHeader className="bg-slate-100/80">
-                  <TableRow className="h-14 border-b border-slate-200 hover:bg-transparent">
-                     <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 w-1/3 border-r border-slate-200/50 text-start">{isAr ? 'اسم الطالب وبياناته' : 'Full Name & Details'}</TableHead>
-                     <TableHead className="text-[10px] font-black uppercase text-slate-600 border-r border-slate-200/50 text-center">{isAr ? 'المستوى الدراسي' : 'Academic Level'}</TableHead>
-                     <TableHead className="text-[10px] font-black uppercase text-slate-600 text-center border-r border-slate-200/50">{isAr ? 'قرار الأهلية' : 'Eligibility Decision'}</TableHead>
-                     <TableHead className="text-[10px] font-black uppercase text-slate-600 text-center px-6">{isAr ? 'إجراء إداري' : 'Administrative Action'}</TableHead>
-                  </TableRow>
-               </TableHeader>
-               <TableBody>
-                  {app.students?.map((st: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-white/60 transition-colors border-b border-slate-50 h-24">
-                       <TableCell className="px-6 border-r border-slate-50/50">
-                          <div className="flex items-center gap-4">
-                             <div className="h-10 w-10 rounded-full bg-primary/5 text-primary flex items-center justify-center font-black border border-primary/10">{i+1}</div>
-                             <div>
-                                <p className="text-sm font-black text-primary">{st.firstName} {st.lastName}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{st.gender} • DOB: {st.dob}</p>
-                             </div>
-                          </div>
-                       </TableCell>
-                       <TableCell className="text-center border-r border-slate-50/50">
-                          <p className="text-xs font-black text-secondary uppercase">Target: Grade {st.lastGrade}</p>
-                          <Badge variant="outline" className="bg-white border-slate-100 text-[8px] font-black uppercase text-slate-400 mt-1">{st.status || 'NEW ENTRY'}</Badge>
-                       </TableCell>
-                       <TableCell className="text-center border-r border-slate-50/50">
-                          <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
-                             <SelectTrigger className="h-10 rounded-lg text-[10px] font-black uppercase border-slate-200 bg-white w-40 mx-auto shadow-sm">
-                                <SelectValue />
-                             </SelectTrigger>
-                             <SelectContent className="rounded-xl p-1">
-                                <SelectItem value="Pending" className="text-[10px] font-bold py-2.5">Pending Review</SelectItem>
-                                <SelectItem value="Accepted" className="text-[10px] font-bold text-green-600 py-2.5">Accept Candidate</SelectItem>
-                                <SelectItem value="Missing Docs" className="text-[10px] font-bold text-amber-600 py-2.5">Request More Docs</SelectItem>
-                                <SelectItem value="Rejected" className="text-[10px] font-bold text-red-600 py-2.5">Decline Application</SelectItem>
-                             </SelectContent>
-                          </Select>
-                       </TableCell>
-                       <TableCell className="text-center px-6">
-                          {st.isEnrolled ? (
-                            <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit mx-auto shadow-sm">
-                               <BadgeCheck className="h-4 w-4" /> ENROLLED & ACTIVE
-                            </Badge>
-                          ) : (
-                            <Button 
-                              onClick={() => enrollStudent(i)} 
-                              disabled={isProcessing || st.status !== 'Accepted'}
-                              className="bg-primary hover:bg-secondary text-white h-11 px-6 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-primary/10 transition-all active:scale-95"
-                            >
-                               Provision Profile
-                            </Button>
-                          )}
-                       </TableCell>
+            <div className="overflow-x-auto">
+              <Table className="border-collapse min-w-[1200px]">
+                 <TableHeader className="bg-slate-100/80">
+                    <TableRow className="h-14 border-b border-slate-200 hover:bg-transparent">
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'نوع الطالب' : 'Student Type'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-start">{isAr ? 'الاسم الكامل' : 'Full Name'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'تاريخ الميلاد' : 'DOB'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'الجنس' : 'Gender'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'المستوى' : 'Grade'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'رقم الهاتف' : 'Phone'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'البريد الإلكتروني' : 'Email'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{isAr ? 'قرار الأهلية' : 'Decision'}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-600 text-center px-6">{isAr ? 'إجراء إداري' : 'Action'}</TableHead>
                     </TableRow>
-                  ))}
-               </TableBody>
-            </Table>
+                 </TableHeader>
+                 <TableBody>
+                    {app.students?.map((st: any, i: number) => (
+                      <TableRow key={i} className="hover:bg-white/60 transition-colors border-b border-slate-50 h-24">
+                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                            <Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">
+                               {st.entryType || (st.status === 'New Student' || st.status === 'Returning Student' ? st.status : '-')}
+                            </Badge>
+                         </TableCell>
+                         <TableCell className="px-6 border-r border-slate-50/50">
+                            <p className="text-sm font-black text-primary whitespace-nowrap">{st.firstName} {st.lastName}</p>
+                         </TableCell>
+                         <TableCell className="px-6 border-r border-slate-50/50 text-center text-xs font-bold text-slate-500 whitespace-nowrap">
+                            {st.dob}
+                         </TableCell>
+                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                            <Badge variant="outline" className="bg-primary/5 text-primary border-none font-black text-[8px] uppercase">
+                               {st.gender}
+                            </Badge>
+                         </TableCell>
+                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                            <p className="text-xs font-black text-secondary uppercase">Grade {st.lastGrade}</p>
+                         </TableCell>
+                         <TableCell className="px-6 border-r border-slate-50/50 text-center text-xs font-bold text-slate-600" dir="ltr">
+                            {st.phone}
+                         </TableCell>
+                         <TableCell className="px-6 border-r border-slate-50/50 text-center text-xs font-bold text-slate-500 lowercase truncate max-w-[150px]">
+                            {st.email}
+                         </TableCell>
+                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                            <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
+                               <SelectTrigger className="h-10 rounded-lg text-[10px] font-black uppercase border-slate-200 bg-white w-36 mx-auto shadow-sm">
+                                  <SelectValue />
+                               </SelectTrigger>
+                               <SelectContent className="rounded-xl p-1">
+                                  <SelectItem value="Pending" className="text-[10px] font-bold py-2.5">Pending Review</SelectItem>
+                                  <SelectItem value="Accepted" className="text-[10px] font-bold text-green-600 py-2.5">Accept Candidate</SelectItem>
+                                  <SelectItem value="Missing Docs" className="text-[10px] font-bold text-amber-600 py-2.5">Request More Docs</SelectItem>
+                                  <SelectItem value="Rejected" className="text-[10px] font-bold text-red-600 py-2.5">Decline Application</SelectItem>
+                               </SelectContent>
+                            </Select>
+                         </TableCell>
+                         <TableCell className="px-6 text-center">
+                            {st.isEnrolled ? (
+                              <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit mx-auto shadow-sm">
+                                 <BadgeCheck className="h-4 w-4" /> ENROLLED
+                              </Badge>
+                            ) : (
+                              <Button 
+                                onClick={() => enrollStudent(i)} 
+                                disabled={isProcessing || st.status !== 'Accepted'}
+                                className="bg-primary hover:bg-secondary text-white h-10 px-6 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-primary/10 transition-all active:scale-95"
+                              >
+                                 Provision
+                              </Button>
+                            )}
+                         </TableCell>
+                      </TableRow>
+                    ))}
+                 </TableBody>
+              </Table>
+            </div>
          </CardContent>
       </Card>
 
