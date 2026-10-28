@@ -20,8 +20,12 @@ export async function sendAcademyEmail({
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_PASS;
 
-  if (!user || !pass) {
-    throw new Error('Email configuration is missing on the server. Please set GMAIL_USER and GMAIL_PASS environment variables.');
+  if (!user || !pass || user.trim() === '' || pass.trim() === '') {
+    return { 
+      success: false, 
+      error: 'CONFIG_MISSING',
+      message: 'Email configuration is missing on the server. Please set GMAIL_USER and GMAIL_PASS in your environment settings.' 
+    };
   }
 
   const transporter = nodemailer.createTransport({
@@ -54,6 +58,6 @@ export async function sendAcademyEmail({
     return { success: true, messageId: info.messageId };
   } catch (error: any) {
     console.error('SMTP Error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'SMTP_FAILED', message: error.message };
   }
 }

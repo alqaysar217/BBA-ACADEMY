@@ -431,7 +431,12 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       });
 
       if (!result.success) {
-        throw new Error(result.error || 'SMTP Dispatch Failed');
+        if (result.error === 'CONFIG_MISSING') {
+          throw new Error(isAr 
+            ? 'إعدادات البريد الإلكتروني غير مكتملة في الخادم. يرجى مراجعة ملف .env' 
+            : 'Email configuration is missing on the server. Please check your .env file.');
+        }
+        throw new Error(result.message || 'SMTP Dispatch Failed');
       }
 
       // 2. Only if email is sent successfully, record the log in Firestore
@@ -576,7 +581,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                         <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full h-14 border-dashed border-2 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-secondary hover:border-secondary transition-all">
                            <FileUp className="h-5 w-5 mr-3" /> {t.dialog.externalFiles}
                         </Button>
-                        <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleExternalFile} />
+                        <input type="file" min-h-0 ref={fileInputRef} className="hidden" multiple onChange={handleExternalFile} />
                         
                         {externalAttachments.length > 0 && (
                           <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-inner animate-in slide-in-from-top-2">
