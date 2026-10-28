@@ -119,13 +119,6 @@ const EMAIL_TEMPLATES = [
     body: (data: any) => `Dear ${data.parentName},\n\nOn behalf of the academic committee, I am delighted to inform you that ${data.targetStudents} have been accepted into Baneen and Banaat Academy.\n\nNext Steps: ${data.reason || 'An administrator will contact you within 48 hours for orientation.'}\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director`
   },
   {
-    id: 'partial_offer',
-    labelEn: 'Partial Admission Decision',
-    labelAr: 'قرار قبول جزئي',
-    subject: 'Admission Decision Update from BBA Academy',
-    body: (data: any) => `Dear ${data.parentName},\n\nThis is an update regarding the admission status for your students. After careful review, the committee has reached individual decisions for each applicant:\n\nAccepted: ${data.acceptedStudents || 'None'}\n\nPending/Awaiting Info: ${data.reason || 'Remaining students are still under review.'}\n\nBest regards,\nBBA Admissions Office`
-  },
-  {
     id: 'rejected',
     labelEn: 'Not Accepted',
     labelAr: 'اعتذار عن القبول',
