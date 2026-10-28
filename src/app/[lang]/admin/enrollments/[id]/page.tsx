@@ -682,42 +682,43 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
       {/* 2. FAMILY INFORMATION TABLES */}
       <div className="space-y-6">
-        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
-              <div className="flex items-center gap-3">
-                 <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
-                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.guardians}</CardTitle>
+        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
+           <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-6 opacity-10"><Users className="h-24 w-24 text-white" /></div>
+              <div className="flex items-center gap-3 relative z-10">
+                 <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
+                 <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.guardians}</CardTitle>
               </div>
            </CardHeader>
            <CardContent className="p-0 overflow-hidden">
               <Table className="border-collapse">
-                <TableHeader className="bg-slate-100/80">
-                  <TableRow className="border-b border-slate-200 hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.type}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.name}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.phone}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.email}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 text-center">{t.table.relation}</TableHead>
+                <TableHeader className="bg-slate-50">
+                  <TableRow className="border-b border-slate-100 hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-start">{t.table.type}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-start">{t.table.name}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-center">{t.table.phone}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-center">{t.table.email}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 text-center">{t.table.relation}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="border-b border-slate-100 hover:bg-white/60 transition-colors">
-                    <TableCell className="px-6 border-r border-slate-50/50 text-start">
+                  <TableRow className="border-b border-slate-50 hover:bg-slate-50/30 transition-colors">
+                    <TableCell className="px-6 border-r border-slate-50 text-start">
                        <Badge variant="outline" className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">{isAr ? 'الأول (الأساسي)' : 'Parent 1 (Primary)'}</Badge>
                     </TableCell>
-                    <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50 text-start">{app.parent1Name}</TableCell>
-                    <TableCell className="text-xs font-bold text-slate-600 px-6 border-r border-slate-50/50 text-center" dir="ltr">{app.parent1Phone}</TableCell>
-                    <TableCell className="text-xs font-bold text-slate-500 px-6 lowercase border-r border-slate-50/50 text-center">{app.parent1Email}</TableCell>
+                    <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50 text-start">{app.parent1Name}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-600 px-6 border-r border-slate-50 text-center" dir="ltr">{app.parent1Phone}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-500 px-6 lowercase border-r border-slate-50 text-center">{app.parent1Email}</TableCell>
                     <TableCell className="px-6 text-center"><Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship1}</Badge></TableCell>
                   </TableRow>
                   {app.parent2Name && (
-                    <TableRow className="border-none hover:bg-white/60 transition-colors">
-                      <TableCell className="px-6 border-r border-slate-50/50 text-start">
+                    <TableRow className="border-none hover:bg-slate-50/30 transition-colors">
+                      <TableCell className="px-6 border-r border-slate-50 text-start">
                          <Badge variant="outline" className="bg-slate-50 text-slate-400 border-none font-black text-[9px] uppercase">{isAr ? 'الثاني' : 'Parent 2'}</Badge>
                       </TableCell>
-                      <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50 text-start">{app.parent2Name}</TableCell>
-                      <TableCell className="text-xs font-bold text-slate-600 px-6 border-r border-slate-50/50 text-center" dir="ltr">{app.parent2Phone}</TableCell>
-                      <TableCell className="text-xs font-bold text-slate-500 px-6 lowercase border-r border-slate-50/50 text-center">{app.parent2Email}</TableCell>
+                      <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50 text-start">{app.parent2Name}</TableCell>
+                      <TableCell className="text-xs font-bold text-slate-600 px-6 border-r border-slate-50 text-center" dir="ltr">{app.parent2Phone}</TableCell>
+                      <TableCell className="text-xs font-bold text-slate-500 px-6 lowercase border-r border-slate-50 text-center">{app.parent2Email}</TableCell>
                       <TableCell className="px-6 text-center"><Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship2}</Badge></TableCell>
                     </TableRow>
                   )}
@@ -726,30 +727,31 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
            </CardContent>
         </Card>
 
-        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
-              <div className="flex items-center gap-3">
+        <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
+           <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-6 opacity-10"><MapPin className="h-24 w-24 text-white" /></div>
+              <div className="flex items-center gap-3 relative z-10">
                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><MapPin className="h-5 w-5" /></div>
-                 <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.address}</CardTitle>
+                 <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.address}</CardTitle>
               </div>
            </CardHeader>
            <CardContent className="p-0 overflow-hidden">
               <Table className="border-collapse">
-                <TableHeader className="bg-slate-100/80">
-                  <TableRow className="border-b border-slate-200 hover:bg-transparent">
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.addr1}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-start">{t.table.addr2}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.city}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 border-r border-slate-200/50 text-center">{t.table.state}</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 h-14 text-center">{t.table.zip}</TableHead>
+                <TableHeader className="bg-slate-50">
+                  <TableRow className="border-b border-slate-100 hover:bg-transparent">
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-start">{t.table.addr1}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-start">{t.table.addr2}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-center">{t.table.city}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 border-r border-slate-100 text-center">{t.table.state}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 h-14 text-center">{t.table.zip}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="border-none hover:bg-white/60 transition-colors">
-                    <TableCell className="px-6 text-sm font-bold text-primary border-r border-slate-50/50 text-start">{app.address?.line1}</TableCell>
-                    <TableCell className="px-6 text-sm font-medium text-slate-500 border-r border-slate-50/50 text-start">{app.address?.line2 || '-'}</TableCell>
-                    <TableCell className="px-6 text-sm font-bold text-slate-600 border-r border-slate-50/50 text-center">{app.address?.city}</TableCell>
-                    <TableCell className="px-6 text-sm font-black text-secondary border-r border-slate-50/50 text-center">{app.address?.state}</TableCell>
+                  <TableRow className="border-none hover:bg-slate-50/30 transition-colors">
+                    <TableCell className="px-6 text-sm font-bold text-primary border-r border-slate-50 text-start">{app.address?.line1}</TableCell>
+                    <TableCell className="px-6 text-sm font-medium text-slate-500 border-r border-slate-50 text-start">{app.address?.line2 || '-'}</TableCell>
+                    <TableCell className="px-6 text-sm font-bold text-slate-600 border-r border-slate-50 text-center">{app.address?.city}</TableCell>
+                    <TableCell className="px-6 text-sm font-black text-secondary border-r border-slate-50 text-center">{app.address?.state}</TableCell>
                     <TableCell className="px-6 text-sm font-mono font-bold text-slate-400 text-center">{app.address?.zip}</TableCell>
                   </TableRow>
                 </TableBody>
@@ -759,58 +761,59 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       </div>
 
       {/* 3. STUDENT REVIEW QUEUE TABLE */}
-      <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-         <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
-            <div className="flex items-center gap-3">
+      <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
+         <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-6 opacity-10"><GraduationCap className="h-24 w-24 text-white" /></div>
+            <div className="flex items-center gap-3 relative z-10">
                <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
-               <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.students}</CardTitle>
+               <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.students}</CardTitle>
             </div>
          </CardHeader>
          <CardContent className="p-0 overflow-hidden">
             <div className="overflow-x-auto">
               <Table className="border-collapse min-w-[1200px]">
-                 <TableHeader className="bg-slate-100/80">
-                    <TableRow className="h-14 border-b border-slate-200 hover:bg-transparent">
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.studentType}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-start">{t.table.name}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.dob}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.gender}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.grade}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.phone}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.email}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 px-6 border-r border-slate-200/50 text-center">{t.table.decision}</TableHead>
-                       <TableHead className="text-[10px] font-black uppercase text-slate-600 text-center px-6">{t.table.action}</TableHead>
+                 <TableHeader className="bg-slate-50">
+                    <TableRow className="h-14 border-b border-slate-100 hover:bg-transparent">
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-center">{t.table.studentType}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-start">{t.table.name}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-center">{t.table.dob}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-center">{t.table.gender}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-center">{t.table.grade}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-center">{t.table.phone}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-center">{t.table.email}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 px-6 border-r border-slate-100 text-center">{t.table.decision}</TableHead>
+                       <TableHead className="text-[10px] font-black uppercase text-slate-400 text-center px-6">{t.table.action}</TableHead>
                     </TableRow>
                  </TableHeader>
                  <TableBody>
                     {app.students?.map((st: any, i: number) => (
-                      <TableRow key={i} className="hover:bg-white/60 transition-colors border-b border-slate-50 h-24">
-                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                      <TableRow key={i} className="hover:bg-slate-50/30 transition-colors border-b border-slate-50 h-24">
+                         <TableCell className="px-6 border-r border-slate-50 text-center">
                             <Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">
                                {isAr ? (st.entryType === 'New Student' ? 'طالب جديد' : st.entryType === 'Returning Student' ? 'طالب عائد' : st.entryType) : st.entryType}
                             </Badge>
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50 text-start">
+                         <TableCell className="px-6 border-r border-slate-50 text-start">
                             <p className="text-sm font-black text-primary whitespace-nowrap">{st.firstName} {st.lastName}</p>
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50 text-center text-xs font-bold text-slate-500 whitespace-nowrap">
+                         <TableCell className="px-6 border-r border-slate-50 text-center text-xs font-bold text-slate-500 whitespace-nowrap">
                             {st.dob}
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                         <TableCell className="px-6 border-r border-slate-50 text-center">
                             <Badge variant="outline" className="bg-primary/5 text-primary border-none font-black text-[8px] uppercase">
                                {isAr ? (st.gender === 'Male' ? 'ذكر' : st.gender === 'Female' ? 'أنثى' : st.gender) : st.gender}
                             </Badge>
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                         <TableCell className="px-6 border-r border-slate-50 text-center">
                             <p className="text-xs font-black text-secondary uppercase">Grade {st.lastGrade}</p>
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50 text-center text-xs font-bold text-slate-600" dir="ltr">
+                         <TableCell className="px-6 border-r border-slate-50 text-center text-xs font-bold text-slate-600" dir="ltr">
                             {st.phone}
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50 text-center text-xs font-bold text-slate-500 lowercase truncate max-w-[150px]">
+                         <TableCell className="px-6 border-r border-slate-50 text-center text-xs font-bold text-slate-500 lowercase truncate max-w-[150px]">
                             {st.email}
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50 text-center">
+                         <TableCell className="px-6 border-r border-slate-50 text-center">
                             <Select value={st.status || 'Pending'} onValueChange={(val) => updateStudentStatus(i, val)}>
                                <SelectTrigger className="h-10 rounded-lg text-[10px] font-black uppercase border-slate-200 bg-white w-36 mx-auto shadow-sm">
                                   <SelectValue />
@@ -851,10 +854,11 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
          <div className="lg:col-span-2">
             {/* Program Selection Card */}
             <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col h-full">
-               <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
-                 <div className="flex items-center gap-3">
-                     <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Briefcase className="h-5 w-5" /></div>
-                     <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.program}</CardTitle>
+               <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
+                 <div className="absolute top-0 right-0 p-6 opacity-10"><Briefcase className="h-24 w-24 text-white" /></div>
+                 <div className="flex items-center gap-3 relative z-10">
+                     <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Briefcase className="h-5 w-5" /></div>
+                     <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.program}</CardTitle>
                  </div>
                </CardHeader>
                <CardContent className="p-8 space-y-8 flex-1 flex flex-col justify-center text-start">
@@ -872,16 +876,17 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
          {/* Verification Files */}
          <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col">
-            <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
-               <div className="flex items-center gap-3">
+            <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
+               <div className="absolute top-0 right-0 p-6 opacity-10"><FileCheck className="h-24 w-24 text-white" /></div>
+               <div className="flex items-center gap-3 relative z-10">
                   <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><FileCheck className="h-5 w-5" /></div>
-                  <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.artifacts}</CardTitle>
+                  <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.artifacts}</CardTitle>
                </div>
             </CardHeader>
             <CardContent className="p-0 flex-1 text-start">
                <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto custom-scrollbar">
                   {app.files?.length > 0 ? app.files.map((file: any, idx: number) => (
-                    <div key={idx} className="p-6 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
+                    <div key={idx} className="p-6 flex items-center justify-between group hover:bg-slate-50/30 transition-colors">
                        <div className="flex items-center gap-4">
                           {file.type?.startsWith('image/') || file.data?.startsWith('data:image/') ? (
                             <div className="h-12 w-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 shadow-sm"><img src={file.data} className="h-full w-full object-cover" alt="preview" /></div>
@@ -924,3 +929,4 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     </div>
   );
 }
+
