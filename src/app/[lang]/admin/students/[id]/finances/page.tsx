@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -10,7 +9,7 @@ import {
   CreditCard, User, BookOpen, ClipboardCheck, 
   ChevronLeft, ChevronRight, DollarSign, TrendingUp,
   AlertTriangle, CheckCircle2, History, Plus,
-  Download, Filter, ArrowUpRight, Search, Users
+  Download, Filter, ArrowUpRight, Search, Users, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,8 +27,7 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
   const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
   const { data: student, loading } = useDoc(studentRef);
 
-  if (loading) return <div className="p-20 text-center animate-pulse">Loading Financial Ledger...</div>;
-  if (!student) return <div className="p-20 text-center text-red-500 uppercase font-black">Student Not Found</div>;
+  if (loading || !student) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   const t = {
     title: isAr ? 'السجل المالي للطالب' : 'Student Financial Ledger',
@@ -82,8 +80,8 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-32">
-      <div className="flex items-center justify-between">
-         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0">
+      <div className="flex items-center justify-between px-2">
+         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0 hover:text-primary transition-colors">
             {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />} {isAr ? 'العودة' : 'Back'}
          </Button>
          <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
@@ -92,22 +90,22 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
       <NavigationBar />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <Card className="border-none shadow-sm rounded-2xl bg-slate-900 text-white p-8 space-y-4">
+         <Card className="border-none shadow-sm rounded-2xl bg-slate-900 text-white p-8 space-y-4 text-start">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t.stats.due}</p>
-            <h3 className="text-4xl font-black">${student.financialLedger?.totalDue?.toLocaleString()}</h3>
+            <h3 className="text-4xl font-black">${(student.financialLedger?.totalDue || 0).toLocaleString()}</h3>
          </Card>
-         <Card className="border-none shadow-sm rounded-2xl bg-green-500 text-white p-8 space-y-4">
+         <Card className="border-none shadow-sm rounded-2xl bg-green-500 text-white p-8 space-y-4 text-start">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{t.stats.paid}</p>
-            <h3 className="text-4xl font-black">${student.financialLedger?.totalPaid?.toLocaleString()}</h3>
+            <h3 className="text-4xl font-black">${(student.financialLedger?.totalPaid || 0).toLocaleString()}</h3>
          </Card>
-         <Card className="border-none shadow-sm rounded-2xl bg-white border border-slate-100 p-8 space-y-4">
+         <Card className="border-none shadow-sm rounded-2xl bg-white border border-slate-100 p-8 space-y-4 text-start">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{t.stats.balance}</p>
             <h3 className="text-4xl font-black text-red-500">${((student.financialLedger?.totalDue || 0) - (student.financialLedger?.totalPaid || 0)).toLocaleString()}</h3>
          </Card>
       </div>
 
       <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden border border-slate-100">
-         <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between">
+         <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between text-start">
             <div>
                <CardTitle className="text-xl font-black uppercase flex items-center gap-4">
                   <History className="h-6 w-6 text-secondary" /> {isAr ? 'سجل العمليات المالية' : 'Transaction History'}

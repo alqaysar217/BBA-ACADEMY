@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -158,13 +157,11 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     }
   };
 
-  if (loading) return (
+  if (loading || !student || !editData) return (
     <div className="min-h-[60vh] flex items-center justify-center">
       <Loader2 className="h-8 w-8 text-primary animate-spin" />
     </div>
   );
-
-  if (!student || !editData) return <div className="p-20 text-center font-black text-red-500 uppercase">{t.notFound}</div>;
 
   const defaultImage = student.gender === 'Female' ? '/Female.png' : '/Male.png';
   const profileImage = editData.photoURL || defaultImage;
@@ -203,13 +200,14 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   };
 
   const getNestedValue = (obj: any, path: string) => {
+    if (!obj) return undefined;
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
   };
 
   const DataField = ({ label, path, type = "text" }: any) => {
     const value = getNestedValue(editData, path);
     return (
-      <div className="space-y-1">
+      <div className="space-y-1 text-start">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
         {isEditing ? (
           <Input 
@@ -299,7 +297,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         {/* Main Identity Data */}
         <div className="lg:col-span-8 space-y-6">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
-            <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5 text-start">
               <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-3">
                 <BadgeCheck className="h-4 w-4 text-primary/40" />
                 {t.sections.personal}
@@ -320,7 +318,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
           </Card>
 
           <Card className="border-none shadow-sm bg-white overflow-hidden">
-             <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5">
+             <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5 text-start">
                 <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-3">
                   <MapPin className="h-4 w-4 text-primary/40" />
                   {t.sections.residence}

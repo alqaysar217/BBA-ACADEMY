@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -10,7 +9,7 @@ import {
   ClipboardCheck, User, CreditCard, BookOpen, 
   ChevronLeft, ChevronRight, Plus, Star,
   Award, Trash2, Edit3, Search, Filter,
-  Download, ArrowUpRight, Users
+  Download, ArrowUpRight, Users, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,8 +27,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
   const { data: student, loading } = useDoc(studentRef);
 
-  if (loading) return <div className="p-20 text-center animate-pulse">Accessing Gradebook...</div>;
-  if (!student) return <div className="p-20 text-center text-red-500 uppercase font-black">Student Not Found</div>;
+  if (loading || !student) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   const t = {
     title: isAr ? 'سجل درجات الطالب' : 'Student Grade Registry',
@@ -77,8 +75,8 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-32">
-      <div className="flex items-center justify-between">
-         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0">
+      <div className="flex items-center justify-between px-2">
+         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0 hover:text-primary transition-colors">
             {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />} {isAr ? 'العودة' : 'Back'}
          </Button>
          <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
@@ -87,7 +85,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       <NavigationBar />
 
       <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden border border-slate-100">
-         <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between">
+         <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between text-start">
             <div>
                <CardTitle className="text-xl font-black uppercase flex items-center gap-4">
                   <Award className="h-6 w-6 text-secondary" /> {isAr ? 'نتائج التقييمات' : 'Assessment Results'}

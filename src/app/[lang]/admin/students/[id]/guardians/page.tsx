@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -9,7 +8,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   Users, User, ChevronLeft, ChevronRight, Mail, Phone, MessageCircle, 
   Edit3, Save, X, Loader2, Info, GraduationCap, BookOpen, ClipboardCheck, CreditCard,
-  Send, ExternalLink
+  Send, ExternalLink, Plus
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,8 +39,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     }
   }, [student, editData]);
 
-  if (loading || !editData) return <div className="p-20 text-center animate-pulse">Loading Guardians Info...</div>;
-  if (!student) return <div className="p-20 text-center text-red-500 uppercase font-black">Student Not Found</div>;
+  if (loading || !student || !editData) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   const t = {
     title: isAr ? 'أولياء الأمور والتواصل' : 'Guardians & Communication',
@@ -135,7 +133,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     if (!parent && !isEditing) return null;
     
     return (
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-white overflow-hidden text-start">
         <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5 flex flex-row items-center justify-between">
            <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-3">
               <Users className="h-4 w-4 text-primary/40" />
@@ -143,13 +141,13 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
            </CardTitle>
            {!isEditing && parent && (
              <div className="flex gap-2">
-                <Button size="icon" variant="outline" className="h-8 w-8 rounded-lg border-green-100 text-green-600 hover:bg-green-50" onClick={() => window.open(`https://wa.me/${parent.phone?.replace(/\D/g, '')}`, '_blank')}>
+                <Button size="icon" variant="outline" className="h-8 w-8 rounded-lg border-green-100 text-green-600 hover:bg-green-50" onClick={() => window.open(`https://wa.me/${parent?.phone?.replace(/\D/g, '')}`, '_blank')}>
                    <MessageCircle className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="outline" className="h-8 w-8 rounded-lg border-blue-100 text-blue-600 hover:bg-blue-50" onClick={() => window.location.href = `tel:${parent.phone}`}>
+                <Button size="icon" variant="outline" className="h-8 w-8 rounded-lg border-blue-100 text-blue-600 hover:bg-blue-50" onClick={() => window.location.href = `tel:${parent?.phone}`}>
                    <Phone className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="outline" className="h-8 w-8 rounded-lg border-secondary/20 text-secondary hover:bg-secondary/5" onClick={() => window.location.href = `mailto:${parent.email}`}>
+                <Button size="icon" variant="outline" className="h-8 w-8 rounded-lg border-secondary/20 text-secondary hover:bg-secondary/5" onClick={() => window.location.href = `mailto:${parent?.email}`}>
                    <Mail className="h-4 w-4" />
                 </Button>
              </div>
@@ -219,7 +217,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
         </div>
       </div>
 
-      <div className="px-2">
+      <div className="px-2 text-start">
          <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
       </div>
 

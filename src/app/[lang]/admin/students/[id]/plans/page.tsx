@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -10,7 +9,7 @@ import {
   BookOpen, User, CreditCard, ClipboardCheck, 
   ChevronLeft, ChevronRight, Target, Clock,
   Award, Layers, PencilLine, Plus, Search,
-  ArrowUpRight, Users
+  ArrowUpRight, Users, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,8 +27,7 @@ export default function StudentAcademicPlanPage({ params }: { params: Promise<{ 
   const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
   const { data: student, loading } = useDoc(studentRef);
 
-  if (loading) return <div className="p-20 text-center animate-pulse">Syncing Academic Data...</div>;
-  if (!student) return <div className="p-20 text-center text-red-500 uppercase font-black">Student Not Found</div>;
+  if (loading || !student) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   const t = {
     title: isAr ? 'المسار الأكاديمي للطالب' : 'Student Academic Pathway',
@@ -77,8 +75,8 @@ export default function StudentAcademicPlanPage({ params }: { params: Promise<{ 
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-32">
-      <div className="flex items-center justify-between">
-         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0">
+      <div className="flex items-center justify-between px-2">
+         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0 hover:text-primary transition-colors">
             {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />} {isAr ? 'العودة' : 'Back'}
          </Button>
          <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
@@ -88,7 +86,7 @@ export default function StudentAcademicPlanPage({ params }: { params: Promise<{ 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          <Card className="lg:col-span-2 border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden border border-slate-100">
-            <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between">
+            <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between text-start">
                <div>
                   <CardTitle className="text-xl font-black uppercase flex items-center gap-4">
                      <Layers className="h-6 w-6 text-secondary" /> {isAr ? 'الدورات المخصصة' : 'Active Course Load'}
@@ -115,7 +113,7 @@ export default function StudentAcademicPlanPage({ params }: { params: Promise<{ 
          </Card>
 
          <div className="space-y-8">
-            <Card className="border-none shadow-premium rounded-[2.5rem] bg-slate-900 text-white p-10 space-y-8 relative overflow-hidden">
+            <Card className="border-none shadow-premium rounded-[2.5rem] bg-slate-900 text-white p-10 space-y-8 relative overflow-hidden text-start">
                <div className="absolute top-0 right-0 p-8 opacity-10"><Award className="h-32 w-32 text-secondary" /></div>
                <h4 className="text-lg font-black uppercase tracking-tight relative z-10">{isAr ? 'إحصائيات الإنجاز' : 'Achievement Metrics'}</h4>
                <div className="space-y-6 relative z-10">
