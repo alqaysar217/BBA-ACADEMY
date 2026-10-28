@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -19,6 +18,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function UserPermissionsPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -61,20 +62,26 @@ export default function UserPermissionsPage({ params }: { params: Promise<{ lang
     }));
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!firestore || !permissions || !userRef) return;
     setIsSaving(true);
-    try {
-      await updateDoc(userRef, {
-        permissions,
-        updatedAt: serverTimestamp()
-      });
-      toast({ title: isAr ? "تم تحديث مصفوفة الصلاحيات" : "Permissions Matrix Updated" });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Error" });
-    } finally {
-      setIsSaving(false);
-    }
+    const updateData = {
+      permissions,
+      updatedAt: serverTimestamp()
+    };
+    updateDoc(userRef, updateData)
+      .then(() => {
+        toast({ title: isAr ? "تم تحديث مصفوفة الصلاحيات" : "Permissions Matrix Updated" });
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', pError);
+      })
+      .finally(() => setIsSaving(false));
   };
 
   const modules = [

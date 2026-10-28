@@ -32,6 +32,8 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function TrashBinPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -72,36 +74,51 @@ export default function TrashBinPage({ params }: { params: Promise<{ lang: Local
       );
   }, [rawUsers, searchTerm]);
 
-  const restoreUser = async (user: any) => {
+  const restoreUser = (user: any) => {
     if (!firestore) return;
-    try {
-      await updateDoc(doc(firestore, 'admin_users', user.id), {
-        status: 'active',
-        updatedAt: serverTimestamp(),
-        archivedAt: null // مسح تاريخ الأرشفة عند الاستعادة
+    const userRef = doc(firestore, 'admin_users', user.id);
+    const updateData = {
+      status: 'active',
+      updatedAt: serverTimestamp(),
+      archivedAt: null
+    };
+
+    updateDoc(userRef, updateData)
+      .then(() => {
+        toast({
+          title: isAr ? "تمت استعادة الحساب" : "Account Restored",
+          description: isAr ? "تم إعادة تفعيل الحساب بنجاح." : "Account has been reactivated successfully.",
+        });
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', pError);
       });
-      toast({
-        title: isAr ? "تمت استعادة الحساب" : "Account Restored",
-        description: isAr ? "تم إعادة تفعيل الحساب بنجاح." : "Account has been reactivated successfully.",
-      });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Error", description: "Failed to restore." });
-    }
   };
 
-  const confirmPermanentDelete = async () => {
+  const confirmPermanentDelete = () => {
     if (!firestore || !userToDelete) return;
-    try {
-      await deleteDoc(doc(firestore, 'admin_users', userToDelete.id));
-      toast({ 
-        title: isAr ? "حذف نهائي" : "Permanently Deleted", 
-        description: isAr ? "تم حذف السجل من القاعدة نهائياً." : "Record has been permanently removed." 
+    const userRef = doc(firestore, 'admin_users', userToDelete.id);
+    deleteDoc(userRef)
+      .then(() => {
+        toast({ 
+          title: isAr ? "حذف نهائي" : "Permanently Deleted", 
+          description: isAr ? "تم حذف السجل من القاعدة نهائياً." : "Record has been permanently removed." 
+        });
+        setIsDeleteDialogOpen(false);
+        setUserToDelete(null);
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', pError);
       });
-      setIsDeleteDialogOpen(false);
-      setUserToDelete(null);
-    } catch (err) {
-      toast({ variant: "destructive", title: "Error", description: "Operation failed." });
-    }
   };
 
   return (

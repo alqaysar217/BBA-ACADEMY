@@ -64,6 +64,8 @@ import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 // Official English Email Templates (Professional Versions)
 const EMAIL_TEMPLATES = [
@@ -77,25 +79,25 @@ const EMAIL_TEMPLATES = [
     id: 'under_review',
     label: 'Under Review',
     subject: 'BBA Academy: Your application is now under review',
-    body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). The files for ${data.targetStudents} have been moved to the "Under Review" stage and are currently being evaluated by our academic committee.\n\nWe appreciate your patience during this evaluation period. No further action is required from your side at this moment. We will notify you as soon as a decision has been reached.\n\nSincerely,\nBBA Academic Committee`
+    body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). The files for ${data.targetStudents} have been moved to the "Under Review" stage and are currently being evaluated by our academic committee.\n\nSincerely,\nBBA Academic Committee`
   },
   {
     id: 'offer',
     label: 'Admission Offer',
     subject: 'Congratulations! Admission Offer from BBA Academy',
-    body: (data: any) => `Dear ${data.parentName},\n\nOn behalf of the academic committee, I am delighted to inform you that the following student(s) have been accepted into Baneen and Banaat Academy:\n\n${data.acceptedStudents}\n\nWe are excited to have you join our learning community. An academy administrator will contact you within 48 hours to finalize the tuition setup and provide orientation details.\n\nDetails/Next Steps: ${data.reason || 'Welcome to the family!'}\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director`
+    body: (data: any) => `Dear ${data.parentName},\n\nOn behalf of the academic committee, I am delighted to inform you that the following student(s) have been accepted into Baneen and Banaat Academy:\n\n${data.acceptedStudents}\n\nAn academy administrator will contact you within 48 hours to finalize the tuition setup and provide orientation details.\n\nDetails/Next Steps: ${data.reason || 'Welcome to the family!'}\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director`
   },
   {
     id: 'missing_docs',
     label: 'Missing Documents',
     subject: 'Action Required: Missing Documentation for BBA Enrollment',
-    body: (data: any) => `Dear ${data.parentName},\n\nDuring the preliminary review of your application (ID: ${data.appId}), our team identified that certain supporting documents are missing or require clarification for ${data.targetStudents}.\n\nRequirements:\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nYou may provide these details by replying directly to this email. Please be advised that we cannot proceed with the final evaluation until this information is received.\n\nThank you,\nBBA Admissions Team`
+    body: (data: any) => `Dear ${data.parentName},\n\nDuring the preliminary review of your application (ID: ${data.appId}), our team identified that certain supporting documents are missing or require clarification for ${data.targetStudents}.\n\nRequirements:\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nThank you,\nBBA Admissions Team`
   },
   {
     id: 'not_accepted',
     label: 'Admission Decision: Not Accepted',
     subject: 'Update regarding your BBA Application',
-    body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Maximum enrollment capacity reached for the current term.'}\n\nWe wish you and your family the very best in your educational journey.\n\nRespectfully,\nBBA Admissions Office`
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Maximum enrollment capacity reached for the current term.'}\n\nRespectfully,\nBBA Admissions Office`
   }
 ];
 
@@ -183,11 +185,20 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
   const updateAppStatus = (newStatus: string) => {
     if (!docRef) return;
-    updateDoc(docRef, { 
+    const updateData = { 
       status: newStatus, 
       updatedAt: serverTimestamp(),
       processedBy: user?.email || 'admin'
-    });
+    };
+    updateDoc(docRef, updateData)
+      .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
     toast({ title: isAr ? "تم تحديث حالة الطلب" : "Application Status Updated" });
   };
 
@@ -195,14 +206,23 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     if (!docRef || !app) return;
     const updatedStudents = [...app.students];
     updatedStudents[studentIdx].status = newStatus;
-    updateDoc(docRef, { 
+    const updateData = { 
       students: updatedStudents, 
       updatedAt: serverTimestamp() 
-    });
+    };
+    updateDoc(docRef, updateData)
+      .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        } satisfies SecurityRuleContext);
+        errorEmitter.emit('permission-error', permissionError);
+      });
     toast({ title: isAr ? "تم تحديث حالة الطالب" : "Student Status Updated" });
   };
 
-  const enrollStudent = async (studentIdx: number) => {
+  const enrollStudent = (studentIdx: number) => {
     if (!firestore || !app || !docRef) return;
     const student = app.students[studentIdx];
     
@@ -212,11 +232,10 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     }
 
     setIsProcessing(true);
-    try {
-      const studentIdStr = `${id}-${studentIdx}`;
-      const q = query(collection(firestore, 'students'), where('enrollmentRef', '==', studentIdStr));
-      const snapshot = await getDocs(q);
-      
+    const studentIdStr = `${id}-${studentIdx}`;
+    const q = query(collection(firestore, 'students'), where('enrollmentRef', '==', studentIdStr));
+    
+    getDocs(q).then((snapshot) => {
       if (!snapshot.empty) {
         toast({ variant: "destructive", title: "Record already exists" });
         setIsProcessing(false);
@@ -253,23 +272,27 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         updatedAt: serverTimestamp()
       };
 
-      await setDoc(studentDoc, studentData);
-
-      const updatedStudents = [...app.students];
-      updatedStudents[studentIdx].isEnrolled = true;
-      updatedStudents[studentIdx].status = 'Accepted';
-      await updateDoc(docRef, { students: updatedStudents });
-
-      toast({ title: isAr ? "تم إنشاء ملف الطالب بنجاح" : "Student profile created successfully" });
-    } catch (err) {
-      console.error(err);
-      toast({ variant: "destructive", title: "Error creating record" });
-    } finally {
-      setIsProcessing(false);
-    }
+      setDoc(studentDoc, studentData)
+        .then(() => {
+          const updatedStudents = [...app.students];
+          updatedStudents[studentIdx].isEnrolled = true;
+          updatedStudents[studentIdx].status = 'Accepted';
+          updateDoc(docRef, { students: updatedStudents });
+          toast({ title: isAr ? "تم إنشاء ملف الطالب بنجاح" : "Student profile created successfully" });
+        })
+        .catch(async (err) => {
+           const pError = new FirestorePermissionError({
+            path: studentDoc.path,
+            operation: 'create',
+            requestResourceData: studentData,
+          });
+          errorEmitter.emit('permission-error', pError);
+        })
+        .finally(() => setIsProcessing(false));
+    });
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (!app || !docRef) return;
     setIsProcessing(true);
 
@@ -289,21 +312,27 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       sender: user?.email || 'admin'
     };
 
-    try {
-      const existingLogs = app.communications || [];
-      await updateDoc(docRef, { 
-        communications: [logEntry, ...existingLogs],
-        lastCommunicationAt: serverTimestamp()
-      });
-      
-      toast({ title: isAr ? "تم تسجيل الرسالة" : "Message Logged", description: isAr ? "تم إضافة المراسلة لسجل الطلب." : "Correspondence record added to application." });
-      setIsMsgOpen(false);
-      setReason('');
-    } catch (err) {
-      toast({ variant: "destructive", title: "Failed to log message" });
-    } finally {
-      setIsProcessing(false);
-    }
+    const existingLogs = app.communications || [];
+    const updateData = { 
+      communications: [logEntry, ...existingLogs],
+      lastCommunicationAt: serverTimestamp()
+    };
+
+    updateDoc(docRef, updateData)
+      .then(() => {
+        toast({ title: isAr ? "تم تسجيل الرسالة" : "Message Logged" });
+        setIsMsgOpen(false);
+        setReason('');
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', pError);
+      })
+      .finally(() => setIsProcessing(false));
   };
 
   if (authLoading || dataLoading) return (

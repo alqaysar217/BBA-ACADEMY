@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -19,6 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function EditUserPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -48,22 +49,28 @@ export default function EditUserPage({ params }: { params: Promise<{ lang: Local
     }
   }, [userData, formData]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!firestore || !formData || !userRef) return;
     setIsSaving(true);
-    try {
-      await updateDoc(userRef, {
-        displayName: formData.displayName,
-        role: formData.role,
-        photoURL: formData.photoURL,
-        updatedAt: serverTimestamp()
-      });
-      toast({ title: isAr ? "تم الحفظ" : "Saved" });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Error" });
-    } finally {
-      setIsSaving(false);
-    }
+    const updateData = {
+      displayName: formData.displayName,
+      role: formData.role,
+      photoURL: formData.photoURL,
+      updatedAt: serverTimestamp()
+    };
+    updateDoc(userRef, updateData)
+      .then(() => {
+        toast({ title: isAr ? "تم الحفظ" : "Saved" });
+      })
+      .catch(async (err) => {
+        const pError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
+        });
+        errorEmitter.emit('permission-error', pError);
+      })
+      .finally(() => setIsSaving(false));
   };
 
   const handlePasswordReset = async () => {

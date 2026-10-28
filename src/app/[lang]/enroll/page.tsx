@@ -410,12 +410,16 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
     window.scrollTo(0, 0);
   };
 
-  const saveDraft = async () => {
+  const saveDraft = () => {
     if (!firestore) return;
     setIsSavingDraft(true);
     
+    // Bandwidth Optimization: Exclude heavy files from Firestore draft
+    // They are already kept in local state and localStorage draft anyway.
+    const { files, ...formDataWithoutFiles } = formData;
+    
     const draftData = {
-      ...formData,
+      ...formDataWithoutFiles,
       status: 'draft',
       updatedAt: serverTimestamp(),
       userId: user?.uid || 'anonymous',
@@ -446,7 +450,7 @@ export default function EnrollmentPage({ params }: { params: Promise<{ lang: Loc
       .finally(() => setIsSavingDraft(false));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!firestore) return;
     if (!isOnline) {
       toast({
