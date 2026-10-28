@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -71,6 +72,7 @@ import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+import { dispatchEmailAction } from '@/app/actions/send-email';
 
 // Comprehensive BBA Official Email Templates (Full Library)
 const EMAIL_TEMPLATES = [
@@ -203,10 +205,10 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       rejected: isAr ? 'مرفوض' : 'Rejected',
     },
     actions: {
-      sendMessage: isAr ? 'تواصل مع ولي الأمر' : 'Send Message',
+      sendMessage: isAr ? 'إرسال بريد إلكتروني' : 'Send Email Message',
       provision: isAr ? 'تفعيل الملف' : 'Provision',
       enrolled: isAr ? 'تم التسجيل' : 'ENROLLED',
-      logMessage: isAr ? 'تسجيل وأرشفة المراسلة' : 'Log & Record Correspondence',
+      logMessage: isAr ? 'إرسال وتوثيق المراسلة' : 'Dispatch & Record Correspondence',
     },
     sections: {
       guardians: isAr ? 'بيانات أولياء الأمور' : 'Guardians Information',
@@ -397,7 +399,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     setExternalAttachments(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!app || !docRef) return;
     setIsProcessing(true);
 
@@ -405,49 +407,67 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       name: f.name, 
       source: 'manual_upload', 
       size: f.size, 
-      data: f.data 
+      data: f.data,
+      type: f.type
     }));
 
-    const logEntry = {
-      templateId: selectedTemplate.id,
-      sentAt: new Date().toISOString(),
-      recipient: app.parent1Email,
-      subject: selectedTemplate.subject,
-      content: selectedTemplate.body({
-        parentName: app.parent1Name,
-        appId: id,
-        studentCount: app.students?.length || 0,
-        acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
-        targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
-        reason: msgReason,
-        paymentAmount: app.programOption === 'weekend' ? '$75' : (app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650')
-      }),
-      attachments: allAttachments,
-      sender: user?.email || 'admin'
-    };
+    const finalBody = selectedTemplate.body({
+      parentName: app.parent1Name,
+      appId: id,
+      studentCount: app.students?.length || 0,
+      acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
+      targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
+      reason: msgReason,
+      paymentAmount: app.programOption === 'weekend' ? '$75' : (app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650')
+    });
 
-    const existingLogs = app.communications || [];
-    const updateData = { 
-      communications: [logEntry, ...existingLogs],
-      lastCommunicationAt: serverTimestamp()
-    };
+    try {
+      // 1. Dispatch actual email via Server Action
+      const result = await dispatchEmailAction({
+        to: app.parent1Email,
+        subject: selectedTemplate.subject,
+        content: finalBody,
+        attachments: allAttachments
+      });
 
-    updateDoc(docRef, updateData)
-      .then(() => {
-        toast({ title: isAr ? "تم تسجيل الرسالة" : "Message Logged" });
-        setIsMsgOpen(false);
-        setReason('');
-        setExternalAttachments([]);
-      })
-      .catch(async (err) => {
-        const pError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'update',
-          requestResourceData: updateData,
-        });
-        errorEmitter.emit('permission-error', pError);
-      })
-      .finally(() => setIsProcessing(false));
+      if (!result.success) {
+        throw new Error(result.error || 'SMTP Dispatch Failed');
+      }
+
+      // 2. Only if email is sent successfully, record the log in Firestore
+      const logEntry = {
+        templateId: selectedTemplate.id,
+        sentAt: new Date().toISOString(),
+        recipient: app.parent1Email,
+        subject: selectedTemplate.subject,
+        content: finalBody,
+        attachments: allAttachments.map(a => ({ name: a.name, size: a.size })), // Store metadata, not heavy base64
+        sender: user?.email || 'admin',
+        smtpMessageId: result.messageId
+      };
+
+      const existingLogs = app.communications || [];
+      const updateData = { 
+        communications: [logEntry, ...existingLogs],
+        lastCommunicationAt: serverTimestamp()
+      };
+
+      await updateDoc(docRef, updateData);
+      
+      toast({ title: isAr ? "تم إرسال البريد وتوثيق المراسلة بنجاح" : "Email Dispatched & Logged Successfully" });
+      setIsMsgOpen(false);
+      setReason('');
+      setExternalAttachments([]);
+    } catch (err: any) {
+      console.error("Mail Dispatch Error:", err);
+      toast({ 
+        variant: "destructive", 
+        title: isAr ? "فشل إرسال البريد" : "Email Dispatch Failed",
+        description: err.message
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (authLoading || dataLoading) return (
@@ -501,7 +521,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
           <Dialog open={isMsgOpen} onOpenChange={(val) => { setIsMsgOpen(val); if (!val) setExternalAttachments([]); }}>
             <DialogTrigger asChild>
               <Button className="bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2 hover:bg-primary/90 transition-all">
-                <MessageSquare className="h-4 w-4 text-secondary" />
+                <Mail className="h-4 w-4 text-secondary" />
                 {t.actions.sendMessage}
               </Button>
             </DialogTrigger>
@@ -509,10 +529,10 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
               <div className="grid grid-cols-1 lg:grid-cols-12 h-[85vh] max-h-[900px]">
                 {/* Form Side */}
                 <div className="lg:col-span-6 p-8 flex flex-col h-full overflow-y-auto border-r border-slate-100 bg-white">
-                  <DialogHeader className="mb-8">
+                  <DialogHeader className="mb-8 text-start">
                     <div className="flex items-center gap-4">
                       <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20"><Mail className="h-6 w-6 text-secondary" /></div>
-                      <div className="space-y-0.5 text-start">
+                      <div className="space-y-0.5">
                         <DialogTitle className="text-xl font-black uppercase text-primary tracking-tight">{t.dialog.title}</DialogTitle>
                         <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Official Correspondence Dispatcher</DialogDescription>
                       </div>
@@ -552,7 +572,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                          {t.dialog.attachments}
                       </label>
                       
-                      {/* Manual External Uploads Section - ONLY manual uploads as requested */}
                       <div className="space-y-4">
                         <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full h-14 border-dashed border-2 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-secondary hover:border-secondary transition-all">
                            <FileUp className="h-5 w-5 mr-3" /> {t.dialog.externalFiles}
@@ -592,7 +611,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                   </div>
 
                   <div className="flex-1 bg-white rounded-2xl shadow-inner border border-slate-200/50 flex flex-col overflow-hidden">
-                    {/* Simulated Outbox Header */}
                     <div className="p-6 border-b border-slate-50 space-y-2 bg-slate-50/50 shrink-0 text-start">
                        <div className="flex items-center gap-2">
                           <p className="text-[9px] font-black text-slate-400 uppercase w-12">{t.dialog.from}</p>
@@ -608,13 +626,12 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                        </div>
                     </div>
 
-                    {/* Simulated Email Body Content */}
-                    <div className="flex-1 p-8 overflow-y-auto custom-scrollbar space-y-8">
+                    <div className="flex-1 p-8 overflow-y-auto custom-scrollbar space-y-8 text-start">
                        <div className="flex justify-center mb-4">
                           <img src="/logo.png" className="h-16 w-16 object-contain grayscale opacity-30" alt="BBA Logo" />
                        </div>
                        
-                       <div className="prose prose-slate max-w-none text-start">
+                       <div className="prose prose-slate max-w-none">
                           <div className="text-slate-600 leading-relaxed font-medium whitespace-pre-wrap text-sm italic bg-slate-50/30 p-4 rounded-lg border border-slate-100">
                              {selectedTemplate.body({ 
                                 parentName: app.parent1Name || '[Parent Name]', 
@@ -628,7 +645,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                           </div>
                        </div>
 
-                       {/* Attachments Section in Preview */}
                        {externalAttachments.length > 0 && (
                          <div className="pt-8 border-t border-slate-100 space-y-4">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -647,8 +663,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                          </div>
                        )}
 
-                       {/* Official Footer Signature */}
-                       <div className="pt-12 border-t border-slate-100 space-y-1 opacity-60 text-start">
+                       <div className="pt-12 border-t border-slate-100 space-y-1 opacity-60">
                           <p className="font-black text-primary text-xs tracking-tight">Dr. Mustafa Ali</p>
                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Academy Director | Baneen & Banaat Academy</p>
                           <p className="text-[8px] font-medium text-slate-400">banaatacademy@gmail.com</p>
@@ -665,7 +680,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       {/* 2. FAMILY INFORMATION TABLES */}
       <div className="space-y-6">
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
+           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
                  <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.guardians}</CardTitle>
@@ -684,7 +699,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                 </TableHeader>
                 <TableBody>
                   <TableRow className="border-b border-slate-100 hover:bg-white/60 transition-colors">
-                    <TableCell className="px-6 border-r border-slate-50/50">
+                    <TableCell className="px-6 border-r border-slate-50/50 text-start">
                        <Badge variant="outline" className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">{isAr ? 'الأول (الأساسي)' : 'Parent 1 (Primary)'}</Badge>
                     </TableCell>
                     <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50 text-start">{app.parent1Name}</TableCell>
@@ -694,7 +709,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                   </TableRow>
                   {app.parent2Name && (
                     <TableRow className="border-none hover:bg-white/60 transition-colors">
-                      <TableCell className="px-6 border-r border-slate-50/50">
+                      <TableCell className="px-6 border-r border-slate-50/50 text-start">
                          <Badge variant="outline" className="bg-slate-50 text-slate-400 border-none font-black text-[9px] uppercase">{isAr ? 'الثاني' : 'Parent 2'}</Badge>
                       </TableCell>
                       <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50 text-start">{app.parent2Name}</TableCell>
@@ -709,7 +724,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </Card>
 
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
+           <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
               <div className="flex items-center gap-3">
                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><MapPin className="h-5 w-5" /></div>
                  <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.address}</CardTitle>
@@ -742,7 +757,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
       {/* 3. STUDENT REVIEW QUEUE TABLE */}
       <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-100">
-         <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
+         <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
             <div className="flex items-center gap-3">
                <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
                <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.students}</CardTitle>
@@ -834,7 +849,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                {/* Program Selection Card */}
                <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col h-full">
-                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
+                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
                     <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Briefcase className="h-5 w-5" /></div>
                         <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.program}</CardTitle>
@@ -854,7 +869,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
                {/* Communication Logs Card */}
                <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 h-full flex flex-col">
-                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 flex flex-row items-center justify-between">
+                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 flex flex-row items-center justify-between text-start">
                      <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-lg"><Clock className="h-5 w-5" /></div>
                         <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.logs}</CardTitle>
