@@ -185,7 +185,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
   const [selectedTemplate, setSelectedTemplate] = useState(EMAIL_TEMPLATES[0]);
   const [msgReason, setReason] = useState('');
   const [isMsgOpen, setIsMsgOpen] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [externalAttachments, setExternalAttachments] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -245,15 +244,14 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       title: isAr ? 'مركز مراسلة ولي الأمر' : 'Parent Correspondence Hub',
       template: isAr ? '1. اختيار القالب الرسمي' : '1. Select Official Template',
       reason: isAr ? '2. التفاصيل الإضافية / الأسباب' : '2. Additional Details / Reasons',
-      attachments: isAr ? '3. المرفقات (اختياري)' : '3. Attachments (Optional)',
-      formFiles: isAr ? 'ملفات الاستمارة' : 'Application Files',
-      externalFiles: isAr ? 'رفع ملفات جديدة' : 'Upload External Files',
-      preview: isAr ? 'معاينة البريد الصادر (مباشر)' : 'Live Outgoing Email Preview',
+      attachments: isAr ? '3. المرفقات المرفوعة حالياً' : '3. Currently Uploaded Attachments',
+      externalFiles: isAr ? 'رفع ملفات جديدة من جهازك' : 'Upload Files From Your Device',
+      preview: isAr ? 'محاكاة البريد الصادر (مباشر)' : 'Live Email Outbox Simulation',
       placeholder: isAr ? 'اكتب الأسباب أو المستندات الناقصة هنا ليتم دمجها في الرسالة...' : 'Type specific reasons or missing details here to be merged...',
       from: isAr ? 'من:' : 'From:',
       to: isAr ? 'إلى:' : 'To:',
       subject: isAr ? 'الموضوع:' : 'Subject:',
-      attachCount: (count: number) => isAr ? `${count} مرفقاً مختاراً` : `${count} selected file(s)`,
+      attachCount: (count: number) => isAr ? `${count} مرفقاً مرفوعاً` : `${count} uploaded file(s)`,
     },
     program: {
       tuition: isAr ? 'تقدير الرسوم الأولية' : 'Base Tuition Estimate',
@@ -372,12 +370,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     });
   };
 
-  const toggleFile = (fileName: string) => {
-    setSelectedFiles(prev => 
-      prev.includes(fileName) ? prev.filter(f => f !== fileName) : [...prev, fileName]
-    );
-  };
-
   const handleExternalFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -409,10 +401,12 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     if (!app || !docRef) return;
     setIsProcessing(true);
 
-    const allAttachments = [
-      ...selectedFiles.map(name => ({ name, source: 'app' })),
-      ...externalAttachments.map(f => ({ name: f.name, source: 'external', size: f.size, data: f.data }))
-    ];
+    const allAttachments = externalAttachments.map(f => ({ 
+      name: f.name, 
+      source: 'manual_upload', 
+      size: f.size, 
+      data: f.data 
+    }));
 
     const logEntry = {
       templateId: selectedTemplate.id,
@@ -443,7 +437,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         toast({ title: isAr ? "تم تسجيل الرسالة" : "Message Logged" });
         setIsMsgOpen(false);
         setReason('');
-        setSelectedFiles([]);
         setExternalAttachments([]);
       })
       .catch(async (err) => {
@@ -559,49 +552,26 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                          {t.dialog.attachments}
                       </label>
                       
-                      {/* App Files */}
-                      {app.files?.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-[9px] font-black text-slate-300 uppercase px-1">{t.dialog.formFiles}</p>
-                          <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                             {app.files.map((file: any, idx: number) => (
-                               <div key={idx} className="flex items-center gap-3 p-2 bg-white rounded-lg border border-slate-200/50 shadow-sm">
-                                  <Checkbox 
-                                    id={`file-${idx}`} 
-                                    checked={selectedFiles.includes(file.name)} 
-                                    onCheckedChange={() => toggleFile(file.name)} 
-                                  />
-                                  <label htmlFor={`file-${idx}`} className="text-xs font-bold text-slate-600 truncate cursor-pointer flex-1">{file.name}</label>
-                                  <span className="text-[9px] font-black text-slate-300 uppercase">{Math.round(file.size / 1024)} KB</span>
+                      {/* Manual External Uploads Section - ONLY manual uploads as requested */}
+                      <div className="space-y-4">
+                        <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full h-14 border-dashed border-2 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-secondary hover:border-secondary transition-all">
+                           <FileUp className="h-5 w-5 mr-3" /> {t.dialog.externalFiles}
+                        </Button>
+                        <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleExternalFile} />
+                        
+                        {externalAttachments.length > 0 && (
+                          <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-inner animate-in slide-in-from-top-2">
+                             {externalAttachments.map((f, idx) => (
+                               <div key={idx} className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200 shadow-sm group">
+                                  <div className="flex items-center gap-3 overflow-hidden">
+                                     <div className="h-8 w-8 rounded bg-secondary/10 flex items-center justify-center shrink-0"><FileCheck className="h-4 w-4 text-secondary" /></div>
+                                     <span className="text-xs font-bold text-slate-600 truncate">{f.name}</span>
+                                  </div>
+                                  <button onClick={() => removeExternalFile(idx)} className="text-slate-300 hover:text-red-500 transition-colors p-2"><X className="h-4 w-4" /></button>
                                </div>
                              ))}
                           </div>
-                        </div>
-                      )}
-
-                      {/* External Uploads */}
-                      <div className="space-y-2">
-                        <p className="text-[9px] font-black text-slate-300 uppercase px-1">{t.dialog.externalFiles}</p>
-                        <div className="space-y-2">
-                           <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full h-12 border-dashed border-2 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-secondary hover:border-secondary transition-all">
-                              <FileUp className="h-4 w-4 mr-2" /> {t.dialog.externalFiles}
-                           </Button>
-                           <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleExternalFile} />
-                           
-                           {externalAttachments.length > 0 && (
-                             <div className="grid grid-cols-1 gap-2 bg-secondary/5 p-4 rounded-2xl border border-secondary/10">
-                                {externalAttachments.map((f, idx) => (
-                                  <div key={idx} className="flex items-center justify-between p-2 bg-white rounded-lg border border-secondary/10 shadow-sm">
-                                     <div className="flex items-center gap-3 overflow-hidden">
-                                        <Badge className="bg-secondary text-white border-none text-[8px] h-4">New</Badge>
-                                        <span className="text-xs font-bold text-slate-600 truncate">{f.name}</span>
-                                     </div>
-                                     <button onClick={() => removeExternalFile(idx)} className="text-slate-300 hover:text-red-500 transition-colors p-1"><X className="h-3 w-3" /></button>
-                                  </div>
-                                ))}
-                             </div>
-                           )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -614,7 +584,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                   </div>
                 </div>
 
-                {/* Preview Side */}
+                {/* Preview Side - Actual Outgoing Simulation */}
                 <div className="lg:col-span-6 bg-slate-50 p-8 flex flex-col h-full overflow-hidden">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="h-2 w-2 rounded-full bg-secondary animate-pulse" />
@@ -622,58 +592,66 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                   </div>
 
                   <div className="flex-1 bg-white rounded-2xl shadow-inner border border-slate-200/50 flex flex-col overflow-hidden">
-                    {/* Email Header */}
+                    {/* Simulated Outbox Header */}
                     <div className="p-6 border-b border-slate-50 space-y-2 bg-slate-50/50 shrink-0 text-start">
-                       <p className="text-[9px] font-black text-slate-400 uppercase">{t.dialog.from} <span className="text-primary">BBA Academy &lt;banaatacademy@gmail.com&gt;</span></p>
-                       <p className="text-[9px] font-black text-slate-400 uppercase">{t.dialog.to} <span className="text-secondary">{app.parent1Email}</span></p>
-                       <p className="text-xs font-black text-slate-900 mt-3">{t.dialog.subject} {selectedTemplate.subject}</p>
+                       <div className="flex items-center gap-2">
+                          <p className="text-[9px] font-black text-slate-400 uppercase w-12">{t.dialog.from}</p>
+                          <span className="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded">BBA Academy &lt;banaatacademy@gmail.com&gt;</span>
+                       </div>
+                       <div className="flex items-center gap-2">
+                          <p className="text-[9px] font-black text-slate-400 uppercase w-12">{t.dialog.to}</p>
+                          <span className="text-[10px] font-bold text-secondary px-2 py-0.5 bg-secondary/5 rounded">{app.parent1Email}</span>
+                       </div>
+                       <div className="flex items-center gap-2 pt-2">
+                          <p className="text-[9px] font-black text-slate-400 uppercase w-12">{t.dialog.subject}</p>
+                          <p className="text-xs font-black text-slate-900 truncate">{selectedTemplate.subject}</p>
+                       </div>
                     </div>
 
-                    {/* Email Content Body */}
+                    {/* Simulated Email Body Content */}
                     <div className="flex-1 p-8 overflow-y-auto custom-scrollbar space-y-8">
-                       <div className="flex justify-center">
-                          <img src="/logo.png" className="h-14 w-14 object-contain opacity-80" alt="BBA Logo" />
+                       <div className="flex justify-center mb-4">
+                          <img src="/logo.png" className="h-16 w-16 object-contain grayscale opacity-30" alt="BBA Logo" />
                        </div>
+                       
                        <div className="prose prose-slate max-w-none text-start">
-                          <p className="text-slate-600 leading-relaxed font-medium whitespace-pre-wrap text-sm italic">
+                          <div className="text-slate-600 leading-relaxed font-medium whitespace-pre-wrap text-sm italic bg-slate-50/30 p-4 rounded-lg border border-slate-100">
                              {selectedTemplate.body({ 
-                                parentName: app.parent1Name, 
-                                appId: id, 
+                                parentName: app.parent1Name || '[Parent Name]', 
+                                appId: id || '[ID]', 
                                 studentCount: app.students?.length || 0,
                                 acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n') || '',
-                                targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', ') || '',
+                                targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', ') || '[Students]',
                                 reason: msgReason || '...',
                                 paymentAmount: app.programOption === 'weekend' ? '$75' : (app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650')
                              })}
-                          </p>
+                          </div>
                        </div>
 
-                       {(selectedFiles.length > 0 || externalAttachments.length > 0) && (
-                         <div className="pt-6 border-t border-slate-50 space-y-3">
+                       {/* Attachments Section in Preview */}
+                       {externalAttachments.length > 0 && (
+                         <div className="pt-8 border-t border-slate-100 space-y-4">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                               <Paperclip className="h-3 w-3" /> 
-                               Attachments: {t.dialog.attachCount(selectedFiles.length + externalAttachments.length)}
+                               <Paperclip className="h-3 w-3 text-secondary" /> 
+                               {t.dialog.attachCount(externalAttachments.length)}
                             </p>
                             <div className="flex flex-wrap gap-2">
-                               {selectedFiles.map((f, idx) => (
-                                 <div key={`app-${idx}`} className="px-3 py-1.5 bg-slate-50 rounded-lg text-[9px] font-bold text-slate-500 border border-slate-100 flex items-center gap-2">
-                                    <FileText className="h-3 w-3 text-secondary" />
-                                    {f}
-                                 </div>
-                               ))}
                                {externalAttachments.map((f, idx) => (
-                                 <div key={`ext-${idx}`} className="px-3 py-1.5 bg-secondary/5 rounded-lg text-[9px] font-bold text-secondary border border-secondary/10 flex items-center gap-2">
-                                    <Upload className="h-3 w-3" />
+                                 <div key={idx} className="px-3 py-2 bg-slate-50 rounded-lg text-[10px] font-bold text-slate-600 border border-slate-200 flex items-center gap-2 shadow-sm">
+                                    <FileText className="h-3.5 w-3.5 text-secondary" />
                                     {f.name}
+                                    <span className="text-[8px] opacity-40 uppercase">{Math.round(f.size / 1024)} KB</span>
                                  </div>
                                ))}
                             </div>
                          </div>
                        )}
 
-                       <div className="pt-10 border-t border-slate-50 space-y-1 opacity-60 text-start">
-                          <p className="font-black text-primary text-[10px]">Dr. Mustafa Ali</p>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Academy Director | Baneen & Banaat Academy</p>
+                       {/* Official Footer Signature */}
+                       <div className="pt-12 border-t border-slate-100 space-y-1 opacity-60 text-start">
+                          <p className="font-black text-primary text-xs tracking-tight">Dr. Mustafa Ali</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Academy Director | Baneen & Banaat Academy</p>
+                          <p className="text-[8px] font-medium text-slate-400">banaatacademy@gmail.com</p>
                        </div>
                     </div>
                   </div>
