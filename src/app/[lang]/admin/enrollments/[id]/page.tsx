@@ -208,7 +208,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       address: isAr ? 'تفاصيل العنوان السكني' : 'Physical Address Details',
       students: isAr ? 'سجل بيانات الطلاب المفصل' : 'Detailed Student Records',
       program: isAr ? 'البرنامج التعليمي المختار' : 'Program Selection',
-      logs: isAr ? 'سجل المراسلات والأحداث' : 'Correspondence Logs',
       artifacts: isAr ? 'المرفقات والمستندات' : 'Document Artifacts',
     },
     table: {
@@ -250,8 +249,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     },
     program: {
       tuition: isAr ? 'تقدير الرسوم الأولية' : 'Base Tuition Estimate',
-      events: isAr ? 'أحداث' : 'Events',
-      noLogs: isAr ? 'لا توجد سجلات مراسلة' : 'No communication history',
       noFiles: isAr ? 'لم يتم رفع أي مستندات مع هذا الطلب.' : 'No artifacts were uploaded with this application.',
     }
   };
@@ -849,62 +846,28 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
          </CardContent>
       </Card>
 
-      {/* 4. BOTTOM GRID: PROGRAMS, LOGS & ATTACHMENTS */}
+      {/* 4. BOTTOM GRID: PROGRAMS & ATTACHMENTS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         <div className="lg:col-span-2 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-               {/* Program Selection Card */}
-               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col h-full">
-                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Briefcase className="h-5 w-5" /></div>
-                        <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.program}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-8 space-y-8 flex-1 flex flex-col justify-center text-start">
-                     <div className="space-y-2">
-                        <h3 className="text-2xl font-black text-primary uppercase tracking-tight leading-tight">{app.programOption}</h3>
-                        <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full">{app.paymentTier || 'Standard'}</Badge>
-                     </div>
-                     <div className="space-y-1 pt-6 border-t border-slate-50">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.program.tuition}</p>
-                        <div className="text-5xl font-black text-primary tracking-tighter">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</div>
-                     </div>
-                  </CardContent>
-               </Card>
-
-               {/* Communication Logs Card */}
-               <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 h-full flex flex-col">
-                  <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 flex flex-row items-center justify-between text-start">
-                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shadow-lg"><Clock className="h-5 w-5" /></div>
-                        <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.logs}</CardTitle>
-                     </div>
-                     <Badge variant="outline" className="text-[9px] border-slate-200 text-slate-400 px-3">{app.communications?.length || 0} {t.program.events}</Badge>
-                  </CardHeader>
-                  <CardContent className="p-6 flex-1 text-start">
-                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        {app.communications?.length > 0 ? app.communications.map((log: any, idx: number) => (
-                          <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-200 group transition-all">
-                             <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100"><Mail className="h-4.5 w-4.5 text-slate-300" /></div>
-                             <div className="space-y-1 flex-1">
-                                <div className="flex justify-between items-start">
-                                   <p className="text-[10px] font-black text-primary uppercase">{log.templateId}</p>
-                                   <span className="text-[9px] font-bold text-slate-400 uppercase">{format(new Date(log.sentAt), 'MMM dd')}</span>
-                                </div>
-                                <p className="text-[10px] font-medium text-slate-500 line-clamp-2 leading-relaxed">{log.subject}</p>
-                             </div>
-                          </div>
-                        )) : (
-                          <div className="py-20 text-center flex flex-col items-center gap-3">
-                             <Mail className="h-10 w-10 text-slate-100" />
-                             <p className="text-slate-300 font-bold uppercase text-[10px] tracking-widest">{t.program.noLogs}</p>
-                          </div>
-                        )}
-                     </div>
-                  </CardContent>
-               </Card>
-            </div>
+         <div className="lg:col-span-2">
+            {/* Program Selection Card */}
+            <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col h-full">
+               <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
+                 <div className="flex items-center gap-3">
+                     <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><Briefcase className="h-5 w-5" /></div>
+                     <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.program}</CardTitle>
+                 </div>
+               </CardHeader>
+               <CardContent className="p-8 space-y-8 flex-1 flex flex-col justify-center text-start">
+                  <div className="space-y-2">
+                     <h3 className="text-2xl font-black text-primary uppercase tracking-tight leading-tight">{app.programOption}</h3>
+                     <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full">{app.paymentTier || 'Standard'}</Badge>
+                  </div>
+                  <div className="space-y-1 pt-6 border-t border-slate-50">
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.program.tuition}</p>
+                     <div className="text-5xl font-black text-primary tracking-tighter">${app.programOption === 'weekend' ? '75' : (app.paymentTier === 'full-3-5' ? '2,850' : '1,650')}</div>
+                  </div>
+               </CardContent>
+            </Card>
          </div>
 
          {/* Verification Files */}
