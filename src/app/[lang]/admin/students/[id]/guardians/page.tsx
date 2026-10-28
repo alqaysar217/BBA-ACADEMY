@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -8,7 +9,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   Users, User, ChevronLeft, ChevronRight, Mail, Phone, MessageCircle, 
   Edit3, Save, X, Loader2, Info, GraduationCap, BookOpen, ClipboardCheck, CreditCard,
-  Send, ExternalLink, Plus
+  Send, ExternalLink, Plus, FileText
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,7 +43,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
   if (loading || !student || !editData) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   const t = {
-    title: isAr ? 'أولياء الأمور والتواصل' : 'Guardians & Communication',
+    title: isAr ? 'أولياء الأمور والتواصل' : 'Guardians & Communication Hub',
     back: isAr ? 'العودة' : 'Back',
     edit: isAr ? 'تعديل البيانات' : 'Edit Info',
     cancel: isAr ? 'إلغاء' : 'Cancel',
@@ -60,9 +61,10 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     nav: {
       profile: isAr ? 'الهوية' : 'Identity',
       guardians: isAr ? 'أولياء الأمور' : 'Guardians',
-      finances: isAr ? 'المالية' : 'Finances',
+      documents: isAr ? 'المستندات' : 'Documents',
       academic: isAr ? 'خطة الطالب' : 'Study Plan',
-      grades: isAr ? 'الدرجات' : 'Grades'
+      grades: isAr ? 'الدرجات' : 'Grades',
+      finances: isAr ? 'المالية' : 'Finances'
     }
   };
 
@@ -70,13 +72,14 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     const navItems = [
       { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
       { id: 'guardians', label: t.nav.guardians, icon: Users, href: `/${lang}/admin/students/${id}/guardians` },
+      { id: 'documents', label: t.nav.documents, icon: FileText, href: `/${lang}/admin/students/${id}/documents` },
       { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
       { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
       { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
     ];
 
     return (
-      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl">
          {navItems.map(nav => {
            const isActive = pathname === nav.href;
            return (
@@ -84,10 +87,10 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
                key={nav.id} 
                href={nav.href}
                className={cn(
-                 "px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all border-b-2 whitespace-nowrap flex items-center gap-2",
+                 "px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg whitespace-nowrap flex items-center gap-2",
                  isActive 
-                  ? "border-primary text-primary bg-primary/5" 
-                  : "border-transparent text-slate-400 hover:text-primary hover:bg-slate-50"
+                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                  : "text-slate-400 hover:text-primary hover:bg-slate-50"
                )}
              >
                 <nav.icon className="h-3.5 w-3.5" />
@@ -136,7 +139,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
       <Card className="border-none shadow-sm bg-white overflow-hidden text-start">
         <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5 flex flex-row items-center justify-between">
            <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-3">
-              <Users className="h-4 w-4 text-primary/40" />
+              <Users className="h-4 w-4 text-secondary" />
               {label}
            </CardTitle>
            {!isEditing && parent && (
@@ -167,7 +170,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
               {isEditing ? (
                 <Input value={parent?.relationship || ''} onChange={(e) => handleNestedUpdate(`${path}.relationship`, e.target.value)} className="h-10 bg-slate-50 border-slate-100 font-bold" />
               ) : (
-                <Badge variant="outline" className="bg-primary/5 text-primary border-none text-[10px] font-black uppercase">{parent?.relationship || '-'}</Badge>
+                <Badge variant="outline" className="bg-primary/5 text-primary border-none text-[10px] font-black uppercase tracking-tighter">{parent?.relationship || '-'}</Badge>
               )}
            </div>
            <div className="space-y-1">
@@ -193,6 +196,9 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20">
+      {/* Navigation Bar at Top */}
+      <NavigationBar />
+
       <div className="flex items-center justify-between px-2">
         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest p-0">
           {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -218,10 +224,8 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
       </div>
 
       <div className="px-2 text-start">
-         <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
+         <h1 className="text-2xl font-black uppercase text-primary tracking-tighter">{t.title} — {student.firstName}</h1>
       </div>
-
-      <NavigationBar />
 
       <div className="space-y-8">
          <GuardianCard parent={editData.parent1} path="parent1" label={t.p1} />
@@ -236,3 +240,4 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
+

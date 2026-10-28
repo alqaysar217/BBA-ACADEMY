@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -9,7 +10,7 @@ import {
   CreditCard, User, BookOpen, ClipboardCheck, 
   ChevronLeft, ChevronRight, DollarSign, TrendingUp,
   AlertTriangle, CheckCircle2, History, Plus,
-  Download, Filter, ArrowUpRight, Search, Users, Loader2
+  Download, Filter, ArrowUpRight, Search, Users, Loader2, FileText
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,12 +32,14 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
 
   const t = {
     title: isAr ? 'السجل المالي للطالب' : 'Student Financial Ledger',
+    back: isAr ? 'العودة' : 'Back',
     nav: {
       profile: isAr ? 'الهوية' : 'Identity',
       guardians: isAr ? 'أولياء الأمور' : 'Guardians',
-      finances: isAr ? 'المالية' : 'Finances',
+      documents: isAr ? 'المستندات' : 'Documents',
       academic: isAr ? 'خطة الطالب' : 'Study Plan',
-      grades: isAr ? 'الدرجات' : 'Grades'
+      grades: isAr ? 'الدرجات' : 'Grades',
+      finances: isAr ? 'المالية' : 'Finances'
     },
     stats: {
       due: isAr ? 'إجمالي المستحق' : 'Total Due',
@@ -49,13 +52,14 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
     const navItems = [
       { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
       { id: 'guardians', label: t.nav.guardians, icon: Users, href: `/${lang}/admin/students/${id}/guardians` },
+      { id: 'documents', label: t.nav.documents, icon: FileText, href: `/${lang}/admin/students/${id}/documents` },
       { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
       { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
       { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
     ];
 
     return (
-      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl">
          {navItems.map(nav => {
            const isActive = pathname === nav.href;
            return (
@@ -63,10 +67,10 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
                key={nav.id} 
                href={nav.href}
                className={cn(
-                 "px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all border-b-2 whitespace-nowrap flex items-center gap-2",
+                 "px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg whitespace-nowrap flex items-center gap-2",
                  isActive 
-                  ? "border-primary text-primary bg-primary/5" 
-                  : "border-transparent text-slate-400 hover:text-primary hover:bg-slate-50"
+                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                  : "text-slate-400 hover:text-primary hover:bg-slate-50"
                )}
              >
                 <nav.icon className="h-3.5 w-3.5" />
@@ -80,14 +84,14 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-32">
+      <NavigationBar />
+
       <div className="flex items-center justify-between px-2">
          <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0 hover:text-primary transition-colors">
             {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />} {isAr ? 'العودة' : 'Back'}
          </Button>
          <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
       </div>
-
-      <NavigationBar />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          <Card className="border-none shadow-sm rounded-2xl bg-slate-900 text-white p-8 space-y-4 text-start">
@@ -128,3 +132,4 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
+
