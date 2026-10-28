@@ -147,4 +147,3 @@ export default function StudentAcademicPlanPage({ params }: { params: Promise<{ 
     </div>
   );
 }
-

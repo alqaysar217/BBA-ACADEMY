@@ -115,4 +115,3 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
-

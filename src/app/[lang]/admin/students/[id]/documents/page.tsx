@@ -226,7 +226,7 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
          <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
          <div className="space-y-1">
             <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">{isAr ? 'ملاحظة حول المستندات' : 'Vault Security Note'}</p>
-            <p className="text-xs font-bold text-amber-900/60 leading-relaxed italic">
+            <p className="text-xs font-bold text-amber-900/60 leading-relaxed italic text-start">
                {isAr 
                   ? 'يتم تشفير وتخزين المستندات في سجل الطالب الدائم. يرجى التأكد من وضوح الملفات المرفوعة للتوثيق الأكاديمي.' 
                   : 'Files are stored in the student\'s permanent registry. Ensure all uploads are clear for academic documentation purposes.'}
@@ -236,4 +236,3 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
-

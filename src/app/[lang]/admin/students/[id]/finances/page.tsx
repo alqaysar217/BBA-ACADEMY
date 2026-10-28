@@ -132,4 +132,3 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
-

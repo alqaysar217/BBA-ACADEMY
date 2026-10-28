@@ -8,10 +8,9 @@ import { useFirestore, useDoc } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   Users, User, ChevronLeft, ChevronRight, Mail, Phone, MessageCircle, 
-  Edit3, Save, X, Loader2, Info, GraduationCap, BookOpen, ClipboardCheck, CreditCard,
-  Send, ExternalLink, Plus, FileText
+  Edit3, Save, Loader2, BookOpen, ClipboardCheck, CreditCard, FileText, Plus
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -196,7 +195,6 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20">
-      {/* Navigation Bar at Top */}
       <NavigationBar />
 
       <div className="flex items-center justify-between px-2">
@@ -240,4 +238,3 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
-

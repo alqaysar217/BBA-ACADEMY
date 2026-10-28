@@ -10,42 +10,24 @@ import {
   User, 
   ChevronLeft, 
   ChevronRight, 
-  ChevronDown, 
-  BookOpen, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Camera, 
-  UserCircle2, 
   Edit3, 
   Save, 
-  X, 
-  BadgeCheck, 
-  ClipboardCheck,
-  CreditCard,
-  Layers,
-  Eye,
-  Loader2,
+  Loader2, 
   FileText,
   Users,
   ShieldCheck,
   Calendar as CalendarIcon,
-  Type,
-  Hash,
+  MapPin,
+  Camera,
+  BookOpen,
+  ClipboardCheck,
+  CreditCard,
   Briefcase
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -223,10 +205,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20">
-      {/* 1. NAVIGATION BAR - MOVED TO TOP */}
       <NavigationBar />
 
-      {/* 2. TOP HEADER BAR */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-2">
         <Link href={`/${lang}/admin/students`} className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
           {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -251,7 +231,6 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </div>
       </div>
 
-      {/* 3. STUDENT HERO CARD */}
       <Card className="border-none shadow-premium bg-white overflow-hidden">
         <CardContent className="p-8 flex flex-col md:flex-row items-center gap-8">
            <div className="relative group shrink-0">
@@ -297,7 +276,6 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </CardContent>
       </Card>
 
-      {/* 4. MAIN DATA GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-8 space-y-8">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
@@ -341,13 +319,12 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
           </Card>
         </div>
 
-        {/* 5. SIDEBAR: QUICK INFO */}
         <div className="lg:col-span-4 space-y-8">
            <Card className="border-none shadow-sm bg-slate-900 text-white p-8 space-y-6 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-10"><ClipboardCheck className="h-32 w-32 text-secondary" /></div>
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white/40">{isAr ? 'الإحصائيات السريعة' : 'Registry Status'}</h4>
               <div className="space-y-6 relative z-10">
-                 <div className="space-y-1">
+                 <div className="space-y-1 text-start">
                     <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{isAr ? 'تاريخ الالتحاق' : 'Joined Since'}</p>
                     <p className="text-base font-black">
                       {student.createdAt && typeof student.createdAt.toDate === 'function' 
@@ -355,7 +332,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                          : '-'}
                     </p>
                  </div>
-                 <div className="space-y-1">
+                 <div className="space-y-1 text-start">
                     <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{isAr ? 'آخر تحديث للملف' : 'Last Synced'}</p>
                     <p className="text-base font-black text-secondary">
                       {student.updatedAt && typeof student.updatedAt.toDate === 'function' 
@@ -371,7 +348,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                  <div className="h-10 w-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center"><BookOpen className="h-5 w-5" /></div>
                  <h4 className="text-xs font-black uppercase tracking-widest text-primary">{isAr ? 'المسار التعليمي' : 'Academic Path'}</h4>
               </div>
-              <p className="text-xs font-medium text-slate-500 leading-relaxed italic">
+              <p className="text-xs font-medium text-slate-500 leading-relaxed italic text-start">
                  {isAr ? 'يتم إدارة المنهج الدراسي وتقدم الطالب من خلال تبويب "خطة الطالب" المدمج مع Edgenuity.' : 'Curriculum and progress are managed through the Study Plan tab integrated with Edgenuity.'}
               </p>
               <Button asChild variant="outline" className="w-full h-12 rounded-xl border-slate-200 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-slate-50">
@@ -383,4 +360,3 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
-
