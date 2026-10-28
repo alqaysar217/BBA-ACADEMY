@@ -424,12 +424,20 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       });
 
       if (!result.success) {
+        let errorMsg = result.message || 'SMTP Dispatch Failed';
         if (result.error === 'CONFIG_MISSING') {
-          throw new Error(isAr 
+          errorMsg = isAr 
             ? 'إعدادات البريد الإلكتروني غير مكتملة في الخادم. يرجى مراجعة ملف .env' 
-            : 'Email configuration is missing on the server. Please check your .env file.');
+            : 'Email configuration is missing on the server. Please check your .env file.';
         }
-        throw new Error(result.message || 'SMTP Dispatch Failed');
+        
+        toast({ 
+          variant: "destructive", 
+          title: isAr ? "فشل إرسال البريد" : "Email Dispatch Failed",
+          description: errorMsg
+        });
+        setIsProcessing(false);
+        return;
       }
 
       // 2. Only if email is sent successfully, record the log in Firestore
