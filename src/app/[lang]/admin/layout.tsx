@@ -33,7 +33,10 @@ import {
   Settings,
   TableProperties,
   LayoutTemplate,
-  UserCheck
+  UserCheck,
+  GraduationCap,
+  ClipboardCheck,
+  CalendarDays
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -101,53 +104,49 @@ export default function AdminLayout({
 
   const menuGroups = [
     {
-      title: isAr ? 'الرئيسية' : 'Main',
+      title: isAr ? 'الرئيسية' : 'Dashboard',
       show: true,
       items: [
-        { label: isAr ? 'لوحة المعلومات' : 'Dashboard', href: `/${lang}/admin`, icon: LayoutDashboard, show: true },
+        { label: isAr ? 'نظرة عامة' : 'Executive Overview', href: `/${lang}/admin`, icon: LayoutDashboard, show: true },
       ]
     },
     {
-      title: isAr ? 'القبول والتسجيل' : 'Admissions & Enrollment',
+      title: isAr ? 'القبول والتسجيل' : 'Admissions Intake',
       show: hasPermission('enrollments'),
       items: [
-        { label: isAr ? 'سجل الطلبات' : 'Admissions Register', href: `/${lang}/admin/enrollments`, icon: FileText, show: true },
-        { label: isAr ? 'الطلاب المقبولون' : 'Accepted Students', href: `/${lang}/admin/enrollments/accepted`, icon: UserCheck, show: true },
+        { label: isAr ? 'سجل الطلبات' : 'Applications Register', href: `/${lang}/admin/enrollments`, icon: FileText, show: true },
+        { label: isAr ? 'الطلاب المقبولون' : 'Accepted Candidates', href: `/${lang}/admin/enrollments/accepted`, icon: UserCheck, show: true },
         { label: isAr ? 'قوالب الرسائل' : 'Email Templates', href: `/${lang}/admin/enrollments/templates`, icon: LayoutTemplate, show: true },
-        { label: isAr ? 'جدول الطلبات الشامل' : 'Comprehensive Table', href: `/${lang}/admin/enrollments/table`, icon: TableProperties, show: true },
+        { label: isAr ? 'جدول البيانات الشامل' : 'Data Master Grid', href: `/${lang}/admin/enrollments/table`, icon: TableProperties, show: true },
       ]
     },
     {
-      title: isAr ? 'إدارة الطلاب' : 'Students',
+      title: isAr ? 'إدارة الطلاب' : 'Student Management',
       show: hasPermission('students'),
       items: [
-        { label: isAr ? 'سجل الطلاب' : 'Active Roster', href: `/${lang}/admin/students`, icon: Users, show: true },
+        { label: isAr ? 'سجل الطلاب' : 'Active Student Roster', href: `/${lang}/admin/students`, icon: Users, show: true },
+        { label: isAr ? 'المركز المالي' : 'Financial Ledger', href: `/${lang}/admin/finances`, icon: CreditCard, show: hasPermission('finances') },
+        { label: isAr ? 'الخطط الدراسية' : 'Academic Pathways', icon: BookOpen, href: `/${lang}/admin/academic/plans`, show: hasPermission('academic') },
+        { label: isAr ? 'رصد الدرجات' : 'Grade Book', icon: ClipboardCheck, href: `/${lang}/admin/students/grades`, show: true },
+        { label: isAr ? 'سجل الحضور' : 'Attendance Registry', icon: CalendarDays, href: `/${lang}/admin/students/attendance`, show: true },
       ]
     },
     {
-      title: isAr ? 'إدارة المستخدمين' : 'User Management',
+      title: isAr ? 'إدارة المستخدمين' : 'System Administration',
       show: hasPermission('users'),
       items: [
-        { label: isAr ? 'سجل الحسابات' : 'Account Registry', href: `/${lang}/admin/users`, icon: Users2, show: true },
-        { label: isAr ? 'إضافة موظف' : 'Register Staff', href: `/${lang}/admin/users/new`, icon: UserPlus, show: hasPermission('users', 'write') },
-        { label: isAr ? 'صلاحيات الوصول' : 'Access Privileges', href: `/${lang}/admin/users/permissions`, icon: KeyRound, show: hasPermission('users', 'execute') },
+        { label: isAr ? 'سجل الحسابات' : 'Staff Directory', href: `/${lang}/admin/users`, icon: Users2, show: true },
+        { label: isAr ? 'إضافة موظف' : 'Register New Staff', href: `/${lang}/admin/users/new`, icon: UserPlus, show: hasPermission('users', 'write') },
+        { label: isAr ? 'صلاحيات الوصول' : 'Security Permissions', href: `/${lang}/admin/users/permissions`, icon: KeyRound, show: hasPermission('users', 'execute') },
       ]
     },
     {
-      title: isAr ? 'الأكاديميا والمالية' : 'Academic & Finance',
+      title: isAr ? 'التقارير والإعدادات' : 'Global Settings',
       show: true,
       items: [
-        { label: isAr ? 'الخطط الدراسية' : 'Study Plans', icon: BookOpen, href: `/${lang}/admin/academic/plans`, show: hasPermission('academic') },
-        { label: isAr ? 'المركز المالي' : 'Financial Hub', href: `/${lang}/admin/finances`, icon: CreditCard, show: hasPermission('finances') },
-      ]
-    },
-    {
-      title: isAr ? 'التقارير والإعدادات' : 'Reports & Settings',
-      show: true,
-      items: [
-        { label: isAr ? 'إدارة المحتوى' : 'CMS', href: `/${lang}/admin/cms`, icon: Briefcase, show: hasPermission('cms') },
-        { label: isAr ? 'مركز التقارير' : 'Reporting Center', href: `/${lang}/admin/reports`, icon: BarChart3, show: true },
-        { label: isAr ? 'سلة المهملات' : 'Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2, show: true },
+        { label: isAr ? 'إدارة المحتوى' : 'Website CMS', href: `/${lang}/admin/cms`, icon: Briefcase, show: hasPermission('cms') },
+        { label: isAr ? 'مركز التقارير' : 'Analytical Reports', href: `/${lang}/admin/reports`, icon: BarChart3, show: true },
+        { label: isAr ? 'سلة المهملات' : 'System Trash Bin', href: `/${lang}/admin/users/trash`, icon: Trash2, show: true },
       ]
     }
   ];
@@ -306,7 +305,7 @@ export default function AdminLayout({
       </aside>
 
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side={isAr ? 'right' : 'left'} className="p-0 border-none w-72">
+        <SheetContent side={isAr ? 'right' : 'left'} className="p-0 border-none w-[280px]">
           <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
           <SidebarInner isMobile />
         </SheetContent>
