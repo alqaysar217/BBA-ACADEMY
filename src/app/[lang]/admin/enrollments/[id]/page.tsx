@@ -37,7 +37,9 @@ import {
   Type,
   Calendar as CalendarIcon,
   Eye,
-  Loader2
+  Loader2,
+  Paperclip,
+  Trash2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -61,43 +63,98 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from "@/components/ui/checkbox";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
-// Official English Email Templates (Professional Versions)
+// Comprehensive BBA Official Email Templates (Full Library)
 const EMAIL_TEMPLATES = [
   {
     id: 'received',
     label: 'Application Received',
-    subject: 'BBA Academy: We have received your application',
-    body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are writing to confirm that we have successfully received your enrollment application (ID: ${data.appId}) for ${data.studentCount} student(s).\n\nOur admissions team is currently conducting an initial review of the submitted information. Please note that this confirmation acknowledges receipt of your application and does not imply final acceptance into the academy. We will contact you shortly should any additional information be required.\n\nBest regards,\nBBA Admissions Office`
+    subject: 'BBA Academy: Application Successfully Received',
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are pleased to confirm that we have successfully received your enrollment application (ID: ${data.appId}) for ${data.studentCount} student(s).\n\nOur admissions team is currently conducting an initial review of the submitted information. Please note that this confirmation acknowledges receipt and does not imply final acceptance. We will contact you shortly if any additional information is required.\n\nBest regards,\nBBA Admissions Office`
   },
   {
     id: 'under_review',
     label: 'Under Review',
     subject: 'BBA Academy: Your application is now under review',
-    body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). The files for ${data.targetStudents} have been moved to the "Under Review" stage and are currently being evaluated by our academic committee.\n\nSincerely,\nBBA Academic Committee`
+    body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). The files for ${data.targetStudents} are currently being evaluated by our academic committee.\n\nWe appreciate your patience during this evaluation period.\n\nSincerely,\nBBA Academic Committee`
+  },
+  {
+    id: 'missing_info',
+    label: 'Information Required',
+    subject: 'Action Required: Additional Information for BBA Enrollment',
+    body: (data: any) => `Dear ${data.parentName},\n\nDuring the preliminary review of your application (ID: ${data.appId}), our team identified that certain details require clarification for ${data.targetStudents}.\n\nRequired Information:\n${data.reason || 'Please provide updated academic background details.'}\n\nThank you,\nBBA Admissions Team`
+  },
+  {
+    id: 'missing_docs',
+    label: 'Documents Required',
+    subject: 'Action Required: Missing Documentation for BBA Enrollment',
+    body: (data: any) => `Dear ${data.parentName},\n\nTo complete the formal evaluation for ${data.targetStudents}, we require the following supporting documents:\n\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nRegards,\nBBA Administration`
+  },
+  {
+    id: 'docs_received',
+    label: 'Documents Received',
+    subject: 'Confirmation: Documents Received for BBA Application',
+    body: (data: any) => `Dear ${data.parentName},\n\nWe confirm receipt of the additional documents for ${data.targetStudents}. Our team will now verify these materials against our requirements.\n\nSincerely,\nBBA Registrar`
   },
   {
     id: 'offer',
     label: 'Admission Offer',
     subject: 'Congratulations! Admission Offer from BBA Academy',
-    body: (data: any) => `Dear ${data.parentName},\n\nOn behalf of the academic committee, I am delighted to inform you that the following student(s) have been accepted into Baneen and Banaat Academy:\n\n${data.acceptedStudents}\n\nAn academy administrator will contact you within 48 hours to finalize the tuition setup and provide orientation details.\n\nDetails/Next Steps: ${data.reason || 'Welcome to the family!'}\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director`
+    body: (data: any) => `Dear ${data.parentName},\n\nOn behalf of the academic committee, I am delighted to inform you that ${data.targetStudents} have been accepted into Baneen and Banaat Academy.\n\nNext Steps: ${data.reason || 'An administrator will contact you within 48 hours for orientation.'}\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director`
   },
   {
-    id: 'missing_docs',
-    label: 'Missing Documents',
-    subject: 'Action Required: Missing Documentation for BBA Enrollment',
-    body: (data: any) => `Dear ${data.parentName},\n\nDuring the preliminary review of your application (ID: ${data.appId}), our team identified that certain supporting documents are missing or require clarification for ${data.targetStudents}.\n\nRequirements:\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nThank you,\nBBA Admissions Team`
+    id: 'partial_offer',
+    label: 'Partial Admission Decision',
+    subject: 'Admission Decision Update from BBA Academy',
+    body: (data: any) => `Dear ${data.parentName},\n\nThis is an update regarding the admission status for your students. After careful review, the committee has reached individual decisions for each applicant:\n\nAccepted: ${data.acceptedStudents || 'None'}\n\nPending/Awaiting Info: ${data.reason || 'Remaining students are still under review.'}\n\nBest regards,\nBBA Admissions Office`
   },
   {
-    id: 'not_accepted',
-    label: 'Admission Decision: Not Accepted',
+    id: 'rejected',
+    label: 'Not Accepted',
     subject: 'Update regarding your BBA Application',
-    body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in Baneen and Banaat Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Maximum enrollment capacity reached for the current term.'}\n\nRespectfully,\nBBA Admissions Office`
+    body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in BBA Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Enrollment capacity reached for the current term.'}\n\nRespectfully,\nBBA Admissions Office`
+  },
+  {
+    id: 'reg_complete',
+    label: 'Registration Completed',
+    subject: 'Official Confirmation: Registration Complete',
+    body: (data: any) => `Dear ${data.parentName},\n\nWe are pleased to inform you that all requirements for ${data.targetStudents} have been successfully met. Registration is now officially complete.\n\nSincerely,\nBBA Administration`
+  },
+  {
+    id: 'welcome_onboard',
+    label: 'Welcome Onboard',
+    subject: 'Welcome to the BBA Family!',
+    body: (data: any) => `Dear ${data.parentName},\n\nWelcome! We are excited to begin this educational journey with ${data.targetStudents}. Please check your student portal for orientation materials.\n\nBest regards,\nBBA Academic Support Team`
+  },
+  {
+    id: 'records_request',
+    label: 'Records Request',
+    subject: 'Request for Academic Records: BBA Academy',
+    body: (data: any) => `Dear ${data.parentName},\n\nTo ensure proper placement for ${data.targetStudents}, we require official copies of previous academic transcripts.\n\nThank you,\nBBA Registrar Office`
+  },
+  {
+    id: 'payment_reminder',
+    label: 'Payment Reminder',
+    subject: 'Friendly Reminder: BBA Tuition Payment',
+    body: (data: any) => `Dear ${data.parentName},\n\nThis is a friendly reminder regarding the outstanding tuition balance for ${data.targetStudents}. Amount Due: ${data.paymentAmount || '$[Amount]'}.\n\nSincerely,\nBBA Financial Department`
+  },
+  {
+    id: 'payment_received',
+    label: 'Payment Received',
+    subject: 'Receipt: Payment Successfully Processed',
+    body: (data: any) => `Dear ${data.parentName},\n\nWe have successfully received your payment for ${data.targetStudents}. A formal receipt has been added to your account.\n\nBest regards,\nBBA Billing Team`
+  },
+  {
+    id: 'graduation',
+    label: 'Graduation Notice',
+    subject: 'Congratulations on Your Graduation from BBA Academy!',
+    body: (data: any) => `Dear ${data.parentName},\n\nIt is with great joy that we announce the successful completion of the program by ${data.targetStudents}! Congratulations once again.\n\nDr. Mustafa Ali\nAcademy Director`
   }
 ];
 
@@ -112,6 +169,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
   const [selectedTemplate, setSelectedTemplate] = useState(EMAIL_TEMPLATES[0]);
   const [msgReason, setReason] = useState('');
   const [isMsgOpen, setIsMsgOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
   const docRef = useMemo(() => (firestore && id) ? doc(firestore, 'enrollments', id) : null, [firestore, id]);
   const { data: app, loading: dataLoading } = useDoc(docRef);
@@ -169,11 +227,13 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       title: isAr ? 'مركز مراسلة ولي الأمر' : 'Parent Correspondence Hub',
       template: isAr ? '1. اختيار القالب الرسمي' : '1. Select Official Template',
       reason: isAr ? '2. التفاصيل الإضافية / الأسباب' : '2. Additional Details / Reasons',
+      attachments: isAr ? '3. المرفقات (اختياري)' : '3. Attachments (Optional)',
       preview: isAr ? 'معاينة البريد الصادر (مباشر)' : 'Live Outgoing Email Preview',
       placeholder: isAr ? 'اكتب الأسباب أو المستندات الناقصة هنا ليتم دمجها في الرسالة...' : 'Type specific reasons or missing details here to be merged...',
       from: isAr ? 'من:' : 'From:',
       to: isAr ? 'إلى:' : 'To:',
       subject: isAr ? 'الموضوع:' : 'Subject:',
+      attachCount: (count: number) => isAr ? `${count} مرفقاً مختاراً` : `${count} selected file(s)`,
     },
     program: {
       tuition: isAr ? 'تقدير الرسوم الأولية' : 'Base Tuition Estimate',
@@ -292,6 +352,12 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     });
   };
 
+  const toggleFile = (fileName: string) => {
+    setSelectedFiles(prev => 
+      prev.includes(fileName) ? prev.filter(f => f !== fileName) : [...prev, fileName]
+    );
+  };
+
   const handleSendMessage = () => {
     if (!app || !docRef) return;
     setIsProcessing(true);
@@ -304,11 +370,13 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       content: selectedTemplate.body({
         parentName: app.parent1Name,
         appId: id,
-        studentCount: app.students.length,
-        acceptedStudents: app.students.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
-        targetStudents: app.students.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
-        reason: msgReason
+        studentCount: app.students?.length || 0,
+        acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n'),
+        targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', '),
+        reason: msgReason,
+        paymentAmount: app.programOption === 'weekend' ? '$75' : (app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650')
       }),
+      attachments: selectedFiles,
       sender: user?.email || 'admin'
     };
 
@@ -323,6 +391,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         toast({ title: isAr ? "تم تسجيل الرسالة" : "Message Logged" });
         setIsMsgOpen(false);
         setReason('');
+        setSelectedFiles([]);
       })
       .catch(async (err) => {
         const pError = new FirestorePermissionError({
@@ -390,10 +459,10 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                 {t.actions.sendMessage}
               </Button>
             </DialogTrigger>
-            <DialogContent className={cn("max-w-5xl rounded-3xl border-none p-0 overflow-hidden shadow-2xl", isAr && "font-arabic")}>
-              <div className="grid grid-cols-1 lg:grid-cols-12 h-[80vh] max-h-[800px]">
+            <DialogContent className={cn("max-w-6xl rounded-3xl border-none p-0 overflow-hidden shadow-2xl", isAr && "font-arabic")}>
+              <div className="grid grid-cols-1 lg:grid-cols-12 h-[85vh] max-h-[900px]">
                 {/* Form Side */}
-                <div className="lg:col-span-6 p-8 flex flex-col h-full overflow-y-auto border-r border-slate-100">
+                <div className="lg:col-span-6 p-8 flex flex-col h-full overflow-y-auto border-r border-slate-100 bg-white">
                   <DialogHeader className="mb-8">
                     <div className="flex items-center gap-4">
                       <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20"><Mail className="h-6 w-6 text-secondary" /></div>
@@ -411,7 +480,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                         <SelectTrigger className="h-14 rounded-xl font-bold border-slate-100 bg-slate-50 text-slate-700">
                            <SelectValue placeholder="..." />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl">
+                        <SelectContent className="rounded-xl max-h-[300px]">
                            {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold py-3">{t.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
@@ -423,9 +492,31 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                         value={msgReason} 
                         onChange={(e) => setReason(e.target.value)}
                         placeholder={t.dialog.placeholder} 
-                        className="min-h-[180px] bg-slate-50 border-none rounded-2xl font-bold p-6 text-slate-700 leading-relaxed shadow-inner"
+                        className="min-h-[140px] bg-slate-50 border-none rounded-2xl font-bold p-6 text-slate-700 leading-relaxed shadow-inner"
                       />
                     </div>
+
+                    {app.files?.length > 0 && (
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                           <Paperclip className="h-3 w-3 text-secondary" />
+                           {t.dialog.attachments}
+                        </label>
+                        <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                           {app.files.map((file: any, idx: number) => (
+                             <div key={idx} className="flex items-center gap-3 p-2 bg-white rounded-lg border border-slate-200/50 shadow-sm">
+                                <Checkbox 
+                                  id={`file-${idx}`} 
+                                  checked={selectedFiles.includes(file.name)} 
+                                  onCheckedChange={() => toggleFile(file.name)} 
+                                />
+                                <label htmlFor={`file-${idx}`} className="text-xs font-bold text-slate-600 truncate cursor-pointer flex-1">{file.name}</label>
+                                <span className="text-[9px] font-black text-slate-300 uppercase">{Math.round(file.size / 1024)} KB</span>
+                             </div>
+                           ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-8 mt-8 border-t border-slate-100 flex items-center justify-between gap-4">
@@ -444,8 +535,8 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                   </div>
 
                   <div className="flex-1 bg-white rounded-2xl shadow-inner border border-slate-200/50 flex flex-col overflow-hidden">
-                    {/* Fake Email Header */}
-                    <div className="p-6 border-b border-slate-50 space-y-2 bg-slate-50/50 shrink-0">
+                    {/* Email Header */}
+                    <div className="p-6 border-b border-slate-50 space-y-2 bg-slate-50/50 shrink-0 text-start">
                        <p className="text-[9px] font-black text-slate-400 uppercase">{t.dialog.from} <span className="text-primary">BBA Academy &lt;banaatacademy@gmail.com&gt;</span></p>
                        <p className="text-[9px] font-black text-slate-400 uppercase">{t.dialog.to} <span className="text-secondary">{app.parent1Email}</span></p>
                        <p className="text-xs font-black text-slate-900 mt-3">{t.dialog.subject} {selectedTemplate.subject}</p>
@@ -456,7 +547,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                        <div className="flex justify-center">
                           <img src="/logo.png" className="h-14 w-14 object-contain opacity-80" alt="BBA Logo" />
                        </div>
-                       <div className="prose prose-slate max-w-none">
+                       <div className="prose prose-slate max-w-none text-start">
                           <p className="text-slate-600 leading-relaxed font-medium whitespace-pre-wrap text-sm italic">
                              {selectedTemplate.body({ 
                                 parentName: app.parent1Name, 
@@ -464,11 +555,30 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                                 studentCount: app.students?.length || 0,
                                 acceptedStudents: app.students?.filter((s: any) => s.status === 'Accepted').map((s: any) => `• ${s.firstName} ${s.lastName}`).join('\n') || '',
                                 targetStudents: app.students?.map((s: any) => `${s.firstName} ${s.lastName}`).join(', ') || '',
-                                reason: msgReason || '...' 
+                                reason: msgReason || '...',
+                                paymentAmount: app.programOption === 'weekend' ? '$75' : (app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650')
                              })}
                           </p>
                        </div>
-                       <div className="pt-10 border-t border-slate-50 space-y-1 opacity-60">
+
+                       {selectedFiles.length > 0 && (
+                         <div className="pt-6 border-t border-slate-50 space-y-3">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                               <Paperclip className="h-3 w-3" /> 
+                               Attachments: {t.dialog.attachCount(selectedFiles.length)}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                               {selectedFiles.map((f, idx) => (
+                                 <div key={idx} className="px-3 py-1.5 bg-slate-50 rounded-lg text-[9px] font-bold text-slate-500 border border-slate-100 flex items-center gap-2">
+                                    <FileText className="h-3 w-3 text-secondary" />
+                                    {f}
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+                       )}
+
+                       <div className="pt-10 border-t border-slate-50 space-y-1 opacity-60 text-start">
                           <p className="font-black text-primary text-[10px]">Dr. Mustafa Ali</p>
                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Academy Director | Baneen & Banaat Academy</p>
                        </div>
@@ -506,7 +616,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                     <TableCell className="px-6 border-r border-slate-50/50">
                        <Badge variant="outline" className="bg-secondary/10 text-secondary border-none font-black text-[9px] uppercase">{isAr ? 'الأول (الأساسي)' : 'Parent 1 (Primary)'}</Badge>
                     </TableCell>
-                    <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50">{app.parent1Name}</TableCell>
+                    <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50 text-start">{app.parent1Name}</TableCell>
                     <TableCell className="text-xs font-bold text-slate-600 px-6 border-r border-slate-50/50 text-center" dir="ltr">{app.parent1Phone}</TableCell>
                     <TableCell className="text-xs font-bold text-slate-500 px-6 lowercase border-r border-slate-50/50 text-center">{app.parent1Email}</TableCell>
                     <TableCell className="px-6 text-center"><Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship1}</Badge></TableCell>
@@ -516,7 +626,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                       <TableCell className="px-6 border-r border-slate-50/50">
                          <Badge variant="outline" className="bg-slate-50 text-slate-400 border-none font-black text-[9px] uppercase">{isAr ? 'الثاني' : 'Parent 2'}</Badge>
                       </TableCell>
-                      <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50">{app.parent2Name}</TableCell>
+                      <TableCell className="font-black text-primary text-sm px-6 border-r border-slate-50/50 text-start">{app.parent2Name}</TableCell>
                       <TableCell className="text-xs font-bold text-slate-600 px-6 border-r border-slate-50/50 text-center" dir="ltr">{app.parent2Phone}</TableCell>
                       <TableCell className="text-xs font-bold text-slate-500 px-6 lowercase border-r border-slate-50/50 text-center">{app.parent2Email}</TableCell>
                       <TableCell className="px-6 text-center"><Badge variant="outline" className="bg-slate-50 border-none font-black text-[9px] uppercase px-3">{app.relationship2}</Badge></TableCell>
@@ -547,8 +657,8 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                 </TableHeader>
                 <TableBody>
                   <TableRow className="border-none hover:bg-white/60 transition-colors">
-                    <TableCell className="px-6 text-sm font-bold text-primary border-r border-slate-50/50">{app.address?.line1}</TableCell>
-                    <TableCell className="px-6 text-sm font-medium text-slate-500 border-r border-slate-50/50">{app.address?.line2 || '-'}</TableCell>
+                    <TableCell className="px-6 text-sm font-bold text-primary border-r border-slate-50/50 text-start">{app.address?.line1}</TableCell>
+                    <TableCell className="px-6 text-sm font-medium text-slate-500 border-r border-slate-50/50 text-start">{app.address?.line2 || '-'}</TableCell>
                     <TableCell className="px-6 text-sm font-bold text-slate-600 border-r border-slate-50/50 text-center">{app.address?.city}</TableCell>
                     <TableCell className="px-6 text-sm font-black text-secondary border-r border-slate-50/50 text-center">{app.address?.state}</TableCell>
                     <TableCell className="px-6 text-sm font-mono font-bold text-slate-400 text-center">{app.address?.zip}</TableCell>
@@ -591,7 +701,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                                {isAr ? (st.entryType === 'New Student' ? 'طالب جديد' : st.entryType === 'Returning Student' ? 'طالب عائد' : st.entryType) : st.entryType}
                             </Badge>
                          </TableCell>
-                         <TableCell className="px-6 border-r border-slate-50/50">
+                         <TableCell className="px-6 border-r border-slate-50/50 text-start">
                             <p className="text-sm font-black text-primary whitespace-nowrap">{st.firstName} {st.lastName}</p>
                          </TableCell>
                          <TableCell className="px-6 border-r border-slate-50/50 text-center text-xs font-bold text-slate-500 whitespace-nowrap">
@@ -659,7 +769,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                         <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.program}</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent className="p-8 space-y-8 flex-1 flex flex-col justify-center">
+                  <CardContent className="p-8 space-y-8 flex-1 flex flex-col justify-center text-start">
                      <div className="space-y-2">
                         <h3 className="text-2xl font-black text-primary uppercase tracking-tight leading-tight">{app.programOption}</h3>
                         <Badge className="bg-secondary text-white border-none font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full">{app.paymentTier || 'Standard'}</Badge>
@@ -680,7 +790,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                      </div>
                      <Badge variant="outline" className="text-[9px] border-slate-200 text-slate-400 px-3">{app.communications?.length || 0} {t.program.events}</Badge>
                   </CardHeader>
-                  <CardContent className="p-6 flex-1">
+                  <CardContent className="p-6 flex-1 text-start">
                      <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                         {app.communications?.length > 0 ? app.communications.map((log: any, idx: number) => (
                           <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-200 group transition-all">
@@ -707,13 +817,13 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
          {/* Verification Files */}
          <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col">
-            <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200">
+            <CardHeader className="bg-slate-50/80 p-6 border-b border-slate-200 text-start">
                <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><FileCheck className="h-5 w-5" /></div>
                   <CardTitle className="text-sm font-black text-primary uppercase tracking-tight">{t.sections.artifacts}</CardTitle>
                </div>
             </CardHeader>
-            <CardContent className="p-0 flex-1">
+            <CardContent className="p-0 flex-1 text-start">
                <div className="divide-y divide-slate-50 max-h-[500px] overflow-y-auto custom-scrollbar">
                   {app.files?.length > 0 ? app.files.map((file: any, idx: number) => (
                     <div key={idx} className="p-6 flex items-center justify-between group hover:bg-slate-50/50 transition-colors">
