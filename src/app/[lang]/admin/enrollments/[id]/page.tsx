@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect, useMemo } from 'react';
+import { use, useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -39,7 +39,9 @@ import {
   Eye,
   Loader2,
   Paperclip,
-  Trash2
+  Trash2,
+  Upload,
+  FileUp
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -74,85 +76,99 @@ import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/e
 const EMAIL_TEMPLATES = [
   {
     id: 'received',
-    label: 'Application Received',
+    labelEn: 'Application Received',
+    labelAr: 'تأكيد استلام الطلب',
     subject: 'BBA Academy: Application Successfully Received',
     body: (data: any) => `Dear ${data.parentName},\n\nThank you for choosing Baneen and Banaat Academy. We are pleased to confirm that we have successfully received your enrollment application (ID: ${data.appId}) for ${data.studentCount} student(s).\n\nOur admissions team is currently conducting an initial review of the submitted information. Please note that this confirmation acknowledges receipt and does not imply final acceptance. We will contact you shortly if any additional information is required.\n\nBest regards,\nBBA Admissions Office`
   },
   {
     id: 'under_review',
-    label: 'Under Review',
+    labelEn: 'Under Review',
+    labelAr: 'طلب قيد المراجعة',
     subject: 'BBA Academy: Your application is now under review',
     body: (data: any) => `Dear ${data.parentName},\n\nThis is a formal update regarding your application (ID: ${data.appId}). The files for ${data.targetStudents} are currently being evaluated by our academic committee.\n\nWe appreciate your patience during this evaluation period.\n\nSincerely,\nBBA Academic Committee`
   },
   {
     id: 'missing_info',
-    label: 'Information Required',
+    labelEn: 'Information Required',
+    labelAr: 'طلب معلومات إضافية',
     subject: 'Action Required: Additional Information for BBA Enrollment',
     body: (data: any) => `Dear ${data.parentName},\n\nDuring the preliminary review of your application (ID: ${data.appId}), our team identified that certain details require clarification for ${data.targetStudents}.\n\nRequired Information:\n${data.reason || 'Please provide updated academic background details.'}\n\nThank you,\nBBA Admissions Team`
   },
   {
     id: 'missing_docs',
-    label: 'Documents Required',
+    labelEn: 'Documents Required',
+    labelAr: 'طلب مستندات ناقصة',
     subject: 'Action Required: Missing Documentation for BBA Enrollment',
     body: (data: any) => `Dear ${data.parentName},\n\nTo complete the formal evaluation for ${data.targetStudents}, we require the following supporting documents:\n\n${data.reason || 'Please provide updated ID copies and previous report cards.'}\n\nRegards,\nBBA Administration`
   },
   {
     id: 'docs_received',
-    label: 'Documents Received',
+    labelEn: 'Documents Received',
+    labelAr: 'تم استلام المستندات',
     subject: 'Confirmation: Documents Received for BBA Application',
     body: (data: any) => `Dear ${data.parentName},\n\nWe confirm receipt of the additional documents for ${data.targetStudents}. Our team will now verify these materials against our requirements.\n\nSincerely,\nBBA Registrar`
   },
   {
     id: 'offer',
-    label: 'Admission Offer',
+    labelEn: 'Admission Offer',
+    labelAr: 'إشعار قبول نهائي',
     subject: 'Congratulations! Admission Offer from BBA Academy',
     body: (data: any) => `Dear ${data.parentName},\n\nOn behalf of the academic committee, I am delighted to inform you that ${data.targetStudents} have been accepted into Baneen and Banaat Academy.\n\nNext Steps: ${data.reason || 'An administrator will contact you within 48 hours for orientation.'}\n\nBest regards,\nDr. Mustafa Ali\nAcademy Director`
   },
   {
     id: 'partial_offer',
-    label: 'Partial Admission Decision',
+    labelEn: 'Partial Admission Decision',
+    labelAr: 'قرار قبول جزئي',
     subject: 'Admission Decision Update from BBA Academy',
     body: (data: any) => `Dear ${data.parentName},\n\nThis is an update regarding the admission status for your students. After careful review, the committee has reached individual decisions for each applicant:\n\nAccepted: ${data.acceptedStudents || 'None'}\n\nPending/Awaiting Info: ${data.reason || 'Remaining students are still under review.'}\n\nBest regards,\nBBA Admissions Office`
   },
   {
     id: 'rejected',
-    label: 'Not Accepted',
+    labelEn: 'Not Accepted',
+    labelAr: 'اعتذار عن القبول',
     subject: 'Update regarding your BBA Application',
     body: (data: any) => `Dear ${data.parentName},\n\nThank you for your interest in BBA Academy. After careful review of the application for ${data.targetStudents}, we regret to inform you that we are unable to offer admission at this time.\n\nReason: ${data.reason || 'Enrollment capacity reached for the current term.'}\n\nRespectfully,\nBBA Admissions Office`
   },
   {
     id: 'reg_complete',
-    label: 'Registration Completed',
+    labelEn: 'Registration Completed',
+    labelAr: 'اكتمال إجراءات التسجيل',
     subject: 'Official Confirmation: Registration Complete',
     body: (data: any) => `Dear ${data.parentName},\n\nWe are pleased to inform you that all requirements for ${data.targetStudents} have been successfully met. Registration is now officially complete.\n\nSincerely,\nBBA Administration`
   },
   {
     id: 'welcome_onboard',
-    label: 'Welcome Onboard',
+    labelEn: 'Welcome Onboard',
+    labelAr: 'مرحباً بك في الأكاديمية',
     subject: 'Welcome to the BBA Family!',
     body: (data: any) => `Dear ${data.parentName},\n\nWelcome! We are excited to begin this educational journey with ${data.targetStudents}. Please check your student portal for orientation materials.\n\nBest regards,\nBBA Academic Support Team`
   },
   {
     id: 'records_request',
-    label: 'Records Request',
+    labelEn: 'Records Request',
+    labelAr: 'طلب سجلات أكاديمية',
     subject: 'Request for Academic Records: BBA Academy',
     body: (data: any) => `Dear ${data.parentName},\n\nTo ensure proper placement for ${data.targetStudents}, we require official copies of previous academic transcripts.\n\nThank you,\nBBA Registrar Office`
   },
   {
     id: 'payment_reminder',
-    label: 'Payment Reminder',
+    labelEn: 'Payment Reminder',
+    labelAr: 'تذكير بالدفع',
     subject: 'Friendly Reminder: BBA Tuition Payment',
     body: (data: any) => `Dear ${data.parentName},\n\nThis is a friendly reminder regarding the outstanding tuition balance for ${data.targetStudents}. Amount Due: ${data.paymentAmount || '$[Amount]'}.\n\nSincerely,\nBBA Financial Department`
   },
   {
     id: 'payment_received',
-    label: 'Payment Received',
+    labelEn: 'Payment Received',
+    labelAr: 'تأكيد استلام دفعة',
     subject: 'Receipt: Payment Successfully Processed',
     body: (data: any) => `Dear ${data.parentName},\n\nWe have successfully received your payment for ${data.targetStudents}. A formal receipt has been added to your account.\n\nBest regards,\nBBA Billing Team`
   },
   {
     id: 'graduation',
-    label: 'Graduation Notice',
+    labelEn: 'Graduation Notice',
+    labelAr: 'إشعار تخرج وإنجاز',
     subject: 'Congratulations on Your Graduation from BBA Academy!',
     body: (data: any) => `Dear ${data.parentName},\n\nIt is with great joy that we announce the successful completion of the program by ${data.targetStudents}! Congratulations once again.\n\nDr. Mustafa Ali\nAcademy Director`
   }
@@ -170,6 +186,8 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
   const [msgReason, setReason] = useState('');
   const [isMsgOpen, setIsMsgOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [externalAttachments, setExternalAttachments] = useState<any[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const docRef = useMemo(() => (firestore && id) ? doc(firestore, 'enrollments', id) : null, [firestore, id]);
   const { data: app, loading: dataLoading } = useDoc(docRef);
@@ -228,6 +246,8 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       template: isAr ? '1. اختيار القالب الرسمي' : '1. Select Official Template',
       reason: isAr ? '2. التفاصيل الإضافية / الأسباب' : '2. Additional Details / Reasons',
       attachments: isAr ? '3. المرفقات (اختياري)' : '3. Attachments (Optional)',
+      formFiles: isAr ? 'ملفات الاستمارة' : 'Application Files',
+      externalFiles: isAr ? 'رفع ملفات جديدة' : 'Upload External Files',
       preview: isAr ? 'معاينة البريد الصادر (مباشر)' : 'Live Outgoing Email Preview',
       placeholder: isAr ? 'اكتب الأسباب أو المستندات الناقصة هنا ليتم دمجها في الرسالة...' : 'Type specific reasons or missing details here to be merged...',
       from: isAr ? 'من:' : 'From:',
@@ -358,9 +378,41 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     );
   };
 
+  const handleExternalFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const newFiles: any[] = [];
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        newFiles.push({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          data: event.target?.result as string,
+          isExternal: true
+        });
+        if (newFiles.length === files.length) {
+          setExternalAttachments(prev => [...prev, ...newFiles]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeExternalFile = (idx: number) => {
+    setExternalAttachments(prev => prev.filter((_, i) => i !== idx));
+  };
+
   const handleSendMessage = () => {
     if (!app || !docRef) return;
     setIsProcessing(true);
+
+    const allAttachments = [
+      ...selectedFiles.map(name => ({ name, source: 'app' })),
+      ...externalAttachments.map(f => ({ name: f.name, source: 'external', size: f.size, data: f.data }))
+    ];
 
     const logEntry = {
       templateId: selectedTemplate.id,
@@ -376,7 +428,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         reason: msgReason,
         paymentAmount: app.programOption === 'weekend' ? '$75' : (app.paymentTier === 'full-3-5' ? '$2,850' : '$1,650')
       }),
-      attachments: selectedFiles,
+      attachments: allAttachments,
       sender: user?.email || 'admin'
     };
 
@@ -392,6 +444,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         setIsMsgOpen(false);
         setReason('');
         setSelectedFiles([]);
+        setExternalAttachments([]);
       })
       .catch(async (err) => {
         const pError = new FirestorePermissionError({
@@ -452,7 +505,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
              </SelectContent>
           </Select>
 
-          <Dialog open={isMsgOpen} onOpenChange={setIsMsgOpen}>
+          <Dialog open={isMsgOpen} onOpenChange={(val) => { setIsMsgOpen(val); if (!val) setExternalAttachments([]); }}>
             <DialogTrigger asChild>
               <Button className="bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2 hover:bg-primary/90 transition-all">
                 <MessageSquare className="h-4 w-4 text-secondary" />
@@ -481,7 +534,11 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                            <SelectValue placeholder="..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl max-h-[300px]">
-                           {EMAIL_TEMPLATES.map(t => <SelectItem key={t.id} value={t.id} className="font-bold py-3">{t.label}</SelectItem>)}
+                           {EMAIL_TEMPLATES.map(t => (
+                             <SelectItem key={t.id} value={t.id} className="font-bold py-3">
+                               {isAr ? t.labelAr : t.labelEn}
+                             </SelectItem>
+                           ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -496,27 +553,57 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                       />
                     </div>
 
-                    {app.files?.length > 0 && (
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                           <Paperclip className="h-3 w-3 text-secondary" />
-                           {t.dialog.attachments}
-                        </label>
-                        <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                           {app.files.map((file: any, idx: number) => (
-                             <div key={idx} className="flex items-center gap-3 p-2 bg-white rounded-lg border border-slate-200/50 shadow-sm">
-                                <Checkbox 
-                                  id={`file-${idx}`} 
-                                  checked={selectedFiles.includes(file.name)} 
-                                  onCheckedChange={() => toggleFile(file.name)} 
-                                />
-                                <label htmlFor={`file-${idx}`} className="text-xs font-bold text-slate-600 truncate cursor-pointer flex-1">{file.name}</label>
-                                <span className="text-[9px] font-black text-slate-300 uppercase">{Math.round(file.size / 1024)} KB</span>
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                         <Paperclip className="h-3 w-3 text-secondary" />
+                         {t.dialog.attachments}
+                      </label>
+                      
+                      {/* App Files */}
+                      {app.files?.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-[9px] font-black text-slate-300 uppercase px-1">{t.dialog.formFiles}</p>
+                          <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                             {app.files.map((file: any, idx: number) => (
+                               <div key={idx} className="flex items-center gap-3 p-2 bg-white rounded-lg border border-slate-200/50 shadow-sm">
+                                  <Checkbox 
+                                    id={`file-${idx}`} 
+                                    checked={selectedFiles.includes(file.name)} 
+                                    onCheckedChange={() => toggleFile(file.name)} 
+                                  />
+                                  <label htmlFor={`file-${idx}`} className="text-xs font-bold text-slate-600 truncate cursor-pointer flex-1">{file.name}</label>
+                                  <span className="text-[9px] font-black text-slate-300 uppercase">{Math.round(file.size / 1024)} KB</span>
+                               </div>
+                             ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* External Uploads */}
+                      <div className="space-y-2">
+                        <p className="text-[9px] font-black text-slate-300 uppercase px-1">{t.dialog.externalFiles}</p>
+                        <div className="space-y-2">
+                           <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full h-12 border-dashed border-2 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-secondary hover:border-secondary transition-all">
+                              <FileUp className="h-4 w-4 mr-2" /> {t.dialog.externalFiles}
+                           </Button>
+                           <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleExternalFile} />
+                           
+                           {externalAttachments.length > 0 && (
+                             <div className="grid grid-cols-1 gap-2 bg-secondary/5 p-4 rounded-2xl border border-secondary/10">
+                                {externalAttachments.map((f, idx) => (
+                                  <div key={idx} className="flex items-center justify-between p-2 bg-white rounded-lg border border-secondary/10 shadow-sm">
+                                     <div className="flex items-center gap-3 overflow-hidden">
+                                        <Badge className="bg-secondary text-white border-none text-[8px] h-4">New</Badge>
+                                        <span className="text-xs font-bold text-slate-600 truncate">{f.name}</span>
+                                     </div>
+                                     <button onClick={() => removeExternalFile(idx)} className="text-slate-300 hover:text-red-500 transition-colors p-1"><X className="h-3 w-3" /></button>
+                                  </div>
+                                ))}
                              </div>
-                           ))}
+                           )}
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   <div className="pt-8 mt-8 border-t border-slate-100 flex items-center justify-between gap-4">
@@ -561,17 +648,23 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                           </p>
                        </div>
 
-                       {selectedFiles.length > 0 && (
+                       {(selectedFiles.length > 0 || externalAttachments.length > 0) && (
                          <div className="pt-6 border-t border-slate-50 space-y-3">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                <Paperclip className="h-3 w-3" /> 
-                               Attachments: {t.dialog.attachCount(selectedFiles.length)}
+                               Attachments: {t.dialog.attachCount(selectedFiles.length + externalAttachments.length)}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                {selectedFiles.map((f, idx) => (
-                                 <div key={idx} className="px-3 py-1.5 bg-slate-50 rounded-lg text-[9px] font-bold text-slate-500 border border-slate-100 flex items-center gap-2">
+                                 <div key={`app-${idx}`} className="px-3 py-1.5 bg-slate-50 rounded-lg text-[9px] font-bold text-slate-500 border border-slate-100 flex items-center gap-2">
                                     <FileText className="h-3 w-3 text-secondary" />
                                     {f}
+                                 </div>
+                               ))}
+                               {externalAttachments.map((f, idx) => (
+                                 <div key={`ext-${idx}`} className="px-3 py-1.5 bg-secondary/5 rounded-lg text-[9px] font-bold text-secondary border border-secondary/10 flex items-center gap-2">
+                                    <Upload className="h-3 w-3" />
+                                    {f.name}
                                  </div>
                                ))}
                             </div>
