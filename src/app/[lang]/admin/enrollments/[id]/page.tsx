@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -683,8 +682,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       {/* 2. FAMILY INFORMATION TABLES */}
       <div className="space-y-6">
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
-           <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-6 opacity-10"><Users className="h-24 w-24 text-white" /></div>
+           <CardHeader className="bg-primary p-4 text-white text-start relative overflow-hidden">
               <div className="flex items-center gap-3 relative z-10">
                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Users className="h-5 w-5" /></div>
                  <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.guardians}</CardTitle>
@@ -728,8 +726,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         </Card>
 
         <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
-           <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-6 opacity-10"><MapPin className="h-24 w-24 text-white" /></div>
+           <CardHeader className="bg-primary p-4 text-white text-start relative overflow-hidden">
               <div className="flex items-center gap-3 relative z-10">
                  <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><MapPin className="h-5 w-5" /></div>
                  <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.address}</CardTitle>
@@ -762,8 +759,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
       {/* 3. STUDENT REVIEW QUEUE TABLE */}
       <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100">
-         <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-6 opacity-10"><GraduationCap className="h-24 w-24 text-white" /></div>
+         <CardHeader className="bg-primary p-4 text-white text-start relative overflow-hidden">
             <div className="flex items-center gap-3 relative z-10">
                <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><GraduationCap className="h-5 w-5" /></div>
                <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.students}</CardTitle>
@@ -854,8 +850,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
          <div className="lg:col-span-2">
             {/* Program Selection Card */}
             <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col h-full">
-               <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
-                 <div className="absolute top-0 right-0 p-6 opacity-10"><Briefcase className="h-24 w-24 text-white" /></div>
+               <CardHeader className="bg-primary p-4 text-white text-start relative overflow-hidden">
                  <div className="flex items-center gap-3 relative z-10">
                      <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Briefcase className="h-5 w-5" /></div>
                      <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.program}</CardTitle>
@@ -876,8 +871,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
 
          {/* Verification Files */}
          <Card className="border-none shadow-premium rounded-2xl overflow-hidden bg-white border border-slate-100 flex flex-col">
-            <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-6 opacity-10"><FileCheck className="h-24 w-24 text-white" /></div>
+            <CardHeader className="bg-primary p-4 text-white text-start relative overflow-hidden">
                <div className="flex items-center gap-3 relative z-10">
                   <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><FileCheck className="h-5 w-5" /></div>
                   <CardTitle className="text-sm font-black uppercase tracking-tight">{t.sections.artifacts}</CardTitle>
@@ -929,4 +923,3 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     </div>
   );
 }
-
