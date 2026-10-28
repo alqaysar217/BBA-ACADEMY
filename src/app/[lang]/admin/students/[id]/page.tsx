@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -27,7 +26,9 @@ import {
   Phone,
   Hash,
   Type,
-  Info
+  Info,
+  GraduationCap,
+  Building
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -137,20 +138,21 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !studentRef) return;
-    setIsUploadingPhoto(true);
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64 = event.target?.result as string;
-      try {
-        await updateDoc(studentRef, { photoURL: base64, updatedAt: serverTimestamp() });
-        setEditData((prev: any) => ({ ...prev, photoURL: base64 }));
-        toast({ title: isAr ? "تم تحديث الصورة" : "Photo updated" });
-      } finally {
-        setIsUploadingPhoto(false);
-      }
-    };
-    reader.readAsDataURL(file);
+    if (file && studentRef) {
+      setIsUploadingPhoto(true);
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result as string;
+        try {
+          await updateDoc(studentRef, { photoURL: base64, updatedAt: serverTimestamp() });
+          setEditData((prev: any) => ({ ...prev, photoURL: base64 }));
+          toast({ title: isAr ? "تم تحديث الصورة" : "Photo updated" });
+        } finally {
+          setIsUploadingPhoto(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleNestedUpdate = (path: string, value: any) => {
@@ -309,12 +311,6 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                          : '-'}
                    </p>
                 </div>
-             </div>
-             <div className="flex items-center gap-3">
-                <Button asChild variant="outline" className="h-10 rounded-xl border-slate-200 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-white shadow-sm">
-                   <Link href={`/${lang}/admin/students/${id}/plans`}>{isAr ? 'عرض الخطة الدراسية' : 'Access Study Plan'}</Link>
-                </Button>
-                <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg"><ShieldCheck className="h-5 w-5" /></div>
              </div>
           </div>
         </CardContent>
