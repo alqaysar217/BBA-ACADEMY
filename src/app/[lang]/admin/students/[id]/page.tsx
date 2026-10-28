@@ -8,7 +8,7 @@ import { useFirestore, useDoc, useUser } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   User, GraduationCap, CreditCard, FileText, 
-  ChevronLeft, ChevronRight, Clock, BookOpen, 
+  ChevronLeft, ChevronRight, ChevronDown, Clock, BookOpen, 
   Plus, CheckCircle2, AlertCircle, DollarSign,
   Briefcase, ShieldCheck, Mail, Phone, MapPin, Layers,
   Users, Camera, Calendar as CalendarIcon, 
@@ -616,4 +616,3 @@ export default function StudentDetailPage({ params }: { params: Promise<{ lang: 
     </div>
   );
 }
-
