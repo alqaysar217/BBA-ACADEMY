@@ -26,7 +26,8 @@ import {
   Layers,
   Eye,
   Loader2,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -86,14 +87,15 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     notRegistered: isAr ? 'غير مسجل' : 'Not Registered',
     nav: {
       profile: isAr ? 'الهوية' : 'Identity',
+      guardians: isAr ? 'أولياء الأمور' : 'Guardians',
       finances: isAr ? 'المالية' : 'Finances',
-      academic: isAr ? 'الأكاديميا' : 'Academics',
-      grades: isAr ? 'الدرجات' : 'Gradebook'
+      academic: isAr ? 'خطة الطالب' : 'Study Plan',
+      grades: isAr ? 'الدرجات' : 'Grades'
     },
     sections: {
-      personal: isAr ? 'البيانات الشخصية' : 'Personal Data',
-      guardians: isAr ? 'بيانات أولياء الأمور' : 'Guardians Information',
-      attachments: isAr ? 'المستندات والمرفقات' : 'Documents & Attachments',
+      personal: isAr ? 'البيانات الشخصية للطالب' : 'Student Personal Data',
+      residence: isAr ? 'عنوان السكن المسجل' : 'Registered Residence',
+      attachments: isAr ? 'المستندات الملحقة بملف الطالب' : 'Student Document Artifacts',
     },
     fields: {
       firstName: isAr ? 'الاسم الأول' : 'First Name',
@@ -105,11 +107,10 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
       email: isAr ? 'البريد الإلكتروني' : 'Email Address',
       grade: isAr ? 'الصف الدراسي' : 'Grade Level',
       status: isAr ? 'الحالة' : 'Status',
-      relation: isAr ? 'الصلة' : 'Relationship',
       addr1: isAr ? 'العنوان' : 'Address',
       city: isAr ? 'المدينة' : 'City',
       state: isAr ? 'الولاية' : 'State',
-      zip: isAr ? 'الرمز' : 'ZIP'
+      zip: isAr ? 'الرمز البريدي' : 'ZIP'
     }
   };
 
@@ -133,11 +134,11 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
 
   const handleNestedUpdate = (path: string, value: any) => {
     setEditData((prev: any) => {
-      const newData = { ...prev };
+      const newData = JSON.parse(JSON.stringify(prev));
       const keys = path.split('.');
       let current = newData;
       for (let i = 0; i < keys.length - 1; i++) {
-        current[keys[i]] = { ...current[keys[i]] };
+        if (!current[keys[i]]) current[keys[i]] = {};
         current = current[keys[i]];
       }
       current[keys[keys.length - 1]] = value;
@@ -168,32 +169,38 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   const defaultImage = student.gender === 'Female' ? '/Female.png' : '/Male.png';
   const profileImage = editData.photoURL || defaultImage;
 
-  const NavigationBar = () => (
-    <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar">
-       {[
-         { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
-         { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
-         { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
-         { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
-       ].map(nav => {
-         const isActive = pathname === nav.href;
-         return (
-           <Link 
-             key={nav.id} 
-             href={nav.href}
-             className={cn(
-               "px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all border-b-2 whitespace-nowrap",
-               isActive 
-                ? "border-primary text-primary bg-primary/5" 
-                : "border-transparent text-slate-400 hover:text-primary hover:bg-slate-50"
-             )}
-           >
-              {nav.label}
-           </Link>
-         )
-       })}
-    </div>
-  );
+  const NavigationBar = () => {
+    const navItems = [
+      { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
+      { id: 'guardians', label: t.nav.guardians, icon: Users, href: `/${lang}/admin/students/${id}/guardians` },
+      { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
+      { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
+      { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
+    ];
+
+    return (
+      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar">
+         {navItems.map(nav => {
+           const isActive = pathname === nav.href;
+           return (
+             <Link 
+               key={nav.id} 
+               href={nav.href}
+               className={cn(
+                 "px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all border-b-2 whitespace-nowrap flex items-center gap-2",
+                 isActive 
+                  ? "border-primary text-primary bg-primary/5" 
+                  : "border-transparent text-slate-400 hover:text-primary hover:bg-slate-50"
+               )}
+             >
+                <nav.icon className="h-3.5 w-3.5" />
+                {nav.label}
+             </Link>
+           )
+         })}
+      </div>
+    );
+  };
 
   const getNestedValue = (obj: any, path: string) => {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj);
@@ -247,9 +254,9 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </div>
       </div>
 
-      {/* Header Info - Minimalist */}
+      {/* Header Info */}
       <Card className="border-none shadow-sm bg-white overflow-hidden">
-        <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
+        <CardContent className="p-8 flex flex-col md:flex-row items-center gap-8">
            <div className="relative group shrink-0">
               <div className="h-32 w-32 rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden relative shadow-inner">
                 <Image src={profileImage} alt="Student" fill className="object-cover" unoptimized />
@@ -270,7 +277,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                    <h1 className="text-2xl md:text-3xl font-black text-primary tracking-tight uppercase">{student.firstName} {student.lastName}</h1>
                    <Badge className="bg-primary/5 text-primary border-none text-[9px] font-black uppercase tracking-widest px-3">{student.status}</Badge>
                  </div>
-                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Student ID: {student.id?.slice(-8).toUpperCase()}</p>
+                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Student ID: {id?.toUpperCase()}</p>
               </div>
               <div className="flex flex-wrap justify-center md:justify-start gap-8 border-t border-slate-50 pt-4">
                  <div>
@@ -289,7 +296,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
       <NavigationBar />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Main Column */}
+        {/* Main Identity Data */}
         <div className="lg:col-span-8 space-y-6">
           <Card className="border-none shadow-sm bg-white overflow-hidden">
             <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5">
@@ -309,59 +316,31 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                <div className="sm:col-span-2">
                 <DataField label={t.fields.email} path="email" />
                </div>
-
-               {/* Address moved inside Personal Section for better balance */}
-               <div className="col-span-full pt-6 border-t border-slate-50 space-y-8">
-                  <div className="space-y-6">
-                    <DataField label={t.fields.addr1} path="address.line1" />
-                    <div className="grid grid-cols-3 gap-6">
-                       <DataField label={t.fields.city} path="address.city" />
-                       <DataField label={t.fields.state} path="address.state" />
-                       <DataField label={t.fields.zip} path="address.zip" />
-                    </div>
-                  </div>
-               </div>
             </CardContent>
           </Card>
 
-          {/* Guardians Section */}
           <Card className="border-none shadow-sm bg-white overflow-hidden">
              <CardHeader className="bg-slate-50/50 border-b border-slate-50 px-8 py-5">
                 <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-3">
-                  <Layers className="h-4 w-4 text-primary/40" />
-                  {t.sections.guardians}
+                  <MapPin className="h-4 w-4 text-primary/40" />
+                  {t.sections.residence}
                 </CardTitle>
              </CardHeader>
-             <CardContent className="p-4 md:p-8">
-                <Accordion type="single" collapsible className="space-y-3">
-                   {['parent1', 'parent2'].map((pKey, i) => (
-                     <AccordionItem key={pKey} value={pKey} className="border border-slate-100 rounded-xl overflow-hidden px-6 transition-all data-[state=open]:border-primary/20 data-[state=open]:bg-slate-50/30">
-                        <AccordionTrigger className="hover:no-underline py-5 group">
-                           <div className="flex items-center gap-4 text-start">
-                              <div className="h-8 w-8 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0 group-data-[state=open]:bg-primary group-data-[state=open]:text-white transition-all"><User className="h-4 w-4" /></div>
-                              <div>
-                                 <p className="text-xs font-black text-primary uppercase">{editData[pKey]?.name || t.notRegistered}</p>
-                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{isAr ? `ولي الأمر ${i+1}` : `Guardian ${i+1}`} • {editData[pKey]?.relationship || '-'}</p>
-                              </div>
-                           </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="pb-8 pt-2 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 pl-12 border-t border-slate-100/50">
-                           <DataField label={t.fields.relation} path={`${pKey}.relationship`} />
-                           <DataField label={t.fields.phone} path={`${pKey}.phone`} />
-                           <div className="md:col-span-2">
-                              <DataField label={t.fields.email} path={`${pKey}.email`} />
-                           </div>
-                        </AccordionContent>
-                     </AccordionItem>
-                   ))}
-                </Accordion>
+             <CardContent className="p-8 lg:p-10">
+                <div className="space-y-8">
+                  <DataField label={t.fields.addr1} path="address.line1" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <DataField label={t.fields.city} path="address.city" />
+                     <DataField label={t.fields.state} path="address.state" />
+                     <DataField label={t.fields.zip} path="address.zip" />
+                  </div>
+                </div>
              </CardContent>
           </Card>
         </div>
 
-        {/* Sidebar Column */}
+        {/* Sidebar Info */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Documents - Minimalist */}
           <Card className="border-none shadow-sm bg-white overflow-hidden">
              <Accordion type="single" collapsible>
                 <AccordionItem value="docs" className="border-none">
@@ -372,8 +351,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                              <FileText className="h-5 w-5" />
                           </div>
                           <div className="text-start">
-                             <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t.sections.attachments}</p>
-                             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{editData.files?.length || 0} Locked Artifacts</p>
+                             <p className="text-[10px] font-black text-primary uppercase tracking-widest">{isAr ? 'خزانة المستندات' : 'Document Vault'}</p>
+                             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{editData.files?.length || 0} Artifacts</p>
                           </div>
                        </div>
                        <ChevronDown className="h-4 w-4 text-slate-300 group-data-[state=open]:rotate-180 transition-transform" />
@@ -398,19 +377,6 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                 </AccordionItem>
              </Accordion>
           </Card>
-
-          {/* Quick Academic Summary Link */}
-          <div className="bg-primary p-8 rounded-2xl text-white space-y-6 shadow-xl shadow-primary/20 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Layers className="h-32 w-32" /></div>
-             <div className="space-y-2 relative z-10">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Academic Path</p>
-                <h4 className="text-xl font-black uppercase tracking-tight">Pathway Planning</h4>
-             </div>
-             <p className="text-xs font-bold text-white/60 leading-relaxed relative z-10">Monitor graduation milestones and curriculum progress for the current academic session.</p>
-             <Button asChild variant="outline" className="w-full h-11 border-white/10 bg-white/5 hover:bg-white hover:text-primary text-white font-black text-[10px] uppercase tracking-widest transition-all relative z-10">
-                <Link href={`/${lang}/admin/students/${id}/plans`}>Access Full Record</Link>
-             </Button>
-          </div>
         </div>
       </div>
     </div>

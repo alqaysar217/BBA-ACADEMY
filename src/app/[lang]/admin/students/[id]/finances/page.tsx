@@ -10,14 +10,13 @@ import {
   CreditCard, User, BookOpen, ClipboardCheck, 
   ChevronLeft, ChevronRight, DollarSign, TrendingUp,
   AlertTriangle, CheckCircle2, History, Plus,
-  Download, Filter, ArrowUpRight, Search
+  Download, Filter, ArrowUpRight, Search, Users
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function StudentFinancePage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -35,10 +34,11 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
   const t = {
     title: isAr ? 'السجل المالي للطالب' : 'Student Financial Ledger',
     nav: {
-      profile: isAr ? 'الملف الشخصي' : 'Identity',
-      finances: isAr ? 'السجل المالي' : 'Finances',
-      academic: isAr ? 'المسار الأكاديمي' : 'Academics',
-      grades: isAr ? 'الدرجات' : 'Gradebook'
+      profile: isAr ? 'الهوية' : 'Identity',
+      guardians: isAr ? 'أولياء الأمور' : 'Guardians',
+      finances: isAr ? 'المالية' : 'Finances',
+      academic: isAr ? 'خطة الطالب' : 'Study Plan',
+      grades: isAr ? 'الدرجات' : 'Grades'
     },
     stats: {
       due: isAr ? 'إجمالي المستحق' : 'Total Due',
@@ -47,39 +47,43 @@ export default function StudentFinancePage({ params }: { params: Promise<{ lang:
     }
   };
 
-  const NavigationBar = () => (
-    <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-2 mb-8 overflow-x-auto no-scrollbar">
-       {[
-         { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
-         { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
-         { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
-         { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
-       ].map(nav => {
-         const isActive = pathname === nav.href;
-         return (
-           <Button 
-             key={nav.id} 
-             asChild 
-             variant={isActive ? "default" : "ghost"}
-             className={cn(
-               "rounded-xl h-11 px-6 font-black text-[10px] uppercase tracking-widest gap-2 shrink-0",
-               isActive ? "bg-primary text-white shadow-xl" : "text-slate-400"
-             )}
-           >
-             <Link href={nav.href}>
-                <nav.icon className="h-4 w-4" />
+  const NavigationBar = () => {
+    const navItems = [
+      { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
+      { id: 'guardians', label: t.nav.guardians, icon: Users, href: `/${lang}/admin/students/${id}/guardians` },
+      { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
+      { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
+      { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
+    ];
+
+    return (
+      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar">
+         {navItems.map(nav => {
+           const isActive = pathname === nav.href;
+           return (
+             <Link 
+               key={nav.id} 
+               href={nav.href}
+               className={cn(
+                 "px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all border-b-2 whitespace-nowrap flex items-center gap-2",
+                 isActive 
+                  ? "border-primary text-primary bg-primary/5" 
+                  : "border-transparent text-slate-400 hover:text-primary hover:bg-slate-50"
+               )}
+             >
+                <nav.icon className="h-3.5 w-3.5" />
                 {nav.label}
              </Link>
-           </Button>
-         )
-       })}
-    </div>
-  );
+           )
+         })}
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-8 pb-32">
+    <div className="max-w-6xl mx-auto space-y-8 pb-32">
       <div className="flex items-center justify-between">
-         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2">
+         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0">
             {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />} {isAr ? 'العودة' : 'Back'}
          </Button>
          <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
