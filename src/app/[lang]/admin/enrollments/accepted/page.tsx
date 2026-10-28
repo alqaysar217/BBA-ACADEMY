@@ -31,6 +31,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import Link from 'next/link';
 
 export default function AcceptedStudentsPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
@@ -131,6 +132,7 @@ export default function AcceptedStudentsPage({ params }: { params: Promise<{ lan
     const enrollmentId = student.appId;
     const studentIdx = student.studentIndex;
     const studentIdStr = `${enrollmentId}-${studentIdx}`;
+    const app = student.fullAppData;
 
     try {
       // Check if already exists in active students registry
@@ -157,19 +159,34 @@ export default function AcceptedStudentsPage({ params }: { params: Promise<{ lan
         entryType: student.entryType || 'New Student',
         enrollmentId: enrollmentId,
         enrollmentRef: studentIdStr,
-        parentId: student.fullAppData.userId || 'anonymous',
-        parentName: student.parentName,
-        parentEmail: student.parentEmail,
-        parentPhone: student.parentPhone,
-        address: student.address,
-        programOption: student.programOption,
+        parentId: app.userId || 'anonymous',
+        // Comprehensive family migration
+        parent1: {
+          name: app.parent1Name,
+          email: app.parent1Email,
+          phone: app.parent1Phone,
+          relationship: app.relationship1
+        },
+        parent2: app.parent2Name ? {
+          name: app.parent2Name,
+          email: app.parent2Email,
+          phone: app.parent2Phone,
+          relationship: app.relationship2
+        } : null,
+        parentName: app.parent1Name, // Legacy fallback
+        parentEmail: app.parent1Email, // Legacy fallback
+        parentPhone: app.parent1Phone, // Legacy fallback
+        address: app.address,
+        programOption: app.programOption,
+        paymentTier: app.paymentTier,
         status: 'active',
         academicPlan: { progress: 0, courses: [] },
         financialLedger: {
-           totalDue: student.programOption === 'weekend' ? 75 : (student.paymentTier === 'full-3-5' ? 2850 : 1650),
+           totalDue: app.programOption === 'weekend' ? 75 : (app.paymentTier === 'full-3-5' ? 2850 : 1650),
            totalPaid: 0,
            payments: []
         },
+        files: app.files || [], // Copy files to student record
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
@@ -178,7 +195,7 @@ export default function AcceptedStudentsPage({ params }: { params: Promise<{ lan
 
       // Update enrollment status
       const appRef = doc(firestore, 'enrollments', enrollmentId);
-      const updatedStudents = [...student.fullAppData.students];
+      const updatedStudents = [...app.students];
       updatedStudents[studentIdx].isEnrolled = true;
       
       await updateDoc(appRef, { students: updatedStudents, updatedAt: serverTimestamp() });
@@ -323,16 +340,14 @@ export default function AcceptedStudentsPage({ params }: { params: Promise<{ lan
                               <div className="flex justify-end gap-3">
                                  {!st.isEnrolled ? (
                                     <>
-                                       <Button 
-                                          size="sm" 
-                                          variant="ghost" 
+                                       <button 
                                           onClick={() => handleRevertStatus(st)}
                                           disabled={!!isProcessing}
-                                          className="h-11 px-4 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 font-black text-[10px] uppercase gap-2"
+                                          className="h-11 px-4 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 font-black text-[10px] uppercase gap-2 transition-all flex items-center"
                                        >
                                           <RotateCcw className="h-4 w-4" />
                                           {isAr ? 'تراجع' : 'Undo'}
-                                       </Button>
+                                       </button>
                                        <Button 
                                           onClick={() => handleProvisionStudent(st)}
                                           disabled={!!isProcessing}
@@ -363,27 +378,6 @@ export default function AcceptedStudentsPage({ params }: { params: Promise<{ lan
             </table>
          </div>
       </Card>
-
-      {/* 4. Footer Guide */}
-      <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
-         <div className="absolute top-0 right-0 p-8 opacity-10"><ShieldAlert className="h-32 w-32" /></div>
-         <div className="space-y-2 relative z-10">
-            <h3 className="text-xl font-black uppercase tracking-tight">{isAr ? 'كيف تعمل هذه الواجهة؟' : 'Onboarding Workflow'}</h3>
-            <p className="text-sm font-medium text-white/60 max-w-2xl leading-relaxed italic">
-               {isAr 
-                 ? 'تعرض هذه الصفحة الطلاب الذين اجتازوا مراجعة اللجنة الأكاديمية بنجاح. تفعيل ملف الطالب (Provisioning) يقوم بنقل بياناته آلياً إلى سجل الطلاب النشطين ويهيئ سجلاته المالية والأكاديمية للبدء الفوري.' 
-                 : 'This board displays students approved by the Academic Committee. Provisioning a student automatically migrates their data to the Active Registry and initializes their financial and academic ledgers for immediate start.'}
-            </p>
-         </div>
-         <div className="shrink-0 relative z-10">
-            <div className="flex items-center gap-3 bg-white/10 px-6 py-4 rounded-2xl border border-white/5 backdrop-blur-md">
-               <div className="h-2 w-2 rounded-full bg-secondary animate-pulse" />
-               <span className="text-[10px] font-black uppercase tracking-[0.2em]">{isAr ? 'النظام جاهز للتفعيل' : 'Ready for Registry Sync'}</span>
-            </div>
-         </div>
-      </div>
     </div>
   );
 }
-
-import Link from 'next/link';
