@@ -112,7 +112,6 @@ export default function AdminLayout({
       show: hasPermission('enrollments'),
       items: [
         { label: isAr ? 'سجل الطلبات' : 'Admissions Register', href: `/${lang}/admin/enrollments`, icon: FileText, show: true },
-        { label: isAr ? 'مراسلات أولياء الأمور' : 'Parent Communications', href: `/${lang}/admin/enrollments/communications`, icon: MessageSquare, show: true },
         { label: isAr ? 'الطلاب المقبولون' : 'Accepted Students', href: `/${lang}/admin/enrollments/accepted`, icon: UserCheck, show: true },
         { label: isAr ? 'قوالب الرسائل' : 'Email Templates', href: `/${lang}/admin/enrollments/templates`, icon: LayoutTemplate, show: true },
         { label: isAr ? 'جدول الطلبات الشامل' : 'Comprehensive Table', href: `/${lang}/admin/enrollments/table`, icon: TableProperties, show: true },
