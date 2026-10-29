@@ -41,7 +41,8 @@ import {
   Check,
   AlertTriangle,
   FileSpreadsheet,
-  BadgeCheck
+  BadgeCheck,
+  ChevronDown
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -252,7 +259,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4 animate-in fade-in duration-500">
       
-      {/* 1. Integrated Navigation */}
+      {/* Navigation */}
       <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl shadow-sm">
          {[
            { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
@@ -272,7 +279,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          ))}
       </div>
 
-      {/* 2. Header & Quick Stats */}
+      {/* Header & Quick Stats */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
          <div className="flex items-center gap-5 text-start w-full lg:w-auto">
             <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-xl"><Trophy className="h-7 w-7 text-secondary" /></div>
@@ -357,7 +364,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </div>
       </div>
 
-      {/* 3. Stats Grid */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          <Card className="border border-slate-200 shadow-sm bg-white p-6 flex flex-col items-center text-center space-y-2 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Star className="h-16 w-16" /></div>
@@ -376,134 +383,146 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </Card>
       </div>
 
-      {/* 4. Plan-Based Grade Tables */}
-      <div className="space-y-12">
+      {/* Collapsible Grade Tables Organized by Plan */}
+      <Accordion type="multiple" className="space-y-6">
         {plans.map(plan => {
           const planGrades = groupedGrades[plan.id] || [];
           return (
-            <Card key={plan.id} className="border border-slate-200 shadow-premium rounded-[2rem] overflow-hidden bg-white">
-               <CardHeader className="bg-slate-50/80 p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 text-start">
-                  <div className="flex items-center gap-4">
-                     <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center border border-primary/10 shadow-inner"><FileSpreadsheet className="h-6 w-6" /></div>
-                     <div>
-                        <CardTitle className="text-xl font-black uppercase text-primary tracking-tight">{plan.name}</CardTitle>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{plan.year} • {plan.term}</p>
-                     </div>
-                  </div>
-                  
-                  {/* Column Toggle Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2">
-                        <Columns className="h-4 w-4" /> {t.table.columns}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
-                      <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {Object.keys(t.table).filter(k => k !== 'columns' && k !== 'actions').map(col => (
-                        <DropdownMenuCheckboxItem
-                          key={col}
-                          checked={visibleColumns.includes(col)}
-                          onCheckedChange={() => toggleColumn(col)}
-                          className="rounded-lg font-bold text-xs py-2.5"
-                        >
-                          {t.table[col as keyof typeof t.table]}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-               </CardHeader>
+            <AccordionItem key={plan.id} value={plan.id} className="border-none">
+              <Card className="border border-slate-200 shadow-premium rounded-[1.5rem] overflow-hidden bg-white">
+                 <AccordionTrigger className="hover:no-underline p-0 group">
+                    <CardHeader className="bg-slate-50/80 p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 text-start w-full transition-colors group-data-[state=open]:bg-white">
+                       <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center border border-primary/10 shadow-inner"><FileSpreadsheet className="h-6 w-6" /></div>
+                          <div>
+                             <CardTitle className="text-xl font-black uppercase text-primary tracking-tight">{plan.name}</CardTitle>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{plan.year} • {plan.term}</p>
+                          </div>
+                       </div>
+                       <div className="flex items-center gap-3">
+                          {/* Column Toggle Dropdown (Stop Propagation to prevent accordion toggle) */}
+                          <div onClick={(e) => e.stopPropagation()}>
+                             <DropdownMenu>
+                               <DropdownMenuTrigger asChild>
+                                 <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2">
+                                   <Columns className="h-4 w-4" /> {t.table.columns}
+                                 </Button>
+                               </DropdownMenuTrigger>
+                               <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
+                                 <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
+                                 <DropdownMenuSeparator />
+                                 {Object.keys(t.table).filter(k => k !== 'columns' && k !== 'actions').map(col => (
+                                   <DropdownMenuCheckboxItem
+                                     key={col}
+                                     checked={visibleColumns.includes(col)}
+                                     onCheckedChange={() => toggleColumn(col)}
+                                     className="rounded-lg font-bold text-xs py-2.5"
+                                   >
+                                     {t.table[col as keyof typeof t.table]}
+                                   </DropdownMenuCheckboxItem>
+                                 ))}
+                               </DropdownMenuContent>
+                             </DropdownMenu>
+                          </div>
+                          <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-data-[state=open]:rotate-180 transition-transform">
+                             <ChevronDown className="h-4 w-4" />
+                          </div>
+                       </div>
+                    </CardHeader>
+                 </AccordionTrigger>
 
-               <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                     <thead>
-                        <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                           {visibleColumns.includes('subject') && <th className="px-8 py-5 text-start w-1/4">{t.table.subject}</th>}
-                           {visibleColumns.includes('assessment') && <th className="px-8 py-5 text-start">{t.table.assessment}</th>}
-                           {visibleColumns.includes('result') && <th className="px-8 py-5 text-center">{t.table.result}</th>}
-                           {visibleColumns.includes('percent') && <th className="px-8 py-5 text-center">{t.table.percent}</th>}
-                           {visibleColumns.includes('grade') && <th className="px-8 py-5 text-center">{t.table.grade}</th>}
-                           {visibleColumns.includes('date') && <th className="px-8 py-5 text-center">{t.table.date}</th>}
-                           <th className="px-8 py-5 text-right w-32"></th>
-                        </tr>
-                     </thead>
-                     <tbody className="divide-y divide-slate-100">
-                        {planGrades.length === 0 ? (
-                          <tr>
-                             <td colSpan={visibleColumns.length + 1} className="py-20 text-center">
-                                <Info className="h-10 w-10 text-slate-100 mx-auto mb-4" />
-                                <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد درجات مرصودة لهذه الخطة بعد' : 'No grades recorded for this plan'}</p>
-                             </td>
-                          </tr>
-                        ) : planGrades.map((g: any) => {
-                          const pct = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
-                          const letterGrade = getLetterGrade(pct);
-                          
-                          return (
-                            <tr key={g.id} className="hover:bg-slate-50/50 transition-colors group">
-                               {visibleColumns.includes('subject') && (
-                                 <td className="px-8 py-6">
-                                    <div className="flex items-center gap-4">
-                                       <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-xs shadow-lg group-hover:scale-110 transition-transform">{g.subject?.charAt(0).toUpperCase()}</div>
-                                       <span className="font-black text-slate-900 uppercase text-sm">{g.subject}</span>
-                                    </div>
-                                 </td>
-                               )}
-                               {visibleColumns.includes('assessment') && (
-                                 <td className="px-8 py-6 text-sm font-bold text-slate-600">{g.assessmentName}</td>
-                               )}
-                               {visibleColumns.includes('result') && (
-                                 <td className="px-8 py-6 text-center font-mono font-black text-primary text-lg">
-                                    {g.score} <span className="text-[10px] text-slate-300 font-bold">/ {g.totalScore}</span>
-                                 </td>
-                               )}
-                               {visibleColumns.includes('percent') && (
-                                 <td className="px-8 py-6 text-center">
-                                    <div className="inline-flex items-center gap-2">
-                                       <span className="text-sm font-black text-slate-900">{pct}%</span>
-                                       <div className="h-1 w-12 bg-slate-100 rounded-full overflow-hidden shrink-0">
-                                          <div className={cn("h-full", pct >= 90 ? "bg-green-500" : pct >= 70 ? "bg-blue-500" : "bg-red-500")} style={{ width: `${pct}%` }} />
+                 <AccordionContent className="p-0 border-t border-slate-100">
+                    <div className="overflow-x-auto">
+                       <table className="w-full border-collapse">
+                          <thead>
+                             <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                {visibleColumns.includes('subject') && <th className="px-8 py-5 text-start w-1/4">{t.table.subject}</th>}
+                                {visibleColumns.includes('assessment') && <th className="px-8 py-5 text-start">{t.table.assessment}</th>}
+                                {visibleColumns.includes('result') && <th className="px-8 py-5 text-center">{t.table.result}</th>}
+                                {visibleColumns.includes('percent') && <th className="px-8 py-5 text-center">{t.table.percent}</th>}
+                                {visibleColumns.includes('grade') && <th className="px-8 py-5 text-center">{t.table.grade}</th>}
+                                {visibleColumns.includes('date') && <th className="px-8 py-5 text-center">{t.table.date}</th>}
+                                <th className="px-8 py-5 text-right w-32"></th>
+                             </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                             {planGrades.length === 0 ? (
+                               <tr>
+                                  <td colSpan={visibleColumns.length + 1} className="py-20 text-center">
+                                     <Info className="h-10 w-10 text-slate-100 mx-auto mb-4" />
+                                     <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد درجات مرصودة لهذه الخطة بعد' : 'No grades recorded for this plan'}</p>
+                                  </td>
+                               </tr>
+                             ) : planGrades.map((g: any) => {
+                               const pct = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
+                               const letterGrade = getLetterGrade(pct);
+                               
+                               return (
+                                 <tr key={g.id} className="hover:bg-slate-50/50 transition-colors group">
+                                    {visibleColumns.includes('subject') && (
+                                      <td className="px-8 py-6">
+                                         <div className="flex items-center gap-4">
+                                            <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-xs shadow-lg group-hover:scale-110 transition-transform">{g.subject?.charAt(0).toUpperCase()}</div>
+                                            <span className="font-black text-slate-900 uppercase text-sm">{g.subject}</span>
+                                         </div>
+                                      </td>
+                                    )}
+                                    {visibleColumns.includes('assessment') && (
+                                      <td className="px-8 py-6 text-sm font-bold text-slate-600">{g.assessmentName}</td>
+                                    )}
+                                    {visibleColumns.includes('result') && (
+                                      <td className="px-8 py-6 text-center font-mono font-black text-primary text-lg">
+                                         {g.score} <span className="text-[10px] text-slate-300 font-bold">/ {g.totalScore}</span>
+                                      </td>
+                                    )}
+                                    {visibleColumns.includes('percent') && (
+                                      <td className="px-8 py-6 text-center">
+                                         <div className="inline-flex items-center gap-2">
+                                            <span className="text-sm font-black text-slate-900">{pct}%</span>
+                                            <div className="h-1 w-12 bg-slate-100 rounded-full overflow-hidden shrink-0">
+                                               <div className={cn("h-full", pct >= 90 ? "bg-green-500" : pct >= 70 ? "bg-blue-500" : "bg-red-500")} style={{ width: `${pct}%` }} />
+                                            </div>
+                                         </div>
+                                      </td>
+                                    )}
+                                    {visibleColumns.includes('grade') && (
+                                      <td className="px-8 py-6 text-center">
+                                         <Badge className={cn(
+                                            "h-8 w-8 rounded-lg flex items-center justify-center border-none font-black text-sm p-0 shadow-sm",
+                                            letterGrade === 'A' ? "bg-green-100 text-green-700" : 
+                                            letterGrade === 'B' ? "bg-blue-100 text-blue-700" :
+                                            letterGrade === 'C' ? "bg-amber-100 text-amber-700" :
+                                            "bg-red-50 text-red-600"
+                                         )}>
+                                            {letterGrade}
+                                         </Badge>
+                                      </td>
+                                    )}
+                                    {visibleColumns.includes('date') && (
+                                      <td className="px-8 py-6 text-center">
+                                         <span className="text-[10px] font-black text-slate-400 flex items-center justify-center gap-2">
+                                            <Calendar className="h-3 w-3 text-secondary" /> {g.date}
+                                         </span>
+                                      </td>
+                                    )}
+                                    <td className="px-8 py-6 text-right">
+                                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <Button onClick={() => { setEditGrade(g); setFormData({...g}); setIsAddOpen(true); }} size="icon" variant="ghost" className="h-9 w-9 text-slate-400 hover:text-primary transition-all"><Edit3 className="h-4 w-4" /></Button>
+                                          <Button onClick={() => setDeleteId(g.id)} size="icon" variant="ghost" className="h-9 w-9 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="h-4 w-4" /></Button>
                                        </div>
-                                    </div>
-                                 </td>
-                               )}
-                               {visibleColumns.includes('grade') && (
-                                 <td className="px-8 py-6 text-center">
-                                    <Badge className={cn(
-                                       "h-8 w-8 rounded-lg flex items-center justify-center border-none font-black text-sm p-0 shadow-sm",
-                                       letterGrade === 'A' ? "bg-green-100 text-green-700" : 
-                                       letterGrade === 'B' ? "bg-blue-100 text-blue-700" :
-                                       letterGrade === 'C' ? "bg-amber-100 text-amber-700" :
-                                       "bg-red-50 text-red-600"
-                                    )}>
-                                       {letterGrade}
-                                    </Badge>
-                                 </td>
-                               )}
-                               {visibleColumns.includes('date') && (
-                                 <td className="px-8 py-6 text-center">
-                                    <span className="text-[10px] font-black text-slate-400 flex items-center justify-center gap-2">
-                                       <Calendar className="h-3 w-3 text-secondary" /> {g.date}
-                                    </span>
-                                 </td>
-                               )}
-                               <td className="px-8 py-6 text-right">
-                                  <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                     <Button onClick={() => { setEditGrade(g); setFormData({...g}); setIsAddOpen(true); }} size="icon" variant="ghost" className="h-9 w-9 text-slate-400 hover:text-primary transition-all"><Edit3 className="h-4 w-4" /></Button>
-                                     <Button onClick={() => setDeleteId(g.id)} size="icon" variant="ghost" className="h-9 w-9 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="h-4 w-4" /></Button>
-                                  </div>
-                               </td>
-                            </tr>
-                          );
-                        })}
-                     </tbody>
-                  </table>
-               </div>
-            </Card>
+                                    </td>
+                                 </tr>
+                               );
+                             })}
+                          </tbody>
+                       </table>
+                    </div>
+                 </AccordionContent>
+              </Card>
+            </AccordionItem>
           );
         })}
-      </div>
+      </Accordion>
 
       <div className="bg-blue-50/50 p-8 rounded-3xl border border-blue-100 flex items-start gap-6 shadow-sm mx-2">
          <Info className="h-6 w-6 text-blue-600 shrink-0 mt-1 opacity-60" />
