@@ -44,7 +44,8 @@ import {
   ChevronDown,
   Globe,
   Filter,
-  CheckCircle2
+  CheckCircle2,
+  Printer
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -92,6 +93,7 @@ import {
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function StudentGradesIndividualPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -199,7 +201,21 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       { v: 'Final Exam', l: isAr ? 'الاختبار النهائي' : 'Final Exam' },
       { v: 'Assignment', l: isAr ? 'واجب / مشروع' : 'Assignment' },
       { v: 'Oral Test', l: isAr ? 'اختبار شفوي' : 'Oral Test' },
-    ]
+    ],
+    report: {
+      btn: isAr ? 'تصدير الشهادة' : 'Export Transcript',
+      bismillah: 'بسم الله الرحمن الرحيم',
+      academyEn: 'Baneen and Banaat Academy',
+      academyAr: 'أكاديمية بنين وبنات للتعليم المنزلي',
+      subAr: 'للتعليم عن بعد والتفوق الأكاديمي',
+      subEn: 'For Homeschooling & Remote Learning',
+      certTitle: isAr ? 'كشف الدرجات الأكاديمي' : 'OFFICIAL TRANSCRIPT',
+      certIntro: isAr ? 'تشهد الأكاديمية بأن الطالب:' : 'The Academy certifies that student:',
+      certMeta: isAr ? 'قد أتم متطلبات الخط الدراسية المذكورة أدناه بنجاح.' : 'has successfully completed the academic requirements listed below.',
+      signAdmin: isAr ? 'مدير الأكاديمية' : 'Academy Director',
+      signReg: isAr ? 'مسؤول القبول والتسجيل' : 'Admissions Officer',
+      totalScore: isAr ? 'المجموع الكلي' : 'Total Score (%)'
+    }
   };
 
   const groupedGrades = useMemo(() => {
@@ -262,6 +278,42 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
   const handlePlanFilterChange = (planId: string, value: string) => {
     setPlanFilters(prev => ({ ...prev, [planId]: value }));
+  };
+
+  const handlePrint = (planId: string) => {
+    const printContent = document.getElementById(`printable-report-${planId}`);
+    if (!printContent) return;
+
+    const originalDisplay = printContent.style.display;
+    printContent.style.display = 'block';
+    
+    // Add print-specific style for landscape
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media print {
+        @page { size: landscape; margin: 1cm; }
+        body * { visibility: hidden; }
+        #printable-report-${planId}, #printable-report-${planId} * { visibility: visible; }
+        #printable-report-${planId} { 
+          position: fixed; 
+          left: 0; 
+          top: 0; 
+          width: 100%; 
+          height: 100%; 
+          background: white !important; 
+          z-index: 9999; 
+          padding: 2cm;
+          display: block !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    window.print();
+
+    // Clean up
+    document.head.removeChild(style);
+    printContent.style.display = originalDisplay;
   };
 
   if (studentLoading) return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
@@ -443,27 +495,33 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </Select>
                        </div>
 
-                       <DropdownMenu>
-                         <DropdownMenuTrigger asChild>
-                           <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm transition-all">
-                             <Columns className="h-4 w-4" /> {t.table.columns}
-                           </Button>
-                         </DropdownMenuTrigger>
-                         <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
-                           <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
-                           <DropdownMenuSeparator />
-                           {Object.keys(t.table).filter(k => !['columns', 'actions', 'filterLabel'].includes(k)).map(col => (
-                             <DropdownMenuCheckboxItem
-                               key={col}
-                               checked={visibleColumns.includes(col)}
-                               onCheckedChange={() => toggleColumn(col)}
-                               className="rounded-lg font-bold text-xs py-2.5"
-                             >
-                               {t.table[col as keyof typeof t.table]}
-                             </DropdownMenuCheckboxItem>
-                           ))}
-                         </DropdownMenuContent>
-                       </DropdownMenu>
+                       <div className="flex items-center gap-2">
+                          <Button onClick={() => handlePrint(plan.id)} variant="outline" className="h-10 px-4 rounded-lg border-slate-200 text-primary font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm">
+                             <Printer className="h-4 w-4" /> {t.report.btn}
+                          </Button>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm transition-all">
+                                <Columns className="h-4 w-4" /> {t.table.columns}
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
+                              <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              {Object.keys(t.table).filter(k => !['columns', 'actions', 'filterLabel'].includes(k)).map(col => (
+                                <DropdownMenuCheckboxItem
+                                  key={col}
+                                  checked={visibleColumns.includes(col)}
+                                  onCheckedChange={() => toggleColumn(col)}
+                                  className="rounded-lg font-bold text-xs py-2.5"
+                                >
+                                  {t.table[col as keyof typeof t.table]}
+                                </DropdownMenuCheckboxItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                       </div>
                     </div>
                  </div>
 
@@ -553,6 +611,101 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                        </table>
                     </div>
                  </AccordionContent>
+
+                 {/* PRINTABLE REPORT CARD COMPONENT (Hidden by default) */}
+                 <div id={`printable-report-${plan.id}`} className="hidden print:block fixed inset-0 bg-white z-[9999] p-12 overflow-y-auto" dir="rtl">
+                    <div className="text-center mb-8">
+                       <p className="text-2xl font-bold mb-4 font-serif">{t.report.bismillah}</p>
+                       <div className="flex justify-between items-center px-4">
+                          <div className="text-start w-1/3 space-y-1">
+                             <h2 className="text-xl font-black text-[#0b1f5b] uppercase leading-none">{t.report.academyEn}</h2>
+                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t.report.subEn}</p>
+                          </div>
+                          <div className="flex justify-center w-1/3">
+                             <img src="/logo.png" className="h-28 w-28 object-contain" alt="Logo" />
+                          </div>
+                          <div className="text-end w-1/3 space-y-1">
+                             <h2 className="text-xl font-black text-[#0b1f5b] font-arabic leading-none">{t.report.academyAr}</h2>
+                             <p className="text-[10px] font-black text-slate-500 font-arabic">{t.report.subAr}</p>
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="h-1.5 w-full bg-[#0b1f5b] my-8" />
+
+                    <div className="text-center space-y-8 my-12">
+                       <h1 className="text-4xl font-black text-slate-900 border-b-4 border-[#0b1f5b] inline-block pb-2 px-10 uppercase tracking-tight">{t.report.certTitle}</h1>
+                       <div className="text-xl font-bold text-slate-700 space-y-4">
+                          <p>{t.report.certIntro} <span className="text-[#0b1f5b] font-black mx-2 text-3xl underline underline-offset-8"> {student?.firstName} {student?.lastName} </span></p>
+                          <p>{isAr ? 'السجل الدراسي لـ:' : 'Academic Plan:'} <span className="text-[#1A73E8] font-black mx-1"> {plan.name} </span> | {isAr ? 'العام:' : 'AY:'} <span className="text-[#1A73E8] font-black mx-1"> {plan.year} </span></p>
+                          <p className="text-sm opacity-70 italic">{t.report.certMeta}</p>
+                       </div>
+                    </div>
+
+                    <table className="w-full border-collapse border-4 border-[#0b1f5b] mb-16 overflow-hidden rounded-lg shadow-xl">
+                       <thead>
+                          <tr className="bg-[#0b1f5b] text-white text-lg">
+                             <th className="border-2 border-white/20 p-5 w-[35%]">{isAr ? 'المادة الدراسية' : 'Subject'} / Subject</th>
+                             <th className="border-2 border-white/20 p-5">{isAr ? 'التقييمات' : 'Assessments'}</th>
+                             <th className="border-2 border-white/20 p-5">{isAr ? 'الاختبار النهائي' : 'Final Exam'}</th>
+                             <th className="border-2 border-white/20 p-5">{t.report.totalScore}</th>
+                             <th className="border-2 border-white/20 p-5">{isAr ? 'التقدير' : 'Grade'}</th>
+                          </tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100">
+                          {plan.subjects.map((sub: any, sIdx: number) => {
+                             const subName = isAr ? (sub.nameAr || sub.nameEn) : (sub.nameEn || sub.nameAr);
+                             const subGrades = planGrades.filter(g => g.subject === subName);
+                             const finalExam = subGrades.find(g => g.assessmentName === 'Final Exam');
+                             const nonFinals = subGrades.filter(g => g.assessmentName !== 'Final Exam');
+                             
+                             const avgScore = subGrades.length ? Math.round(subGrades.reduce((a,c) => a + (Number(c.score)/Number(c.totalScore))*100, 0) / subGrades.length) : 0;
+                             
+                             return (
+                               <tr key={sIdx} className="text-center font-bold text-slate-800 odd:bg-slate-50/50">
+                                  <td className="border-2 border-slate-100 p-5 text-start">
+                                     <div className="flex flex-col">
+                                        <span className="text-lg font-black text-[#0b1f5b]">{sub.nameAr}</span>
+                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{sub.nameEn}</span>
+                                     </div>
+                                  </td>
+                                  <td className="border-2 border-slate-100 p-5">
+                                     <div className="flex flex-col gap-1">
+                                        {nonFinals.length > 0 ? (
+                                           nonFinals.map((ng, ni) => <span key={ni} className="text-[10px] text-slate-500">{ng.assessmentName}: {ng.score}</span>)
+                                        ) : '-'}
+                                     </div>
+                                  </td>
+                                  <td className="border-2 border-slate-100 p-5 text-xl">{finalExam ? finalExam.score : '-'}</td>
+                                  <td className="border-2 border-slate-100 p-5 text-2xl font-black text-[#0b1f5b]">{avgScore}%</td>
+                                  <td className="border-2 border-slate-100 p-5">
+                                     <div className="h-10 w-10 rounded bg-[#0b1f5b] text-white flex items-center justify-center mx-auto text-xl">{getLetterGrade(avgScore)}</div>
+                                  </td>
+                               </tr>
+                             );
+                          })}
+                       </tbody>
+                    </table>
+
+                    <div className="grid grid-cols-2 gap-32 mt-20 px-10">
+                       <div className="text-center space-y-16">
+                          <p className="font-black border-b-2 border-[#0b1f5b] pb-3 text-lg uppercase tracking-tight">{t.report.signReg}</p>
+                          <div className="h-24" />
+                       </div>
+                       <div className="text-center space-y-16">
+                          <p className="font-black border-b-2 border-[#0b1f5b] pb-3 text-lg uppercase tracking-tight">{t.report.signAdmin}</p>
+                          <div className="h-24 relative flex flex-col items-center justify-center">
+                             <p className="font-black text-[#0b1f5b] text-xl mt-4">Dr. Mustafa Ali</p>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase">Academy Director</p>
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="mt-20 pt-10 border-t border-slate-100 flex justify-between items-center opacity-40">
+                       <p className="text-[9px] font-bold text-slate-400">OFFICIAL ACADEMIC RECORD - BBA OS VERSION 2.0</p>
+                       <p className="text-[9px] font-bold text-slate-400" dir="ltr">{new Date().toLocaleDateString()}</p>
+                    </div>
+                 </div>
               </Card>
             </AccordionItem>
           );
