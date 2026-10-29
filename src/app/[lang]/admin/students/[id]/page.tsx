@@ -228,8 +228,17 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     return path.split('.').reduce((acc: any, part: string) => acc && acc[part], editData);
   };
 
-  const formatSystemDate = (val: any, showTime = false) => {
-    if (!val) return '-';
+  /**
+   * Robust Date Formatting
+   * Handles Firebase Timestamps, ISO Strings, and Date objects.
+   * Includes fallback logic if the primary date is missing.
+   */
+  const formatSystemDate = (primaryVal: any, secondaryVal: any = null, showTime = false) => {
+    const val = primaryVal || secondaryVal;
+    
+    // If absolutely no date info, return a helpful pending state instead of a dash
+    if (!val) return isAr ? 'جاري التوثيق...' : 'Pending Documentation...';
+
     try {
       let date: Date;
       if (typeof val.toDate === 'function') {
@@ -237,10 +246,13 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
       } else if (val instanceof Date) {
         date = val;
       } else {
+        // Try parsing string (ISO format)
         date = new Date(val);
       }
 
-      if (!isValid(date)) return '-';
+      if (!isValid(date)) return isAr ? 'تاريخ غير صالح' : 'Invalid Date';
+      
+      // Use standard English numerals for dates
       return format(date, showTime ? 'MMMM dd, HH:mm' : 'MMMM dd, yyyy');
     } catch (e) {
       return '-';
@@ -395,7 +407,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                  </p>
                  <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl transition-all hover:bg-white hover:shadow-sm">
                     <p className="text-sm md:text-base font-black text-slate-700">
-                       {formatSystemDate(editData.createdAt)}
+                       {formatSystemDate(editData.createdAt, editData.submittedAt)}
                     </p>
                  </div>
               </div>
@@ -406,7 +418,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                  </p>
                  <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl transition-all hover:bg-white hover:shadow-sm">
                     <p className="text-sm md:text-base font-black text-secondary">
-                       {formatSystemDate(editData.updatedAt, true)}
+                       {formatSystemDate(editData.updatedAt, null, true)}
                     </p>
                  </div>
               </div>
@@ -428,4 +440,3 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
-

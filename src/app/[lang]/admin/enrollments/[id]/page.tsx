@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -337,6 +338,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
            totalPaid: 0,
            payments: []
         },
+        submittedAt: app.submittedAt || null, // Preserve submission date for timeline reference
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };

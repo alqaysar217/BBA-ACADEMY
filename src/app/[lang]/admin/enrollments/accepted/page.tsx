@@ -187,6 +187,7 @@ export default function AcceptedStudentsPage({ params }: { params: Promise<{ lan
            payments: []
         },
         files: app.files || [], // Copy files to student record
+        submittedAt: app.submittedAt || null, // Capture application date
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
