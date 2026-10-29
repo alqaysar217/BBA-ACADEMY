@@ -13,8 +13,7 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
-  serverTimestamp, 
-  orderBy 
+  serverTimestamp 
 } from 'firebase/firestore';
 import { 
   ClipboardCheck, 
@@ -105,16 +104,25 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
   const { data: student, loading: studentLoading } = useDoc(studentRef);
 
+  // Index Fix: Fetch without orderBy and sort in-memory to avoid composite index requirements
   const gradesQuery = useMemo(() => {
     if (!firestore || !id) return null;
     return query(
       collection(firestore, 'grades'),
-      where('studentId', '==', id),
-      orderBy('date', 'desc')
+      where('studentId', '==', id)
     );
   }, [firestore, id]);
 
-  const { data: grades, loading: gradesLoading } = useCollection(gradesQuery);
+  const { data: rawGrades, loading: gradesLoading } = useCollection(gradesQuery);
+
+  const grades = useMemo(() => {
+    if (!rawGrades) return [];
+    return [...rawGrades].sort((a: any, b: any) => {
+      const dateA = new Date(a.date || 0).getTime();
+      const dateB = new Date(b.date || 0).getTime();
+      return dateB - dateA;
+    });
+  }, [rawGrades]);
 
   // Stats Calculations
   const stats = useMemo(() => {
@@ -255,10 +263,10 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4 animate-in fade-in duration-700">
       <NavigationBar />
 
-      {/* 1. Slim Header Bar */}
+      {/* Header Bar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
          <div className="flex items-center gap-5 text-start w-full md:w-auto">
-            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 hover:text-primary shrink-0">
+            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 hover:text-primary shrink-0 border border-slate-100">
                {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
             </Button>
             <div className="space-y-0.5">
@@ -312,7 +320,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           <Star className="h-3 w-3 text-secondary" /> {t.fields.term}
                         </Label>
                         <Select value={formData.term} onValueChange={(v) => setFormData({...formData, term: v})}>
-                           <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                           <SelectTrigger className="h-12 border border-slate-200 rounded-xl font-bold"><SelectValue /></SelectTrigger>
                            <SelectContent className="rounded-xl">
                               <SelectItem value="First Semester" className="font-bold py-3">{isAr ? 'الفصل الأول' : 'First Term'}</SelectItem>
                               <SelectItem value="Second Semester" className="font-bold py-3">{isAr ? 'الفصل الثاني' : 'Second Term'}</SelectItem>
@@ -339,9 +347,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </Dialog>
       </div>
 
-      {/* 2. Stats Grid */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-         <Card className="border border-slate-200 bg-white p-6 space-y-4 text-start relative overflow-hidden group">
+         <Card className="border border-slate-200 bg-white p-6 space-y-4 text-start relative overflow-hidden group shadow-sm">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Award className="h-20 w-20" /></div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.stats.avg}</p>
             <div className="flex items-end justify-between relative z-10">
@@ -351,19 +359,19 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                   stats.avg >= 90 ? "bg-green-50 text-green-600" : stats.avg >= 70 ? "bg-blue-50 text-blue-600" : "bg-red-50 text-red-600"
                )}><TrendingUp className="h-5 w-5" /></div>
             </div>
-            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-100">
                <div className="h-full bg-secondary transition-all duration-1000" style={{ width: `${stats.avg}%` }} />
             </div>
          </Card>
 
-         <Card className="border border-slate-200 bg-white p-6 space-y-4 text-start relative overflow-hidden group">
+         <Card className="border border-slate-200 bg-white p-6 space-y-4 text-start relative overflow-hidden group shadow-sm">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><ClipboardCheck className="h-20 w-20" /></div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.stats.total}</p>
             <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{stats.total}</h3>
             <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Active records this session</p>
          </Card>
 
-         <Card className="border border-slate-200 bg-primary p-6 space-y-4 text-start relative overflow-hidden group">
+         <Card className="border border-slate-200 bg-primary p-6 space-y-4 text-start relative overflow-hidden group shadow-xl">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Star className="h-20 w-20 text-secondary" /></div>
             <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t.stats.high}</p>
             <div className="flex items-center gap-3">
@@ -374,7 +382,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </Card>
       </div>
 
-      {/* 3. Main Grade Registry Table */}
+      {/* Main Grade Registry Table */}
       <Card className="border border-slate-200 bg-white shadow-premium rounded-[2.5rem] overflow-hidden">
          <CardHeader className="p-8 md:p-10 border-b border-slate-100 bg-slate-50/50 flex flex-row items-center justify-between text-start">
             <div className="space-y-1">
@@ -383,7 +391,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                </CardTitle>
                <CardDescription className="font-bold text-xs">Official academic achievements logged for this student.</CardDescription>
             </div>
-            <Button variant="outline" className="hidden sm:flex h-10 rounded-xl border-slate-200 font-black text-[9px] uppercase tracking-widest gap-2 bg-white">
+            <Button variant="outline" className="hidden sm:flex h-10 rounded-xl border-slate-200 font-black text-[9px] uppercase tracking-widest gap-2 bg-white shadow-sm hover:bg-slate-50">
                <Download className="h-4 w-4" /> {isAr ? 'تصدير' : 'Export'}
             </Button>
          </CardHeader>
@@ -438,7 +446,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                      <span className="text-lg font-black text-primary font-mono tracking-tighter">{g.score}</span>
                                      <span className="text-[9px] font-bold text-slate-300">/ {g.totalScore}</span>
                                      <Badge className={cn(
-                                       "ml-2 border-none font-black text-[9px] px-2 py-0.5 rounded",
+                                       "ml-2 border-none font-black text-[9px] px-2 py-0.5 rounded shadow-sm",
                                        percentage >= 90 ? "bg-green-100 text-green-600" : percentage >= 70 ? "bg-blue-100 text-blue-600" : "bg-red-50 text-red-500"
                                      )}>{percentage}%</Badge>
                                   </div>
@@ -446,15 +454,15 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                             </td>
                             <td className="px-10 py-6 text-center">
                                <span className="text-[10px] font-black text-slate-400 flex items-center justify-center gap-2">
-                                  <Calendar className="h-3 w-3" /> {g.date}
+                                  <Calendar className="h-3 w-3 text-secondary" /> {g.date}
                                </span>
                             </td>
                             <td className="px-10 py-6 text-right pr-12">
                                <div className="flex justify-end gap-2">
-                                  <Button onClick={() => { setEditGrade(g); setFormData({...g}); setIsAddOpen(true); }} size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-300 hover:text-secondary hover:bg-secondary/5 transition-all">
+                                  <Button onClick={() => { setEditGrade(g); setFormData({...g}); setIsAddOpen(true); }} size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-300 hover:text-secondary hover:bg-secondary/5 transition-all border border-transparent hover:border-secondary/20">
                                      <Edit3 className="h-4 w-4" />
                                   </Button>
-                                  <Button onClick={() => setDeleteId(g.id)} size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all">
+                                  <Button onClick={() => setDeleteId(g.id)} size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100">
                                      <Trash2 className="h-4 w-4" />
                                   </Button>
                                </div>
@@ -468,15 +476,15 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </CardContent>
       </Card>
 
-      {/* 4. Support & Documentation Alert */}
+      {/* Support Info */}
       <div className="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100 flex items-start gap-6 shadow-sm mx-2">
          <Info className="h-8 w-8 text-blue-600 shrink-0 mt-1 opacity-60" />
          <div className="space-y-2 text-start">
             <h4 className="font-black text-blue-900 uppercase text-sm">{isAr ? 'سياسة رصد الدرجات' : 'Academic Grading Policy'}</h4>
             <p className="text-xs md:text-sm font-bold text-blue-900/60 leading-relaxed italic">
                {isAr 
-                  ? 'يتم استخدام هذه الدرجات في إصدار التقارير الأكاديمية الرسمية. يرجى التأكد من دقة البيانات ومطابقتها للسجلات الأصلية في Edgenuity لضمان النزاهة التعليمية.' 
-                  : 'These grades are used to generate official academic reports. Please ensure data accuracy and cross-reference with Edgenuity records to maintain educational integrity.'}
+                  ? 'يتم استخدام هذه الدرجات في إصدار التقارير الأكاديمية الرسمية. يرجى التأكد من دقة البيانات ومطابقتها للسجلات الأصلية لضمان النزاهة التعليمية.' 
+                  : 'These grades are used to generate official academic reports. Please ensure data accuracy and cross-reference with official source records to maintain educational integrity.'}
             </p>
          </div>
       </div>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -230,7 +231,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       {/* Header Bar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-3xl shadow-premium border border-slate-100">
          <div className="flex items-center gap-6 text-start">
-            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 hover:text-primary transition-all shadow-sm">
+            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 hover:text-primary transition-all shadow-sm border border-slate-100">
                {isAr ? <ChevronRight className="h-6 w-6" /> : <ChevronLeft className="h-6 w-6" />}
             </Button>
             <div className="space-y-1">
@@ -239,7 +240,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
             </div>
          </div>
          <div className="flex items-center gap-3 w-full md:w-auto">
-            <Button onClick={() => handleSavePlan('draft')} disabled={isSaving} variant="outline" className="flex-1 md:flex-none h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-slate-200 text-slate-600 bg-white shadow-sm">
+            <Button onClick={() => handleSavePlan('draft')} disabled={isSaving} variant="outline" className="flex-1 md:flex-none h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-slate-200 text-slate-600 bg-white shadow-sm hover:bg-slate-50">
                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2 text-secondary" />} {t.saveDraft}
             </Button>
          </div>
