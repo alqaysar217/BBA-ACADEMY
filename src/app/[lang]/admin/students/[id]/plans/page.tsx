@@ -1,38 +1,75 @@
 
 'use client';
 
-import { use, useState, useEffect, useMemo } from 'react';
+import { use, useState, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
-import { useFirestore, useDoc } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useFirestore, useDoc, useCollection } from '@/firebase';
+import { doc, collection, query, where, orderBy, deleteDoc } from 'firebase/firestore';
 import { 
   BookOpen, User, CreditCard, ClipboardCheck, 
   ChevronLeft, ChevronRight, Target, Clock,
   Award, Layers, PencilLine, Plus, Search,
-  ArrowUpRight, Users, Loader2, FileText
+  ArrowUpRight, Users, Loader2, FileText,
+  Trash2, Calendar, LayoutTemplate, Eye,
+  CheckCircle2, AlertTriangle, FileSearch
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
+import { toast } from '@/hooks/use-toast';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-export default function StudentAcademicPlanPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
+export default function StudentPlansListPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
   const isAr = lang === 'ar';
   const firestore = useFirestore();
   const router = useRouter();
   const pathname = usePathname();
 
-  const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
-  const { data: student, loading } = useDoc(studentRef);
+  const [deletePlanId, setDeletePlanId] = useState<string | null>(null);
 
-  if (loading || !student) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
+  // 1. Student Identity Reference
+  const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
+  const { data: student, loading: studentLoading } = useDoc(studentRef);
+
+  // 2. Fetch Plans for this Student
+  const plansQuery = useMemo(() => {
+    if (!firestore || !id) return null;
+    return query(
+      collection(firestore, 'academic_plans'), 
+      where('studentId', '==', id),
+      orderBy('createdAt', 'desc')
+    );
+  }, [firestore, id]);
+
+  const { data: plans, loading: plansLoading } = useCollection(plansQuery);
 
   const t = {
-    title: isAr ? 'المسار الأكاديمي للطالب' : 'Student Academic Pathway',
+    title: isAr ? 'السجل الأكاديمي والخطط' : 'Academic Registry & Plans',
     back: isAr ? 'العودة' : 'Back',
+    createNew: isAr ? 'إنشاء خطة دراسية جديدة' : 'Create New Study Plan',
+    empty: isAr ? 'لا توجد خطط دراسية مسجلة لهذا الطالب حالياً.' : 'No study plans recorded for this student yet.',
+    emptySub: isAr ? 'ابدأ بتصميم خطة مخصصة تلبي احتياجات الطالب الأكاديمية.' : 'Start by designing a custom plan tailored to the student\'s academic needs.',
+    status: {
+      draft: isAr ? 'مسودة' : 'Draft',
+      approved: isAr ? 'معتمدة' : 'Approved',
+      in_progress: isAr ? 'قيد التنفيذ' : 'In Progress',
+      completed: isAr ? 'مكتملة' : 'Completed',
+      archived: isAr ? 'مؤرشفة' : 'Archived'
+    },
     nav: {
       profile: isAr ? 'الهوية' : 'Identity',
       guardians: isAr ? 'أولياء الأمور' : 'Guardians',
@@ -40,7 +77,9 @@ export default function StudentAcademicPlanPage({ params }: { params: Promise<{ 
       academic: isAr ? 'خطة الطالب' : 'Study Plan',
       grades: isAr ? 'الدرجات' : 'Grades',
       finances: isAr ? 'المالية' : 'Finances'
-    }
+    },
+    confirmDelete: isAr ? 'هل أنت متأكد من حذف الخطة؟' : 'Are you sure you want to delete this plan?',
+    confirmDeleteDesc: isAr ? 'سيتم حذف كافة المواد والموضوعات وسجلات المتابعة المرتبطة بها نهائياً.' : 'This will permanently remove all subjects, topics, and monitoring logs associated with it.'
   };
 
   const NavigationBar = () => {
@@ -77,73 +116,158 @@ export default function StudentAcademicPlanPage({ params }: { params: Promise<{ 
     );
   };
 
+  const handleDelete = async () => {
+    if (!deletePlanId || !firestore) return;
+    try {
+      await deleteDoc(doc(firestore, 'academic_plans', deletePlanId));
+      toast({ title: isAr ? 'تم حذف الخطة' : 'Plan deleted successfully' });
+      setDeletePlanId(null);
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Error deleting plan' });
+    }
+  };
+
+  if (studentLoading) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'جاري مزامنة السجل الأكاديمي...' : 'Syncing Academic Registry...'}</p>
+    </div>
+  );
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-32">
       <NavigationBar />
 
-      <div className="flex items-center justify-between px-2">
-         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 font-black text-[10px] uppercase gap-2 p-0 hover:text-primary transition-colors">
-            {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />} {isAr ? 'العودة' : 'Back'}
-         </Button>
-         <h1 className="text-xl font-black uppercase text-primary tracking-tight">{t.title} — {student.firstName}</h1>
+      {/* Header with Student Identity Summary */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <div className="h-16 w-16 rounded-2xl bg-slate-50 border-4 border-white shadow-md overflow-hidden relative shrink-0">
+             <Image 
+              src={student?.photoURL || (student?.gender === 'Female' ? '/Female.png' : '/Male.png')} 
+              alt="Student" 
+              fill 
+              className="object-cover"
+              unoptimized 
+             />
+          </div>
+          <div className="space-y-0.5">
+             <h1 className="text-xl font-black text-primary uppercase tracking-tight">{student?.firstName} {student?.lastName}</h1>
+             <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-secondary/5 text-secondary border-none font-black text-[9px] uppercase tracking-widest px-3">Grade {student?.gradeLevel}</Badge>
+                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest font-mono">REF: {id?.substring(0,8).toUpperCase()}</span>
+             </div>
+          </div>
+        </div>
+        <Button asChild className="bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 gap-2 hover:bg-primary/90 transition-all">
+          <Link href={`/${lang}/admin/students/${id}/plans/create`}>
+            <Plus className="h-4 w-4 text-secondary" />
+            {t.createNew}
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         <Card className="lg:col-span-2 border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden border border-slate-100">
-            <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between text-start">
-               <div>
-                  <CardTitle className="text-xl font-black uppercase flex items-center gap-4">
-                     <Layers className="h-6 w-6 text-secondary" /> {isAr ? 'الدورات المخصصة' : 'Active Course Load'}
-                  </CardTitle>
-                  <CardDescription className="font-bold">Managed via Edgenuity Sync Integration.</CardDescription>
-               </div>
-               <Button variant="outline" className="rounded-xl font-black text-[10px] h-11 px-8 border-slate-200">
-                  EDIT STUDENT PLAN
-               </Button>
-            </CardHeader>
-            <CardContent className="p-0">
-               <div className="py-24 text-center space-y-5">
-                  <div className="h-20 w-20 rounded-3xl bg-slate-50 text-slate-200 flex items-center justify-center mx-auto shadow-inner">
-                     <BookOpen className="h-10 w-10" />
-                  </div>
-                  <p className="text-slate-300 font-black uppercase text-[10px] tracking-[0.2em] px-10">
-                     Official study plan has not been initialized for AY 2026-2027.
-                  </p>
-                  <Button className="bg-primary text-white font-black text-[10px] uppercase h-12 px-10 rounded-xl shadow-xl shadow-primary/20">
-                     Initialize Student Plan
-                  </Button>
-               </div>
-            </CardContent>
-         </Card>
-
-         <div className="space-y-8">
-            <Card className="border-none shadow-premium rounded-[2.5rem] bg-slate-900 text-white p-10 space-y-8 relative overflow-hidden text-start">
-               <div className="absolute top-0 right-0 p-8 opacity-10"><Award className="h-32 w-32 text-secondary" /></div>
-               <h4 className="text-lg font-black uppercase tracking-tight relative z-10">{isAr ? 'إحصائيات الإنجاز' : 'Achievement Metrics'}</h4>
-               <div className="space-y-6 relative z-10">
-                  <div className="space-y-2">
-                     <div className="flex justify-between items-end">
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Total Progress</span>
-                        <span className="text-3xl font-black text-white">{student.academicPlan?.progress || 0}%</span>
-                     </div>
-                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-secondary shadow-[0_0_15px_rgba(var(--secondary),0.5)]" style={{ width: `${student.academicPlan?.progress || 0}%` }} />
-                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                     <div className="bg-white/5 p-4 rounded-xl border border-white/5 text-center">
-                        <p className="text-[9px] font-black text-white/40 uppercase">Target</p>
-                        <p className="text-xl font-black">10 Courses</p>
-                     </div>
-                     <div className="bg-white/5 p-4 rounded-xl border border-white/5 text-center">
-                        <p className="text-[9px] font-black text-white/40 uppercase">Done</p>
-                        <p className="text-xl font-black text-secondary">0</p>
-                     </div>
-                  </div>
-               </div>
-            </Card>
-         </div>
+      <div className="px-2 text-start">
+         <h2 className="text-lg font-black uppercase text-slate-400 tracking-widest">{t.title}</h2>
       </div>
+
+      {plansLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1,2].map(i => <div key={i} className="h-48 bg-white rounded-2xl animate-pulse border border-slate-50" />)}
+        </div>
+      ) : plans.length === 0 ? (
+        <div className="py-32 text-center bg-white/50 border-2 border-dashed border-slate-200 rounded-[2.5rem] space-y-6">
+           <div className="h-20 w-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto shadow-inner">
+              <BookOpen className="h-10 w-10 text-slate-300" />
+           </div>
+           <div className="space-y-1">
+              <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{t.empty}</p>
+              <p className="text-[10px] font-bold text-slate-300 uppercase italic max-w-xs mx-auto leading-relaxed">{t.emptySub}</p>
+           </div>
+           <Button asChild variant="outline" className="border-secondary/20 text-secondary font-black text-[10px] h-10 px-8 rounded-lg uppercase tracking-widest hover:bg-secondary/5">
+              <Link href={`/${lang}/admin/students/${id}/plans/create`}>{t.createNew}</Link>
+           </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           {plans.map((plan: any) => (
+             <Card key={plan.id} className="border-none shadow-premium bg-white rounded-2xl overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                <CardHeader className="bg-slate-50/50 p-6 border-b border-slate-100 flex flex-row items-center justify-between">
+                   <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                         <Target className="h-5 w-5 text-secondary" />
+                      </div>
+                      <div className="space-y-0.5">
+                         <CardTitle className="text-sm font-black uppercase text-primary tracking-tight">{plan.name}</CardTitle>
+                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{plan.year} • {plan.term}</p>
+                      </div>
+                   </div>
+                   <Badge className={cn(
+                     "border-none font-black text-[8px] uppercase tracking-widest px-3 py-1 rounded-md shadow-sm",
+                     plan.status === 'approved' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+                   )}>
+                      {t.status[plan.status as keyof typeof t.status] || plan.status}
+                   </Badge>
+                </CardHeader>
+                <CardContent className="p-8 space-y-8">
+                   <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                         <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em]">Start Date</p>
+                         <p className="text-xs font-bold text-slate-600 flex items-center gap-2"><Calendar className="h-3 w-3 text-secondary" /> {plan.startDate}</p>
+                      </div>
+                      <div className="space-y-1">
+                         <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em]">Responsibility</p>
+                         <p className="text-xs font-bold text-slate-600 flex items-center gap-2"><Users className="h-3 w-3 text-secondary" /> {plan.responsibleTeacher || '-'}</p>
+                      </div>
+                   </div>
+
+                   <div className="space-y-3">
+                      <div className="flex justify-between items-end">
+                         <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">Execution Progress</p>
+                         <span className="text-lg font-black text-primary">{plan.progress || 0}%</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">
+                         <div className="h-full bg-secondary transition-all duration-1000 shadow-[0_0_10px_rgba(var(--secondary),0.5)]" style={{ width: `${plan.progress || 0}%` }} />
+                      </div>
+                   </div>
+
+                   <div className="pt-6 border-t border-slate-50 flex items-center justify-between gap-4">
+                      <div className="flex gap-2">
+                         <Button onClick={() => setDeletePlanId(plan.id)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-200 hover:text-red-500 hover:bg-red-50 transition-all">
+                            <Trash2 className="h-4 w-4" />
+                         </Button>
+                         <Button asChild size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-200 hover:text-secondary hover:bg-secondary/5 transition-all">
+                            <Link href={`/${lang}/admin/students/${id}/plans/editor/${plan.id}`}><PencilLine className="h-4 w-4" /></Link>
+                         </Button>
+                      </div>
+                      <Button asChild className="bg-slate-900 text-white font-black text-[10px] uppercase h-11 px-6 rounded-xl shadow-lg transition-all active:scale-95 group">
+                         <Link href={`/${lang}/admin/students/${id}/plans/${plan.id}`} className="flex items-center gap-2">
+                            {isAr ? 'فتح المتابعة' : 'Open Monitoring'}
+                            <ChevronRight className={cn("h-4 w-4 transition-transform group-hover:translate-x-1", isAr && "rotate-180")} />
+                         </Link>
+                      </Button>
+                   </div>
+                </CardContent>
+             </Card>
+           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deletePlanId} onOpenChange={(val) => !val && setDeletePlanId(null)}>
+        <AlertDialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden bg-white">
+          <div className="bg-red-500 p-8 text-white text-center flex flex-col items-center gap-4">
+             <div className="h-16 w-16 rounded-xl bg-white/20 flex items-center justify-center shadow-xl"><Trash2 className="h-8 w-8" /></div>
+             <AlertDialogTitle className="text-xl font-black uppercase tracking-tight">{t.confirmDelete}</AlertDialogTitle>
+          </div>
+          <div className="p-10 space-y-8 text-center">
+             <AlertDialogDescription className="text-slate-600 font-bold text-base">{t.confirmDeleteDesc}</AlertDialogDescription>
+             <div className="flex flex-col gap-3">
+               <Button onClick={handleDelete} className="h-14 rounded-xl bg-red-600 text-white font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:bg-red-700 transition-all">Yes, Delete Plan</Button>
+               <Button variant="ghost" onClick={() => setDeletePlanId(null)} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest">Cancel</Button>
+             </div>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
