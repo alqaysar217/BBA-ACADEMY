@@ -1,117 +1,800 @@
-
 'use client';
 
-import { use, useState, useMemo } from 'react';
+import { use, useState, useMemo, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
-import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { useFirestore, useDoc, useCollection, useUser } from '@/firebase';
 import { 
-  ClipboardCheck, Search, Filter, Download,
-  ChevronRight, ArrowUpDown, Star, BookOpen,
-  GraduationCap, User
+  doc, 
+  collection, 
+  query, 
+  where, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  serverTimestamp 
+} from 'firebase/firestore';
+import { 
+  ClipboardCheck, 
+  User, 
+  Users,
+  CreditCard, 
+  BookOpen, 
+  ChevronLeft, 
+  ChevronRight, 
+  Plus, 
+  Star,
+  Award, 
+  Trash2, 
+  Edit3, 
+  Save,
+  Calendar,
+  X,
+  TrendingUp,
+  Info,
+  Layers,
+  Loader2,
+  FileText,
+  Trophy,
+  Columns,
+  Check,
+  AlertTriangle,
+  FileSpreadsheet,
+  BadgeCheck,
+  ChevronDown,
+  Globe,
+  Filter,
+  CheckCircle2,
+  Printer,
+  FileBadge
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { toast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
-export default function GradeBookPage({ params }: { params: Promise<{ lang: Locale }> }) {
-  const { lang } = use(params);
+export default function StudentGradesIndividualPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
+  const { lang, id } = use(params);
   const isAr = lang === 'ar';
+  const { user } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
-  
-  const [searchTerm, setSearchTerm] = useState('');
+  const pathname = usePathname();
 
-  const studentsQuery = useMemo(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'students'), orderBy('updatedAt', 'desc'));
-  }, [firestore]);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [editGrade, setEditGrade] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { data: students, loading } = useCollection(studentsQuery);
+  // Print Dialog States
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [selectedPrintPlanId, setSelectedPrintPlanId] = useState<string | null>(null);
+  const [printType, setPrintType] = useState<'monthly' | 'final'>('final');
 
-  const filteredData = useMemo(() => {
-    if (!students) return [];
-    return students.filter(s => 
-      `${s.firstName} ${s.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [students, searchTerm]);
+  // Column visibility state
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'score', 'percent', 'grade', 'date']);
+  const [activeTypeFilter, setActiveTypeFilter] = useState<string>('all');
+
+  const [formData, setFormData] = useState({
+    planId: '',
+    subject: '',
+    reportType: 'monthly',
+    score: '',
+    totalScore: '100',
+    date: new Date().toISOString().split('T')[0]
+  });
+
+  const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
+  const { data: student, loading: studentLoading } = useDoc(studentRef);
+
+  const plansQuery = useMemo(() => {
+    if (!firestore || !id) return null;
+    return query(collection(firestore, 'academic_plans'), where('studentId', '==', id));
+  }, [firestore, id]);
+  const { data: plans, loading: plansLoading } = useCollection(plansQuery);
+
+  const gradesQuery = useMemo(() => {
+    if (!firestore || !id) return null;
+    return query(collection(firestore, 'grades'), where('studentId', '==', id));
+  }, [firestore, id]);
+  const { data: rawGrades, loading: gradesLoading } = useCollection(gradesQuery);
+
+  const selectedPlanForForm = useMemo(() => {
+    return plans.find(p => p.id === formData.planId);
+  }, [plans, formData.planId]);
+
+  const availableSubjects = useMemo(() => {
+    return selectedPlanForForm?.subjects || [];
+  }, [selectedPlanForForm]);
+
+  const getLetterGrade = (percent: number) => {
+    if (percent >= 90) return 'A';
+    if (percent >= 80) return 'B';
+    if (percent >= 70) return 'C';
+    if (percent >= 60) return 'D';
+    return 'F';
+  };
+
+  const t = {
+    title: isAr ? 'سجل الدرجات والتقييمات' : 'Academic Grade Registry',
+    back: isAr ? 'العودة' : 'Back',
+    nav: {
+      profile: isAr ? 'الهوية' : 'Identity',
+      guardians: isAr ? 'أولياء الأمور' : 'Guardians',
+      documents: isAr ? 'المستندات' : 'Documents',
+      academic: isAr ? 'خطة الطالب' : 'Study Plan',
+      grades: isAr ? 'الدرجات' : 'Grades',
+      finances: isAr ? 'المالية' : 'Finances'
+    },
+    addGrade: isAr ? 'رصد درجة جديدة' : 'Record New Grade',
+    editGrade: isAr ? 'تعديل السجل' : 'Edit Record',
+    save: isAr ? 'حفظ البيانات' : 'Save Record',
+    cancel: isAr ? 'إلغاء' : 'Cancel',
+    confirmDelete: isAr ? 'تأكيد الحذف النهائي' : 'Confirm Permanent Deletion',
+    deleteDesc: isAr ? 'سيتم حذف هذا السجل نهائياً من قاعدة البيانات. لا يمكن التراجع عن هذا الإجراء.' : 'This entry will be permanently removed from the database. This cannot be undone.',
+    stats: {
+      avg: isAr ? 'المعدل التراكمي' : 'Overall GPA',
+      total: isAr ? 'إجمالي التقييمات' : 'Total Assessments',
+      high: isAr ? 'أعلى نتيجة' : 'Peak Performance'
+    },
+    fields: {
+      plan: isAr ? 'الخطة الدراسية (الترم)' : 'Academic Plan (Term)',
+      subject: isAr ? 'المادة الدراسية' : 'Academic Subject',
+      reportType: isAr ? 'نوع التقرير' : 'Report Type',
+      score: isAr ? 'الدرجة المستحقة' : 'Earned Score',
+      total: isAr ? 'الدرجة الكلية' : 'Total Score',
+      date: isAr ? 'تاريخ التقييم' : 'Evaluation Date'
+    },
+    reportTypes: [
+      { v: 'monthly', l: isAr ? 'درجة شهرية' : 'Monthly Grade' },
+      { v: 'final', l: isAr ? 'درجة فصلية / نهائية' : 'Semester / Final Grade' }
+    ],
+    table: {
+      columns: isAr ? 'الأعمدة' : 'Columns',
+      subject: isAr ? 'المادة' : 'Subject',
+      result: isAr ? 'النتيجة' : 'Result',
+      percent: isAr ? 'النسبة' : 'Percent',
+      grade: isAr ? 'التقدير' : 'Grade',
+      date: isAr ? 'التاريخ' : 'Date',
+      actions: isAr ? 'إجراءات' : 'Actions',
+      filterLabel: isAr ? 'تصفية:' : 'Filter:'
+    },
+    report: {
+      btn: isAr ? 'تصدير الشهادة' : 'Export Transcript',
+      configTitle: isAr ? 'إعدادات تصدير الشهادة' : 'Transcript Export Settings',
+      configDesc: isAr ? 'اختر نوع الدرجات التي ترغب في تضمينها في الكشف.' : 'Select the type of grades you wish to include in the transcript.',
+      generate: isAr ? 'توليد الشهادة' : 'Generate Certificate'
+    }
+  };
+
+  const groupedGrades = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    rawGrades.forEach((g: any) => {
+      if (!groups[g.planId]) groups[g.planId] = [];
+      groups[g.planId].push(g);
+    });
+    return groups;
+  }, [rawGrades]);
+
+  const stats = useMemo(() => {
+    if (!rawGrades.length) return { avg: 0, total: 0, high: 0 };
+    const totalPct = rawGrades.reduce((acc, curr) => acc + (Number(curr.score) / Number(curr.totalScore)) * 100, 0);
+    const avg = Math.round(totalPct / rawGrades.length);
+    const high = Math.max(...rawGrades.map(g => (Number(g.score) / Number(g.totalScore)) * 100));
+    return { avg, total: rawGrades.length, high: Math.round(high) };
+  }, [rawGrades]);
+
+  const handleSave = async () => {
+    if (!firestore || !id || !formData.planId) return;
+    setIsProcessing(true);
+    const selectedPlan = plans.find(p => p.id === formData.planId);
+    const data = { 
+      ...formData, 
+      studentId: id, 
+      planName: selectedPlan?.name,
+      term: selectedPlan?.term,
+      updatedAt: serverTimestamp() 
+    };
+    try {
+      if (editGrade) {
+        await updateDoc(doc(firestore, 'grades', editGrade.id), data);
+      } else {
+        await addDoc(collection(firestore, 'grades'), { ...data, createdAt: serverTimestamp() });
+      }
+      setIsAddOpen(false);
+      setEditGrade(null);
+      setFormData({ 
+        planId: '', 
+        subject: '', 
+        reportType: 'monthly',
+        score: '', 
+        totalScore: '100', 
+        date: new Date().toISOString().split('T')[0] 
+      });
+      toast({ title: isAr ? "تم الحفظ بنجاح" : "Saved Successfully" });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!firestore || !deleteId) return;
+    try {
+      await deleteDoc(doc(firestore, 'grades', deleteId));
+      toast({ title: isAr ? "تم الحذف" : "Deleted" });
+      setDeleteId(null);
+    } catch (e) {
+      toast({ variant: 'destructive', title: "Delete failed" });
+    }
+  };
+
+  const toggleColumn = (col: string) => {
+    setVisibleColumns(prev => prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]);
+  };
+
+  // دالة الطباعة لتصدير الشهادة بصيغة الإنجليزية الكاملة وصفحة واحدة A4
+  const handlePrint = (planId: string) => {
+    const reportEl = document.getElementById(`printable-report-${planId}`);
+    if (!reportEl) return;
+
+    const styleId = 'print-engine-styles';
+    let style = document.getElementById(styleId) as HTMLStyleElement;
+    if (!style) {
+      style = document.createElement('style');
+      style.id = styleId;
+      document.head.appendChild(style);
+    }
+
+    style.innerHTML = `
+      @media print {
+        @page { size: A4 portrait; margin: 6mm; }
+        body * { visibility: hidden !important; overflow: visible !important; }
+        #printable-report-${planId}, #printable-report-${planId} * { visibility: visible !important; }
+        #printable-report-${planId} {
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 210mm !important;
+          height: 297mm !important;
+          margin: 0 !important;
+          padding: 8mm !important;
+          background: white !important;
+          z-index: 9999999 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: space-between !important;
+          box-sizing: border-box !important;
+          font-family: 'Times New Roman', Times, serif, 'Cairo', sans-serif !important;
+        }
+        .print-only-block { display: flex !important; }
+        button, nav, header, footer, [role="dialog"], .dialog-overlay { display: none !important; }
+      }
+    `;
+
+    setIsPrintDialogOpen(false);
+    
+    setTimeout(() => {
+      window.print();
+      style.innerHTML = '';
+    }, 400);
+  };
+
+  if (studentLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-         <div className="space-y-1">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{isAr ? 'سجل الدرجات' : 'Grade Book'}</h1>
-            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em]">{isAr ? 'رصد ومتابعة التقييمات الأكاديمية' : 'Academic Assessment & Grading Matrix'}</p>
+    <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4 animate-in fade-in duration-500">
+      
+      {/* 1. Navigation */}
+      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl shadow-sm">
+         {[
+           { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
+           { id: 'guardians', label: t.nav.guardians, icon: Users, href: `/${lang}/admin/students/${id}/guardians` },
+           { id: 'documents', label: t.nav.documents, icon: FileText, href: `/${lang}/admin/students/${id}/documents` },
+           { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
+           { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
+           { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
+         ].map(nav => (
+           <Link key={nav.id} href={nav.href} className={cn(
+             "px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg whitespace-nowrap flex items-center gap-2",
+             pathname === nav.href ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-primary hover:bg-slate-50"
+           )}>
+              <nav.icon className="h-3.5 w-3.5" />
+              {nav.label}
+           </Link>
+         ))}
+      </div>
+
+      {/* 2. Header */}
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+         <div className="flex items-center gap-5 text-start w-full lg:w-auto">
+            <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-xl"><Trophy className="h-7 w-7 text-secondary" /></div>
+            <div>
+               <h1 className="text-2xl font-black text-primary uppercase tracking-tight">{t.title} — {student?.firstName}</h1>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Academic Matrix & Report Card Data</p>
+            </div>
+         </div>
+         <div className="flex items-center gap-3 w-full lg:w-auto">
+            <Dialog open={isAddOpen} onOpenChange={(v) => { setIsAddOpen(v); if(!v) setEditGrade(null); }}>
+              <DialogTrigger asChild>
+                <Button className="h-12 px-8 rounded-xl bg-secondary text-white font-black text-[11px] uppercase tracking-widest shadow-xl shadow-secondary/20 w-full lg:w-auto">
+                   <Plus className="h-4 w-4 mr-2" /> {t.addGrade}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className={cn("max-w-2xl rounded-2xl border-none shadow-2xl p-0 overflow-hidden", isAr && "font-arabic")} dir={isAr ? 'rtl' : 'ltr'}>
+                <div className="bg-primary p-8 text-white flex items-center justify-between">
+                   <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center shadow-lg"><ClipboardCheck className="h-6 w-6" /></div>
+                      <DialogTitle className="text-xl font-black uppercase tracking-tight text-start">{editGrade ? t.editGrade : t.addGrade}</DialogTitle>
+                   </div>
+                </div>
+                <div className="p-8 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-start">
+                     <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                           <Layers className="h-3 w-3 text-secondary" /> {t.fields.plan}
+                        </Label>
+                        <Select value={formData.planId} onValueChange={(v) => setFormData({...formData, planId: v, subject: ''})}>
+                           <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
+                              <SelectValue placeholder="..." />
+                           </SelectTrigger>
+                           <SelectContent>
+                              {plans.map(p => <SelectItem key={p.id} value={p.id} className="font-bold py-3">{p.name} ({p.term})</SelectItem>)}
+                           </SelectContent>
+                        </Select>
+                     </div>
+                     <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                           <BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subject}
+                        </Label>
+                        <Select disabled={!formData.planId} value={formData.subject} onValueChange={(v) => setFormData({...formData, subject: v})}>
+                           <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
+                              <SelectValue placeholder="..." />
+                           </SelectTrigger>
+                           <SelectContent>
+                              {availableSubjects.map((s: any, idx: number) => (
+                                <SelectItem key={idx} value={s.nameEn || s.nameAr} className="font-bold py-3">
+                                   {isAr ? (s.nameAr || s.nameEn) : (s.nameEn || s.nameAr)}
+                                </SelectItem>
+                              ))}
+                           </SelectContent>
+                        </Select>
+                     </div>
+
+                     <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                           <ClipboardCheck className="h-3 w-3 text-secondary" /> {t.fields.reportType}
+                        </Label>
+                        <Select value={formData.reportType} onValueChange={(v) => setFormData({...formData, reportType: v})}>
+                           <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
+                              <SelectValue />
+                           </SelectTrigger>
+                           <SelectContent>
+                              {t.reportTypes.map(rt => (
+                                <SelectItem key={rt.v} value={rt.v} className="font-bold py-3">{rt.l}</SelectItem>
+                              ))}
+                           </SelectContent>
+                        </Select>
+                     </div>
+
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                           <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                              <Star className="h-3 w-3 text-secondary" /> {t.fields.score}
+                           </Label>
+                           <Input type="number" value={formData.score} onChange={(e) => setFormData({...formData, score: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+                        </div>
+                        <div className="space-y-1.5">
+                           <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                              <CheckCircle2 className="h-3 w-3 text-secondary" /> {t.fields.total}
+                           </Label>
+                           <Input type="number" value={formData.totalScore} onChange={(e) => setFormData({...formData, totalScore: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+                        </div>
+                     </div>
+                  </div>
+                  
+                  <div className="space-y-1.5 text-start">
+                     <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                        <Calendar className="h-3 w-3 text-secondary" /> {t.fields.date}
+                     </Label>
+                     <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-8 border-t">
+                     <Button variant="ghost" onClick={() => setIsAddOpen(false)} className="font-black text-[10px] uppercase tracking-widest text-slate-400">{t.cancel}</Button>
+                     <Button onClick={handleSave} disabled={isProcessing} className="h-12 px-10 rounded-xl bg-primary text-white font-black text-[10px] uppercase shadow-xl">
+                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2 text-secondary" />} {t.save}
+                     </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
          </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
-         <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-secondary transition-colors" />
-            <Input 
-               placeholder={isAr ? 'البحث عن طالب...' : 'Search for a student...'} 
-               className="pl-12 h-14 rounded-xl bg-slate-50 border-none font-bold"
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-            />
-         </div>
-         <Button variant="outline" className="h-14 rounded-xl border-slate-100 font-black text-[10px] px-8 uppercase gap-2 hover:bg-slate-50">
-            <Filter className="h-4 w-4" /> {isAr ? 'فلترة' : 'Filters'}
-         </Button>
+      {/* 3. Export Config Dialog */}
+      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
+           <div className="bg-primary p-8 text-white text-center flex flex-col items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center shadow-lg"><FileBadge className="h-7 w-7" /></div>
+              <div className="space-y-1">
+                <DialogTitle className="text-xl font-black uppercase tracking-tight">{t.report.configTitle}</DialogTitle>
+                <DialogDescription className="text-white/60 font-bold text-xs">{t.report.configDesc}</DialogDescription>
+              </div>
+           </div>
+           <div className="p-8 space-y-6 text-start">
+              <div className="space-y-2">
+                 <Label className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'اختر نوع الدرجات' : 'Select Grade Categories'}</Label>
+                 <Select value={printType} onValueChange={(v: any) => setPrintType(v)}>
+                    <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold">
+                       <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                       {t.reportTypes.map(rt => (
+                         <SelectItem key={rt.v} value={rt.v} className="font-bold py-3">{rt.l}</SelectItem>
+                       ))}
+                    </SelectContent>
+                 </Select>
+              </div>
+              <Button 
+                 onClick={() => selectedPrintPlanId && handlePrint(selectedPrintPlanId)}
+                 className="w-full h-14 bg-secondary hover:bg-primary text-white font-black rounded-xl shadow-xl transition-all text-sm uppercase tracking-widest"
+              >
+                 <Printer className="h-5 w-5 mr-2" /> {t.report.generate}
+              </Button>
+           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 4. Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         <Card className="border border-slate-200 shadow-sm bg-white p-6 flex flex-col items-center text-center space-y-2 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Star className="h-16 w-16" /></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.stats.avg}</p>
+            <h3 className="text-4xl font-black text-primary tracking-tighter">{stats.avg}%</h3>
+         </Card>
+         <Card className="border border-slate-200 shadow-sm bg-white p-6 flex flex-col items-center text-center space-y-2 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><ClipboardCheck className="h-16 w-16" /></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.stats.total}</p>
+            <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{stats.total}</h3>
+         </Card>
+         <Card className="border border-slate-200 shadow-sm bg-primary text-white p-6 flex flex-col items-center text-center space-y-2 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><BadgeCheck className="h-16 w-16 text-secondary" /></div>
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{t.stats.high}</p>
+            <h3 className="text-4xl font-black text-white tracking-tighter">{stats.high}%</h3>
+         </Card>
       </div>
 
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden border border-slate-100">
-         <div className="overflow-x-auto">
-            <table className="w-full">
-               <thead>
-                  <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                     <th className="px-10 py-6 text-left w-1/3">Student Details</th>
-                     <th className="px-10 py-6 text-center">Current Progress</th>
-                     <th className="px-10 py-6 text-center">GPA / Average</th>
-                     <th className="px-10 py-6 text-right"></th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-100">
-                  {loading ? (
-                    [1,2,3].map(i => <tr key={i} className="animate-pulse"><td colSpan={4} className="h-20 bg-slate-50/50" /></tr>)
-                  ) : filteredData.map((s: any) => (
-                    <tr key={s.id} className="hover:bg-slate-50/50 transition-all group">
-                       <td className="px-10 py-6">
-                          <div className="flex items-center gap-4">
-                             <div className="h-11 w-11 rounded-xl bg-primary text-white flex items-center justify-center font-black text-lg">
-                                {s.firstName?.charAt(0)}
-                             </div>
-                             <div>
-                                <p className="text-sm font-black text-slate-900 uppercase">{s.firstName} {s.lastName}</p>
-                                <p className="text-[10px] font-bold text-slate-400">Grade {s.gradeLevel}</p>
-                             </div>
+      {/* 5. Plan Tables & Hidden Printable Report Template */}
+      <Accordion type="multiple" className="space-y-6">
+        {plans.map(plan => {
+          const planGradesRaw = groupedGrades[plan.id] || [];
+          const filteredGrades = planGradesRaw.filter(g => activeTypeFilter === 'all' || g.reportType === activeTypeFilter);
+          const planSubjects = plan.subjects || [];
+
+          return (
+            <AccordionItem key={plan.id} value={plan.id} className="border-none">
+              <Card className="border border-slate-200 shadow-premium rounded-[1.5rem] overflow-hidden bg-white">
+                 <div className="flex flex-col lg:flex-row items-center justify-between bg-slate-50/80 border-b border-slate-100 group px-8 py-4 lg:py-0">
+                    <AccordionTrigger className="flex-1 hover:no-underline py-6 text-start [&[data-state=open]>svg]:rotate-180 transition-colors group-hover:bg-slate-50/50">
+                       <div className="flex items-center gap-4 text-start min-w-0">
+                          <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center border border-primary/10 shadow-inner"><FileSpreadsheet className="h-6 w-6" /></div>
+                          <div>
+                             <CardTitle className="text-xl font-black uppercase text-primary tracking-tight">{plan.name}</CardTitle>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{plan.year} • {plan.term}</p>
                           </div>
-                       </td>
-                       <td className="px-10 py-6 text-center">
-                          <div className="flex flex-col items-center gap-2">
-                             <span className="font-black text-xs text-primary">{s.academicPlan?.progress || 0}%</span>
-                             <div className="h-1 w-24 bg-slate-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-secondary" style={{ width: `${s.academicPlan?.progress || 0}%` }} />
-                             </div>
+                       </div>
+                    </AccordionTrigger>
+                    
+                    <div className="flex flex-wrap items-center gap-3 py-4 lg:py-0">
+                       <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+                             <span className="text-[9px] font-black text-slate-400 uppercase">{t.table.filterLabel}</span>
+                             <Select value={activeTypeFilter} onValueChange={setActiveTypeFilter}>
+                                <SelectTrigger className="h-8 border-none bg-transparent font-bold text-[10px] uppercase p-0 w-24">
+                                   <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                   <SelectItem value="all">{isAr ? 'الكل' : 'All'}</SelectItem>
+                                   {t.reportTypes.map(rt => <SelectItem key={rt.v} value={rt.v}>{rt.l}</SelectItem>)}
+                                </SelectContent>
+                             </Select>
                           </div>
-                       </td>
-                       <td className="px-10 py-6 text-center font-black text-slate-900">
-                          -
-                       </td>
-                       <td className="px-10 py-6 text-right">
-                          <Button size="sm" variant="ghost" className="h-10 w-10 rounded-xl group-hover:bg-primary group-hover:text-white transition-all">
-                             <ChevronRight className={cn("h-5 w-5", isAr && "rotate-180")} />
+
+                          <Button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPrintPlanId(plan.id);
+                              setIsPrintDialogOpen(true);
+                            }} 
+                            variant="outline" 
+                            className="h-10 px-4 rounded-lg border-slate-200 text-primary font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm"
+                          >
+                             <Printer className="h-4 w-4" /> {t.report.btn}
                           </Button>
-                       </td>
-                    </tr>
-                  ))}
-               </tbody>
-            </table>
-         </div>
-      </Card>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm transition-all">
+                                <Columns className="h-4 w-4" /> {t.table.columns}
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
+                              <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              {Object.keys(t.table).filter(k => !['columns', 'actions', 'filterLabel'].includes(k)).map(col => (
+                                <DropdownMenuCheckboxItem
+                                  key={col}
+                                  checked={visibleColumns.includes(col)}
+                                  onCheckedChange={() => toggleColumn(col)}
+                                  className="rounded-lg font-bold text-xs py-2.5"
+                                >
+                                  {t.table[col as keyof typeof t.table]}
+                                </DropdownMenuCheckboxItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                       </div>
+                    </div>
+                 </div>
+
+                 <AccordionContent className="p-0 border-t border-slate-100">
+                    <div className="overflow-x-auto">
+                       <table className="w-full border-collapse">
+                          <thead>
+                             <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                {visibleColumns.includes('subject') && <th className="px-8 py-5 text-start w-1/4">{t.table.subject}</th>}
+                                {visibleColumns.includes('result') && <th className="px-8 py-5 text-center">{t.table.result}</th>}
+                                {visibleColumns.includes('percent') && <th className="px-8 py-5 text-center">{t.table.percent}</th>}
+                                {visibleColumns.includes('grade') && <th className="px-8 py-5 text-center">{t.table.grade}</th>}
+                                {visibleColumns.includes('date') && <th className="px-8 py-5 text-center">{t.table.date}</th>}
+                                <th className="px-8 py-5 text-right w-32"></th>
+                             </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                             {filteredGrades.length === 0 ? (
+                                <tr>
+                                   <td colSpan={visibleColumns.length + 1} className="py-20 text-center">
+                                      <Info className="h-10 w-10 text-slate-100 mx-auto mb-4" />
+                                      <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد سجلات درجات متاحة' : 'No grade records found'}</p>
+                                   </td>
+                                </tr>
+                             ) : (
+                                filteredGrades.map((g: any) => {
+                                   const percent = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
+                                   const letter = getLetterGrade(percent);
+                                   return (
+                                      <tr key={g.id} className="hover:bg-slate-50/50 transition-colors">
+                                         {visibleColumns.includes('subject') && (
+                                            <td className="px-8 py-5 font-bold text-slate-900 text-start">
+                                               <div className="flex items-center gap-3">
+                                                  <div className="h-8 w-8 rounded-lg bg-primary/5 text-primary flex items-center justify-center font-black text-xs">{g.subject?.[0]}</div>
+                                                  <div>
+                                                     <p className="font-black text-xs text-primary">{g.subject}</p>
+                                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{g.planName} • {g.reportType}</span>
+                                                  </div>
+                                               </div>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('result') && (
+                                            <td className="px-8 py-5 text-center">
+                                               <span className="font-black text-xs text-slate-700">{g.score} / {g.totalScore}</span>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('percent') && (
+                                            <td className="px-8 py-5 text-center">
+                                               <span className={cn("inline-flex px-3 py-1 rounded-full text-[10px] font-black", percent >= 60 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600")}>
+                                                  {percent}%
+                                               </span>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('grade') && (
+                                            <td className="px-8 py-5 text-center">
+                                               <span className="h-8 w-8 rounded-lg bg-slate-100 text-slate-700 inline-flex items-center justify-center font-black text-xs">{letter}</span>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('date') && (
+                                            <td className="px-8 py-5 text-center font-bold text-xs text-slate-400">{g.date}</td>
+                                         )}
+                                         <td className="px-8 py-5 text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                               <Button variant="ghost" size="icon" onClick={() => { setEditGrade(g); setFormData({ planId: g.planId, subject: g.subject, reportType: g.reportType, score: g.score, totalScore: g.totalScore, date: g.date }); setIsAddOpen(true); }} className="h-9 w-9 text-slate-400 hover:text-primary rounded-lg">
+                                                  <Edit3 className="h-4 w-4" />
+                                               </Button>
+                                               <Button variant="ghost" size="icon" onClick={() => setDeleteId(g.id)} className="h-9 w-9 text-slate-400 hover:text-rose-600 rounded-lg">
+                                                  <Trash2 className="h-4 w-4" />
+                                               </Button>
+                                            </div>
+                                         </td>
+                                      </tr>
+                                   );
+                                })
+                             )}
+                          </tbody>
+                       </table>
+                    </div>
+                 </AccordionContent>
+              </Card>
+
+              {/* ========================================================================= */}
+              {/* HIDDEN PRINTABLE REPORT TEMPLATE (ENGLISH, CENTERED & SINGLE PAGE A4)     */}
+              {/* ========================================================================= */}
+              <div id={`printable-report-${plan.id}`} className="hidden print-only-block bg-white text-slate-900 p-6 flex-col justify-between relative" style={{ width: '210mm', height: '297mm', boxSizing: 'border-box' }}>
+                 
+                 {/* Background Watermark Seal */}
+                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+                    <Trophy className="w-96 h-96 text-primary" />
+                 </div>
+
+                 {/* Top Header */}
+                 <div className="space-y-4">
+                    <div className="text-center font-serif font-bold text-xs text-slate-800 tracking-wider">In the name of Allah, the Most Gracious, the Most Merciful</div>
+                    
+                    {/* Header with Centered Text Alignment */}
+                    <div className="grid grid-cols-3 items-center border-b-2 border-primary/20 pb-4">
+                       <div className="text-center text-[9px] font-black font-sans text-primary leading-tight px-1">
+                          Masjid Al-Salam & Banaat Academy
+                          <div className="text-[8px] text-slate-500 font-normal mt-0.5">Distance Education & Academic Excellence</div>
+                       </div>
+                       <div className="flex justify-center">
+                          <div className="h-12 w-12 rounded-xl bg-primary text-white flex items-center justify-center font-black shadow-md text-sm">BB</div>
+                       </div>
+                       <div className="text-center text-[9px] font-black text-primary leading-tight uppercase font-sans px-1">
+                          Baneen & Banaat Academy
+                          <div className="text-[8px] text-slate-500 font-normal mt-0.5">Michigan - USA</div>
+                       </div>
+                    </div>
+
+                    {/* Document Title & Student Info Card */}
+                    <div className="text-center space-y-1.5 pt-1">
+                       <h2 className="text-xs font-black uppercase tracking-wider bg-primary text-white py-1.5 px-6 rounded inline-block font-sans shadow-sm">Official Semester Examination Report</h2>
+                       <div className="flex justify-between text-[10px] font-bold text-slate-600 px-3 pt-2 border-b pb-2">
+                          <span>Academic Year: {plan.year || '2026-2027'}</span>
+                          <span>Term: {plan.term || 'First Semester'}</span>
+                       </div>
+                    </div>
+
+                    <div className="text-[10px] font-bold text-slate-700 leading-relaxed text-justify px-1 space-y-1 font-sans">
+                       <p>The Administration of Baneen and Banaat Academy hereby certifies that the student: <strong className="text-primary underline uppercase">{student?.firstName} {student?.lastName}</strong> (Grade: {plan.name})</p>
+                       <p className="text-[9px] text-slate-500 font-normal">has successfully completed the requirements for the indicated academic term. In recognition of their fruitful efforts and perseverance, this certificate is awarded with our best wishes for continued success.</p>
+                    </div>
+                 </div>
+
+                 {/* Dynamic Grades Table */}
+                 <div className="my-2">
+                    <table className="w-full border-collapse border border-slate-300 text-[9px] font-sans">
+                       <thead>
+                          <tr className="bg-primary text-white text-center font-bold">
+                             <th className="border border-slate-300 p-2 w-28">Category</th>
+                             {planSubjects.map((sub: any, idx: number) => (
+                                <th key={idx} className="border border-slate-300 p-2">
+                                   <div>{sub.nameEn || sub.nameAr}</div>
+                                </th>
+                             ))}
+                             <th className="border border-slate-300 p-2 w-14">Grade</th>
+                             <th className="border border-slate-300 p-2 w-16">Total</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                          <tr>
+                             <td className="border border-slate-300 p-2 font-bold bg-slate-50 text-center">Monthly Assessment</td>
+                             {planSubjects.map((sub: any, idx: number) => {
+                                const matched = planGradesRaw.find((g: any) => g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'monthly');
+                                return <td key={idx} className="border border-slate-300 p-2 text-center font-bold">{matched ? matched.score : '-'}</td>;
+                             })}
+                             <td className="border border-slate-300 p-2 text-center">-</td>
+                             <td className="border border-slate-300 p-2 text-center">-</td>
+                          </tr>
+                          <tr>
+                             <td className="border border-slate-300 p-2 font-bold bg-slate-50 text-center">Term Examinations</td>
+                             {planSubjects.map((sub: any, idx: number) => {
+                                const matched = planGradesRaw.find((g: any) => g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'final');
+                                return <td key={idx} className="border border-slate-300 p-2 text-center font-bold">{matched ? matched.score : '-'}</td>;
+                             })}
+                             <td className="border border-slate-300 p-2 text-center">-</td>
+                             <td className="border border-slate-300 p-2 text-center">-</td>
+                          </tr>
+                          <tr className="bg-slate-100 font-bold">
+                             <td className="border border-slate-300 p-2 text-center">Final Total (%)</td>
+                             {planSubjects.map((sub: any, idx: number) => {
+                                const matched = planGradesRaw.find((g: any) => g.subject === (sub.nameEn || sub.nameAr));
+                                const pct = matched ? Math.round((Number(matched.score) / Number(matched.totalScore)) * 100) : 0;
+                                return <td key={idx} className="border border-slate-300 p-2 text-center">{pct ? `${pct}%` : '-'}</td>;
+                             })}
+                             <td className="border border-slate-300 p-2 text-center text-primary font-black">{stats.avg >= 90 ? 'A' : stats.avg >= 80 ? 'B' : 'C'}</td>
+                             <td className="border border-slate-300 p-2 text-center text-primary font-black">{stats.avg}%</td>
+                          </tr>
+                       </tbody>
+                    </table>
+                 </div>
+
+                 {/* Overall Summary Card */}
+                 <div className="bg-slate-50 border border-slate-200 rounded p-2.5 flex justify-between items-center text-[10px] font-bold font-sans">
+                    <div>Overall Score: <span className="text-primary font-black">{stats.avg}%</span></div>
+                    <div>Overall Grade: <span className="text-primary font-black">{stats.avg >= 90 ? 'A (Excellent)' : 'B (Very Good)'}</span></div>
+                    <div>Final Result: <span className="text-emerald-600 font-black">PASS / PROMOTED</span></div>
+                 </div>
+
+                 {/* Footer Signatures */}
+                 <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-200 text-center text-[9px] font-sans">
+                    <div className="space-y-6">
+                       <p className="font-bold text-slate-700">Subject Teacher</p>
+                       <div className="border-t border-slate-400 w-3/4 mx-auto pt-1 text-[8px] text-slate-500">Signature & Date</div>
+                    </div>
+                    <div className="space-y-6">
+                       <p className="font-bold text-slate-700">Admissions & Registration</p>
+                       <div className="border-t border-slate-400 w-3/4 mx-auto pt-1 text-[8px] text-slate-500">Official Seal</div>
+                    </div>
+                    <div className="space-y-6">
+                       <p className="font-bold text-slate-700">Academy Director</p>
+                       <div className="border-t border-slate-400 w-3/4 mx-auto pt-1 text-[8px] text-slate-500">Approved & Signed</div>
+                    </div>
+                 </div>
+
+              </div>
+
+            </AccordionItem>
+          );
+        })}
+      </Accordion>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
+        <AlertDialogContent className="rounded-2xl">
+           <AlertDialogHeader>
+              <AlertDialogTitle className="font-black">{t.confirmDelete}</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs font-bold text-slate-500">{t.deleteDesc}</AlertDialogDescription>
+           </AlertDialogHeader>
+           <AlertDialogFooter>
+              <AlertDialogCancel className="font-bold">{t.cancel}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-rose-600 hover:bg-rose-700 font-bold">{isAr ? 'حذف' : 'Delete'}</AlertDialogAction>
+           </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }

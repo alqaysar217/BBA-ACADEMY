@@ -208,36 +208,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       btn: isAr ? 'تصدير الشهادة' : 'Export Transcript',
       configTitle: isAr ? 'إعدادات تصدير الشهادة' : 'Transcript Export Settings',
       configDesc: isAr ? 'اختر نوع الدرجات التي ترغب في تضمينها في الكشف.' : 'Select the type of grades you wish to include in the transcript.',
-      generate: isAr ? 'توليد الشهادة' : 'Generate Certificate',
-      academyEn: 'MASJID AL-SALAM & BANAAT ACADEMY',
-      academyAr: 'أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي',
-      certTitleEn: 'OFFICIAL SEMESTER EXAMINATION REPORT',
-      certTitleAr: 'شهادة نتيجة الاختبار الفصلي',
-      certIntroEn: 'The administration certifies the student has successfully completed the term.',
-      certIntroAr: 'تشهد إدارة الأكاديمية بأن الطالب قد أتم متطلبات الفصل بنجاح.',
-      signAdminEn: 'Academy Director',
-      signAdminAr: 'مدير الأكاديمية',
-      signTeacherEn: 'Subject Teacher',
-      signTeacherAr: 'معلم المادة',
-      signRegEn: 'Admissions & Registration',
-      signRegAr: 'القبول والتسجيل',
-      rowMonthlyEn: 'Monthly Assessment',
-      rowMonthlyAr: 'الأعمال الشهرية',
-      rowFinalEn: 'Term Examinations',
-      rowFinalAr: 'الاختبارات الفصلية',
-      rowTotalEn: 'Total (AR/EN)',
-      rowTotalAr: 'الإجمالي (عربي / إنجليزي)',
-      colGradeEn: 'Grade',
-      colGradeAr: 'التقدير',
-      colTotalEn: 'Total',
-      colTotalAr: 'الإجمالي',
-      colSubjectEn: 'Course Name',
-      colSubjectAr: 'اسم المادة',
-      overallScore: 'Overall Score / إجمالي النقاط',
-      overallGrade: 'Overall Grade / التقدير الكلي',
-      finalResult: 'Final Result / النتيجة النهائية',
-      pass: 'PASS / ناجح',
-      fail: 'FAIL / راسب'
+      generate: isAr ? 'توليد الشهادة' : 'Generate Certificate'
     }
   };
 
@@ -320,27 +291,24 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
     style.innerHTML = `
       @media print {
-        @page { 
-          size: A4 portrait; 
-          margin: 8mm; 
-        }
+        @page { size: A4 portrait; margin: 6mm; }
         body * { visibility: hidden !important; overflow: visible !important; }
         #printable-report-${planId}, #printable-report-${planId} * { visibility: visible !important; }
         #printable-report-${planId} {
-          position: fixed !important;
+          position: absolute !important;
           left: 0 !important;
           top: 0 !important;
-          width: 100% !important;
-          height: auto !important;
+          width: 210mm !important;
+          height: 297mm !important;
           margin: 0 !important;
-          padding: 0 !important;
+          padding: 10mm !important;
           background: white !important;
           z-index: 9999999 !important;
           display: flex !important;
           flex-direction: column !important;
+          justify-content: space-between !important;
           box-sizing: border-box !important;
-          font-family: 'Times New Roman', serif !important;
-          color: #000 !important;
+          font-family: 'Times New Roman', Times, serif !important;
         }
         .print-only-block { display: flex !important; }
         button, nav, header, footer, [role="dialog"], .dialog-overlay { display: none !important; }
@@ -352,7 +320,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     setTimeout(() => {
       window.print();
       style.innerHTML = '';
-    }, 500);
+    }, 400);
   };
 
   if (studentLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
@@ -540,11 +508,12 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </Card>
       </div>
 
-      {/* 5. Plan Tables */}
+      {/* 5. Plan Tables & Hidden Printable Report Template */}
       <Accordion type="multiple" className="space-y-6">
         {plans.map(plan => {
           const planGradesRaw = groupedGrades[plan.id] || [];
           const filteredGrades = planGradesRaw.filter(g => activeTypeFilter === 'all' || g.reportType === activeTypeFilter);
+          const planSubjects = plan.subjects || [];
 
           return (
             <AccordionItem key={plan.id} value={plan.id} className="border-none">
@@ -627,276 +596,228 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </thead>
                           <tbody className="divide-y divide-slate-100">
                              {filteredGrades.length === 0 ? (
-                               <tr>
-                                  <td colSpan={visibleColumns.length + 1} className="py-20 text-center">
-                                     <Info className="h-10 w-10 text-slate-100 mx-auto mb-4" />
-                                     <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد درجات مرصودة' : 'No grades recorded'}</p>
-                                  </td>
-                               </tr>
-                             ) : filteredGrades.map((g: any) => {
-                               const pct = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
-                               const letterGrade = getLetterGrade(pct);
-                               
-                               return (
-                                 <tr key={g.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    {visibleColumns.includes('subject') && (
-                                      <td className="px-8 py-6">
-                                         <span className="font-black text-slate-900 uppercase text-sm">{g.subject}</span>
-                                      </td>
-                                    )}
-                                    {visibleColumns.includes('result') && (
-                                      <td className="px-8 py-6 text-center font-mono font-black text-primary text-lg">
-                                         {g.score} <span className="text-[10px] text-slate-300 font-bold">/ {g.totalScore}</span>
-                                      </td>
-                                    )}
-                                    {visibleColumns.includes('percent') && (
-                                      <td className="px-8 py-6 text-center">
-                                         <div className="inline-flex items-center gap-2">
-                                            <span className="text-sm font-black text-slate-900">{pct}%</span>
-                                            <div className="h-1 w-12 bg-slate-100 rounded-full overflow-hidden shrink-0">
-                                               <div className={cn("h-full", pct >= 90 ? "bg-green-500" : pct >= 70 ? "bg-blue-500" : "bg-red-500")} style={{ width: `${pct}%` }} />
+                                <tr>
+                                   <td colSpan={visibleColumns.length + 1} className="py-20 text-center">
+                                      <Info className="h-10 w-10 text-slate-100 mx-auto mb-4" />
+                                      <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد سجلات درجات متاحة' : 'No grade records found'}</p>
+                                   </td>
+                                </tr>
+                             ) : (
+                                filteredGrades.map((g: any) => {
+                                   const percent = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
+                                   const letter = getLetterGrade(percent);
+                                   return (
+                                      <tr key={g.id} className="hover:bg-slate-50/50 transition-colors">
+                                         {visibleColumns.includes('subject') && (
+                                            <td className="px-8 py-5 font-bold text-slate-900 text-start">
+                                               <div className="flex items-center gap-3">
+                                                  <div className="h-8 w-8 rounded-lg bg-primary/5 text-primary flex items-center justify-center font-black text-xs">{g.subject?.[0]}</div>
+                                                  <div>
+                                                     <p className="font-black text-xs text-primary">{g.subject}</p>
+                                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{g.planName} • {g.reportType}</span>
+                                                  </div>
+                                               </div>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('result') && (
+                                            <td className="px-8 py-5 text-center">
+                                               <span className="font-black text-xs text-slate-700">{g.score} / {g.totalScore}</span>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('percent') && (
+                                            <td className="px-8 py-5 text-center">
+                                               <span className={cn("inline-flex px-3 py-1 rounded-full text-[10px] font-black", percent >= 60 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600")}>
+                                                  {percent}%
+                                               </span>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('grade') && (
+                                            <td className="px-8 py-5 text-center">
+                                               <span className="h-8 w-8 rounded-lg bg-slate-100 text-slate-700 inline-flex items-center justify-center font-black text-xs">{letter}</span>
+                                            </td>
+                                         )}
+                                         {visibleColumns.includes('date') && (
+                                            <td className="px-8 py-5 text-center font-bold text-xs text-slate-400">{g.date}</td>
+                                         )}
+                                         <td className="px-8 py-5 text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                               <Button variant="ghost" size="icon" onClick={() => { setEditGrade(g); setFormData({ planId: g.planId, subject: g.subject, reportType: g.reportType, score: g.score, totalScore: g.totalScore, date: g.date }); setIsAddOpen(true); }} className="h-9 w-9 text-slate-400 hover:text-primary rounded-lg">
+                                                  <Edit3 className="h-4 w-4" />
+                                               </Button>
+                                               <Button variant="ghost" size="icon" onClick={() => setDeleteId(g.id)} className="h-9 w-9 text-slate-400 hover:text-rose-600 rounded-lg">
+                                                  <Trash2 className="h-4 w-4" />
+                                               </Button>
                                             </div>
-                                         </div>
-                                      </td>
-                                    )}
-                                    {visibleColumns.includes('grade') && (
-                                      <td className="px-8 py-6 text-center">
-                                         <Badge className={cn(
-                                            "h-8 w-8 rounded-lg flex items-center justify-center border-none font-black text-sm p-0 shadow-sm",
-                                            letterGrade === 'A' ? "bg-green-100 text-green-700" : 
-                                            letterGrade === 'B' ? "bg-blue-100 text-blue-700" :
-                                            letterGrade === 'C' ? "bg-amber-100 text-amber-700" :
-                                            "bg-red-50 text-red-600"
-                                         )}>
-                                            {letterGrade}
-                                         </Badge>
-                                      </td>
-                                    )}
-                                    {visibleColumns.includes('date') && (
-                                      <td className="px-8 py-6 text-center">
-                                         <span className="text-[10px] font-black text-slate-400 flex items-center justify-center gap-2">
-                                            <Calendar className="h-3 w-3 text-secondary" /> {g.date}
-                                         </span>
-                                      </td>
-                                    )}
-                                    <td className="px-8 py-6 text-right">
-                                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                          <Button onClick={() => { setEditGrade(g); setFormData({...g}); setIsAddOpen(true); }} size="icon" variant="ghost" className="h-9 w-9 text-slate-400 hover:text-primary transition-all"><Edit3 className="h-4 w-4" /></Button>
-                                          <Button onClick={() => setDeleteId(g.id)} size="icon" variant="ghost" className="h-9 w-9 text-slate-400 hover:text-red-500 transition-all"><Trash2 className="h-4 w-4" /></Button>
-                                       </div>
-                                    </td>
-                                 </tr>
-                               );
-                             })}
+                                         </td>
+                                      </tr>
+                                   );
+                                })
+                             )}
                           </tbody>
                        </table>
                     </div>
                  </AccordionContent>
+              </Card>
 
-                 {/* STRICT SINGLE PAGE A4 REPORT CARD */}
-                 <div id={`printable-report-${plan.id}`} className="hidden print-only-block" dir="ltr">
-                    <div style={{ position: 'relative', width: '100%', minHeight: '280mm', backgroundColor: '#fff', padding: '0', display: 'flex', flexDirection: 'column' }}>
-                       
-                       {/* Watermark Logo */}
-                       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: '0.03', zIndex: 0 }}>
-                          <img src="/logo.png" style={{ width: '350px', height: 'auto' }} />
+              {/* ========================================================================= */}
+              {/* STRICT SINGLE-PAGE A4 ENGLISH REPORT CARD TEMPLATE                       */}
+              {/* ========================================================================= */}
+              <div id={`printable-report-${plan.id}`} className="hidden print-only-block bg-white text-slate-900 p-6 flex-col justify-between relative" style={{ width: '210mm', height: '297mm', boxSizing: 'border-box' }}>
+                 
+                 {/* Subtle Watermark Seal */}
+                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
+                    <Trophy className="w-80 h-80 text-primary" />
+                 </div>
+
+                 <div className="relative z-10 flex flex-col h-full">
+                    {/* Header: 3-Column Center-Aligned Grid */}
+                    <header className="grid grid-cols-3 items-center border-b-2 border-primary/20 pb-4 mb-4">
+                       <div className="text-center text-[10pt] font-black text-primary leading-tight">
+                          Baneen & Banaat Academy
+                          <div className="text-[8pt] text-slate-500 font-bold mt-1">Michigan - USA</div>
                        </div>
+                       
+                       <div className="flex justify-center">
+                          <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center font-black shadow-lg text-xl border-2 border-secondary/20">BB</div>
+                       </div>
+                       
+                       <div className="text-center text-[10pt] font-black text-primary leading-tight">
+                          Masjid Al-Salam & Banaat Academy
+                          <div className="text-[8pt] text-slate-500 font-bold mt-1">Distance Education & Academic Excellence</div>
+                       </div>
+                    </header>
 
-                       <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                          
-                          {/* Compact Triple Header */}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', paddingBottom: '8px', borderBottom: '2px solid #0F2C59' }}>
-                             <div style={{ width: '38%', textAlign: 'right', fontFamily: 'var(--font-noto-sans-arabic)' }}>
-                                <p style={{ fontSize: '11pt', fontWeight: '900', color: '#0F2C59', margin: '0', lineHeight: '1.2' }}>{t.report.academyAr}</p>
-                                <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '3px 0 0' }}>ميشيغان - الولايات المتحدة الأمريكية</p>
-                             </div>
-                             <div style={{ width: '20%', textAlign: 'center' }}>
-                                <img src="/logo.png" style={{ maxHeight: '50px', width: 'auto', objectFit: 'contain' }} />
-                             </div>
-                             <div style={{ width: '38%', textAlign: 'left' }}>
-                                <p style={{ fontSize: '10pt', fontWeight: '900', color: '#0F2C59', margin: '0', lineHeight: '1.2' }}>{t.report.academyEn}</p>
-                                <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '3px 0 0' }}>Michigan - USA</p>
-                             </div>
-                          </div>
-
-                          {/* Document Title Badge */}
-                          <div style={{ backgroundColor: '#0F2C59', color: '#fff', padding: '6px 12px', textAlign: 'center', borderRadius: '4px', marginBottom: '10px' }}>
-                             <h1 style={{ margin: '0', fontSize: '11pt', fontWeight: '900', letterSpacing: '1px' }}>
-                                {t.report.certTitleEn} / {t.report.certTitleAr}
-                             </h1>
-                          </div>
-
-                          {/* Compact Student Info Card */}
-                          <div style={{ backgroundColor: '#F8F9FA', border: '1px solid #E9ECEF', borderRadius: '8px', padding: '10px 15px', marginBottom: '10px' }}>
-                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ textAlign: 'left', width: '48%' }}>
-                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }}><strong>Student Name:</strong> {student?.firstName} {student?.lastName}</p>
-                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }}><strong>Academic Year:</strong> {plan.year} | <strong>Term:</strong> {plan.term}</p>
-                                   <p style={{ fontSize: '9pt', margin: '0', color: '#444' }}><strong>Grade:</strong> {student?.gradeLevel}</p>
-                                </div>
-                                <div style={{ textAlign: 'right', width: '48%', fontFamily: 'var(--font-noto-sans-arabic)' }}>
-                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }} dir="rtl"><strong>اسم الطالب(ة):</strong> {student?.firstName} {student?.lastName}</p>
-                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }} dir="rtl"><strong>العام الدراسي:</strong> {plan.year} | <strong>الفصل:</strong> {plan.term === 'First Semester' ? 'الأول' : 'الثاني'}</p>
-                                   <p style={{ fontSize: '9pt', margin: '0', color: '#444' }} dir="rtl"><strong>الصف الدراسي:</strong> {student?.gradeLevel}</p>
-                                </div>
-                             </div>
-                          </div>
-
-                          {/* Concise Certification Text */}
-                          <div style={{ textAlign: 'center', marginBottom: '12px', padding: '0 20px' }}>
-                             <p style={{ fontSize: '9.5pt', fontWeight: '700', color: '#333', margin: '0', lineHeight: '1.4' }}>
-                                {t.report.certIntroAr}
-                                <br/>
-                                <span style={{ fontSize: '8.5pt', fontWeight: '500', color: '#666', fontStyle: 'italic' }}>{t.report.certIntroEn}</span>
-                             </p>
-                          </div>
-
-                          {/* Fixed-Alignment Grades Matrix */}
-                          <div style={{ flex: 1 }}>
-                             <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', border: '2px solid #0F2C59' }}>
-                                <thead>
-                                   <tr style={{ backgroundColor: '#0F2C59', color: '#fff' }}>
-                                      <th style={{ width: '18%', border: '1px solid #fff', padding: '6px', fontSize: '9pt', fontWeight: '900' }}>{t.table.filterLabel} / Category</th>
-                                      {plan.subjects.map((sub: any, sIdx: number) => (
-                                        <th key={sIdx} style={{ border: '1px solid #fff', padding: '4px', fontSize: '8pt', fontWeight: '900', textAlign: 'center' }}>
-                                           <div style={{ fontFamily: 'var(--font-noto-sans-arabic)', marginBottom: '2px' }}>{sub.nameAr || sub.nameEn}</div>
-                                           <div style={{ opacity: '0.9', fontSize: '7pt' }}>{sub.nameEn || sub.nameAr}</div>
-                                        </th>
-                                      ))}
-                                      <th style={{ width: '10%', border: '1px solid #fff', padding: '4px', fontSize: '8pt', fontWeight: '900' }}>{t.report.colGradeEn}</th>
-                                      <th style={{ width: '10%', border: '1px solid #fff', padding: '4px', fontSize: '8pt', fontWeight: '900' }}>{t.report.colTotalEn}</th>
-                                   </tr>
-                                </thead>
-                                <tbody style={{ textAlign: 'center', fontSize: '9.5pt', fontWeight: '700' }}>
-                                   {/* Monthly Assessment Row */}
-                                   <tr style={{ height: '40px', backgroundColor: '#fcfcfc' }}>
-                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA', fontSize: '8pt', textAlign: 'left', padding: '0 8px' }}>
-                                         <strong>{t.report.rowMonthlyAr}</strong><br/><span style={{ fontSize: '7pt', color: '#666' }}>Monthly Assessment</span>
-                                      </td>
-                                      {plan.subjects.map((sub: any, sIdx: number) => {
-                                         const grade = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'monthly');
-                                         return <td key={sIdx} style={{ border: '1px solid #DEE2E6' }}>{grade ? grade.score : '-'}</td>;
-                                      })}
-                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
-                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
-                                   </tr>
-                                   {/* Term Exams Row */}
-                                   <tr style={{ height: '40px' }}>
-                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA', fontSize: '8pt', textAlign: 'left', padding: '0 8px' }}>
-                                         <strong>{t.report.rowFinalAr}</strong><br/><span style={{ fontSize: '7pt', color: '#666' }}>Term Examinations</span>
-                                      </td>
-                                      {plan.subjects.map((sub: any, sIdx: number) => {
-                                         const grade = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'final');
-                                         return <td key={sIdx} style={{ border: '1px solid #DEE2E6' }}>{grade ? grade.score : '-'}</td>;
-                                      })}
-                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
-                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
-                                   </tr>
-                                   {/* Total Row */}
-                                   <tr style={{ height: '45px', backgroundColor: '#E9ECEF' }}>
-                                      <td style={{ border: '1px solid #0F2C59', fontSize: '8pt', textAlign: 'left', padding: '0 8px' }}>
-                                         <strong>{t.report.rowTotalAr}</strong><br/><span style={{ fontSize: '7pt' }}>Total Points</span>
-                                      </td>
-                                      {plan.subjects.map((sub: any, sIdx: number) => {
-                                         const relevant = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === printType);
-                                         const pct = relevant ? Math.round((Number(relevant.score) / Number(relevant.totalScore)) * 100) : 0;
-                                         return <td key={sIdx} style={{ border: '1px solid #0F2C59', color: '#0F2C59', fontSize: '11pt' }}>{pct > 0 ? `${pct}%` : '-'}</td>;
-                                      })}
-                                      <td style={{ border: '1px solid #0F2C59', backgroundColor: '#0F2C59', color: '#fff', fontSize: '14pt' }}>{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</td>
-                                      <td style={{ border: '1px solid #0F2C59', backgroundColor: '#0F2C59', color: '#fff', fontSize: '14pt' }}>{stats.avg}%</td>
-                                   </tr>
-                                </tbody>
-                             </table>
-
-                             {/* Summary Bar */}
-                             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '15px' }}>
-                                <div style={{ border: '2px solid #0F2C59', padding: '5px 20px', borderRadius: '6px', textAlign: 'center', minWidth: '150px' }}>
-                                   <span style={{ fontSize: '8pt', fontWeight: '900', color: '#666', display: 'block', textTransform: 'uppercase' }}>{t.report.overallScore}</span>
-                                   <span style={{ fontSize: '14pt', fontWeight: '900', color: '#0F2C59' }}>{stats.avg}%</span>
-                                </div>
-                                <div style={{ border: '2px solid #0F2C59', padding: '5px 20px', borderRadius: '6px', textAlign: 'center', minWidth: '150px' }}>
-                                   <span style={{ fontSize: '8pt', fontWeight: '900', color: '#666', display: 'block', textTransform: 'uppercase' }}>{t.report.overallGrade}</span>
-                                   <span style={{ fontSize: '14pt', fontWeight: '900', color: '#0F2C59' }}>{getLetterGrade(stats.avg)}</span>
-                                </div>
-                                <div style={{ backgroundColor: '#0F2C59', border: '2px solid #0F2C59', padding: '5px 20px', borderRadius: '6px', textAlign: 'center', minWidth: '150px' }}>
-                                   <span style={{ fontSize: '8pt', fontWeight: '900', color: 'rgba(255,255,255,0.7)', display: 'block', textTransform: 'uppercase' }}>{t.report.finalResult}</span>
-                                   <span style={{ fontSize: '12pt', fontWeight: '900', color: '#fff' }}>{stats.avg >= 60 ? t.report.pass : t.report.fail}</span>
-                                </div>
-                             </div>
-                          </div>
-
-                          {/* Footer Signature Block - Fixed Bottom */}
-                          <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px', textAlign: 'center', paddingBottom: '10px' }}>
-                             <div style={{ padding: '0 10px' }}>
-                                <div style={{ borderTop: '1px solid #000', paddingTop: '8px' }}>
-                                   <p style={{ fontSize: '10pt', fontWeight: '900', margin: '0' }}>{t.report.signTeacherAr}</p>
-                                   <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '2px 0 0' }}>{t.report.signTeacherEn}</p>
-                                   <p style={{ fontSize: '7pt', color: '#999', marginTop: '12px' }}>Signature & Date</p>
-                                </div>
-                             </div>
-                             <div style={{ padding: '0 10px' }}>
-                                <div style={{ borderTop: '1px solid #000', paddingTop: '8px' }}>
-                                   <p style={{ fontSize: '10pt', fontWeight: '900', margin: '0' }}>{t.report.signRegAr}</p>
-                                   <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '2px 0 0' }}>{t.report.signRegEn}</p>
-                                   <p style={{ fontSize: '7pt', color: '#999', marginTop: '12px' }}>Official Stamp</p>
-                                </div>
-                             </div>
-                             <div style={{ padding: '0 10px' }}>
-                                <div style={{ borderTop: '1px solid #000', paddingTop: '8px' }}>
-                                   <p style={{ fontSize: '10pt', fontWeight: '900', margin: '0' }}>{t.report.signAdminAr}</p>
-                                   <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '2px 0 0' }}>{t.report.signAdminEn}</p>
-                                   <p style={{ fontSize: '9pt', fontWeight: '900', color: '#0F2C59', marginTop: '10px', marginBottom: '0' }}>Dr. Mustafa Ali</p>
-                                </div>
-                             </div>
-                          </div>
-
+                    {/* Document Title Badge */}
+                    <div className="text-center mb-6">
+                       <h1 className="bg-primary text-white py-2 px-8 rounded-lg inline-block text-[12pt] font-black uppercase tracking-widest shadow-sm">
+                          Official Semester Examination Report
+                       </h1>
+                       <div className="flex justify-center gap-10 mt-3 text-[10pt] font-bold text-slate-600 uppercase tracking-tight">
+                          <span>Academic Year: {plan.year}</span>
+                          <span className="text-secondary">|</span>
+                          <span>Term: {plan.term}</span>
                        </div>
                     </div>
+
+                    {/* Certification Statement */}
+                    <div className="text-center px-10 mb-8">
+                       <p className="text-[10.5pt] font-medium text-slate-800 leading-relaxed">
+                          The Administration of Baneen and Banaat Academy hereby certifies that the student: 
+                          <strong className="text-primary border-b border-primary mx-2 px-2 uppercase">{student?.firstName} {student?.lastName}</strong> 
+                          (Grade: <strong className="text-primary">{student?.gradeLevel}</strong>) 
+                          has successfully completed the requirements for the indicated academic term. In recognition of their fruitful efforts and perseverance, this report is officially recorded.
+                       </p>
+                    </div>
+
+                    {/* Dynamic Grades Matrix */}
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                       <table className="w-full border-collapse border-2 border-primary/10 text-[9pt] font-sans">
+                          <thead>
+                             <tr className="bg-primary text-white">
+                                <th className="border border-white/20 p-3 text-start w-40 uppercase tracking-widest">Grade Category</th>
+                                {planSubjects.map((sub: any, sIdx: number) => (
+                                   <th key={sIdx} className="border border-white/20 p-2 text-center uppercase">
+                                      <div className="font-black">{sub.nameEn || sub.nameAr}</div>
+                                   </th>
+                                ))}
+                                <th className="border border-white/20 p-3 text-center w-20 uppercase">Grade</th>
+                                <th className="border border-white/20 p-3 text-center w-24 uppercase">Score (%)</th>
+                             </tr>
+                          </thead>
+                          <tbody>
+                             {/* Row 1: Monthly Assessment */}
+                             <tr className="bg-slate-50/50">
+                                <td className="border border-slate-200 p-3 font-bold text-slate-700">Monthly Assessment</td>
+                                {planSubjects.map((sub: any, sIdx: number) => {
+                                   const g = planGradesRaw.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
+                                   return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
+                                })}
+                                <td className="border border-slate-200 p-2 text-center">-</td>
+                                <td className="border border-slate-200 p-2 text-center">-</td>
+                             </tr>
+                             {/* Row 2: Term Examinations */}
+                             <tr className="bg-white">
+                                <td className="border border-slate-200 p-3 font-bold text-slate-700">Term Examinations</td>
+                                {planSubjects.map((sub: any, sIdx: number) => {
+                                   const g = planGradesRaw.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
+                                   return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
+                                })}
+                                <td className="border border-slate-200 p-2 text-center">-</td>
+                                <td className="border border-slate-200 p-2 text-center">-</td>
+                             </tr>
+                             {/* Row 3: Final Total */}
+                             <tr className="bg-secondary/5 font-black">
+                                <td className="border-2 border-primary/10 p-3 text-primary uppercase">Final Total (%)</td>
+                                {planSubjects.map((sub: any, sIdx: number) => {
+                                   const matched = planGradesRaw.find(g => g.subject === (sub.nameEn || sub.nameAr));
+                                   const pct = matched ? Math.round((Number(matched.score) / Number(matched.totalScore)) * 100) : 0;
+                                   return <td key={sIdx} className="border-2 border-primary/10 p-2 text-center text-primary">{pct > 0 ? `${pct}%` : '-'}</td>;
+                                })}
+                                <td className="border-2 border-primary/10 p-2 text-center bg-primary text-white text-[11pt]">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</td>
+                                <td className="border-2 border-primary/10 p-2 text-center bg-primary text-white text-[11pt]">{stats.avg}%</td>
+                             </tr>
+                          </tbody>
+                       </table>
+
+                       {/* Summary Indicator */}
+                       <div className="mt-6 grid grid-cols-3 gap-4">
+                          <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
+                             <div className="text-[8pt] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Overall Score</div>
+                             <div className="text-xl font-black text-primary">{stats.avg}%</div>
+                          </div>
+                          <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
+                             <div className="text-[8pt] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Overall Grade</div>
+                             <div className="text-xl font-black text-primary">{getLetterGrade(stats.avg)}</div>
+                          </div>
+                          <div className="bg-primary p-3 rounded-lg text-center shadow-lg">
+                             <div className="text-[8pt] font-black text-white/50 uppercase tracking-[0.2em] mb-1">Final Result</div>
+                             <div className="text-xl font-black text-white">PASS / PROMOTED</div>
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Absolute Bottom Signature Block */}
+                    <footer className="grid grid-cols-3 gap-12 mt-12 pt-10 border-t border-slate-100 text-center">
+                       <div className="space-y-6">
+                          <p className="text-[10pt] font-black text-slate-900 uppercase">Subject Teacher</p>
+                          <div className="border-t border-slate-300 w-4/5 mx-auto pt-2 text-[8pt] text-slate-400 font-bold uppercase tracking-widest">Signature & Date</div>
+                       </div>
+                       
+                       <div className="space-y-6">
+                          <p className="text-[10pt] font-black text-slate-900 uppercase">Admissions & Registration</p>
+                          <div className="border-t border-slate-300 w-4/5 mx-auto pt-2 text-[8pt] text-slate-400 font-bold uppercase tracking-widest">Official Seal</div>
+                       </div>
+                       
+                       <div className="space-y-6">
+                          <p className="text-[10pt] font-black text-slate-900 uppercase">Academy Director</p>
+                          <div className="border-t border-slate-300 w-4/5 mx-auto pt-2">
+                             <p className="text-[9pt] font-black text-primary leading-none mb-1">Dr. Mustafa Ali</p>
+                             <p className="text-[7pt] text-slate-400 font-bold uppercase tracking-widest">Approved & Signed</p>
+                          </div>
+                       </div>
+                    </footer>
                  </div>
-              </Card>
+              </div>
+
             </AccordionItem>
           );
         })}
       </Accordion>
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
-        <AlertDialogContent className="max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
-          <div className="bg-red-500 p-10 text-white flex flex-col items-center gap-4 text-center">
-             <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl">
-                <AlertTriangle className="h-8 w-8 text-white" />
-             </div>
-             <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">{t.confirmDelete}</AlertDialogTitle>
-          </div>
-          <div className="p-10 space-y-8 text-center">
-            <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed">
-               {t.deleteDesc}
-            </AlertDialogDescription>
-            <div className="flex flex-col gap-3">
-              <Button onClick={handleDelete} className="h-14 rounded-xl bg-red-600 text-white font-black uppercase tracking-widest transition-all shadow-xl shadow-red-500/20 hover:bg-red-700">
-                {isAr ? 'حذف السجل الآن' : 'Yes, Delete Record'}
-              </Button>
-              <Button variant="ghost" onClick={() => setDeleteId(null)} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest">
-                {t.cancel}
-              </Button>
-            </div>
-          </div>
+        <AlertDialogContent className="rounded-2xl">
+           <AlertDialogHeader>
+              <AlertDialogTitle className="font-black">{t.confirmDelete}</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs font-bold text-slate-500">{t.deleteDesc}</AlertDialogDescription>
+           </AlertDialogHeader>
+           <AlertDialogFooter>
+              <AlertDialogCancel className="font-bold">{t.cancel}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-rose-600 hover:bg-rose-700 font-bold">{isAr ? 'حذف' : 'Delete'}</AlertDialogAction>
+           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          height: 8px;
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #e2e8f0;
-          border-radius: 10px;
-        }
-      `}</style>
     </div>
   );
 }
