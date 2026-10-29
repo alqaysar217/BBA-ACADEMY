@@ -122,7 +122,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const [formData, setFormData] = useState({
     planId: '',
     subject: '',
-    reportType: 'monthly', // New field: monthly or final
+    reportType: 'monthly',
     score: '',
     totalScore: '100',
     date: new Date().toISOString().split('T')[0]
@@ -162,6 +162,14 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const t = {
     title: isAr ? 'سجل الدرجات والتقييمات' : 'Academic Grade Registry',
     back: isAr ? 'العودة' : 'Back',
+    nav: {
+      profile: isAr ? 'الهوية' : 'Identity',
+      guardians: isAr ? 'أولياء الأمور' : 'Guardians',
+      documents: isAr ? 'المستندات' : 'Documents',
+      academic: isAr ? 'خطة الطالب' : 'Study Plan',
+      grades: isAr ? 'الدرجات' : 'Grades',
+      finances: isAr ? 'المالية' : 'Finances'
+    },
     addGrade: isAr ? 'رصد درجة جديدة' : 'Record New Grade',
     editGrade: isAr ? 'تعديل السجل' : 'Edit Record',
     save: isAr ? 'حفظ البيانات' : 'Save Record',
@@ -196,14 +204,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       actions: isAr ? 'إجراءات' : 'Actions',
       filterLabel: isAr ? 'تصفية:' : 'Filter:'
     },
-    nav: {
-      profile: isAr ? 'الهوية' : 'Identity',
-      guardians: isAr ? 'أولياء الأمور' : 'Guardians',
-      documents: isAr ? 'المستندات' : 'Documents',
-      academic: isAr ? 'خطة الطالب' : 'Study Plan',
-      grades: isAr ? 'الدرجات' : 'Grades',
-      finances: isAr ? 'المالية' : 'Finances'
-    },
     report: {
       btn: isAr ? 'تصدير الشهادة' : 'Export Transcript',
       configTitle: isAr ? 'إعدادات تصدير الشهادة' : 'Transcript Export Settings',
@@ -230,7 +230,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       if (!groups[g.planId]) groups[g.planId] = [];
       groups[g.planId].push(g);
     });
-    // Sort within groups by date descending
     Object.keys(groups).forEach(key => {
        groups[key].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
@@ -520,7 +519,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
               <Card className="border border-slate-200 shadow-premium rounded-[1.5rem] overflow-hidden bg-white">
                  <div className="flex flex-col lg:flex-row items-center justify-between bg-slate-50/80 border-b border-slate-100 group px-8 py-4 lg:py-0">
                     <AccordionTrigger className="flex-1 hover:no-underline py-6 text-start [&[data-state=open]>svg]:rotate-180 transition-colors group-hover:bg-slate-50/50">
-                       <div className="flex items-center gap-4">
+                       <div className="flex items-center gap-4 text-start min-w-0">
                           <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center border border-primary/10 shadow-inner"><FileSpreadsheet className="h-6 w-6" /></div>
                           <div>
                              <CardTitle className="text-xl font-black uppercase text-primary tracking-tight">{plan.name}</CardTitle>
@@ -539,7 +538,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                 </SelectTrigger>
                                 <SelectContent>
                                    <SelectItem value="all">{isAr ? 'الكل' : 'All'}</SelectItem>
-                                   {t.reportTypes.map(rt => <SelectItem key={type.v} value={rt.v}>{rt.l}</SelectItem>)}
+                                   {t.reportTypes.map(rt => <SelectItem key={rt.v} value={rt.v}>{rt.l}</SelectItem>)}
                                 </SelectContent>
                              </Select>
                           </div>
@@ -726,7 +725,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                 {plan.subjects.map((sub: any, sIdx: number) => {
                                    const subNameEn = sub.nameEn || sub.nameAr;
                                    const subNameAr = sub.nameAr || sub.nameEn;
-                                   // Filter by selected print type
                                    const subGrades = planGradesRaw.filter(g => (g.subject === subNameEn || g.subject === subNameAr) && g.reportType === printType);
                                    
                                    const primaryGrade = subGrades[0];
