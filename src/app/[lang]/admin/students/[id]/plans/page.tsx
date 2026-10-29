@@ -11,7 +11,9 @@ import {
   Award, Layers, PencilLine, Plus, Search,
   ArrowUpRight, Users, Loader2, FileText,
   Trash2, Calendar, LayoutTemplate, Eye,
-  CheckCircle2, AlertTriangle, FileSearch, Star, GraduationCap
+  CheckCircle2, AlertTriangle, FileSearch, Star, GraduationCap,
+  Sparkles,
+  Zap
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -151,13 +153,13 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4">
+    <div className="max-w-7xl mx-auto space-y-10 pb-32 px-4">
       <NavigationBar />
 
       {/* Student Identity Header */}
-      <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-6 w-full md:w-auto">
-          <div className="h-16 w-16 rounded-2xl bg-slate-50 border-4 border-white shadow-md overflow-hidden relative shrink-0">
+      <div className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:shadow-xl">
+        <div className="flex items-center gap-8 w-full md:w-auto">
+          <div className="h-20 w-20 rounded-3xl bg-slate-50 border-4 border-white shadow-xl overflow-hidden relative shrink-0 transition-transform hover:rotate-3 duration-500">
              <Image 
               src={student?.photoURL || (student?.gender === 'Female' ? '/Female.png' : '/Male.png')} 
               alt="Student" 
@@ -166,124 +168,186 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
               unoptimized 
              />
           </div>
-          <div className="space-y-0.5 text-start overflow-hidden">
-             <h1 className="text-xl font-black text-primary uppercase tracking-tight truncate">{student?.firstName} {student?.lastName}</h1>
-             <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-secondary/5 text-secondary border-none font-black text-[9px] uppercase tracking-widest px-3">Grade {student?.gradeLevel}</Badge>
-                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest font-mono truncate">ID: {id?.substring(0,8).toUpperCase()}</span>
+          <div className="space-y-1 text-start overflow-hidden">
+             <h1 className="text-2xl md:text-3xl font-black text-primary uppercase tracking-tight truncate leading-none">{student?.firstName} {student?.lastName}</h1>
+             <div className="flex items-center gap-3">
+                <Badge variant="outline" className="bg-secondary/10 text-secondary border-none font-black text-[10px] uppercase tracking-widest px-4 py-1 rounded-lg">Grade {student?.gradeLevel}</Badge>
+                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] font-mono truncate">ID: {id?.substring(0,10).toUpperCase()}</span>
              </div>
           </div>
         </div>
-        <Button asChild className="w-full md:w-auto bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2 hover:bg-primary/90 transition-all active:scale-95">
+        <Button asChild className="w-full md:w-auto bg-primary text-white h-16 px-10 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl shadow-primary/20 gap-3 hover:bg-secondary transition-all active:scale-95 group">
           <Link href={`/${lang}/admin/students/${id}/plans/create`}>
-            <Plus className="h-4 w-4 text-secondary" />
+            <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center group-hover:rotate-90 transition-transform">
+              <Plus className="h-5 w-5 text-secondary" />
+            </div>
             {t.createNew}
           </Link>
         </Button>
       </div>
 
-      <div className="px-2 text-start border-l-4 border-secondary pl-4">
-         <h2 className="text-lg font-black uppercase text-primary tracking-widest">{t.title}</h2>
+      <div className="flex items-center gap-4 px-2 text-start">
+         <div className="h-10 w-2 bg-secondary rounded-full shadow-glow" />
+         <h2 className="text-xl font-black uppercase text-primary tracking-widest">{t.title}</h2>
       </div>
 
       {plansLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1,2].map(i => <div key={i} className="h-48 bg-white rounded-3xl animate-pulse border border-slate-50" />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[1,2].map(i => <div key={i} className="h-64 bg-white rounded-[2.5rem] animate-pulse border border-slate-50" />)}
         </div>
       ) : plans.length === 0 ? (
-        <div className="py-32 text-center bg-white/50 border-2 border-dashed border-slate-200 rounded-[2.5rem] space-y-6 mx-2">
-           <div className="h-20 w-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto shadow-inner">
-              <BookOpen className="h-10 w-10 text-slate-300" />
+        <div className="py-40 text-center bg-white/50 border-4 border-dashed border-slate-100 rounded-[3rem] space-y-8 mx-2 animate-in fade-in duration-1000">
+           <div className="h-28 w-28 rounded-full bg-slate-50 flex items-center justify-center mx-auto shadow-inner">
+              <BookOpen className="h-14 w-14 text-slate-200" />
            </div>
-           <div className="space-y-1">
-              <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{t.empty}</p>
-              <p className="text-[10px] font-bold text-slate-300 uppercase italic max-w-xs mx-auto leading-relaxed">{t.emptySub}</p>
+           <div className="space-y-2">
+              <p className="text-slate-400 font-black uppercase text-sm tracking-[0.2em]">{t.empty}</p>
+              <p className="text-[11px] font-bold text-slate-300 uppercase italic max-w-sm mx-auto leading-relaxed">{t.emptySub}</p>
            </div>
-           <Button asChild variant="outline" className="border-secondary/20 text-secondary font-black text-[10px] h-11 px-10 rounded-xl uppercase tracking-widest hover:bg-secondary/5 shadow-sm bg-white">
+           <Button asChild className="bg-primary text-white font-black text-xs h-14 px-12 rounded-2xl uppercase tracking-widest shadow-xl hover:bg-secondary transition-all">
               <Link href={`/${lang}/admin/students/${id}/plans/create`}>{t.createNew}</Link>
            </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           {plans.map((plan: any) => (
-             <Card key={plan.id} className="border-none shadow-premium bg-white rounded-[2rem] overflow-hidden group hover:shadow-2xl transition-all duration-500 border border-slate-100">
-                <CardHeader className="bg-slate-50/50 p-6 md:p-8 border-b border-slate-100 flex flex-row items-center justify-between">
-                   <div className="flex items-center gap-4 text-start overflow-hidden">
-                      <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform shrink-0">
-                         <Target className="h-5 w-5 text-secondary" />
-                      </div>
-                      <div className="space-y-0.5 overflow-hidden">
-                         <CardTitle className="text-sm md:text-base font-black uppercase text-primary tracking-tight truncate">{plan.name}</CardTitle>
-                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{plan.year} • {plan.term}</p>
-                      </div>
-                   </div>
-                   <Badge className={cn(
-                     "border-none font-black text-[8px] uppercase tracking-widest px-3 py-1 rounded-md shadow-sm shrink-0",
-                     plan.status === 'approved' ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
-                   )}>
-                      {t.statusLabels[plan.status as keyof typeof t.statusLabels] || plan.status}
-                   </Badge>
-                </CardHeader>
-                <CardContent className="p-8 space-y-8">
-                   <div className="grid grid-cols-2 gap-6 text-start">
-                      <div className="space-y-1 overflow-hidden">
-                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.startAt}</p>
-                         <p className="text-xs font-bold text-slate-600 flex items-center gap-2 truncate"><Calendar className="h-3 w-3 text-secondary" /> {plan.startDate || '-'}</p>
-                      </div>
-                      <div className="space-y-1 overflow-hidden">
-                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.resp}</p>
-                         <p className="text-xs font-bold text-slate-600 flex items-center gap-2 truncate"><Users className="h-3 w-3 text-secondary" /> {plan.responsibleTeacher || '-'}</p>
-                      </div>
-                   </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+           {plans.map((plan: any) => {
+             const status = plan.status || 'draft';
+             const isDraft = status === 'draft';
+             const isApproved = status === 'approved';
+             const isCompleted = status === 'completed';
+             const isInProgress = status === 'in_progress';
+             
+             return (
+               <Card key={plan.id} className={cn(
+                 "border-none shadow-premium rounded-[2.5rem] overflow-hidden group hover:shadow-2xl transition-all duration-700 relative",
+                 isDraft ? "bg-slate-50/50 border-2 border-dashed border-slate-200" : "bg-white border border-slate-100",
+                 isCompleted && "ring-2 ring-green-500/20"
+               )}>
+                  {/* Chic Status Strip */}
+                  <div className={cn(
+                    "h-2 w-full",
+                    isDraft ? "bg-slate-300" : 
+                    isApproved ? "bg-primary" : 
+                    isInProgress ? "bg-secondary" : 
+                    isCompleted ? "bg-green-500" : "bg-slate-400"
+                  )} />
 
-                   <div className="space-y-3">
-                      <div className="flex justify-between items-end">
-                         <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em] flex items-center gap-2">
-                           <Layers className="h-3 w-3 text-secondary" /> {t.execProg}
-                         </p>
-                         <span className="text-lg font-black text-primary">{plan.progress || 0}%</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">
-                         <div className="h-full bg-secondary transition-all duration-1000 shadow-[0_0_12px_rgba(var(--secondary),0.4)]" style={{ width: `${plan.progress || 0}%` }} />
-                      </div>
-                   </div>
+                  <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between text-start">
+                     <div className="flex items-center gap-5 overflow-hidden">
+                        <div className={cn(
+                          "h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:scale-110 shrink-0",
+                          isDraft ? "bg-slate-100 text-slate-400" : 
+                          isCompleted ? "bg-green-100 text-green-600" : "bg-primary text-white"
+                        )}>
+                           {isCompleted ? <Award className="h-7 w-7" /> : <Target className={cn("h-7 w-7", !isDraft && "text-secondary")} />}
+                        </div>
+                        <div className="space-y-1 overflow-hidden">
+                           <CardTitle className={cn(
+                             "text-lg md:text-xl font-black uppercase tracking-tight truncate",
+                             isDraft ? "text-slate-400" : "text-primary"
+                           )}>{plan.name}</CardTitle>
+                           <div className="flex items-center gap-2">
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{plan.year} • {plan.term}</p>
+                           </div>
+                        </div>
+                     </div>
+                     <Badge className={cn(
+                       "border-none font-black text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm shrink-0",
+                       isDraft ? "bg-slate-200 text-slate-600" : 
+                       isApproved ? "bg-green-100 text-green-700" : 
+                       isInProgress ? "bg-blue-100 text-blue-700 animate-pulse" :
+                       isCompleted ? "bg-green-600 text-white" : "bg-slate-100 text-slate-500"
+                     )}>
+                        {t.statusLabels[status as keyof typeof t.statusLabels] || status}
+                     </Badge>
+                  </CardHeader>
 
-                   <div className="pt-6 border-t border-slate-50 flex items-center justify-between gap-4">
-                      <div className="flex gap-2">
-                         <Button onClick={() => setDeletePlanId(plan.id)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-red-200 hover:text-red-500 hover:bg-red-50 transition-all">
-                            <Trash2 className="h-4 w-4" />
-                         </Button>
-                         <Button asChild size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-200 hover:text-secondary hover:bg-secondary/5 transition-all">
-                            <Link href={`/${lang}/admin/students/${id}/plans/editor/${plan.id}`}><PencilLine className="h-4 w-4" /></Link>
-                         </Button>
-                      </div>
-                      <Button asChild className="bg-primary text-white font-black text-[10px] uppercase h-11 px-8 rounded-xl shadow-lg transition-all active:scale-95 group hover:bg-secondary">
-                         <Link href={`/${lang}/admin/students/${id}/plans/${plan.id}`} className="flex items-center gap-2">
-                            {t.openMonitor}
-                            {isAr ? <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> : <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
-                         </Link>
-                      </Button>
-                   </div>
-                </CardContent>
-             </Card>
-           ))}
+                  <CardContent className="p-8 pt-4 space-y-8">
+                     <div className="grid grid-cols-2 gap-6 text-start bg-slate-50/50 p-6 rounded-[1.5rem] shadow-inner border border-slate-100/50">
+                        <div className="space-y-1 overflow-hidden">
+                           <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">{t.startAt}</p>
+                           <p className="text-xs font-black text-slate-600 flex items-center gap-2 truncate">
+                              <Calendar className="h-3.5 w-3.5 text-secondary opacity-60" /> 
+                              {plan.startDate || '---'}
+                           </p>
+                        </div>
+                        <div className="space-y-1 overflow-hidden">
+                           <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">{t.resp}</p>
+                           <p className="text-xs font-black text-slate-600 flex items-center gap-2 truncate">
+                              <Users className="h-3.5 w-3.5 text-secondary opacity-60" /> 
+                              {plan.responsibleTeacher || '---'}
+                           </p>
+                        </div>
+                     </div>
+
+                     <div className="space-y-4">
+                        <div className="flex justify-between items-end px-1">
+                           <div className="flex items-center gap-3">
+                              <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shadow-sm", isDraft ? "bg-slate-100" : "bg-primary/5")}>
+                                <Layers className={cn("h-4 w-4", isDraft ? "text-slate-300" : "text-secondary")} />
+                              </div>
+                              <p className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isDraft ? "text-slate-300" : "text-primary")}>{t.execProg}</p>
+                           </div>
+                           <span className={cn("text-2xl font-black tracking-tighter", isDraft ? "text-slate-300" : "text-primary")}>{plan.progress || 0}%</span>
+                        </div>
+                        <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner border border-slate-200/30">
+                           <div className={cn(
+                             "h-full transition-all duration-1000",
+                             isDraft ? "bg-slate-300" : 
+                             isCompleted ? "bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]" : 
+                             "bg-secondary shadow-[0_0_15px_rgba(var(--secondary),0.4)]"
+                           )} style={{ width: `${plan.progress || 0}%` }} />
+                        </div>
+                     </div>
+
+                     <div className="pt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex gap-2">
+                           <Button onClick={() => setDeletePlanId(plan.id)} size="icon" variant="ghost" className="h-12 w-12 rounded-2xl text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100">
+                              <Trash2 className="h-5 w-5" />
+                           </Button>
+                           <Button asChild size="icon" variant="ghost" className="h-12 w-12 rounded-2xl text-slate-300 hover:text-secondary hover:bg-secondary/5 transition-all border border-transparent hover:border-secondary/10">
+                              <Link href={`/${lang}/admin/students/${id}/plans/editor/${plan.id}`}><PencilLine className="h-5 w-5" /></Link>
+                           </Button>
+                        </div>
+                        
+                        <Button asChild className={cn(
+                          "h-14 px-10 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl transition-all active:scale-95 group",
+                          isDraft ? "bg-slate-400 text-white" : "bg-primary text-white hover:bg-secondary shadow-primary/10"
+                        )}>
+                           <Link href={`/${lang}/admin/students/${id}/plans/${plan.id}`} className="flex items-center gap-3">
+                              {t.openMonitor}
+                              {isAr ? <ChevronLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" /> : <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+                           </Link>
+                        </Button>
+                     </div>
+                  </CardContent>
+
+                  {/* Corner Badge for Chic Effect */}
+                  {!isDraft && (
+                    <div className="absolute top-0 right-0 p-1 opacity-20 pointer-events-none group-hover:opacity-100 transition-opacity">
+                       {isCompleted ? <Sparkles className="h-12 w-12 text-green-500 rotate-12" /> : <Zap className="h-12 w-12 text-secondary rotate-12" />}
+                    </div>
+                  )}
+               </Card>
+             );
+           })}
         </div>
       )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deletePlanId} onOpenChange={(val) => !val && setDeletePlanId(null)}>
-        <AlertDialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden bg-white">
-          <div className="bg-red-500 p-8 text-white text-center flex flex-col items-center gap-4">
-             <div className="h-16 w-16 rounded-xl bg-white/20 flex items-center justify-center shadow-xl"><Trash2 className="h-8 w-8 text-white" /></div>
-             <AlertDialogTitle className="text-xl font-black uppercase tracking-tight">{t.confirmDelete}</AlertDialogTitle>
+        <AlertDialogContent className="max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+          <div className="bg-red-500 p-10 text-white text-center flex flex-col items-center gap-5">
+             <div className="h-20 w-20 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl animate-in zoom-in duration-500"><Trash2 className="h-10 w-10 text-white" /></div>
+             <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">{t.confirmDelete}</AlertDialogTitle>
           </div>
-          <div className="p-10 space-y-8 text-center">
-             <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed">{t.confirmDeleteDesc}</AlertDialogDescription>
-             <div className="flex flex-col gap-3">
-               <Button onClick={handleDelete} className="h-14 rounded-xl bg-red-600 text-white font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:bg-red-700 transition-all">
+          <div className="p-10 space-y-10 text-center">
+             <AlertDialogDescription className="text-slate-500 font-bold text-base leading-relaxed">{t.confirmDeleteDesc}</AlertDialogDescription>
+             <div className="flex flex-col gap-4">
+               <Button onClick={handleDelete} className="h-16 rounded-2xl bg-red-600 text-white font-black uppercase tracking-widest shadow-2xl shadow-red-500/30 hover:bg-red-700 transition-all text-sm">
                  {t.yesDelete}
                </Button>
-               <Button variant="ghost" onClick={() => setDeletePlanId(null)} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50">
+               <Button variant="ghost" onClick={() => setDeletePlanId(null)} className="h-14 rounded-2xl font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 text-xs">
                  {t.cancel}
                </Button>
              </div>
@@ -294,6 +358,9 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
       <style jsx global>{`
         .shadow-premium {
           box-shadow: 0 10px 15px -3px rgba(11, 31, 91, 0.03), 0 4px 6px -4px rgba(11, 31, 91, 0.02);
+        }
+        .shadow-glow {
+          box-shadow: 0 0 15px rgba(var(--secondary), 0.5);
         }
       `}</style>
     </div>
