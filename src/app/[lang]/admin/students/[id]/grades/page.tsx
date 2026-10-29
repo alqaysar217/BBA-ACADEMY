@@ -41,7 +41,8 @@ import {
   Save,
   GraduationCap,
   TrendingUp,
-  Info
+  Info,
+  Layers
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -100,11 +101,47 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     date: new Date().toISOString().split('T')[0]
   });
 
-  // Data Fetching
+  // Data Fetching: Student Profile
   const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
   const { data: student, loading: studentLoading } = useDoc(studentRef);
 
-  // Index Fix: Fetch without orderBy and sort in-memory to avoid composite index requirements
+  // Data Fetching: Academic Plans to get subjects and units
+  const plansQuery = useMemo(() => {
+    if (!firestore || !id) return null;
+    return query(
+      collection(firestore, 'academic_plans'),
+      where('studentId', '==', id)
+    );
+  }, [firestore, id]);
+  const { data: plans } = useCollection(plansQuery);
+
+  // Extract available subjects from plans
+  const availableSubjects = useMemo(() => {
+    if (!plans || plans.length === 0) return [];
+    // Combine subjects from all plans or just the latest approved one
+    const latestPlan = plans.find(p => p.status === 'approved') || plans[0];
+    return latestPlan.subjects || [];
+  }, [plans]);
+
+  // Extract available units/topics for the selected subject
+  const availableAssessments = useMemo(() => {
+    if (!formData.subject || availableSubjects.length === 0) return [];
+    const selectedSub = availableSubjects.find((s: any) => 
+      s.nameEn === formData.subject || s.nameAr === formData.subject
+    );
+    if (!selectedSub || !selectedSub.units) return [];
+    
+    const list: string[] = [];
+    selectedSub.units.forEach((unit: any) => {
+      list.push(`${isAr ? 'وحدة:' : 'Unit:'} ${unit.title}`);
+      unit.topics?.forEach((topic: any) => {
+        list.push(topic.title);
+      });
+    });
+    return list;
+  }, [formData.subject, availableSubjects, isAr]);
+
+  // Data Fetching: Grades
   const gradesQuery = useMemo(() => {
     if (!firestore || !id) return null;
     return query(
@@ -291,18 +328,52 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                </div>
                <div className="p-8 space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     {/* Subject Dropdown */}
                      <div className="space-y-2 text-start">
                         <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                           <BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subject}
                         </Label>
-                        <Input value={formData.subject} onChange={(e) => setFormData({...formData, subject: e.target.value})} className="h-12 bg-white border border-slate-200 rounded-xl font-bold" placeholder="e.g. Mathematics" />
+                        <Select value={formData.subject} onValueChange={(v) => setFormData({...formData, subject: v, assessmentName: ''})}>
+                           <SelectTrigger className="h-12 bg-white border border-slate-200 rounded-xl font-bold">
+                              <SelectValue placeholder={isAr ? 'اختر المادة من الخطة' : 'Select subject from plan'} />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-xl max-h-[250px]">
+                              {availableSubjects.map((sub: any, i: number) => (
+                                <SelectItem key={i} value={sub.nameEn || sub.nameAr} className="font-bold py-3">
+                                   {isAr ? (sub.nameAr || sub.nameEn) : (sub.nameEn || sub.nameAr)}
+                                </SelectItem>
+                              ))}
+                              {availableSubjects.length === 0 && (
+                                <div className="p-4 text-center text-[10px] font-bold text-slate-400 uppercase italic">
+                                   {isAr ? 'لا توجد مواد في الخطة' : 'No subjects found in plan'}
+                                </div>
+                              )}
+                           </SelectContent>
+                        </Select>
                      </div>
+
+                     {/* Assessment Dropdown */}
                      <div className="space-y-2 text-start">
                         <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
-                          <ClipboardCheck className="h-3 w-3 text-secondary" /> {t.fields.assessment}
+                          <Layers className="h-3 w-3 text-secondary" /> {t.fields.assessment}
                         </Label>
-                        <Input value={formData.assessmentName} onChange={(e) => setFormData({...formData, assessmentName: e.target.value})} className="h-12 bg-white border border-slate-200 rounded-xl font-bold" placeholder="e.g. Midterm Exam" />
+                        <Select disabled={!formData.subject} value={formData.assessmentName} onValueChange={(v) => setFormData({...formData, assessmentName: v})}>
+                           <SelectTrigger className="h-12 bg-white border border-slate-200 rounded-xl font-bold">
+                              <SelectValue placeholder={isAr ? 'اختر الوحدة أو الدرس' : 'Select unit or topic'} />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-xl max-h-[250px]">
+                              {availableAssessments.map((item, i) => (
+                                <SelectItem key={i} value={item} className="font-bold py-3">
+                                   {item}
+                                </SelectItem>
+                              ))}
+                              <SelectItem value="Final Exam" className="font-black text-primary border-t border-slate-50 mt-2 py-3">
+                                 {isAr ? 'الاختبار النهائي' : 'Final Exam'}
+                              </SelectItem>
+                           </SelectContent>
+                        </Select>
                      </div>
+
                      <div className="space-y-2 text-start">
                         <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                           <TrendingUp className="h-3 w-3 text-secondary" /> {t.fields.score}
