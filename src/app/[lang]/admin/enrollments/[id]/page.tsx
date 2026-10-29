@@ -462,13 +462,15 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       }
 
       // 2. Only if email is sent successfully, record the log in Firestore
+      // NOTE: We avoid nested arrays (attachments: [...]) because Firestore rejects them inside arrays.
+      // We'll store a summary string instead.
       const logEntry = {
         templateId: selectedTemplate.id,
         sentAt: new Date().toISOString(),
         recipient: app.parent1Email,
         subject: selectedTemplate.subject,
         content: finalBody,
-        attachments: allAttachments.map(a => ({ name: a.name, size: a.size })), // Store metadata, not heavy base64
+        attachmentSummary: allAttachments.map(a => a.name).join(', '), // Comply with Firestore by avoiding nested arrays
         sender: user?.email || 'admin',
         smtpMessageId: result.messageId
       };

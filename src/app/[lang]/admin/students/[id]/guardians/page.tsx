@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -329,6 +330,8 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
       }
 
       // Record log in Firestore
+      // NOTE: We avoid nested arrays (attachments: [...]) because Firestore rejects them inside array elements.
+      // We'll store a summary string instead.
       const logEntry = {
         templateId: selectedTemplate.id,
         sentAt: new Date().toISOString(),
@@ -336,6 +339,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
         recipientName: activeRecipient.name,
         subject: selectedTemplate.subject,
         content: finalBody,
+        attachmentSummary: allAttachments.map(a => a.name).join(', '), // Comply with Firestore by avoiding nested arrays
         sender: user?.email || 'admin',
         smtpMessageId: result.messageId
       };
@@ -729,4 +733,3 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
-
