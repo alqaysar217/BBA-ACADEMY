@@ -8,21 +8,38 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { 
   Search, Users, GraduationCap, MapPin, 
   ChevronRight, Filter, Download,
-  CreditCard, BookOpen, User, Wallet
+  CreditCard, BookOpen, User, Wallet,
+  Calendar, X, ArrowUpDown, FileSpreadsheet,
+  CalendarDays, Briefcase
 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
+import { format, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 
 export default function StudentsRegistryPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = use(params);
   const isAr = lang === 'ar';
   const firestore = useFirestore();
+  
+  // States for Filtering
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterProgram, setFilterProgram] = useState('all');
+  const [filterGrade, setFilterGrade] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   const studentsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -33,17 +50,84 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
   const filteredStudents = useMemo(() => {
     if (!students) return [];
-    return students.filter(s => 
-      s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.parent1Name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [students, searchTerm]);
+    return students.filter(s => {
+      // 1. Search filter
+      const matchesSearch = 
+        s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.parentName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // 2. Program filter
+      const matchesProgram = filterProgram === 'all' || s.program === filterProgram;
+
+      // 3. Grade filter
+      const matchesGrade = filterGrade === 'all' || String(s.gradeLevel) === filterGrade;
+
+      // 4. Date range filter
+      let matchesDate = true;
+      if (dateFrom || dateTo) {
+        const joinDate = s.createdAt?.toDate ? s.createdAt.toDate() : null;
+        if (joinDate) {
+          const from = dateFrom ? startOfDay(new Date(dateFrom)) : new Date(0);
+          const to = dateTo ? endOfDay(new Date(dateTo)) : new Date();
+          matchesDate = isWithinInterval(joinDate, { start: from, end: to });
+        } else {
+          matchesDate = false;
+        }
+      }
+
+      return matchesSearch && matchesProgram && matchesGrade && matchesDate;
+    });
+  }, [students, searchTerm, filterProgram, filterGrade, dateFrom, dateTo]);
+
+  const exportToCSV = () => {
+    if (!filteredStudents.length) return;
+    
+    const headers = [
+      isAr ? 'المعرف' : 'ID',
+      isAr ? 'الاسم' : 'Name',
+      isAr ? 'المستوى' : 'Grade',
+      isAr ? 'البرنامج' : 'Program',
+      isAr ? 'الحالة' : 'Status',
+      isAr ? 'الرصيد' : 'Balance',
+      isAr ? 'تاريخ الانضمام' : 'Joined At'
+    ];
+
+    const rows = filteredStudents.map(s => {
+      const balance = (s.financialLedger?.totalDue || 0) - (s.financialLedger?.totalPaid || 0);
+      const joined = s.createdAt?.toDate ? format(s.createdAt.toDate(), 'yyyy-MM-dd') : '-';
+      return [
+        s.id,
+        `${s.firstName} ${s.lastName}`,
+        s.gradeLevel,
+        s.program,
+        s.status,
+        balance,
+        joined
+      ].join(',');
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + rows.join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `BBA_Students_Registry_${format(new Date(), 'yyyyMMdd')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const t = {
     title: isAr ? 'سجل الطلاب النشطين' : 'Active Student Roster',
     searchPlaceholder: isAr ? 'بحث عن طالب، ولي أمر، أو رقم المعرف...' : 'Search student, parent, or ID...',
+    filters: {
+      title: isAr ? 'أدوات الفلترة والبحث' : 'Filter & Search Tools',
+      program: isAr ? 'البرنامج التعليمي' : 'Educational Program',
+      grade: isAr ? 'المستوى الدراسي' : 'Grade Level',
+      from: isAr ? 'من تاريخ' : 'From Date',
+      to: isAr ? 'إلى تاريخ' : 'To Date',
+      all: isAr ? 'الكل' : 'All'
+    },
     table: {
       student: isAr ? 'هوية الطالب' : 'Student Identity',
       level: isAr ? 'المستوى' : 'Level',
@@ -55,62 +139,159 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      {/* Toolbar */}
-      <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col lg:flex-row justify-between items-center gap-6">
-         <div className="relative w-full lg:max-w-md group">
-            <Search className={cn("absolute top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-colors group-focus-within:text-secondary", isAr ? "right-4" : "left-4")} />
-            <Input 
-               placeholder={t.searchPlaceholder} 
-               className={cn("h-14 bg-slate-50 border-none font-bold focus:bg-white focus:ring-2 focus:ring-secondary/20 transition-all rounded-xl", isAr ? "pr-12" : "pl-12")}
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-            />
-         </div>
-         <div className="flex gap-3 w-full lg:w-auto">
-            <Button variant="outline" className="h-14 flex-1 lg:flex-none rounded-xl px-6 border-slate-200 font-black gap-2 hover:bg-slate-50 uppercase text-[10px] tracking-widest">
-               <Filter className="h-4 w-4 text-secondary" /> {isAr ? 'فلترة' : 'Filters'}
-            </Button>
-            <Button variant="outline" className="h-14 flex-1 lg:flex-none rounded-xl px-6 border-slate-200 font-black gap-2 hover:bg-slate-50 uppercase text-[10px] tracking-widest">
-               <Download className="h-4 w-4 text-secondary" /> {isAr ? 'تصدير' : 'Export'}
-            </Button>
-         </div>
-      </div>
+      
+      {/* 1. Integrated Filter Bar */}
+      <Card className="border-none shadow-premium bg-white rounded-2xl overflow-hidden border border-slate-100">
+         <div className="p-4 md:p-6 space-y-6">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+               <div className="relative w-full lg:max-w-md group">
+                  <Search className={cn("absolute top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-colors group-focus-within:text-secondary", isAr ? "right-4" : "left-4")} />
+                  <Input 
+                     placeholder={t.searchPlaceholder} 
+                     className={cn("h-14 bg-slate-50 border-none font-bold focus:bg-white focus:ring-2 focus:ring-secondary/20 transition-all rounded-xl", isAr ? "pr-12" : "pl-12")}
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+               </div>
+               <div className="flex gap-3 w-full lg:w-auto">
+                  <Button 
+                    variant={isFilterVisible ? "secondary" : "outline"} 
+                    onClick={() => setIsFilterVisible(!isFilterVisible)}
+                    className="h-14 flex-1 lg:flex-none rounded-xl px-6 border-slate-200 font-black gap-2 uppercase text-[10px] tracking-widest transition-all"
+                  >
+                     <Filter className="h-4 w-4" /> {isAr ? 'تخصيص الفلترة' : 'Advanced Filters'}
+                  </Button>
+                  <Button 
+                    onClick={exportToCSV}
+                    variant="outline" 
+                    className="h-14 flex-1 lg:flex-none rounded-xl px-6 border-slate-200 font-black gap-2 hover:bg-slate-900 hover:text-white uppercase text-[10px] tracking-widest transition-all"
+                  >
+                     <Download className="h-4 w-4" /> {isAr ? 'تصدير' : 'Export (CSV)'}
+                  </Button>
+               </div>
+            </div>
 
-      {/* Registry Table */}
+            {/* Expandable Filter Grid */}
+            {isFilterVisible && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-500">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                       <Briefcase className="h-3.5 w-3.5 text-secondary" /> {t.filters.program}
+                    </Label>
+                    <Select value={filterProgram} onValueChange={setFilterProgram}>
+                       <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
+                          <SelectValue placeholder={t.filters.all} />
+                       </SelectTrigger>
+                       <SelectContent>
+                          <SelectItem value="all">{t.filters.all}</SelectItem>
+                          <SelectItem value="grades-3-5">Foundation 3-5</SelectItem>
+                          <SelectItem value="grades-6-12">Academics 6-12</SelectItem>
+                          <SelectItem value="weekend">Weekend Remote</SelectItem>
+                       </SelectContent>
+                    </Select>
+                 </div>
+
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                       <GraduationCap className="h-3.5 w-3.5 text-secondary" /> {t.filters.grade}
+                    </Label>
+                    <Select value={filterGrade} onValueChange={setFilterGrade}>
+                       <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
+                          <SelectValue placeholder={t.filters.all} />
+                       </SelectTrigger>
+                       <SelectContent>
+                          <SelectItem value="all">{t.filters.all}</SelectItem>
+                          {['3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map(g => (
+                            <SelectItem key={g} value={g}>Grade {g}</SelectItem>
+                          ))}
+                       </SelectContent>
+                    </Select>
+                 </div>
+
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                       <CalendarDays className="h-3.5 w-3.5 text-secondary" /> {t.filters.from}
+                    </Label>
+                    <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold text-xs uppercase" />
+                 </div>
+
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                       <CalendarDays className="h-3.5 w-3.5 text-secondary" /> {t.filters.to}
+                    </Label>
+                    <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-12 bg-slate-50 border-none rounded-xl font-bold text-xs uppercase" />
+                 </div>
+              </div>
+            )}
+         </div>
+      </Card>
+
+      {/* 2. Enhanced Registry Table */}
       <Card className="border-none shadow-premium rounded-3xl bg-white overflow-hidden border border-slate-100">
          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full border-collapse min-w-[900px]">
+            <table className="w-full border-collapse min-w-[1000px]">
                <thead>
-                  <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
-                     <th className="px-10 py-6 text-start">{t.table.student}</th>
-                     <th className="px-10 py-6 text-center">{t.table.level}</th>
-                     <th className="px-10 py-6 text-center">{t.table.program}</th>
-                     <th className="px-10 py-6 text-center">{t.table.status}</th>
-                     <th className="px-10 py-6 text-center">{t.table.balance}</th>
-                     <th className="px-10 py-6 text-end"></th>
+                  <tr className="bg-slate-900 text-white border-b border-white/5">
+                     <th className="px-8 py-6 text-start font-black uppercase text-[11px] tracking-[0.2em] border-r border-white/5">
+                        <div className="flex items-center gap-2">
+                           <User className="h-4 w-4 text-secondary" />
+                           {t.table.student}
+                        </div>
+                     </th>
+                     <th className="px-8 py-6 text-center font-black uppercase text-[11px] tracking-[0.2em] border-r border-white/5">
+                        <div className="flex items-center justify-center gap-2">
+                           <GraduationCap className="h-4 w-4 text-secondary" />
+                           {t.table.level}
+                        </div>
+                     </th>
+                     <th className="px-8 py-6 text-center font-black uppercase text-[11px] tracking-[0.2em] border-r border-white/5">
+                        <div className="flex items-center justify-center gap-2">
+                           <Briefcase className="h-4 w-4 text-secondary" />
+                           {t.table.program}
+                        </div>
+                     </th>
+                     <th className="px-8 py-6 text-center font-black uppercase text-[11px] tracking-[0.2em] border-r border-white/5">
+                        {t.table.status}
+                     </th>
+                     <th className="px-8 py-6 text-center font-black uppercase text-[11px] tracking-[0.2em]">
+                        <div className="flex items-center justify-center gap-2">
+                           <Wallet className="h-4 w-4 text-secondary" />
+                           {t.table.balance}
+                        </div>
+                     </th>
+                     <th className="px-8 py-6 w-16 bg-slate-900"></th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-slate-50">
+               <tbody className="divide-y divide-slate-100">
                   {loading ? (
                     [1,2,3,4,5].map(i => <tr key={i} className="animate-pulse"><td colSpan={6} className="h-24 bg-slate-50/50" /></tr>)
                   ) : filteredStudents.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-32 text-center space-y-4">
-                        <Users className="h-16 w-16 text-slate-100 mx-auto" />
-                        <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{isAr ? 'لا يوجد طلاب مطابقين للبحث' : 'No students matching your search'}</p>
+                        <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto shadow-inner">
+                           <Users className="h-10 w-10 text-slate-100" />
+                        </div>
+                        <div className="space-y-1">
+                           <p className="text-slate-400 font-black uppercase text-xs tracking-widest">No students matching these criteria</p>
+                           <p className="text-[10px] font-bold text-slate-300 uppercase italic">Try adjusting your filters or search term</p>
+                        </div>
                       </td>
                     </tr>
                   ) : filteredStudents.map((student: any) => {
                     const balance = (student.financialLedger?.totalDue || 0) - (student.financialLedger?.totalPaid || 0);
-                    // Force English Numerals for balance and IDs
+                    // Force English Numerals (en-US locale)
                     const balanceStr = balance.toLocaleString('en-US');
                     const profileImg = student.photoURL || (student.gender === 'Female' ? '/Female.png' : '/Male.png');
                     
                     return (
-                      <tr key={student.id} className="hover:bg-slate-50/60 transition-all group cursor-pointer" onClick={() => window.location.href=`/${lang}/admin/students/${student.id}`}>
-                         <td className="px-10 py-6">
+                      <tr 
+                         key={student.id} 
+                         className="hover:bg-slate-50/60 transition-all group cursor-pointer" 
+                         onClick={() => window.location.href=`/${lang}/admin/students/${student.id}`}
+                      >
+                         <td className="px-8 py-6 border-r border-slate-50">
                             <div className="flex items-center gap-5">
-                               <div className="h-14 w-14 rounded-2xl overflow-hidden border-2 border-white shadow-lg bg-slate-100 shrink-0 relative group-hover:scale-105 transition-transform duration-500">
+                               <div className="h-16 w-16 rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-slate-50 shrink-0 relative group-hover:scale-110 transition-transform duration-700 ring-1 ring-slate-100">
                                   <Image 
                                     src={profileImg} 
                                     alt={student.firstName} 
@@ -119,49 +300,54 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                                     unoptimized
                                   />
                                </div>
-                               <div className="min-w-0">
-                                  <p className="text-base font-black text-slate-900 leading-tight uppercase truncate">{student.firstName} {student.lastName}</p>
-                                  <p className="text-[10px] font-bold text-slate-400 font-mono tracking-widest mt-1">ID: {student.id?.toUpperCase()}</p>
+                               <div className="min-w-0 space-y-1">
+                                  <p className="text-base font-black text-slate-900 leading-tight uppercase truncate transition-colors group-hover:text-primary">{student.firstName} {student.lastName}</p>
+                                  <div className="flex items-center gap-2">
+                                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">REF:</span>
+                                     <span className="text-[11px] font-black text-secondary font-mono tracking-tighter">{student.id?.toUpperCase()}</span>
+                                  </div>
                                </div>
                             </div>
                          </td>
-                         <td className="px-10 py-6 text-center">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 rounded-lg border border-primary/10">
-                               <GraduationCap className="h-3 w-3 text-secondary" />
-                               <span className="text-xs font-black text-primary uppercase">Grade {student.gradeLevel}</span>
+                         <td className="px-8 py-6 text-center border-r border-slate-50">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 shadow-inner group-hover:bg-white transition-colors">
+                               <span className="text-sm font-black text-primary font-mono tracking-tighter">Grade {student.gradeLevel}</span>
                             </div>
                          </td>
-                         <td className="px-10 py-6 text-center">
-                            <Badge variant="outline" className="rounded-lg bg-secondary/5 border-none font-black text-[9px] uppercase tracking-widest px-3 py-1 text-secondary">
+                         <td className="px-8 py-6 text-center border-r border-slate-50">
+                            <Badge variant="outline" className="rounded-lg bg-secondary/5 border-none font-black text-[9px] uppercase tracking-widest px-4 py-1.5 text-secondary shadow-sm">
                                {student.program || student.programOption || '-'}
                             </Badge>
                          </td>
-                         <td className="px-10 py-6 text-center">
+                         <td className="px-8 py-6 text-center border-r border-slate-50">
                             <Badge className={cn(
-                              "rounded-lg border-none font-black text-[9px] uppercase tracking-widest px-4 py-1.5 shadow-sm",
+                              "rounded-lg border-none font-black text-[9px] uppercase tracking-widest px-5 py-2 shadow-sm",
                               student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
                             )}>
                                {student.status || 'active'}
                             </Badge>
                          </td>
-                         <td className="px-10 py-6 text-center">
-                            <div className="inline-flex flex-col items-center gap-1">
-                               <div className="flex items-center gap-1.5 text-primary">
-                                  <Wallet className="h-3 w-3 opacity-30" />
-                                  <span className="text-sm font-black tracking-tight">${balanceStr}</span>
+                         <td className="px-8 py-6 text-center">
+                            <div className="inline-flex flex-col items-center gap-2">
+                               <div className="flex items-center gap-2 text-primary">
+                                  <span className="text-[10px] font-bold opacity-30">$</span>
+                                  <span className="text-lg font-black tracking-tighter font-mono">{balanceStr}</span>
                                 </div>
-                                <div className="h-1 w-16 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-1.5 w-20 bg-slate-100 rounded-full overflow-hidden shadow-inner">
                                   <div 
-                                    className="h-full bg-secondary transition-all duration-1000" 
+                                    className={cn(
+                                       "h-full transition-all duration-1000",
+                                       balance === 0 ? "bg-green-500" : "bg-secondary"
+                                    )} 
                                     style={{ width: `${Math.min(100, ((student.financialLedger?.totalPaid || 0) / (student.financialLedger?.totalDue || 1)) * 100)}%` }} 
                                   />
                                 </div>
                             </div>
                          </td>
-                         <td className="px-10 py-6 text-end">
-                            <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                               <ChevronRight className={cn("h-5 w-5 text-slate-300 group-hover:text-white", isAr && "rotate-180")} />
-                            </Button>
+                         <td className="px-8 py-6 text-end">
+                            <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-200 group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                               <ChevronRight className={cn("h-6 w-6", isAr && "rotate-180")} />
+                            </div>
                          </td>
                       </tr>
                     );
@@ -171,19 +357,46 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
          </div>
       </Card>
 
+      {/* 3. Footer Stats / Data Matrix Info */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+         <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center"><FileSpreadsheet className="h-4 w-4 text-slate-300" /></div>
+            <span>{isAr ? 'إجمالي السجلات المفلترة:' : 'Total Filtered Records:'} {filteredStudents.length}</span>
+         </div>
+         <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+               {isAr ? 'نظام المزامنة الذكي مفعل' : 'Smart Sync Active'}
+            </div>
+            <div className="flex items-center gap-2">
+               <CreditCard className="h-3 w-3 text-secondary" />
+               {isAr ? 'المبالغ بالأرقام الإنجليزية' : 'English Numeral Formatting'}
+            </div>
+         </div>
+      </div>
+
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-          height: 8px;
+          height: 10px;
+          width: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: #f8fafc;
+          border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #e2e8f0;
           border-radius: 10px;
+          border: 2px solid #f8fafc;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #cbd5e1;
         }
       `}</style>
     </div>
   );
 }
 
+const Label = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+  <label className={cn("block", className)}>{children}</label>
+);
