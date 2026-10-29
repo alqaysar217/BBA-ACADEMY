@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -37,7 +36,6 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
   
   // States for Filtering & Sorting
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterName, setFilterName] = useState('');
   const [filterProgram, setFilterProgram] = useState('all');
   const [filterGrade, setFilterGrade] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
@@ -63,9 +61,6 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
         s.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.id?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesSpecificName = !filterName || 
-        `${s.firstName} ${s.lastName}`.toLowerCase().includes(filterName.toLowerCase());
-
       const matchesProgram = filterProgram === 'all' || s.program === filterProgram;
 
       const matchesGrade = filterGrade === 'all' || String(s.gradeLevel) === filterGrade;
@@ -82,7 +77,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
         }
       }
 
-      return matchesSearch && matchesSpecificName && matchesProgram && matchesGrade && matchesDate;
+      return matchesSearch && matchesProgram && matchesGrade && matchesDate;
     });
 
     // 2. Sorting Logic
@@ -94,7 +89,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
     // 'newest' is already the base order from Firestore query, filter preserves it
 
     return result;
-  }, [students, searchTerm, filterName, filterProgram, filterGrade, dateFrom, dateTo, sortOrder]);
+  }, [students, searchTerm, filterProgram, filterGrade, dateFrom, dateTo, sortOrder]);
 
   const exportToCSV = () => {
     if (!filteredAndSortedStudents.length) return;
@@ -137,7 +132,6 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
     searchPlaceholder: isAr ? 'بحث سريع باسم الطالب أو المعرف...' : 'Search student name or ID...',
     filters: {
       title: isAr ? 'أدوات الفلترة والبحث' : 'Filter & Search Tools',
-      name: isAr ? 'فلترة حسب الاسم' : 'Filter by Name',
       program: isAr ? 'البرنامج التعليمي' : 'Educational Program',
       grade: isAr ? 'المستوى الدراسي' : 'Grade Level',
       from: isAr ? 'من تاريخ' : 'From Date',
@@ -198,19 +192,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
             {/* Expandable Filter Grid */}
             {isFilterVisible && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-500">
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                       <UserSearch className="h-3.5 w-3.5 text-secondary" /> {t.filters.name}
-                    </Label>
-                    <Input 
-                       value={filterName} 
-                       onChange={(e) => setFilterName(e.target.value)}
-                       className="h-12 bg-slate-50 border-none rounded-xl font-bold text-xs"
-                       placeholder={isAr ? "اكتب الاسم..." : "Type name..."}
-                    />
-                 </div>
-
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-500">
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                        <Briefcase className="h-3.5 w-3.5 text-secondary" /> {t.filters.program}
@@ -417,7 +399,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
       </Card>
 
       {/* 3. Footer Stats / Data Matrix Info */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-6 rounded-2xl shadow-sm border border-slate-100 shrink-0">
          <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center"><FileSpreadsheet className="h-4 w-4 text-slate-300" /></div>
             <span>{isAr ? 'إجمالي السجلات المفلترة:' : 'Total Filtered Records:'} {filteredAndSortedStudents.length}</span>
