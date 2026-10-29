@@ -95,7 +95,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
       email: isAr ? 'البريد الإلكتروني' : 'Email Address',
       grade: isAr ? 'الصف الدراسي' : 'Grade Level',
       status: isAr ? 'الحالة' : 'Status',
-      addr1: isAr ? 'العنوان' : 'Address',
+      addr1: isAr ? 'العنوان (السطر 1)' : 'Address Line 1',
+      addr2: isAr ? 'العنوان (السطر 2)' : 'Address Line 2',
       city: isAr ? 'المدينة' : 'City',
       state: isAr ? 'الولاية' : 'State',
       zip: isAr ? 'الرمز البريدي' : 'ZIP',
@@ -321,6 +322,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
               <DataField label={t.fields.program} path="program" icon={Briefcase} />
               <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} className="sm:col-span-1 md:col-span-3" />
               
+              <DataField label={t.fields.addr2} path="address.line2" icon={MapPin} />
               <DataField label={t.fields.city} path="address.city" icon={Building} />
               <DataField label={t.fields.state} path="address.state" icon={MapPin} />
               <DataField label={t.fields.zip} path="address.zip" icon={Hash} />
@@ -371,3 +373,4 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
+
