@@ -297,38 +297,51 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   };
 
   const handlePrint = (planId: string) => {
-    const printContent = document.getElementById(`printable-report-${planId}`);
-    if (!printContent) return;
+    const reportEl = document.getElementById(`printable-report-${planId}`);
+    if (!reportEl) return;
 
-    // Create a temporary style for printing
-    const style = document.createElement('style');
-    style.id = 'print-special-styles';
+    // Inject temporary print styles directly to ensure the report is visible and everything else is hidden
+    const styleId = 'print-engine-styles';
+    let style = document.getElementById(styleId) as HTMLStyleElement;
+    if (!style) {
+      style = document.createElement('style');
+      style.id = styleId;
+      document.head.appendChild(style);
+    }
+
     style.innerHTML = `
       @media print {
-        @page { size: portrait; margin: 1cm; }
-        body * { visibility: hidden; }
+        @page { size: portrait; margin: 0; }
+        body * { visibility: hidden !important; overflow: visible !important; }
         #printable-report-${planId}, #printable-report-${planId} * { visibility: visible !important; }
         #printable-report-${planId} {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-          min-height: 100vh;
+          position: fixed !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 210mm !important;
+          height: 297mm !important;
+          margin: 0 !important;
+          padding: 15mm !important;
           background: white !important;
-          z-index: 99999;
-          display: block !important;
+          z-index: 9999999 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          box-sizing: border-box !important;
         }
-        main, header, nav, footer, button, .dialog-overlay, [role="dialog"] { display: none !important; }
+        /* Ensure specific print adjustments for text and layout */
+        .print-only-block { display: block !important; }
+        button, nav, header, footer, .dialog-overlay, [role="dialog"] { display: none !important; }
       }
     `;
-    document.head.appendChild(style);
 
-    // Give time for UI to update (though dialog state might need to be handled)
     setIsPrintDialogOpen(false);
+    
+    // Execute print
     setTimeout(() => {
       window.print();
-      document.getElementById('print-special-styles')?.remove();
-    }, 300);
+      // Clean up after print dialog closes
+      style.innerHTML = '';
+    }, 500);
   };
 
   if (studentLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
@@ -669,7 +682,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                  </AccordionContent>
 
                  {/* PRINTABLE TRANSCRIPT COMPONENT (OFFICIAL A4 PORTRAIT) */}
-                 <div id={`printable-report-${plan.id}`} className="hidden" dir="ltr">
+                 <div id={`printable-report-${plan.id}`} className="hidden print-only-block" dir="ltr">
                     <div className="flex flex-col h-full bg-white text-slate-900 text-center p-12 leading-normal font-serif">
                        {/* Official Bilingual Header */}
                        <div className="mb-8">
@@ -775,7 +788,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                      <td className="border-r-2 border-slate-200 font-black uppercase text-[10px] text-primary">{t.report.rowTotal}</td>
                                      {plan.subjects.map((sub: any, sIdx: number) => {
                                         const grades = planGradesRaw.filter(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr));
-                                        // Simple logic: if final exists, use it, else use monthly
                                         const relevant = grades.find(g => g.reportType === printType) || grades[0];
                                         const pct = relevant ? Math.round((Number(relevant.score) / Number(relevant.totalScore)) * 100) : null;
                                         return (
