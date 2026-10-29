@@ -194,10 +194,10 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-20">
+    <div className="max-w-6xl mx-auto space-y-6 pb-20 px-4 sm:px-6">
       <NavigationBar />
 
-      <div className="flex items-center justify-between px-2">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-2">
         <Button variant="ghost" onClick={() => router.back()} className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest p-0">
           {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           {t.back}
