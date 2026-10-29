@@ -10,7 +10,8 @@ import {
   ChevronRight, Filter, Download,
   CreditCard, BookOpen, User, Wallet,
   Calendar, X, ArrowUpDown, FileSpreadsheet,
-  CalendarDays, Briefcase, UserSearch
+  CalendarDays, Briefcase, UserSearch,
+  SortAsc, SortDesc, Clock
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -34,13 +35,14 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
   const isAr = lang === 'ar';
   const firestore = useFirestore();
   
-  // States for Filtering
+  // States for Filtering & Sorting
   const [searchTerm, setSearchTerm] = useState('');
   const [filterName, setFilterName] = useState('');
   const [filterProgram, setFilterProgram] = useState('all');
   const [filterGrade, setFilterGrade] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'name-asc' | 'name-desc'>('newest');
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   // Query ordered by creation time descending (Last added on top)
@@ -51,26 +53,23 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
   const { data: students, loading } = useCollection(studentsQuery);
 
-  const filteredStudents = useMemo(() => {
+  const filteredAndSortedStudents = useMemo(() => {
     if (!students) return [];
-    return students.filter(s => {
-      // 1. Main Search filter (Global)
+    
+    // 1. Filtering Logic
+    let result = students.filter(s => {
       const matchesSearch = 
         s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.id?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // 2. Specific Name filter
       const matchesSpecificName = !filterName || 
         `${s.firstName} ${s.lastName}`.toLowerCase().includes(filterName.toLowerCase());
 
-      // 3. Program filter
       const matchesProgram = filterProgram === 'all' || s.program === filterProgram;
 
-      // 4. Grade filter
       const matchesGrade = filterGrade === 'all' || String(s.gradeLevel) === filterGrade;
 
-      // 5. Date range filter
       let matchesDate = true;
       if (dateFrom || dateTo) {
         const joinDate = s.createdAt?.toDate ? s.createdAt.toDate() : null;
@@ -85,10 +84,20 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
       return matchesSearch && matchesSpecificName && matchesProgram && matchesGrade && matchesDate;
     });
-  }, [students, searchTerm, filterName, filterProgram, filterGrade, dateFrom, dateTo]);
+
+    // 2. Sorting Logic
+    if (sortOrder === 'name-asc') {
+      result.sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`));
+    } else if (sortOrder === 'name-desc') {
+      result.sort((a, b) => `${b.firstName} ${b.lastName}`.localeCompare(`${a.firstName} ${a.lastName}`));
+    }
+    // 'newest' is already the base order from Firestore query, filter preserves it
+
+    return result;
+  }, [students, searchTerm, filterName, filterProgram, filterGrade, dateFrom, dateTo, sortOrder]);
 
   const exportToCSV = () => {
-    if (!filteredStudents.length) return;
+    if (!filteredAndSortedStudents.length) return;
     
     const headers = [
       isAr ? 'المعرف' : 'ID',
@@ -100,7 +109,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
       isAr ? 'تاريخ الانضمام' : 'Joined At'
     ];
 
-    const rows = filteredStudents.map(s => {
+    const rows = filteredAndSortedStudents.map(s => {
       const balance = (s.financialLedger?.totalDue || 0) - (s.financialLedger?.totalPaid || 0);
       const joined = s.createdAt?.toDate ? format(s.createdAt.toDate(), 'yyyy-MM-dd') : '-';
       return [
@@ -133,7 +142,11 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
       grade: isAr ? 'المستوى الدراسي' : 'Grade Level',
       from: isAr ? 'من تاريخ' : 'From Date',
       to: isAr ? 'إلى تاريخ' : 'To Date',
-      all: isAr ? 'الكل' : 'All'
+      all: isAr ? 'الكل' : 'All',
+      sort: isAr ? 'ترتيب حسب' : 'Sort By',
+      newest: isAr ? 'المضاف حديثاً' : 'Newest First',
+      nameAsc: isAr ? 'الاسم (أ-ي)' : 'Name (A-Z)',
+      nameDesc: isAr ? 'الاسم (ي-أ)' : 'Name (Z-A)',
     },
     table: {
       student: isAr ? 'هوية الطالب' : 'Student Identity',
@@ -142,6 +155,11 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
       status: isAr ? 'الحالة' : 'Status',
       balance: isAr ? 'الرصيد' : 'Balance'
     }
+  };
+
+  const toggleNameSort = () => {
+    if (sortOrder === 'name-asc') setSortOrder('name-desc');
+    else setSortOrder('name-asc');
   };
 
   return (
@@ -180,7 +198,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
             {/* Expandable Filter Grid */}
             {isFilterVisible && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-500">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-500">
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                        <UserSearch className="h-3.5 w-3.5 text-secondary" /> {t.filters.name}
@@ -220,9 +238,25 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                        </SelectTrigger>
                        <SelectContent>
                           <SelectItem value="all">{t.filters.all}</SelectItem>
-                          {['3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map(g => (
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map(g => (
                             <SelectItem key={g} value={g}>Grade {g}</SelectItem>
                           ))}
+                       </SelectContent>
+                    </Select>
+                 </div>
+
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                       <ArrowUpDown className="h-3.5 w-3.5 text-secondary" /> {t.filters.sort}
+                    </Label>
+                    <Select value={sortOrder} onValueChange={(v: any) => setSortOrder(v)}>
+                       <SelectTrigger className="h-12 bg-slate-50 border-none rounded-xl font-bold">
+                          <SelectValue />
+                       </SelectTrigger>
+                       <SelectContent>
+                          <SelectItem value="newest" className="font-bold text-xs"><div className="flex items-center gap-2"><Clock className="h-3 w-3" /> {t.filters.newest}</div></SelectItem>
+                          <SelectItem value="name-asc" className="font-bold text-xs"><div className="flex items-center gap-2"><SortAsc className="h-3 w-3" /> {t.filters.nameAsc}</div></SelectItem>
+                          <SelectItem value="name-desc" className="font-bold text-xs"><div className="flex items-center gap-2"><SortDesc className="h-3 w-3" /> {t.filters.nameDesc}</div></SelectItem>
                        </SelectContent>
                     </Select>
                  </div>
@@ -251,10 +285,16 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
             <table className="w-full border-collapse min-w-[1000px]">
                <thead>
                   <tr className="bg-slate-900 text-white border-b border-white/5">
-                     <th className="px-8 py-6 text-start font-black uppercase text-[11px] tracking-[0.2em] border-r border-white/5">
-                        <div className="flex items-center gap-2">
-                           <User className="h-4 w-4 text-secondary" />
-                           {t.table.student}
+                     <th 
+                        className="px-8 py-6 text-start font-black uppercase text-[11px] tracking-[0.2em] border-r border-white/5 cursor-pointer hover:bg-slate-800 transition-colors group"
+                        onClick={toggleNameSort}
+                     >
+                        <div className="flex items-center justify-between gap-2">
+                           <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-secondary" />
+                              {t.table.student}
+                           </div>
+                           <ArrowUpDown className={cn("h-3 w-3 transition-opacity", sortOrder.startsWith('name') ? "opacity-100" : "opacity-30 group-hover:opacity-100")} />
                         </div>
                      </th>
                      <th className="px-8 py-6 text-center font-black uppercase text-[11px] tracking-[0.2em] border-r border-white/5">
@@ -284,7 +324,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                <tbody className="divide-y divide-slate-100">
                   {loading ? (
                     [1,2,3,4,5].map(i => <tr key={i} className="animate-pulse"><td colSpan={6} className="h-24 bg-slate-50/50" /></tr>)
-                  ) : filteredStudents.length === 0 ? (
+                  ) : filteredAndSortedStudents.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-32 text-center space-y-4">
                         <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto shadow-inner">
@@ -296,7 +336,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
                         </div>
                       </td>
                     </tr>
-                  ) : filteredStudents.map((student: any) => {
+                  ) : filteredAndSortedStudents.map((student: any) => {
                     const balance = (student.financialLedger?.totalDue || 0) - (student.financialLedger?.totalPaid || 0);
                     // Force English Numerals (en-US locale)
                     const balanceStr = balance.toLocaleString('en-US');
@@ -380,12 +420,12 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
          <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center"><FileSpreadsheet className="h-4 w-4 text-slate-300" /></div>
-            <span>{isAr ? 'إجمالي السجلات المفلترة:' : 'Total Filtered Records:'} {filteredStudents.length}</span>
+            <span>{isAr ? 'إجمالي السجلات المفلترة:' : 'Total Filtered Records:'} {filteredAndSortedStudents.length}</span>
          </div>
          <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-               {isAr ? 'مرتب حسب الإضافة الأحدث' : 'Sorted by Latest Addition'}
+               {isAr ? 'فرز ذكي نشط' : 'Smart Sorting Active'}
             </div>
             <div className="flex items-center gap-2">
                <CreditCard className="h-3 w-3 text-secondary" />
