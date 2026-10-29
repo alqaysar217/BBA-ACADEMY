@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -18,6 +17,7 @@ import {
 import { 
   ClipboardCheck, 
   User, 
+  Users,
   CreditCard, 
   BookOpen, 
   ChevronLeft, 
@@ -103,8 +103,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
   const availableSubjects = useMemo(() => {
     if (!plans || plans.length === 0) return [];
-    const latestPlan = plans.find(p => p.status === 'approved') || plans[0];
-    return latestPlan.subjects || [];
+    // Try to find the approved/active plan first
+    const activePlan = plans.find(p => p.status === 'approved' || p.status === 'in_progress') || plans[0];
+    return activePlan.subjects || [];
   }, [plans]);
 
   const assessmentTypes = [
@@ -123,6 +124,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   }, [firestore, id]);
   const { data: rawGrades, loading: gradesLoading } = useCollection(gradesQuery);
 
+  // Sorting in memory to avoid missing index errors during testing
   const grades = useMemo(() => {
     if (!rawGrades) return [];
     return [...rawGrades].sort((a: any, b: any) => {
@@ -228,12 +230,21 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
   const handleDelete = async () => {
     if (!firestore || !deleteId) return;
-    await deleteDoc(doc(firestore, 'grades', deleteId));
-    toast({ title: isAr ? 'تم الحذف' : 'Deleted' });
-    setDeleteId(null);
+    try {
+      await deleteDoc(doc(firestore, 'grades', deleteId));
+      toast({ title: isAr ? 'تم الحذف بنجاح' : 'Deleted successfully' });
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Error deleting grade' });
+    } finally {
+      setDeleteId(null);
+    }
   };
 
-  if (studentLoading || !student) return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  if (studentLoading || !student) return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4">
@@ -241,7 +252,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
          <div className="flex items-center gap-5 text-start w-full md:w-auto">
-            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-100"><ChevronLeft className={cn("h-5 w-5", isAr && "rotate-180")} /></Button>
+            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-100">
+              <ChevronLeft className={cn("h-5 w-5", isAr && "rotate-180")} />
+            </Button>
             <div className="space-y-0.5">
                <h1 className="text-xl font-black text-primary uppercase tracking-tight">{t.title} — {student.firstName}</h1>
                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Academic Matrix Hub</p>
@@ -261,23 +274,29 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                <div className="p-8 space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <div className="space-y-2 text-start">
-                        <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2"><Globe className="h-3 w-3 text-secondary" /> {t.fields.subject}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
+                          <Globe className="h-3 w-3 text-secondary" /> {t.fields.subject}
+                        </Label>
                         <Select value={formData.subject} onValueChange={(v) => setFormData({...formData, subject: v})}>
-                           <SelectTrigger className="h-12 border border-slate-200 rounded-xl font-bold">
+                           <SelectTrigger className="h-12 border border-slate-200 rounded-xl font-bold bg-white">
                               <SelectValue placeholder={isAr ? 'اختر المادة' : 'Select Subject'} />
                            </SelectTrigger>
                            <SelectContent className="max-h-[250px]">
                               {availableSubjects.map((sub: any, i: number) => (
-                                <SelectItem key={i} value={sub.nameEn || sub.nameAr} className="font-bold py-3">{isAr ? (sub.nameAr || sub.nameEn) : (sub.nameEn || sub.nameAr)}</SelectItem>
+                                <SelectItem key={i} value={sub.nameEn || sub.nameAr} className="font-bold py-3">
+                                  {isAr ? (sub.nameAr || sub.nameEn) : (sub.nameEn || sub.nameAr)}
+                                </SelectItem>
                               ))}
                            </SelectContent>
                         </Select>
                      </div>
                      <div className="space-y-2 text-start">
-                        <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2"><Layers className="h-3 w-3 text-secondary" /> {t.fields.assessment}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
+                          <Layers className="h-3 w-3 text-secondary" /> {t.fields.assessment}
+                        </Label>
                         <Select value={formData.assessmentName} onValueChange={(v) => setFormData({...formData, assessmentName: v})}>
-                           <SelectTrigger className="h-12 border border-slate-200 rounded-xl font-bold">
-                              <SelectValue placeholder={isAr ? 'نوع الاختبار' : 'Exam Type'} />
+                           <SelectTrigger className="h-12 border border-slate-200 rounded-xl font-bold bg-white">
+                              <SelectValue placeholder={isAr ? 'نوع التقييم' : 'Assessment Type'} />
                            </SelectTrigger>
                            <SelectContent>
                               {assessmentTypes.map(type => (
@@ -297,20 +316,20 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                      <div className="space-y-2 text-start">
                         <Label className="text-[10px] font-black uppercase text-slate-500">{t.fields.term}</Label>
                         <Select value={formData.term} onValueChange={(v) => setFormData({...formData, term: v})}>
-                           <SelectTrigger className="h-12 border border-slate-200 rounded-xl font-bold"><SelectValue /></SelectTrigger>
+                           <SelectTrigger className="h-12 border border-slate-200 rounded-xl font-bold bg-white"><SelectValue /></SelectTrigger>
                            <SelectContent>
-                              <SelectItem value="First Semester" className="font-bold py-3">{isAr ? 'الفصل الأول' : '1st Term'}</SelectItem>
-                              <SelectItem value="Second Semester" className="font-bold py-3">{isAr ? 'الفصل الثاني' : '2nd Term'}</SelectItem>
-                              <SelectItem value="Summer Term" className="font-bold py-3">{isAr ? 'الفصل الصيفي' : 'Summer'}</SelectItem>
+                              <SelectItem value="First Semester" className="font-bold py-3">{isAr ? 'الفصل الدراسي الأول' : 'First Semester'}</SelectItem>
+                              <SelectItem value="Second Semester" className="font-bold py-3">{isAr ? 'الفصل الدراسي الثاني' : 'Second Semester'}</SelectItem>
+                              <SelectItem value="Summer Term" className="font-bold py-3">{isAr ? 'الفصل الصيفي' : 'Summer Term'}</SelectItem>
                            </SelectContent>
                         </Select>
                      </div>
                      <div className="space-y-2 text-start">
                         <Label className="text-[10px] font-black uppercase text-slate-500">{t.fields.date}</Label>
-                        <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="h-12 border border-slate-200 rounded-xl font-bold" />
+                        <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="h-12 border border-slate-200 rounded-xl font-bold uppercase" />
                      </div>
                   </div>
-                  <div className="flex justify-end gap-3">
+                  <div className="flex justify-end gap-3 pt-6 border-t">
                      <Button variant="ghost" onClick={() => setIsAddOpen(false)} className="h-12 px-6 rounded-xl font-black text-[10px] uppercase text-slate-400">{t.cancel}</Button>
                      <Button onClick={handleSave} disabled={isProcessing} className="h-12 px-10 rounded-xl bg-primary text-white font-black text-[10px] uppercase shadow-xl">
                         {isProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2 text-secondary" />} {t.save}
@@ -334,7 +353,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><ClipboardCheck className="h-20 w-20" /></div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.stats.total}</p>
             <h3 className="text-4xl font-black text-slate-900 tracking-tighter relative z-10">{stats.total}</h3>
-            <p className="text-[9px] font-bold text-slate-300 uppercase">Active entries this term</p>
+            <p className="text-[9px] font-bold text-slate-300 uppercase">Active entries recorded</p>
          </Card>
          <Card className="border border-slate-200 bg-primary p-6 space-y-4 text-start relative overflow-hidden group shadow-xl">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><Star className="h-20 w-20 text-secondary" /></div>
@@ -347,8 +366,10 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       <Card className="border border-slate-200 bg-white shadow-premium rounded-[2.5rem] overflow-hidden">
          <CardHeader className="p-8 md:p-10 border-b border-slate-100 bg-slate-50/50 flex flex-row items-center justify-between text-start">
             <div className="space-y-1">
-               <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-4"><BookOpen className="h-6 w-6 text-secondary" /> Detailed Grade Roster</CardTitle>
-               <CardDescription className="font-bold text-xs">Official academic performance log.</CardDescription>
+               <CardTitle className="text-xl font-black uppercase text-primary flex items-center gap-4">
+                 <BookOpen className="h-6 w-6 text-secondary" /> Detailed Performance Roster
+               </CardTitle>
+               <CardDescription className="font-bold text-xs">Official academic assessment log for {student.firstName}.</CardDescription>
             </div>
          </CardHeader>
          <CardContent className="p-0">
@@ -365,7 +386,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                      {gradesLoading ? [1,2,3].map(i => <tr key={i} className="animate-pulse"><td colSpan={5} className="h-20 bg-slate-50/50" /></tr>) : 
-                      grades.length === 0 ? <tr><td colSpan={5} className="py-32 text-center text-slate-400 uppercase font-black text-xs">No entries found</td></tr> : 
+                      grades.length === 0 ? <tr><td colSpan={5} className="py-32 text-center text-slate-400 uppercase font-black text-xs">No entries found in registry</td></tr> : 
                       grades.map((g: any) => {
                        const pct = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
                        return (
@@ -392,8 +413,8 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                             <td className="px-10 py-6 text-center"><span className="text-[10px] font-black text-slate-400 flex items-center justify-center gap-2"><Calendar className="h-3 w-3 text-secondary" /> {g.date}</span></td>
                             <td className="px-10 py-6 text-right pr-12">
                                <div className="flex justify-end gap-2">
-                                  <Button onClick={() => { setEditGrade(g); setFormData({...g}); setIsAddOpen(true); }} size="icon" variant="ghost" className="h-9 w-9 text-slate-300 hover:text-secondary"><Edit3 className="h-4 w-4" /></Button>
-                                  <Button onClick={() => setDeleteId(g.id)} size="icon" variant="ghost" className="h-9 w-9 text-slate-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></Button>
+                                  <Button onClick={() => { setEditGrade(g); setFormData({...g}); setIsAddOpen(true); }} size="icon" variant="ghost" className="h-9 w-9 text-slate-300 hover:text-secondary border border-transparent hover:border-slate-100"><Edit3 className="h-4 w-4" /></Button>
+                                  <Button onClick={() => setDeleteId(g.id)} size="icon" variant="ghost" className="h-9 w-9 text-slate-300 hover:text-red-500 border border-transparent hover:border-red-50"><Trash2 className="h-4 w-4" /></Button>
                                </div>
                             </td>
                          </tr>
@@ -407,17 +428,22 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
       <div className="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100 flex items-start gap-6 shadow-sm mx-2">
          <Info className="h-8 w-8 text-blue-600 shrink-0 mt-1 opacity-60" />
-         <p className="text-xs md:text-sm font-bold text-blue-900/60 leading-relaxed italic text-start">Official grading records are used for transcript generation. Ensure all values match documented source files for educational integrity.</p>
+         <p className="text-xs md:text-sm font-bold text-blue-900/60 leading-relaxed italic text-start">
+           Official grading records are used for transcript generation. Ensure all values match documented source files for educational integrity.
+         </p>
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
         <AlertDialogContent className="max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
-          <div className="bg-red-500 p-10 text-white text-center flex flex-col items-center gap-5"><AlertDialogTitle className="text-2xl font-black uppercase">{t.confirmDelete}</AlertDialogTitle></div>
+          <div className="bg-red-500 p-10 text-white text-center flex flex-col items-center gap-5">
+            <div className="h-20 w-20 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl animate-in zoom-in duration-500"><Trash2 className="h-10 w-10 text-white" /></div>
+            <AlertDialogTitle className="text-2xl font-black uppercase">{t.confirmDelete}</AlertDialogTitle>
+          </div>
           <div className="p-10 space-y-10 text-center">
-             <AlertDialogDescription className="text-slate-500 font-bold text-base">{t.deleteDesc}</AlertDialogDescription>
+             <AlertDialogDescription className="text-slate-500 font-bold text-base leading-relaxed">{t.deleteDesc}</AlertDialogDescription>
              <div className="flex flex-col gap-3">
-               <Button onClick={handleDelete} className="h-16 rounded-2xl bg-red-600 text-white font-black uppercase shadow-2xl shadow-red-500/30">Confirm Delete</Button>
-               <Button variant="ghost" onClick={() => setDeleteId(null)} className="h-14 rounded-2xl font-black text-slate-400">Cancel</Button>
+               <Button onClick={handleDelete} className="h-16 rounded-2xl bg-red-600 text-white font-black uppercase shadow-2xl shadow-red-500/30 hover:bg-red-700">Confirm Delete</Button>
+               <Button variant="ghost" onClick={() => setDeleteId(null)} className="h-14 rounded-2xl font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50">Cancel</Button>
              </div>
           </div>
         </AlertDialogContent>

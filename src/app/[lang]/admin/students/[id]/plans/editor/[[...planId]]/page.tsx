@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -493,17 +492,6 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
             </Button>
          )}
       </div>
-
-      <style jsx global>{`
-        .shadow-premium {
-          box-shadow: 0 10px 15px -3px rgba(11, 31, 91, 0.03), 0 4px 6px -4px rgba(11, 31, 91, 0.02);
-        }
-        input::placeholder {
-          font-weight: 600;
-          opacity: 0.3;
-          font-size: 0.85rem;
-        }
-      `}</style>
     </div>
   );
 }
