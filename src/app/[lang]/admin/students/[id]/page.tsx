@@ -84,6 +84,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     sections: {
       personal: isAr ? 'البيانات الشخصية والأساسية' : 'Identity & Vital Statistics',
       residence: isAr ? 'عنوان السكن المسجل' : 'Registered Residence',
+      registry: isAr ? 'معلومات السجل' : 'Registry Details',
     },
     fields: {
       firstName: isAr ? 'الاسم الأول' : 'First Name',
@@ -242,9 +243,10 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </div>
       </div>
 
+      {/* CARD 1: PRIMARY IDENTITY */}
       <Card className="border-none shadow-premium bg-white overflow-hidden">
         <CardContent className="p-0">
-          <div className="p-8 flex flex-col md:flex-row items-center md:items-start gap-8 border-b border-slate-50">
+          <div className="p-8 flex flex-col md:flex-row items-center md:items-start gap-8">
              <div className="relative group shrink-0">
                 <div className="h-40 w-40 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl">
                   <Image src={profileImage} alt="Student" fill className="object-cover" unoptimized />
@@ -283,36 +285,48 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                    <div className="sm:col-span-2">
                     <DataField label={t.fields.email} path="email" icon={Mail} />
                    </div>
-                   <div className="sm:col-span-2">
-                    <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} />
-                   </div>
-                   <DataField label={t.fields.city} path="address.city" icon={Building} />
-                   <DataField label={t.fields.state} path="address.state" icon={MapPin} />
-                   <DataField label={t.fields.zip} path="address.zip" icon={Hash} />
                 </div>
              </div>
           </div>
+        </CardContent>
+      </Card>
 
-          <div className="bg-slate-50/50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-             <div className="flex items-center gap-8">
-                <div className="space-y-0.5 text-center sm:text-start">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'تاريخ الالتحاق' : 'Joined Since'}</p>
-                   <p className="text-sm font-black text-slate-700">
-                      {student.createdAt && typeof student.createdAt.toDate === 'function' 
-                         ? format(student.createdAt.toDate(), 'MMMM dd, yyyy') 
-                         : '-'}
-                   </p>
-                </div>
-                <div className="space-y-0.5 text-center sm:text-start">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'آخر تحديث' : 'Last Updated'}</p>
-                   <p className="text-sm font-black text-secondary">
-                      {student.updatedAt && typeof student.updatedAt.toDate === 'function' 
-                         ? format(student.updatedAt.toDate(), 'MMMM dd, HH:mm') 
-                         : '-'}
-                   </p>
-                </div>
-             </div>
-          </div>
+      {/* CARD 2: RESIDENCE & REGISTRY LOGS */}
+      <Card className="border-none shadow-premium bg-white overflow-hidden">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 py-4">
+           <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-secondary" />
+              {t.sections.residence}
+           </CardTitle>
+        </CardHeader>
+        <CardContent className="p-8 lg:p-10 space-y-10">
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="sm:col-span-2">
+                <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} />
+              </div>
+              <DataField label={t.fields.city} path="address.city" icon={Building} />
+              <DataField label={t.fields.state} path="address.state" icon={MapPin} />
+              <DataField label={t.fields.zip} path="address.zip" icon={Hash} />
+           </div>
+
+           <div className="pt-8 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-12">
+              <div className="space-y-1 text-center sm:text-start">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'تاريخ الانضمام' : 'Joined Since'}</p>
+                 <p className="text-sm font-black text-slate-700">
+                    {student.createdAt && typeof student.createdAt.toDate === 'function' 
+                       ? format(student.createdAt.toDate(), 'MMMM dd, yyyy') 
+                       : '-'}
+                 </p>
+              </div>
+              <div className="space-y-1 text-center sm:text-start">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'آخر تحديث' : 'Last Updated'}</p>
+                 <p className="text-sm font-black text-secondary">
+                    {student.updatedAt && typeof student.updatedAt.toDate === 'function' 
+                       ? format(student.updatedAt.toDate(), 'MMMM dd, HH:mm') 
+                       : '-'}
+                 </p>
+              </div>
+           </div>
         </CardContent>
       </Card>
 
@@ -330,3 +344,4 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
+
