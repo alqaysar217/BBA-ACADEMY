@@ -40,6 +40,38 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// Sub-component for Data Field to ensure stable rendering and focus management
+const DataField = ({ label, value, path, type = "text", isEditing, onUpdate, icon: Icon, placeholder, className = "" }: any) => {
+  return (
+    <div className={cn("space-y-1.5 text-start w-full", className)}>
+      <div className="flex items-center gap-2 px-1">
+        {Icon && <Icon className="h-3 w-3 text-secondary/70" />}
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+          {label}
+        </p>
+      </div>
+      {isEditing ? (
+        <Input 
+          type={type}
+          value={value || ''} 
+          onChange={(e) => onUpdate(path, e.target.value)}
+          className="h-11 bg-white border-slate-200 rounded-xl font-bold focus:border-primary transition-all w-full shadow-sm"
+          placeholder={placeholder}
+        />
+      ) : (
+        <div className={cn(
+          "min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl transition-all duration-300 hover:border-secondary/20 hover:bg-white hover:shadow-sm",
+          !value && "opacity-60"
+        )}>
+          <p className={cn("text-sm md:text-base font-bold text-slate-700 leading-tight truncate w-full", !value && "text-slate-300 italic font-medium")}>
+            {value || '---'}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function StudentProfilePage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
   const isAr = lang === 'ar';
@@ -72,7 +104,6 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     edit: isAr ? 'تعديل الملف' : 'Edit Profile',
     cancel: isAr ? 'إلغاء' : 'Cancel',
     save: isAr ? 'حفظ التغييرات' : 'Save Changes',
-    notRegistered: isAr ? 'غير مسجل' : 'Not Registered',
     nav: {
       profile: isAr ? 'الهوية' : 'Identity',
       guardians: isAr ? 'أولياء الأمور' : 'Guardians',
@@ -104,39 +135,14 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     }
   };
 
-  const NavigationBar = () => {
-    const navItems = [
-      { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
-      { id: 'guardians', label: t.nav.guardians, icon: Users, href: `/${lang}/admin/students/${id}/guardians` },
-      { id: 'documents', label: t.nav.documents, icon: FileText, href: `/${lang}/admin/students/${id}/documents` },
-      { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
-      { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
-      { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
-    ];
-
-    return (
-      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl">
-         {navItems.map(nav => {
-           const isActive = pathname === nav.href;
-           return (
-             <Link 
-               key={nav.id} 
-               href={nav.href}
-               className={cn(
-                 "px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg whitespace-nowrap flex items-center gap-2",
-                 isActive 
-                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                  : "text-slate-400 hover:text-primary hover:bg-slate-50"
-               )}
-             >
-                <nav.icon className="h-3.5 w-3.5" />
-                {nav.label}
-             </Link>
-           )
-         })}
-      </div>
-    );
-  };
+  const navItems = [
+    { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
+    { id: 'guardians', label: t.nav.guardians, icon: Users, href: `/${lang}/admin/students/${id}/guardians` },
+    { id: 'documents', label: t.nav.documents, icon: FileText, href: `/${lang}/admin/students/${id}/documents` },
+    { id: 'academic', label: t.nav.academic, icon: BookOpen, href: `/${lang}/admin/students/${id}/plans` },
+    { id: 'grades', label: t.nav.grades, icon: ClipboardCheck, href: `/${lang}/admin/students/${id}/grades` },
+    { id: 'finances', label: t.nav.finances, icon: CreditCard, href: `/${lang}/admin/students/${id}/finances` },
+  ];
 
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -212,55 +218,49 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     try {
       await updateDoc(studentRef, { ...editData, updatedAt: serverTimestamp() });
       setIsEditing(false);
-      toast({ title: isAr ? "تم حفظ التعديلات" : "Saved" });
+      toast({ title: isAr ? "تم حفظ التعديلات" : "Saved Changes Successfully" });
     } finally {
       setIsSaving(false);
     }
   };
 
+  const getValueByPath = (path: string) => {
+    return path.split('.').reduce((acc: any, part: string) => acc && acc[part], editData);
+  };
+
   if (loading || !student || !editData) return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+      <Loader2 className="h-10 w-10 text-primary animate-spin" />
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'جاري التحميل...' : 'Syncing Data...'}</p>
     </div>
   );
 
-  const defaultImage = student.gender === 'Female' ? '/Female.png' : '/Male.png';
-  const profileImage = editData.photoURL || defaultImage;
-
-  const DataField = ({ label, path, type = "text", className = "", icon: Icon }: any) => {
-    const value = path.split('.').reduce((acc: any, part: string) => acc && acc[part], editData);
-    return (
-      <div className={cn("space-y-1.5 text-start w-full", className)}>
-        <div className="flex items-center gap-2 px-1">
-          {Icon && <Icon className="h-3 w-3 text-secondary/70" />}
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-            {label}
-          </p>
-        </div>
-        {isEditing ? (
-          <Input 
-            type={type}
-            value={value || ''} 
-            onChange={(e) => handleNestedUpdate(path, e.target.value)}
-            className="h-11 bg-white border-slate-200 rounded-xl font-bold focus:border-primary transition-all w-full shadow-sm"
-          />
-        ) : (
-          <div className={cn(
-            "min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl transition-all duration-300 hover:border-secondary/20 hover:bg-white hover:shadow-sm",
-            !value && "opacity-60"
-          )}>
-            <p className={cn("text-sm md:text-base font-bold text-slate-700 leading-tight truncate w-full", !value && "text-slate-300 italic font-medium")}>
-              {value || t.notRegistered}
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  };
+  const profileImage = editData.photoURL || (student.gender === 'Female' ? '/Female.png' : '/Male.png');
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6">
-      <NavigationBar />
+    <div className="w-full max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6 animate-in fade-in duration-700">
+      
+      {/* 1. Navigation Bar (Stable implementation) */}
+      <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl">
+         {navItems.map(nav => {
+           const isActive = pathname === nav.href;
+           return (
+             <Link 
+               key={nav.id} 
+               href={isActive ? '#' : nav.href}
+               className={cn(
+                 "px-5 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg whitespace-nowrap flex items-center gap-2",
+                 isActive 
+                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                  : "text-slate-400 hover:text-primary hover:bg-slate-50"
+               )}
+             >
+                <nav.icon className="h-3.5 w-3.5" />
+                {nav.label}
+             </Link>
+           )
+         })}
+      </div>
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
         <Link href={`/${lang}/admin/students`} className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest shrink-0">
@@ -273,19 +273,20 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
               <Button onClick={() => setIsEditing(false)} variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                 {t.cancel}
               </Button>
-              <Button onClick={saveChanges} disabled={isSaving} className="bg-primary text-white h-11 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl">
-                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+              <Button onClick={saveChanges} disabled={isSaving} className="bg-primary text-white h-11 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20">
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2 text-secondary" />}
                 {t.save}
               </Button>
             </>
           ) : (
             <Button onClick={() => setIsEditing(true)} variant="outline" className="h-11 px-8 rounded-xl border-slate-200 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">
-              <Edit3 className="h-4 w-4 mr-2" /> {t.edit}
+              <Edit3 className="h-4 w-4 mr-2 text-secondary" /> {t.edit}
             </Button>
           )}
         </div>
       </div>
 
+      {/* 2. MAIN IDENTITY CARD (Three Rows Layout) */}
       <Card className="border-none shadow-premium bg-white overflow-hidden rounded-2xl w-full">
         <CardContent className="p-6 md:p-10 lg:p-12">
           <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-12 lg:gap-16">
@@ -313,8 +314,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                    </div>
                    <Badge className={cn(
                        "border-none text-[9px] font-black uppercase tracking-widest px-5 py-1.5 rounded-full shadow-sm w-full justify-center",
-                       student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
-                   )}>{student.status}</Badge>
+                       editData.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+                   )}>{editData.status || 'inactive'}</Badge>
                 </div>
              </div>
 
@@ -322,22 +323,24 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
              <div className="flex-1 w-full flex flex-col justify-center space-y-8 md:space-y-10">
                 {/* Row 1: Full Names */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                   <DataField label={t.fields.firstName} path="firstName" icon={User} />
-                   <DataField label={t.fields.middleName} path="middleName" icon={Type} />
-                   <DataField label={t.fields.lastName} path="lastName" icon={User} />
+                   <DataField label={t.fields.firstName} value={getValueByPath('firstName')} path="firstName" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={User} />
+                   <DataField label={t.fields.middleName} value={getValueByPath('middleName')} path="middleName" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={Type} />
+                   <DataField label={t.fields.lastName} value={getValueByPath('lastName')} path="lastName" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={User} />
                 </div>
                 
                 {/* Row 2: Statistics */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                   <DataField label={t.fields.dob} path="dob" type="date" icon={CalendarIcon} />
-                   <DataField label={t.fields.gender} path="gender" icon={Users} />
-                   <DataField label={t.fields.grade} path="gradeLevel" icon={GraduationCap} />
+                   <DataField label={t.fields.dob} value={getValueByPath('dob')} path="dob" type="date" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={CalendarIcon} />
+                   <DataField label={t.fields.gender} value={getValueByPath('gender')} path="gender" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={Users} />
+                   <DataField label={t.fields.grade} value={getValueByPath('gradeLevel')} path="gradeLevel" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={GraduationCap} />
                 </div>
 
                 {/* Row 3: Direct Contacts */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                   <DataField label={t.fields.phone} path="phone" icon={Phone} />
-                   <DataField label={t.fields.email} path="email" icon={Mail} className="sm:col-span-2" />
+                   <DataField label={t.fields.phone} value={getValueByPath('phone')} path="phone" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={Phone} />
+                   <div className="sm:col-span-2">
+                     <DataField label={t.fields.email} value={getValueByPath('email')} path="email" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={Mail} />
+                   </div>
                 </div>
              </div>
           </div>
@@ -354,13 +357,15 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </CardHeader>
         <CardContent className="p-6 md:p-10 lg:p-12 space-y-10">
            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-              <DataField label={t.fields.program} path="program" icon={Briefcase} />
-              <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} className="sm:col-span-1 md:col-span-3" />
+              <DataField label={t.fields.program} value={getValueByPath('program')} path="program" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={Briefcase} />
+              <div className="sm:col-span-1 md:col-span-3">
+                <DataField label={t.fields.addr1} value={getValueByPath('address.line1')} path="address.line1" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={MapPin} />
+              </div>
               
-              <DataField label={t.fields.addr2} path="address.line2" icon={MapPin} />
-              <DataField label={t.fields.city} path="address.city" icon={Building} />
-              <DataField label={t.fields.state} path="address.state" icon={MapPin} />
-              <DataField label={t.fields.zip} path="address.zip" icon={Hash} />
+              <DataField label={t.fields.addr2} value={getValueByPath('address.line2')} path="address.line2" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={MapPin} />
+              <DataField label={t.fields.city} value={getValueByPath('address.city')} path="address.city" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={Building} />
+              <DataField label={t.fields.state} value={getValueByPath('address.state')} path="address.state" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={MapPin} />
+              <DataField label={t.fields.zip} value={getValueByPath('address.zip')} path="address.zip" isEditing={isEditing} onUpdate={handleNestedUpdate} icon={Hash} />
            </div>
 
            <div className="pt-10 border-t border-slate-50 flex flex-col sm:flex-row items-stretch sm:items-center gap-6 md:gap-16">
@@ -371,8 +376,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                  </p>
                  <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl">
                     <p className="text-sm md:text-base font-black text-slate-700">
-                       {student.createdAt && typeof student.createdAt.toDate === 'function' 
-                          ? format(student.createdAt.toDate(), 'MMMM dd, yyyy') 
+                       {editData.createdAt && typeof editData.createdAt.toDate === 'function' 
+                          ? format(editData.createdAt.toDate(), 'MMMM dd, yyyy') 
                           : '-'}
                     </p>
                  </div>
@@ -384,8 +389,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                  </p>
                  <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl">
                     <p className="text-sm md:text-base font-black text-secondary">
-                       {student.updatedAt && typeof student.updatedAt.toDate === 'function' 
-                          ? format(student.updatedAt.toDate(), 'MMMM dd, HH:mm') 
+                       {editData.updatedAt && typeof editData.updatedAt.toDate === 'function' 
+                          ? format(editData.updatedAt.toDate(), 'MMMM dd, HH:mm') 
                           : '-'}
                     </p>
                  </div>
