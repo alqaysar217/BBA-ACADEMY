@@ -116,7 +116,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const [printType, setPrintType] = useState<'monthly' | 'final'>('final');
 
   // Column visibility state
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'reportType', 'score', 'percent', 'grade', 'date']);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'score', 'percent', 'grade', 'date']);
   const [activeTypeFilter, setActiveTypeFilter] = useState<string>('all');
 
   const [formData, setFormData] = useState({
@@ -196,7 +196,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     table: {
       columns: isAr ? 'الأعمدة' : 'Columns',
       subject: isAr ? 'المادة' : 'Subject',
-      reportType: isAr ? 'النوع' : 'Type',
       result: isAr ? 'النتيجة' : 'Result',
       percent: isAr ? 'النسبة' : 'Percent',
       grade: isAr ? 'التقدير' : 'Grade',
@@ -224,7 +223,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       rowMonthly: 'Monthly Assessments / أعمال السنة',
       rowFinal: 'Term Exam / الاختبار الفصلي',
       rowTotal: 'Total / الإجمالي',
-      colGrade: 'Grade / التتقدير',
+      colGrade: 'Grade / التقدير',
       overallScore: 'Overall Score',
       finalResult: 'Final Result',
       pass: 'Pass / ناجح',
@@ -237,9 +236,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     rawGrades.forEach((g: any) => {
       if (!groups[g.planId]) groups[g.planId] = [];
       groups[g.planId].push(g);
-    });
-    Object.keys(groups).forEach(key => {
-       groups[key].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
     return groups;
   }, [rawGrades]);
@@ -304,32 +300,35 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     const printContent = document.getElementById(`printable-report-${planId}`);
     if (!printContent) return;
 
+    // Create a temporary style for printing
     const style = document.createElement('style');
+    style.id = 'print-special-styles';
     style.innerHTML = `
       @media print {
-        @page { size: portrait; margin: 0; }
-        body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
-        .no-print { display: none !important; }
-        #printable-report-${planId} { 
-          display: block !important;
-          position: relative;
+        @page { size: portrait; margin: 1cm; }
+        body * { visibility: hidden; }
+        #printable-report-${planId}, #printable-report-${planId} * { visibility: visible !important; }
+        #printable-report-${planId} {
+          position: absolute;
+          left: 0;
+          top: 0;
           width: 100%;
           min-height: 100vh;
-          padding: 1.2cm;
           background: white !important;
-          box-sizing: border-box;
-          z-index: 9999;
-          font-family: 'Times New Roman', serif;
+          z-index: 99999;
+          display: block !important;
         }
-        main, header, nav, aside, footer { display: none !important; }
-        .print-shadow { box-shadow: none !important; }
+        main, header, nav, footer, button, .dialog-overlay, [role="dialog"] { display: none !important; }
       }
     `;
     document.head.appendChild(style);
 
-    window.print();
-    document.head.removeChild(style);
+    // Give time for UI to update (though dialog state might need to be handled)
     setIsPrintDialogOpen(false);
+    setTimeout(() => {
+      window.print();
+      document.getElementById('print-special-styles')?.remove();
+    }, 300);
   };
 
   if (studentLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
@@ -337,7 +336,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4 animate-in fade-in duration-500">
       
-      {/* Navigation */}
+      {/* 1. Navigation */}
       <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl shadow-sm">
          {[
            { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
@@ -357,7 +356,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          ))}
       </div>
 
-      {/* Header & Quick Stats */}
+      {/* 2. Header */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
          <div className="flex items-center gap-5 text-start w-full lg:w-auto">
             <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-xl"><Trophy className="h-7 w-7 text-secondary" /></div>
@@ -464,7 +463,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </div>
       </div>
 
-      {/* Report Configuration Dialog */}
+      {/* 3. Export Dialog */}
       <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
         <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
            <div className="bg-primary p-8 text-white text-center flex flex-col items-center gap-4">
@@ -498,7 +497,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
         </DialogContent>
       </Dialog>
 
-      {/* Stats Grid */}
+      {/* 4. Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          <Card className="border border-slate-200 shadow-sm bg-white p-6 flex flex-col items-center text-center space-y-2 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Star className="h-16 w-16" /></div>
@@ -517,7 +516,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </Card>
       </div>
 
-      {/* Collapsible Grade Tables Organized by Plan */}
+      {/* 5. Plan Tables */}
       <Accordion type="multiple" className="space-y-6">
         {plans.map(plan => {
           const planGradesRaw = groupedGrades[plan.id] || [];
@@ -594,7 +593,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           <thead>
                              <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                 {visibleColumns.includes('subject') && <th className="px-8 py-5 text-start w-1/4">{t.table.subject}</th>}
-                                {visibleColumns.includes('reportType') && <th className="px-8 py-5 text-center">{t.table.reportType}</th>}
                                 {visibleColumns.includes('result') && <th className="px-8 py-5 text-center">{t.table.result}</th>}
                                 {visibleColumns.includes('percent') && <th className="px-8 py-5 text-center">{t.table.percent}</th>}
                                 {visibleColumns.includes('grade') && <th className="px-8 py-5 text-center">{t.table.grade}</th>}
@@ -619,13 +617,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                     {visibleColumns.includes('subject') && (
                                       <td className="px-8 py-6">
                                          <span className="font-black text-slate-900 uppercase text-sm">{g.subject}</span>
-                                      </td>
-                                    )}
-                                    {visibleColumns.includes('reportType') && (
-                                      <td className="px-8 py-6 text-center">
-                                         <Badge variant="outline" className="bg-slate-50 border-none font-bold text-[9px] uppercase tracking-tighter">
-                                            {g.reportType === 'monthly' ? (isAr ? 'شهري' : 'Monthly') : (isAr ? 'فصلي' : 'Semester')}
-                                         </Badge>
                                       </td>
                                     )}
                                     {visibleColumns.includes('result') && (
@@ -677,178 +668,179 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     </div>
                  </AccordionContent>
 
-                 {/* PRINTABLE TRANSCRIPT COMPONENT (PROFESSIONAL PORTRAIT) */}
+                 {/* PRINTABLE TRANSCRIPT COMPONENT (OFFICIAL A4 PORTRAIT) */}
                  <div id={`printable-report-${plan.id}`} className="hidden" dir="ltr">
-                    <div className="flex flex-col h-full bg-white text-slate-900 text-center leading-normal">
-                       {/* Header Section */}
-                       <div className="mb-4">
-                          <p className="text-xl font-bold italic mb-2">{t.report.bismillah}</p>
-                          <div className="relative flex items-center justify-between border-b-2 border-primary pb-4">
-                             {/* English Side */}
-                             <div className="text-left w-[35%] space-y-0.5">
-                                <h2 className="text-[11px] font-black text-primary uppercase leading-tight">{t.report.academyEn}</h2>
+                    <div className="flex flex-col h-full bg-white text-slate-900 text-center p-12 leading-normal font-serif">
+                       {/* Official Bilingual Header */}
+                       <div className="mb-8">
+                          <p className="text-xl font-bold italic mb-4">{t.report.bismillah}</p>
+                          <div className="relative flex items-center justify-between border-b-2 border-primary pb-6">
+                             {/* Left: English Name */}
+                             <div className="text-left w-[40%]">
+                                <h2 className="text-[12px] font-black text-primary uppercase leading-tight">{t.report.academyEn}</h2>
                              </div>
-                             {/* Central Logo */}
-                             <div className="shrink-0 px-2">
-                                <img src="/logo.png" className="h-20 w-20 object-contain" alt="BBA Logo" />
+                             {/* Center: Logo */}
+                             <div className="shrink-0 px-4">
+                                <img src="/logo.png" className="h-24 w-24 object-contain" alt="BBA Logo" />
                              </div>
-                             {/* Arabic Side */}
-                             <div className="text-right w-[35%] space-y-0.5 font-arabic" dir="rtl">
-                                <h2 className="text-[11px] font-black text-primary leading-tight">{t.report.academyAr}</h2>
+                             {/* Right: Arabic Name */}
+                             <div className="text-right w-[40%] font-arabic" dir="rtl">
+                                <h2 className="text-[12px] font-black text-primary leading-tight">{t.report.academyAr}</h2>
                              </div>
                           </div>
                        </div>
 
-                       {/* Title & Official Text */}
-                       <div className="space-y-4 mb-6">
-                          <h1 className="text-2xl font-black text-slate-900 uppercase tracking-widest">{t.report.certTitle}</h1>
-                          <Badge variant="outline" className="h-6 px-4 bg-slate-50 border-2 border-slate-900 text-slate-900 font-black uppercase text-[10px] tracking-[0.1em]">
-                             {printType === 'monthly' ? 'Monthly Academic Report' : 'Semester Final Examination Report'}
-                          </Badge>
+                       {/* Title & Description */}
+                       <div className="space-y-6 mb-8">
+                          <h1 className="text-2xl font-black text-slate-900 uppercase tracking-widest decoration-secondary decoration-4 underline-offset-8 underline">
+                             {printType === 'monthly' ? 'Monthly Academic Progress Report' : 'Semester Final Examination Report'}
+                          </h1>
                           
-                          <div className="space-y-4 px-10 text-center">
+                          <div className="space-y-4 text-center">
                              <div className="space-y-1">
-                                <p className="text-[10px] font-medium text-slate-500 italic">{t.report.certIntroEn}</p>
-                                <p className="text-[10px] font-arabic font-bold text-slate-400" dir="rtl">{t.report.certIntroAr}</p>
+                                <p className="text-[11px] font-medium text-slate-500 italic">{t.report.certIntroEn}</p>
+                                <p className="text-[11px] font-arabic font-bold text-slate-400" dir="rtl">{t.report.certIntroAr}</p>
                              </div>
                              
-                             <h2 className="text-2xl font-black text-primary uppercase border-b-2 border-secondary/20 inline-block px-10">
+                             <h2 className="text-3xl font-black text-primary uppercase px-12 py-2 bg-slate-50 rounded-xl inline-block border-2 border-slate-100 shadow-sm">
                                 {student?.firstName} {student?.lastName}
                              </h2>
                              
-                             <div className="flex justify-center items-center gap-8 text-[11px] font-black text-slate-600 uppercase tracking-widest">
+                             <div className="flex justify-center items-center gap-10 text-[12px] font-black text-slate-600 uppercase tracking-widest bg-white border border-slate-100 px-6 py-2 rounded-full w-fit mx-auto">
                                 <span>Academic Year: {plan.year}</span>
                                 <span className="h-1.5 w-1.5 bg-secondary rounded-full" />
                                 <span>Term: {plan.term}</span>
                              </div>
 
-                             <div className="space-y-1">
-                                <p className="text-[9px] font-medium text-slate-500 italic max-w-lg mx-auto">{t.report.certMetaEn}</p>
-                                <p className="text-[9px] font-arabic font-bold text-slate-400" dir="rtl">{t.report.certMetaAr}</p>
+                             <div className="space-y-1 max-w-2xl mx-auto">
+                                <p className="text-[10px] font-medium text-slate-500 italic">{t.report.certMetaEn}</p>
+                                <p className="text-[10px] font-arabic font-bold text-slate-400" dir="rtl">{t.report.certMetaAr}</p>
                              </div>
                           </div>
                        </div>
 
-                       {/* Academic Grade Matrix (Subjects as Columns) */}
-                       <div className="flex-1 px-2">
-                          <table className="w-full border-collapse border-[3px] border-slate-900 text-center table-fixed shadow-sm">
-                             <thead className="bg-slate-900 text-white">
-                                <tr className="h-14">
-                                   <th className="border-r border-white/20 w-[120px] text-[9px] font-black uppercase">Categories</th>
-                                   {plan.subjects.map((sub: any, sIdx: number) => (
-                                     <th key={sIdx} className="border-r border-white/20 px-1 text-[8px] font-bold">
-                                        <div className="flex flex-col gap-0.5 uppercase">
-                                           <span className="truncate">{sub.nameEn || sub.nameAr}</span>
-                                           <span className="font-arabic opacity-70" dir="rtl">{sub.nameAr || sub.nameEn}</span>
-                                        </div>
-                                     </th>
-                                   ))}
-                                   <th className="border-r border-white/20 w-[60px] text-[9px] font-black uppercase">{t.report.colGrade}</th>
-                                   <th className="w-[60px] text-[9px] font-black uppercase">Total %</th>
-                                </tr>
-                             </thead>
-                             <tbody className="text-[10px] font-bold">
-                                {/* Row 1: Monthly Assessments */}
-                                <tr className="h-10 border-b-2 border-slate-200 bg-slate-50/50">
-                                   <td className="border-r-2 border-slate-200 font-black uppercase text-[8px]">{t.report.rowMonthly}</td>
-                                   {plan.subjects.map((sub: any, sIdx: number) => {
-                                      const scoreObj = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'monthly');
-                                      return (
-                                        <td key={sIdx} className="border-r-2 border-slate-200">
-                                          {scoreObj ? scoreObj.score : '-'}
-                                        </td>
-                                      );
-                                   })}
-                                   <td className="border-r-2 border-slate-200 bg-slate-100">-</td>
-                                   <td className="bg-slate-100">-</td>
-                                </tr>
+                       {/* Official Academic Grid (Subjects as Columns) */}
+                       <div className="flex-1">
+                          <div className="border-[3px] border-slate-900 rounded-lg overflow-hidden shadow-xl">
+                            <table className="w-full border-collapse text-center table-fixed">
+                               <thead className="bg-slate-900 text-white">
+                                  <tr className="h-20">
+                                     <th className="border-r border-white/20 w-[140px] text-[10px] font-black uppercase">Academic Categories</th>
+                                     {plan.subjects.map((sub: any, sIdx: number) => (
+                                       <th key={sIdx} className="border-r border-white/20 px-1 text-[9px] font-bold">
+                                          <div className="flex flex-col gap-1 uppercase">
+                                             <span className="truncate">{sub.nameEn || sub.nameAr}</span>
+                                             <div className="h-px w-8 bg-white/20 mx-auto" />
+                                             <span className="font-arabic opacity-80" dir="rtl">{sub.nameAr || sub.nameEn}</span>
+                                          </div>
+                                       </th>
+                                     ))}
+                                     <th className="border-r border-white/20 w-[60px] text-[10px] font-black uppercase">{t.report.colGrade}</th>
+                                     <th className="w-[80px] text-[10px] font-black uppercase">Final Result</th>
+                                  </tr>
+                               </thead>
+                               <tbody className="text-[11px] font-bold">
+                                  {/* Row 1: Monthly Data */}
+                                  <tr className="h-14 border-b-2 border-slate-200 bg-slate-50/50">
+                                     <td className="border-r-2 border-slate-200 font-black uppercase text-[9px] bg-slate-100/50">{t.report.rowMonthly}</td>
+                                     {plan.subjects.map((sub: any, sIdx: number) => {
+                                        const scoreObj = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'monthly');
+                                        return (
+                                          <td key={sIdx} className="border-r-2 border-slate-200">
+                                            {scoreObj ? scoreObj.score : '-'}
+                                          </td>
+                                        );
+                                     })}
+                                     <td className="border-r-2 border-slate-200 bg-slate-100">-</td>
+                                     <td className="bg-slate-100">-</td>
+                                  </tr>
 
-                                {/* Row 2: Final / Semester Exam */}
-                                <tr className="h-10 border-b-2 border-slate-200">
-                                   <td className="border-r-2 border-slate-200 font-black uppercase text-[8px]">{t.report.rowFinal}</td>
-                                   {plan.subjects.map((sub: any, sIdx: number) => {
-                                      const scoreObj = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'final');
-                                      return (
-                                        <td key={sIdx} className="border-r-2 border-slate-200">
-                                          {scoreObj ? scoreObj.score : '-'}
-                                        </td>
-                                      );
-                                   })}
-                                   <td className="border-r-2 border-slate-200 bg-slate-100">-</td>
-                                   <td className="bg-slate-100">-</td>
-                                </tr>
+                                  {/* Row 2: Term Exam Data */}
+                                  <tr className="h-14 border-b-2 border-slate-200">
+                                     <td className="border-r-2 border-slate-200 font-black uppercase text-[9px] bg-slate-100/50">{t.report.rowFinal}</td>
+                                     {plan.subjects.map((sub: any, sIdx: number) => {
+                                        const scoreObj = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'final');
+                                        return (
+                                          <td key={sIdx} className="border-r-2 border-slate-200">
+                                            {scoreObj ? scoreObj.score : '-'}
+                                          </td>
+                                        );
+                                     })}
+                                     <td className="border-r-2 border-slate-200 bg-slate-100">-</td>
+                                     <td className="bg-slate-100">-</td>
+                                  </tr>
 
-                                {/* Row 3: Total / Final Grade */}
-                                <tr className="h-12 bg-primary/5">
-                                   <td className="border-r-2 border-slate-200 font-black uppercase text-[8px] text-primary">{t.report.rowTotal}</td>
-                                   {plan.subjects.map((sub: any, sIdx: number) => {
-                                      const grades = planGradesRaw.filter(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr));
-                                      const relevant = grades.find(g => g.reportType === printType) || grades[0];
-                                      const pct = relevant ? Math.round((Number(relevant.score) / Number(relevant.totalScore)) * 100) : null;
-                                      return (
-                                        <td key={sIdx} className="border-r-2 border-slate-200 font-black text-primary">
-                                          {pct !== null ? `${pct}%` : '-'}
-                                        </td>
-                                      );
-                                   })}
-                                   {/* Overall Calculations */}
-                                   <td className="border-r-2 border-slate-200 bg-slate-900 text-white font-black text-sm">
-                                      {stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}
-                                   </td>
-                                   <td className="bg-slate-900 text-white font-black text-sm">
-                                      {stats.avg}%
-                                   </td>
-                                </tr>
-                             </tbody>
-                          </table>
+                                  {/* Row 3: Totals & Calculation */}
+                                  <tr className="h-16 bg-primary/5">
+                                     <td className="border-r-2 border-slate-200 font-black uppercase text-[10px] text-primary">{t.report.rowTotal}</td>
+                                     {plan.subjects.map((sub: any, sIdx: number) => {
+                                        const grades = planGradesRaw.filter(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr));
+                                        // Simple logic: if final exists, use it, else use monthly
+                                        const relevant = grades.find(g => g.reportType === printType) || grades[0];
+                                        const pct = relevant ? Math.round((Number(relevant.score) / Number(relevant.totalScore)) * 100) : null;
+                                        return (
+                                          <td key={sIdx} className="border-r-2 border-slate-200 font-black text-primary text-sm">
+                                            {pct !== null ? `${pct}%` : '-'}
+                                          </td>
+                                        );
+                                     })}
+                                     {/* Overall Score & Result */}
+                                     <td className="border-r-2 border-slate-200 bg-slate-900 text-white font-black text-lg">
+                                        {stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}
+                                     </td>
+                                     <td className="bg-slate-900 text-white font-black text-lg">
+                                        {stats.avg}%
+                                     </td>
+                                  </tr>
+                               </tbody>
+                            </table>
+                          </div>
 
-                          {/* Overall Summary Bar */}
-                          <div className="mt-4 grid grid-cols-2 gap-4">
-                             <div className="border-2 border-slate-900 p-2 flex justify-between items-center">
-                                <span className="text-[9px] font-black uppercase tracking-widest">{t.report.overallScore}:</span>
-                                <span className="text-xl font-black text-primary">{stats.avg}%</span>
+                          {/* Final Verdict Summary */}
+                          <div className="mt-8 grid grid-cols-2 gap-8">
+                             <div className="border-[3px] border-slate-900 p-4 rounded-xl flex justify-between items-center bg-slate-50 shadow-inner">
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">{t.report.overallScore}</span>
+                                <span className="text-3xl font-black text-primary">{stats.avg}%</span>
                              </div>
-                             <div className="border-2 border-slate-900 p-2 flex justify-between items-center">
-                                <span className="text-[9px] font-black uppercase tracking-widest">{t.report.finalResult}:</span>
-                                <span className={cn("text-xl font-black uppercase", stats.avg >= 60 ? "text-green-600" : "text-red-600")}>
+                             <div className="border-[3px] border-slate-900 p-4 rounded-xl flex justify-between items-center bg-slate-50 shadow-inner">
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">{t.report.finalResult}</span>
+                                <span className={cn("text-2xl font-black uppercase", stats.avg >= 60 ? "text-green-600" : "text-red-600")}>
                                    {stats.avg >= 60 ? t.report.pass : t.report.fail}
                                 </span>
                              </div>
                           </div>
                        </div>
 
-                       {/* Professional Signature Blocks */}
-                       <div className="mt-12 grid grid-cols-4 gap-4 px-4 text-center">
-                          <div className="space-y-12">
-                             <p className="font-black uppercase text-[8px] tracking-widest text-slate-400">{t.report.signAdmin}</p>
-                             <div className="pt-2 border-t border-slate-200">
-                                <p className="text-[10px] font-black text-primary">Dr. Mustafa Ali</p>
+                       {/* Professional Quad-Signature Blocks */}
+                       <div className="mt-20 grid grid-cols-4 gap-8 px-4 text-center">
+                          <div className="space-y-16">
+                             <p className="font-black uppercase text-[9px] tracking-widest text-slate-400 border-b border-slate-100 pb-2">{t.report.signAdmin}</p>
+                             <div className="pt-2 border-t-2 border-slate-900 relative">
+                                <p className="text-[11px] font-black text-primary">Dr. Mustafa Ali</p>
+                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-20 h-20 opacity-10"><img src="/logo.png" className="grayscale" /></div>
                              </div>
                           </div>
-                          <div className="space-y-12">
-                             <p className="font-black uppercase text-[8px] tracking-widest text-slate-400">{t.report.signDean}</p>
-                             <div className="pt-2 border-t border-slate-200">
-                                <div className="h-4" />
-                             </div>
+                          <div className="space-y-16">
+                             <p className="font-black uppercase text-[9px] tracking-widest text-slate-400 border-b border-slate-100 pb-2">{t.report.signDean}</p>
+                             <div className="pt-2 border-t-2 border-slate-900 min-h-[14px]" />
                           </div>
-                          <div className="space-y-12">
-                             <p className="font-black uppercase text-[8px] tracking-widest text-slate-400">{t.report.signTeacher}</p>
-                             <div className="pt-2 border-t border-slate-200">
-                                <div className="h-4" />
-                             </div>
+                          <div className="space-y-16">
+                             <p className="font-black uppercase text-[9px] tracking-widest text-slate-400 border-b border-slate-100 pb-2">{t.report.signTeacher}</p>
+                             <div className="pt-2 border-t-2 border-slate-900 min-h-[14px]" />
                           </div>
-                          <div className="space-y-12">
-                             <p className="font-black uppercase text-[8px] tracking-widest text-slate-400">{t.report.signReg}</p>
-                             <div className="pt-2 border-t border-slate-200">
-                                <div className="h-4" />
-                             </div>
+                          <div className="space-y-16">
+                             <p className="font-black uppercase text-[9px] tracking-widest text-slate-400 border-b border-slate-100 pb-2">{t.report.signReg}</p>
+                             <div className="pt-2 border-t-2 border-slate-900 min-h-[14px]" />
                           </div>
                        </div>
 
-                       {/* Page Footer / Meta */}
-                       <div className="mt-auto pt-8 border-t border-slate-100 flex justify-between items-center opacity-40 px-2">
-                          <p className="text-[7px] font-bold text-slate-400 tracking-[0.2em] uppercase">VERIFIED BBA ACADEMIC TRANSCRIPT • MICHIGAN, USA</p>
-                          <p className="text-[7px] font-bold text-slate-400 uppercase">DATE: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                       {/* Certificate Footer */}
+                       <div className="mt-auto pt-10 border-t border-slate-100 flex justify-between items-center opacity-40">
+                          <div className="text-left space-y-0.5">
+                             <p className="text-[8px] font-black text-primary tracking-[0.2em] uppercase">Verified Academic Transcript • Michigan, USA</p>
+                             <p className="text-[7px] font-bold text-slate-400 uppercase">System Generated Record ID: {plan.id?.toUpperCase()}</p>
+                          </div>
+                          <p className="text-[8px] font-black text-slate-900 uppercase">Date Issued: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                        </div>
                     </div>
                  </div>
