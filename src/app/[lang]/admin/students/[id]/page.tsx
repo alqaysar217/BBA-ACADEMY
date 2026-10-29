@@ -247,33 +247,35 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
       {/* CARD 1: PRIMARY IDENTITY (3 ROWS OF DATA) */}
       <Card className="border-none shadow-premium bg-white overflow-hidden">
         <CardContent className="p-0">
-          <div className="p-8 flex flex-col md:flex-row items-center md:items-start gap-10">
-             <div className="relative group shrink-0">
-                <div className="h-44 w-44 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl">
-                  <Image src={profileImage} alt="Student" fill className="object-cover" unoptimized />
-                  {isUploadingPhoto && <div className="absolute inset-0 bg-black/40 flex items-center justify-center"><Loader2 className="h-6 w-6 text-white animate-spin" /></div>}
+          <div className="p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-10">
+             {/* LEFT: Image + ID & Status */}
+             <div className="flex flex-col items-center gap-6 shrink-0">
+                <div className="relative group">
+                  <div className="h-44 w-44 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl">
+                    <Image src={profileImage} alt="Student" fill className="object-cover" unoptimized />
+                    {isUploadingPhoto && <div className="absolute inset-0 bg-black/40 flex items-center justify-center"><Loader2 className="h-6 w-6 text-white animate-spin" /></div>}
+                  </div>
+                  <button 
+                    onClick={() => fileInputRef.current?.click()} 
+                    className="absolute -bottom-2 -right-2 h-10 w-10 bg-white shadow-2xl rounded-xl border border-slate-100 flex items-center justify-center text-primary hover:text-secondary transition-all"
+                  >
+                    <Camera className="h-5 w-5" />
+                  </button>
+                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
                 </div>
-                <button 
-                  onClick={() => fileInputRef.current?.click()} 
-                  className="absolute -bottom-2 -right-2 h-10 w-10 bg-white shadow-2xl rounded-xl border border-slate-100 flex items-center justify-center text-primary hover:text-secondary transition-all"
-                >
-                  <Camera className="h-5 w-5" />
-                </button>
-                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+
+                <div className="text-center space-y-1">
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">ID: {id?.toUpperCase()}</p>
+                   <Badge className={cn(
+                       "border-none text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm",
+                       student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+                   )}>{student.status}</Badge>
+                </div>
              </div>
 
-             <div className="text-center md:text-start space-y-8 flex-1">
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pb-4 border-b border-slate-50">
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">STUDENT ID: {id?.toUpperCase()}</p>
-                      <Badge className={cn(
-                          "border-none text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm",
-                          student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
-                      )}>{student.status}</Badge>
-                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-8">
+             {/* RIGHT: Vitals (3 ROWS) */}
+             <div className="text-center md:text-start flex-1 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-10 gap-x-8">
                    {/* Row 1 */}
                    <DataField label={t.fields.firstName} path="firstName" icon={User} />
                    <DataField label={t.fields.middleName} path="middleName" icon={Type} />
@@ -286,7 +288,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
 
                    {/* Row 3 */}
                    <DataField label={t.fields.phone} path="phone" icon={Phone} />
-                   <DataField label={t.fields.email} path="email" icon={Mail} className="md:col-span-2" />
+                   <DataField label={t.fields.email} path="email" icon={Mail} className="sm:col-span-2" />
                 </div>
              </div>
           </div>
@@ -301,10 +303,10 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
               {t.sections.residence}
            </CardTitle>
         </CardHeader>
-        <CardContent className="p-8 lg:p-10 space-y-12">
-           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <DataField label={t.fields.program} path="program" icon={Briefcase} />
-              <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} className="md:col-span-3" />
+        <CardContent className="p-6 sm:p-8 lg:p-10 space-y-12">
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+              <DataField label={isAr ? 'البرنامج' : 'Program'} path="program" icon={Briefcase} />
+              <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} className="sm:col-span-1 md:col-span-3" />
               
               <DataField label={t.fields.city} path="address.city" icon={Building} />
               <DataField label={t.fields.state} path="address.state" icon={MapPin} />
