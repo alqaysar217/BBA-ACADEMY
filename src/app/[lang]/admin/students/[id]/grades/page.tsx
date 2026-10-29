@@ -289,7 +289,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     if (!certificateRef.current) return;
     setIsExportingImage(true);
     try {
-      // skipping fonts to avoid normalizeFontFamily crash
       const dataUrl = await htmlToImage.toPng(certificateRef.current, {
         quality: 1,
         pixelRatio: 2,
@@ -303,7 +302,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       link.download = `BBA_Certificate_${student?.firstName}_${selectedPlanId}.png`;
       link.href = dataUrl;
       link.click();
-      setIsExportingDialogOpen(false);
+      setIsExportDialogOpen(false);
       toast({ title: isAr ? "تم تحميل الصورة بنجاح" : "Image downloaded successfully" });
     } catch (error) {
       console.error('Export Error:', error);
@@ -854,4 +853,3 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
-
