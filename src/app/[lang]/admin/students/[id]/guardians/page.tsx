@@ -329,9 +329,15 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
         return;
       }
 
-      // Record log in Firestore
-      // NOTE: We avoid nested arrays (attachments: [...]) because Firestore rejects them inside array elements.
-      // We'll store a summary string instead.
+      // Record log in Firestore with SCRUBBING of old invalid data
+      const existingLogs = (student.communications || []).map((log: any) => {
+        const { attachments, ...rest } = log;
+        return {
+          ...rest,
+          attachmentSummary: log.attachmentSummary || (Array.isArray(attachments) ? attachments.map((a: any) => a.name).join(', ') : '')
+        };
+      });
+
       const logEntry = {
         templateId: selectedTemplate.id,
         sentAt: new Date().toISOString(),
@@ -344,7 +350,6 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
         smtpMessageId: result.messageId
       };
 
-      const existingLogs = student.communications || [];
       await updateDoc(studentRef, { 
         communications: [logEntry, ...existingLogs],
         lastCommunicationAt: serverTimestamp()
@@ -706,7 +711,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
         </DialogContent>
       </Dialog>
 
-      <div className="bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 flex items-start gap-5 mx-2 shadow-sm">
+      <div className="bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 flex items-start gap-5 mx-2 shadow-sm transition-all hover:bg-blue-50">
          <Info className="h-6 w-6 text-blue-600 shrink-0 mt-1 opacity-60" />
          <div className="space-y-1.5 text-start">
             <p className="text-[10px] font-black text-blue-900 uppercase tracking-widest">{isAr ? 'إرشادات التواصل' : 'Communication Guidance'}</p>
@@ -733,3 +738,4 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
+

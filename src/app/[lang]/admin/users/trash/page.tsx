@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useMemo } from 'react';
@@ -53,7 +54,7 @@ export default function TrashBinPage({ params }: { params: Promise<{ lang: Local
 
   const { data: rawUsers, loading } = useCollection(usersQuery);
 
-  // تصفية المحذوفين مع تطبيق منطق الـ 30 يوم والبحث
+  // Filter archived users with 30-day logic and search
   const archivedUsers = useMemo(() => {
     if (!rawUsers) return [];
     const now = new Date();
@@ -61,10 +62,10 @@ export default function TrashBinPage({ params }: { params: Promise<{ lang: Local
     return rawUsers
       .filter(u => u.status === 'archived')
       .filter(u => {
-        // إذا كان هناك تاريخ أرشفة، نحسب الفرق
+        // Only show if archived within last 30 days
         if (u.archivedAt) {
           const daysOld = differenceInDays(now, u.archivedAt.toDate());
-          return daysOld <= 30; // إظهار فقط ما لم يتجاوز 30 يوم
+          return daysOld <= 30; 
         }
         return true;
       })
@@ -281,3 +282,4 @@ export default function TrashBinPage({ params }: { params: Promise<{ lang: Local
     </div>
   );
 }
+

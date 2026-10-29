@@ -461,9 +461,16 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         return;
       }
 
-      // 2. Only if email is sent successfully, record the log in Firestore
-      // NOTE: We avoid nested arrays (attachments: [...]) because Firestore rejects them inside arrays.
-      // We'll store a summary string instead.
+      // 2. SCRUBBING: Map existing logs and remove nested arrays if they exist to prevent FirebaseError
+      const existingLogs = (app.communications || []).map((log: any) => {
+        const { attachments, ...rest } = log;
+        return {
+          ...rest,
+          attachmentSummary: log.attachmentSummary || (Array.isArray(attachments) ? attachments.map((a: any) => a.name).join(', ') : '')
+        };
+      });
+
+      // 3. Only if email is sent successfully, record the log in Firestore
       const logEntry = {
         templateId: selectedTemplate.id,
         sentAt: new Date().toISOString(),
@@ -475,7 +482,6 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
         smtpMessageId: result.messageId
       };
 
-      const existingLogs = app.communications || [];
       const updateData = { 
         communications: [logEntry, ...existingLogs],
         lastCommunicationAt: serverTimestamp()
@@ -960,3 +966,4 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     </div>
   );
 }
+

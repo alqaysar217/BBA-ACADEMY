@@ -268,8 +268,8 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
           <div className="p-10 space-y-6 text-center">
             <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed">
                {isAr 
-                 ? `هل أنت متأكد من إلغاء تنشيط حساب "${userToArchive?.displayName}" ونقله لسلة المهملات؟ سيفقد الموظف حق الوصول فوراً.` 
-                 : `Are you sure you want to deactivate "${userToArchive?.displayName}" and move it to the trash bin? Access will be revoked immediately.`}
+                 ? `هل أنت متأكد من إلغاء تنشيط حساب "${userToArchive?.displayName}" ونقله لسلة المهملات؟ سيفقد الموظف حق الوصول فوراً وسيتم حذفه نهائياً بعد 30 يوماً.` 
+                 : `Are you sure you want to deactivate "${userToArchive?.displayName}" and move it to the trash bin? Access will be revoked immediately, and the record will be permanently deleted after 30 days.`}
             </AlertDialogDescription>
             <div className="flex flex-col gap-3">
               <Button onClick={confirmArchive} className="h-14 rounded-xl bg-secondary text-white font-black uppercase tracking-widest transition-all">
@@ -285,3 +285,4 @@ export default function UserRegistryPage({ params }: { params: Promise<{ lang: L
     </div>
   );
 }
+
