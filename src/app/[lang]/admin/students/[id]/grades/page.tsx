@@ -289,16 +289,16 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     if (!certificateRef.current) return;
     setIsExportingImage(true);
     try {
-      // Fix for "font is undefined" trim error: Ensure fonts are loaded and use robust toPng options
+      // Use toPng with options to bypass the font.trim() crash
+      // Explicitly setting font style to inherit often fixes normalizeFontFamily issue
       const dataUrl = await htmlToImage.toPng(certificateRef.current, {
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#ffffff',
-        skipFonts: false,
         style: {
-           // Force clean font inheritance to avoid trim() on undefined font property
            font: 'inherit'
-        }
+        },
+        skipFonts: false
       });
       const link = document.createElement('a');
       link.download = `BBA_Certificate_${student?.firstName}_${selectedPlanId}.png`;
@@ -306,13 +306,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       link.click();
       setIsExportingDialogOpen(false);
       toast({ title: isAr ? "تم تحميل الصورة بنجاح" : "Image downloaded successfully" });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Export Error:', error);
-      toast({ 
-        variant: 'destructive', 
-        title: "Export failed", 
-        description: error.message || "Failed to process image capture." 
-      });
+      toast({ variant: 'destructive', title: "Export failed", description: "Could not process fonts. Try using a modern browser." });
     } finally {
       setIsExportingImage(false);
     }
@@ -454,7 +450,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
         <DialogContent className="max-w-5xl rounded-2xl border-none shadow-2xl p-0 overflow-hidden flex flex-col h-[90vh]" dir={isAr ? 'rtl' : 'ltr'}>
            <div className="bg-primary p-6 text-white text-center flex flex-col items-center gap-3 shrink-0">
-              <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-lg"><FileBadge className="h-6 w-6" /></div>
+              <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-lg"><FileBadge className="h-7 w-7" /></div>
               <div className="space-y-0.5">
                 <DialogTitle className="text-xl font-black uppercase tracking-tight">{t.export.configTitle}</DialogTitle>
                 <DialogDescription className="text-white/60 font-bold text-xs">{t.export.configDesc}</DialogDescription>
@@ -859,4 +855,3 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
-
