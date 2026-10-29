@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -85,7 +86,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       { id: 4, name: isAr ? 'الأهداف' : 'Objectives', icon: Target },
     ],
     fields: {
-      planName: isAr ? 'اسم الخطة' : 'Plan Name',
+      planName: isAr ? 'اسم الخطة (مثلاً: الفصل الأول)' : 'Plan Name (e.g. Term 1)',
       teacher: isAr ? 'المعلم المسؤول' : 'Responsible Teacher',
       year: isAr ? 'السنة الدراسية' : 'Academic Year',
       term: isAr ? 'الفصل الدراسي' : 'Term',
@@ -217,7 +218,11 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
     }
   };
 
-  if (!mounted || (loading && isEditMode)) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
+  if (!mounted || (loading && isEditMode)) return (
+    <div className="p-20 text-center animate-pulse">
+      <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4">
@@ -258,7 +263,6 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
 
       {/* Main Content Area */}
       <div className="min-h-[500px]">
-        {/* Stage 1: Basic Info */}
         {step === 1 && (
           <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
            <CardHeader className="bg-slate-50/50 p-8 md:p-10 border-b border-slate-100">
@@ -328,11 +332,10 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
               </div>
            </CardContent>
         </Card>
-      )}
+        )}
 
-      {/* Stage 2: Course Load */}
-      {step === 2 && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {step === 2 && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
            <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-2 text-start">
               <div className="space-y-1">
                  <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.courseLoad}</h2>
@@ -372,11 +375,10 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
               ))}
            </div>
         </div>
-      )}
+        )}
 
-      {/* Stage 3: Structure */}
-      {step === 3 && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {step === 3 && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
            {plan.subjects.map((sub, sIdx) => (
              <Card key={sub.id} className="border-none shadow-premium rounded-[2rem] bg-white overflow-hidden border border-slate-100">
                 <CardHeader className="bg-primary p-6 md:p-8 text-white text-start relative overflow-hidden">
@@ -425,11 +427,10 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
              </Card>
            ))}
         </div>
-      )}
+        )}
 
-      {/* Stage 4: Objectives */}
-      {step === 4 && (
-        <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {step === 4 && (
+          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
            <CardHeader className="bg-slate-900 p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between text-start relative">
               <div className="absolute top-0 right-0 p-6 opacity-10"><Target className="h-48 w-48 text-secondary" /></div>
               <div className="flex items-center gap-6 relative z-10">
@@ -462,7 +463,8 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
               ))}
            </CardContent>
         </Card>
-      )}
+        )}
+      </div>
 
       {/* Footer Navigation */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-6 px-4 pt-12 border-t border-slate-100">

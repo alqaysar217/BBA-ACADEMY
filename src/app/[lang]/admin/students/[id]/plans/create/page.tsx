@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect } from 'react';
@@ -198,7 +199,11 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted) return (
+    <div className="p-20 text-center animate-pulse">
+      <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4">
@@ -239,7 +244,6 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
 
       {/* Main Designer Content */}
       <div className="min-h-[500px]">
-        {/* Stage 1: Basic Info */}
         {step === 1 && (
           <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
             <CardHeader className="bg-slate-50/50 p-8 md:p-10 border-b border-slate-100">
@@ -311,7 +315,6 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
           </Card>
         )}
 
-        {/* Stage 2: Subjects */}
         {step === 2 && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-2 text-start">
@@ -354,19 +357,9 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
                   </Card>
                 ))}
             </div>
-
-            {plan.subjects.length === 0 && (
-              <div className="py-24 text-center bg-white/50 border-2 border-dashed border-slate-200 rounded-[2.5rem] space-y-4">
-                  <div className="h-20 w-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto shadow-inner">
-                    <BookOpen className="h-10 w-10 text-slate-300" />
-                  </div>
-                  <p className="text-slate-400 font-black uppercase text-[12px] tracking-widest">{isAr ? 'لم تتم إضافة أي مواد دراسية بعد' : 'No subjects added. Design your load.'}</p>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Stage 3: Units & Topics */}
         {step === 3 && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {plan.subjects.map((sub, sIdx) => (
@@ -389,13 +382,9 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
                   <CardContent className="p-6 md:p-10 space-y-8">
                     {sub.units.map((unit: any, uIdx: number) => (
                       <div key={unit.id} className="bg-slate-50/50 p-6 md:p-8 rounded-2xl border border-slate-100 space-y-8 text-start relative group shadow-inner">
-                          {/* Unit Actions */}
-                          <div className="absolute top-4 right-4 flex items-center gap-2">
-                             <Button onClick={() => removeUnit(sIdx, uIdx)} variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                                <Trash2 className="h-4 w-4" />
-                             </Button>
-                          </div>
-                          
+                          <Button onClick={() => removeUnit(sIdx, uIdx)} variant="ghost" size="icon" className="absolute top-4 right-4 h-8 w-8 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                             <Trash2 className="h-4 w-4" />
+                          </Button>
                           <div className="flex flex-col md:flex-row items-center gap-6">
                             <div className="flex-1 space-y-2 w-full">
                                 <Label className="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 px-1">
@@ -421,16 +410,12 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
                           </div>
                       </div>
                     ))}
-                    {sub.units.length === 0 && (
-                      <div className="py-12 text-center opacity-30 italic text-xs font-bold uppercase tracking-widest">No units added for this subject.</div>
-                    )}
                   </CardContent>
               </Card>
             ))}
           </div>
         )}
 
-        {/* Stage 4: Objectives */}
         {step === 4 && (
           <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
             <CardHeader className="bg-slate-900 p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between text-start relative">
@@ -465,15 +450,6 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
                     </Button>
                   </div>
                 ))}
-                {plan.objectives.length === 0 && (
-                  <div className="py-24 text-center space-y-6 bg-slate-50/30 rounded-3xl border-2 border-dashed border-slate-100">
-                    <Star className="h-16 w-16 text-slate-100 mx-auto" />
-                    <div className="space-y-1">
-                      <p className="text-slate-300 font-black uppercase text-xs tracking-widest">No target milestones set.</p>
-                      <p className="text-[9px] font-bold text-slate-200 uppercase italic">Add objectives to monitor student achievement.</p>
-                    </div>
-                  </div>
-                )}
             </CardContent>
           </Card>
         )}
@@ -502,11 +478,6 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
       <style jsx global>{`
         .shadow-premium {
           box-shadow: 0 10px 15px -3px rgba(11, 31, 91, 0.03), 0 4px 6px -4px rgba(11, 31, 91, 0.02);
-        }
-        input::placeholder {
-          font-weight: 600;
-          opacity: 0.3;
-          font-size: 0.85rem;
         }
       `}</style>
     </div>
