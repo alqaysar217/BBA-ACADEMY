@@ -10,7 +10,7 @@ import {
   Save, Trash2, Layers, Info,
   ListTree, X, PencilLine, Loader2, Calendar, User, Type, FileText,
   Clock, CheckCircle2, GraduationCap, Star, ClipboardCheck,
-  Search
+  Languages, Search, Trash
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -184,6 +184,12 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
     }));
   };
 
+  const removeObjective = (oIdx: number) => {
+    const newObj = [...plan.objectives];
+    newObj.splice(oIdx, 1);
+    setPlan(p => ({ ...p, objectives: newObj }));
+  };
+
   const handleSavePlan = async (status: string = 'approved') => {
     if (!firestore || !id) return;
     if (!plan.name) {
@@ -218,16 +224,16 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       {/* Header Bar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-3xl shadow-premium border border-slate-100">
          <div className="flex items-center gap-6 text-start">
-            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 hover:text-primary transition-all">
+            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 hover:text-primary transition-all shadow-sm">
                {isAr ? <ChevronRight className="h-6 w-6" /> : <ChevronLeft className="h-6 w-6" />}
             </Button>
             <div className="space-y-1">
-               <h1 className="text-xl md:text-3xl font-black text-primary uppercase tracking-tight">{t.title}</h1>
+               <h1 className="text-xl md:text-3xl font-black text-primary uppercase tracking-tight leading-none">{t.title}</h1>
                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{t.subtitle}</p>
             </div>
          </div>
          <div className="flex items-center gap-3 w-full md:w-auto">
-            <Button onClick={() => handleSavePlan('draft')} disabled={isSaving} variant="outline" className="flex-1 md:flex-none h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-slate-200 text-slate-600 bg-white">
+            <Button onClick={() => handleSavePlan('draft')} disabled={isSaving} variant="outline" className="flex-1 md:flex-none h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-slate-200 text-slate-600 bg-white shadow-sm">
                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2 text-secondary" />} {t.saveDraft}
             </Button>
          </div>
@@ -346,13 +352,13 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                             <div className="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-300 flex items-center justify-center font-black text-lg shadow-inner">{sIdx+1}</div>
                          </div>
                          <div className="md:col-span-5 space-y-2 text-start">
-                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2">
+                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                               <BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subjectName}
                             </Label>
                             <Input value={sub.name} onChange={(e) => updateSubject(sIdx, 'name', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
                          </div>
                          <div className="md:col-span-4 space-y-2 text-start">
-                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2">
+                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                               <User className="h-3 w-3 text-secondary" /> {t.fields.subjectTeacher}
                             </Label>
                             <Input value={sub.teacher} onChange={(e) => updateSubject(sIdx, 'teacher', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
@@ -391,10 +397,10 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                 <CardContent className="p-6 md:p-10 space-y-8">
                    {sub.units.map((unit: any, uIdx: number) => (
                      <div key={unit.id} className="bg-slate-50/50 p-6 md:p-8 rounded-2xl border border-slate-100 space-y-8 text-start relative group shadow-inner">
-                        <Button onClick={() => removeUnit(sIdx, uIdx)} variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><X className="h-4 w-4" /></Button>
+                        <Button onClick={() => removeUnit(sIdx, uIdx)} variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash className="h-4 w-4" /></Button>
                         <div className="flex flex-col md:flex-row items-center gap-6">
                            <div className="flex-1 space-y-2 w-full">
-                              <Label className="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                              <Label className="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 px-1">
                                 <Star className="h-3 w-3 text-secondary" /> {isAr ? `الوحدة ${uIdx+1}` : `Unit ${uIdx+1}`}
                               </Label>
                               <Input value={unit.title} onChange={(e) => updateUnit(sIdx, uIdx, e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" placeholder={t.fields.unitTitle} />
@@ -407,9 +413,9 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                         <div className={cn("grid grid-cols-1 sm:grid-cols-2 gap-4 border-slate-200/50", isAr ? "pr-4 md:pr-10 border-r-2" : "pl-4 md:pl-10 border-l-2")}>
                            {unit.topics.map((topic: any, tIdx: number) => (
                              <div key={topic.id} className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm group/topic hover:border-secondary/30 transition-all">
-                                <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-300 shadow-inner group-hover:topic:text-secondary group-hover/topic:bg-secondary/5 transition-all">{tIdx+1}</div>
+                                <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-300 shadow-inner group-hover/topic:text-secondary group-hover/topic:bg-secondary/5 transition-all">{tIdx+1}</div>
                                 <Input value={topic.title} onChange={(e) => updateTopic(sIdx, uIdx, tIdx, e.target.value)} className="h-10 border-none bg-transparent font-bold text-xs p-0 focus-visible:ring-0 flex-1" placeholder={t.fields.topicTitle} />
-                                <button onClick={() => removeTopic(sIdx, uIdx, tIdx)} className="ml-auto text-slate-200 hover:text-red-400 opacity-0 group-hover:topic:opacity-100 transition-all"><X className="h-3.5 w-3.5" /></button>
+                                <button onClick={() => removeTopic(sIdx, uIdx, tIdx)} className="ml-auto text-slate-200 hover:text-red-400 opacity-0 group-hover/topic:opacity-100 transition-all"><X className="h-3.5 w-3.5" /></button>
                              </div>
                            ))}
                         </div>
@@ -442,7 +448,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                 <div key={obj.id} className="flex gap-6 p-6 bg-slate-50/50 rounded-2xl border border-slate-100 items-center group shadow-inner">
                    <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-black text-slate-300 text-sm shrink-0 shadow-sm group-hover:text-secondary group-hover:border-secondary/30 transition-all">{oIdx+1}</div>
                    <div className="flex-1 space-y-2 text-start">
-                      <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                         <Target className="h-3 w-3 text-secondary/50" /> Objective Details
                       </Label>
                       <Input value={obj.title} onChange={(e) => {
@@ -451,11 +457,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                         setPlan({...plan, objectives: newObj});
                       }} className="h-14 bg-white border border-slate-200 rounded-xl font-bold shadow-sm focus:border-secondary transition-all" placeholder={t.fields.objectiveTitle} />
                    </div>
-                   <button onClick={() => {
-                      const newObj = [...plan.objectives];
-                      newObj.splice(oIdx, 1);
-                      setPlan({...plan, objectives: newObj});
-                   }} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="h-5 w-5" /></button>
+                   <button onClick={() => removeObjective(oIdx)} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="h-5 w-5" /></button>
                 </div>
               ))}
            </CardContent>
