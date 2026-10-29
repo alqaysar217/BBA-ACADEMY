@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -71,12 +72,12 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
     subtitle: isAr ? 'تخصيص المسار التعليمي بدقة' : 'Custom educational pathway refinement',
     saveDraft: isAr ? 'حفظ مسودة' : 'Save Draft',
     approve: isAr ? 'حفظ واعتماد الخطة' : 'Save & Approve Plan',
-    prev: isAr ? 'السابق' : 'Previous Stage',
-    next: isAr ? 'المرحلة التالية' : 'Next Stage',
+    prev: isAr ? 'السابق' : 'Previous',
+    next: isAr ? 'التالي' : 'Next',
     generalSettings: isAr ? 'إعدادات الخطة العامة' : 'General Plan Settings',
     courseLoad: isAr ? 'المقررات الدراسية' : 'Academic Course Load',
     courseLoadSub: isAr ? 'تعديل المواد التعليمية لهذه الخطة' : 'Define subjects included in this study plan',
-    structure: isAr ? 'الوحدات والموضوعات' : 'Detailed Structure',
+    structure: isAr ? 'الهيكلية التفصيلية' : 'Detailed Structure',
     objectives: isAr ? 'الأهداف التعليمية' : 'Learning Objectives',
     stages: [
       { id: 1, name: isAr ? 'البيانات' : 'Base Info', icon: Info },
@@ -85,7 +86,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       { id: 4, name: isAr ? 'الأهداف' : 'Objectives', icon: Target },
     ],
     fields: {
-      planName: isAr ? 'اسم الخطة (مثلاً: الفصل الأول)' : 'Plan Name (e.g. Term 1)',
+      planName: isAr ? 'اسم الخطة (مثلاً: الفصل الدراسي الأول)' : 'Plan Name (e.g. 1st Semester)',
       teacher: isAr ? 'المعلم المسؤول' : 'Responsible Teacher',
       year: isAr ? 'السنة الدراسية' : 'Academic Year',
       term: isAr ? 'الفصل الدراسي' : 'Term',
@@ -210,7 +211,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
         createdAt: isEditMode ? existingPlan.createdAt : serverTimestamp(),
       };
       await setDoc(docRef, finalData, { merge: true });
-      toast({ title: isAr ? 'تم حفظ التغييرات بنجاح' : 'Academic plan updated successfully' });
+      toast({ title: isAr ? 'تم حفظ التغييرات' : 'Plan updated successfully' });
       router.push(`/${lang}/admin/students/${id}/plans`);
     } catch (e) {
       toast({ variant: 'destructive', title: 'Save failed' });
@@ -220,78 +221,79 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
   };
 
   if (!mounted || (loading && isEditMode)) return (
-    <div className="p-20 text-center animate-pulse">
+    <div className="p-20 text-center">
       <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
     </div>
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4">
+    <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4 animate-in fade-in duration-700">
+      
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-3xl shadow-premium border border-slate-100">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
          <div className="flex items-center gap-6 text-start">
-            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 hover:text-primary transition-all shadow-sm border border-slate-100">
-               {isAr ? <ChevronRight className="h-6 w-6" /> : <ChevronLeft className="h-6 w-6" />}
+            <Button onClick={() => router.back()} variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 hover:text-primary transition-all border border-slate-200">
+               {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
             </Button>
-            <div className="space-y-1">
-               <h1 className="text-xl md:text-3xl font-black text-primary uppercase tracking-tight leading-none">{t.title}</h1>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{t.subtitle}</p>
+            <div className="space-y-0.5">
+               <h1 className="text-xl md:text-2xl font-black text-primary uppercase tracking-tight leading-none">{t.title}</h1>
+               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">{t.subtitle}</p>
             </div>
          </div>
          <div className="flex items-center gap-3 w-full md:w-auto">
-            <Button onClick={() => handleSavePlan('draft')} disabled={isSaving} variant="outline" className="flex-1 md:flex-none h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-slate-200 text-slate-600 bg-white shadow-sm hover:bg-slate-50">
+            <Button onClick={() => handleSavePlan('draft')} disabled={isSaving} variant="outline" className="flex-1 md:flex-none h-11 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest border-slate-200 text-slate-600 hover:bg-slate-50 transition-all bg-white shadow-sm">
                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2 text-secondary" />} {t.saveDraft}
             </Button>
          </div>
       </div>
 
       {/* Stepper Navigation */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
          {t.stages.map(s => (
            <button 
             key={s.id} 
             onClick={() => setStep(s.id)}
             className={cn(
-              "flex items-center justify-center gap-3 p-5 rounded-2xl transition-all border-2",
-              step === s.id ? "bg-primary border-primary text-white shadow-xl scale-[1.02]" : "bg-white border-slate-100 text-slate-400 hover:border-primary/20"
+              "flex items-center justify-center gap-3 p-4 rounded-xl transition-all border-2",
+              step === s.id ? "bg-primary border-primary text-white shadow-lg scale-[1.02]" : "bg-white border-slate-200 text-slate-400 hover:border-primary/20"
             )}
            >
-              <s.icon className={cn("h-5 w-5", step === s.id ? "text-secondary" : "text-slate-200")} />
-              <span className="font-black text-[11px] uppercase tracking-widest leading-none">{s.name}</span>
+              <s.icon className={cn("h-4 w-4", step === s.id ? "text-secondary" : "text-slate-200")} />
+              <span className="font-black text-[10px] uppercase tracking-widest">{s.name}</span>
            </button>
          ))}
       </div>
 
-      {/* Main Content Area */}
+      {/* Stage Content */}
       <div className="min-h-[500px]">
         {step === 1 && (
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-           <CardHeader className="bg-slate-50/50 p-8 md:p-10 border-b border-slate-100">
+          <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+           <CardHeader className="bg-slate-50/50 p-8 border-b border-slate-100">
               <div className="flex items-center gap-4 text-start">
-                 <div className="h-12 w-12 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg"><Info className="h-6 w-6" /></div>
-                 <CardTitle className="text-xl font-black uppercase text-primary tracking-tight">{t.generalSettings}</CardTitle>
+                 <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Info className="h-5 w-5" /></div>
+                 <CardTitle className="text-lg font-black uppercase text-primary tracking-tight">{t.generalSettings}</CardTitle>
               </div>
            </CardHeader>
-           <CardContent className="p-8 md:p-10 space-y-10">
+           <CardContent className="p-8 md:p-10 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div className="space-y-2 text-start">
-                    <Label className="text-[11px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2 px-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                       <FileText className="h-3.5 w-3.5 text-secondary" /> {t.fields.planName}
                     </Label>
-                    <Input value={plan.name} onChange={(e) => setPlan({...plan, name: e.target.value})} className="h-14 bg-white border border-slate-200 rounded-xl font-bold focus:border-primary transition-all shadow-sm" />
+                    <Input value={plan.name} onChange={(e) => setPlan({...plan, name: e.target.value})} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm focus:border-primary" />
                  </div>
                  <div className="space-y-2 text-start">
-                    <Label className="text-[11px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2 px-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                       <User className="h-3.5 w-3.5 text-secondary" /> {t.fields.teacher}
                     </Label>
-                    <Input value={plan.responsibleTeacher} onChange={(e) => setPlan({...plan, responsibleTeacher: e.target.value})} className="h-14 bg-white border border-slate-200 rounded-xl font-bold focus:border-primary transition-all shadow-sm" />
+                    <Input value={plan.responsibleTeacher} onChange={(e) => setPlan({...plan, responsibleTeacher: e.target.value})} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm focus:border-primary" />
                  </div>
                  <div className="space-y-2 text-start">
-                    <Label className="text-[11px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2 px-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                       <GraduationCap className="h-3.5 w-3.5 text-secondary" /> {t.fields.year}
                     </Label>
                     <Select value={plan.year} onValueChange={(v) => setPlan({...plan, year: v})}>
-                       <SelectTrigger className="h-14 bg-white border border-slate-200 rounded-xl font-bold focus:border-primary transition-all shadow-sm"><SelectValue /></SelectTrigger>
+                       <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold"><SelectValue /></SelectTrigger>
                        <SelectContent className="rounded-xl">
                          <SelectItem value="2025-2026" className="font-bold py-3">2025-2026</SelectItem>
                          <SelectItem value="2026-2027" className="font-bold py-3">2026-2027</SelectItem>
@@ -300,11 +302,11 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                     </Select>
                  </div>
                  <div className="space-y-2 text-start">
-                    <Label className="text-[11px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2 px-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                       <Star className="h-3.5 w-3.5 text-secondary" /> {t.fields.term}
                     </Label>
                     <Select value={plan.term} onValueChange={(v) => setPlan({...plan, term: v})}>
-                       <SelectTrigger className="h-14 bg-white border border-slate-200 rounded-xl font-bold focus:border-primary transition-all shadow-sm"><SelectValue /></SelectTrigger>
+                       <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold"><SelectValue /></SelectTrigger>
                        <SelectContent className="rounded-xl">
                           {t.terms.map(term => (
                              <SelectItem key={term.v} value={term.v} className="font-bold py-3">{term.l}</SelectItem>
@@ -313,71 +315,69 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                     </Select>
                  </div>
                  <div className="space-y-2 text-start">
-                    <Label className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
                       <Calendar className="h-3.5 w-3.5 text-secondary" /> {t.fields.startDate}
                     </Label>
-                    <Input type="date" value={plan.startDate} onChange={(e) => setPlan({...plan, startDate: e.target.value})} className="h-14 bg-white border border-slate-200 rounded-xl font-bold uppercase shadow-sm" />
+                    <Input type="date" value={plan.startDate} onChange={(e) => setPlan({...plan, startDate: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold uppercase shadow-sm" />
                  </div>
                  <div className="space-y-2 text-start">
-                    <Label className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
                       <Calendar className="h-3.5 w-3.5 text-secondary" /> {t.fields.endDate}
                     </Label>
-                    <Input type="date" value={plan.endDate} onChange={(e) => setPlan({...plan, endDate: e.target.value})} className="h-14 bg-white border border-slate-200 rounded-xl font-bold uppercase shadow-sm" />
+                    <Input type="date" value={plan.endDate} onChange={(e) => setPlan({...plan, endDate: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold uppercase shadow-sm" />
                  </div>
               </div>
               <div className="space-y-2 text-start">
-                 <Label className="text-[11px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-1">
+                 <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
                    <ClipboardCheck className="h-3.5 w-3.5 text-secondary" /> {t.fields.notes}
                  </Label>
-                 <Textarea value={plan.notes} onChange={(e) => setPlan({...plan, notes: e.target.value})} className="min-h-[120px] bg-white border border-slate-200 rounded-2xl p-6 font-bold shadow-sm" />
+                 <Textarea value={plan.notes} onChange={(e) => setPlan({...plan, notes: e.target.value})} className="min-h-[120px] border-slate-200 rounded-xl p-6 font-bold shadow-sm" />
               </div>
            </CardContent>
         </Card>
         )}
 
         {step === 2 && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
            <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-2 text-start">
-              <div className="space-y-1">
-                 <h2 className="text-2xl font-black text-primary uppercase tracking-tight">{t.courseLoad}</h2>
-                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{t.courseLoadSub}</p>
+              <div className="space-y-0.5">
+                 <h2 className="text-xl font-black text-primary uppercase">{t.courseLoad}</h2>
+                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.courseLoadSub}</p>
               </div>
-              <Button onClick={addSubject} className="w-full md:w-auto h-12 px-8 rounded-xl bg-secondary text-white font-black text-[11px] uppercase shadow-lg shadow-secondary/20 hover:bg-secondary/90 transition-all active:scale-95">
+              <Button onClick={addSubject} className="w-full md:w-auto h-11 px-8 rounded-xl bg-secondary text-white font-black text-[10px] uppercase shadow-lg shadow-secondary/20 hover:bg-secondary/90 transition-all active:scale-95">
                  <Plus className="h-4 w-4 mr-2" /> {isAr ? 'أضف مادة' : 'Add Subject'}
               </Button>
            </div>
 
-           <div className="grid grid-cols-1 gap-6">
+           <div className="grid grid-cols-1 gap-4">
               {plan.subjects.map((sub, sIdx) => (
-                <Card key={sub.id} className="border-none shadow-premium rounded-2xl bg-white overflow-hidden border border-slate-100 group">
-                   <CardContent className="p-8">
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
-                         <div className="md:col-span-1 flex items-center justify-center">
-                            <div className="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-300 flex items-center justify-center font-black text-lg shadow-inner">{sIdx+1}</div>
-                         </div>
-                         <div className="md:col-span-3 space-y-2 text-start">
-                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
-                              <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameAr}
-                            </Label>
-                            <Input value={sub.nameAr} onChange={(e) => updateSubject(sIdx, 'nameAr', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
-                         </div>
-                         <div className="md:col-span-3 space-y-2 text-start">
-                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
-                              <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameEn}
-                            </Label>
-                            <Input value={sub.nameEn} onChange={(e) => updateSubject(sIdx, 'nameEn', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
-                         </div>
-                         <div className="md:col-span-3 space-y-2 text-start">
-                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
-                              <User className="h-3 w-3 text-secondary" /> {t.fields.subjectTeacher}
-                            </Label>
-                            <Input value={sub.teacher} onChange={(e) => updateSubject(sIdx, 'teacher', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
-                         </div>
-                         <div className="md:col-span-2 flex justify-end">
-                            <Button onClick={() => removeSubject(sIdx)} variant="ghost" className="h-12 w-12 rounded-xl text-red-300 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 className="h-5 w-5" /></Button>
-                         </div>
+                <Card key={sub.id} className="border border-slate-200 shadow-sm bg-white overflow-hidden p-6 group rounded-2xl">
+                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                      <div className="md:col-span-1 flex items-center justify-center">
+                         <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-300 flex items-center justify-center font-black text-lg">{sIdx+1}</div>
                       </div>
-                   </CardContent>
+                      <div className="md:col-span-3 space-y-1.5 text-start">
+                         <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
+                           <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameAr}
+                         </Label>
+                         <Input value={sub.nameAr} onChange={(e) => updateSubject(sIdx, 'nameAr', e.target.value)} className="h-11 border-slate-200 rounded-lg font-bold shadow-sm" />
+                      </div>
+                      <div className="md:col-span-3 space-y-1.5 text-start">
+                         <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
+                           <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameEn}
+                         </Label>
+                         <Input value={sub.nameEn} onChange={(e) => updateSubject(sIdx, 'nameEn', e.target.value)} className="h-11 border-slate-200 rounded-lg font-bold shadow-sm" />
+                      </div>
+                      <div className="md:col-span-3 space-y-1.5 text-start">
+                         <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
+                           <User className="h-3 w-3 text-secondary" /> {t.fields.subjectTeacher}
+                         </Label>
+                         <Input value={sub.teacher} onChange={(e) => updateSubject(sIdx, 'teacher', e.target.value)} className="h-11 border-slate-200 rounded-lg font-bold shadow-sm" />
+                      </div>
+                      <div className="md:col-span-2 flex justify-end">
+                         <Button onClick={() => removeSubject(sIdx)} variant="ghost" className="h-10 w-10 text-red-300 hover:text-red-500 hover:bg-red-50 transition-all rounded-lg"><Trash2 className="h-5 w-5" /></Button>
+                      </div>
+                   </div>
                 </Card>
               ))}
            </div>
@@ -385,46 +385,44 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
         )}
 
         {step === 3 && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
            {plan.subjects.map((sub, sIdx) => (
-             <Card key={sub.id} className="border-none shadow-premium rounded-[2rem] bg-white overflow-hidden border border-slate-100">
-                <CardHeader className="bg-primary p-6 md:p-8 text-white text-start relative overflow-hidden">
-                   <div className="absolute top-0 right-0 p-4 opacity-10"><BookOpen className="h-32 w-32" /></div>
+             <Card key={sub.id} className="border border-slate-200 shadow-sm bg-white overflow-hidden rounded-2xl">
+                <CardHeader className="bg-primary p-6 text-white text-start relative overflow-hidden">
                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
                       <div className="flex items-center gap-4">
-                         <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Layers className="h-6 w-6" /></div>
+                         <div className="h-10 w-10 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Layers className="h-5 w-5" /></div>
                          <div>
-                            <CardTitle className="text-lg font-black uppercase tracking-widest">{isAr ? (sub.nameAr || sub.nameEn || 'مادة غير محددة') : (sub.nameEn || sub.nameAr || 'Unnamed Subject')}</CardTitle>
-                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">{sub.teacher || '-'}</p>
+                            <CardTitle className="text-sm font-black uppercase tracking-widest">{isAr ? (sub.nameAr || sub.nameEn || 'غير مسمى') : (sub.nameEn || sub.nameAr || 'Unnamed')}</CardTitle>
                          </div>
                       </div>
-                      <Button onClick={() => addUnit(sIdx)} variant="outline" className="w-full md:w-auto h-10 border-white/40 text-white hover:bg-white hover:text-primary font-black text-[10px] uppercase tracking-widest bg-transparent">
-                         <Plus className="h-4 w-4 mr-2" /> {isAr ? 'إضافة وحدة' : 'Add Unit'}
+                      <Button onClick={() => addUnit(sIdx)} variant="outline" className="h-10 border-white/30 text-white hover:bg-white hover:text-primary font-black text-[10px] uppercase tracking-widest">
+                         <Plus className="h-4 w-4 mr-2" /> {isAr ? 'أضف وحدة' : 'Add Unit'}
                       </Button>
                    </div>
                 </CardHeader>
                 <CardContent className="p-6 md:p-10 space-y-8">
                    {sub.units.map((unit: any, uIdx: number) => (
-                     <div key={unit.id} className="bg-slate-50/50 p-6 md:p-8 rounded-2xl border border-slate-100 space-y-8 text-start relative group shadow-inner">
-                        <Button onClick={() => removeUnit(sIdx, uIdx)} variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash className="h-4 w-4" /></Button>
+                     <div key={unit.id} className="bg-slate-50/50 p-6 rounded-xl border border-slate-200 space-y-6 text-start relative group">
+                        <Button onClick={() => removeUnit(sIdx, uIdx)} variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><X className="h-4 w-4" /></Button>
                         <div className="flex flex-col md:flex-row items-center gap-6">
                            <div className="flex-1 space-y-2 w-full">
-                              <Label className="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 px-1">
+                              <Label className="text-[10px] font-black text-slate-500 uppercase flex items-center gap-2 px-1">
                                 <Star className="h-3 w-3 text-secondary" /> {isAr ? `الوحدة ${uIdx+1}` : `Unit ${uIdx+1}`}
                               </Label>
-                              <Input value={unit.title} onChange={(e) => updateUnit(sIdx, uIdx, e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" placeholder={t.fields.unitTitle} />
+                              <Input value={unit.title} onChange={(e) => updateUnit(sIdx, uIdx, e.target.value)} className="h-12 border-slate-200 rounded-xl font-bold shadow-sm" placeholder={t.fields.unitTitle} />
                            </div>
-                           <Button onClick={() => addTopic(sIdx, uIdx)} className="w-full md:w-auto bg-secondary text-white font-black text-[10px] h-12 px-8 rounded-xl uppercase tracking-widest shadow-xl shadow-secondary/10 hover:bg-secondary/90 transition-all active:scale-95">
-                             <Plus className="h-4 w-4 mr-2" /> {isAr ? 'أضف درساً' : 'Add Topic'}
+                           <Button onClick={() => addTopic(sIdx, uIdx)} className="w-full md:w-auto h-12 px-8 rounded-xl bg-secondary text-white font-black text-[10px] uppercase shadow-md transition-all active:scale-95">
+                             <Plus className="h-3 w-3 mr-2" /> {isAr ? 'أضف درساً' : 'Add Topic'}
                            </Button>
                         </div>
                         
-                        <div className={cn("grid grid-cols-1 sm:grid-cols-2 gap-4 border-slate-200/50", isAr ? "pr-4 md:pr-10 border-r-2" : "pl-4 md:pl-10 border-l-2")}>
+                        <div className={cn("grid grid-cols-1 sm:grid-cols-2 gap-3", isAr ? "pr-6 border-r-2" : "pl-6 border-l-2")}>
                            {unit.topics.map((topic: any, tIdx: number) => (
-                             <div key={topic.id} className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm group/topic hover:border-secondary/30 transition-all">
-                                <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-300 shadow-inner group-hover/topic:text-secondary group-hover/topic:bg-secondary/5 transition-all">{tIdx+1}</div>
+                             <div key={topic.id} className="flex items-center gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm group/topic transition-all hover:border-secondary/30">
+                                <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-300 group-hover/topic:text-secondary group-hover/topic:bg-secondary/5 transition-all">{tIdx+1}</div>
                                 <Input value={topic.title} onChange={(e) => updateTopic(sIdx, uIdx, tIdx, e.target.value)} className="h-10 border-none bg-transparent font-bold text-xs p-0 focus-visible:ring-0 flex-1" placeholder={t.fields.topicTitle} />
-                                <button onClick={() => removeTopic(sIdx, uIdx, tIdx)} className="ml-auto text-slate-200 hover:text-red-400 opacity-0 group-hover/topic:opacity-100 transition-all"><X className="h-3.5 w-3.5" /></button>
+                                <button onClick={() => removeTopic(sIdx, uIdx, tIdx)} className="text-slate-200 hover:text-red-400 opacity-0 group-hover/topic:opacity-100 transition-all"><X className="h-4 w-4" /></button>
                              </div>
                            ))}
                         </div>
@@ -437,33 +435,29 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
         )}
 
         {step === 4 && (
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-           <CardHeader className="bg-slate-900 p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between text-start relative">
-              <div className="absolute top-0 right-0 p-6 opacity-10"><Target className="h-48 w-48 text-secondary" /></div>
-              <div className="flex items-center gap-6 relative z-10">
-                 <div className="h-14 w-14 rounded-2xl bg-secondary text-white flex items-center justify-center shadow-lg"><Target className="h-7 w-7" /></div>
-                 <div className="space-y-1">
-                   <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight">{t.objectives}</CardTitle>
-                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Define student learning outcomes</p>
-                 </div>
+          <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500 rounded-2xl">
+           <CardHeader className="bg-primary p-8 text-white flex flex-col md:flex-row items-center justify-between text-start gap-4">
+              <div className="flex items-center gap-4 relative z-10">
+                 <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Target className="h-6 w-6" /></div>
+                 <CardTitle className="text-lg font-black uppercase tracking-tight">{t.objectives}</CardTitle>
               </div>
-              <Button onClick={addObjective} className="w-full md:w-auto bg-secondary text-white hover:bg-white hover:text-secondary h-14 px-10 font-black text-[12px] uppercase shadow-2xl transition-all active:scale-95 mt-6 md:mt-0 relative z-10 border-none">
-                 <Plus className="h-5 w-5 mr-3" /> {isAr ? 'تحديد هدف تعليمي' : 'Define Objective'}
+              <Button onClick={addObjective} className="bg-secondary hover:bg-secondary/90 text-white h-12 px-10 rounded-xl font-black text-[11px] uppercase shadow-lg transition-all active:scale-95">
+                 <Plus className="h-5 w-5 mr-3" /> {isAr ? 'تحديد هدف تعليمي' : 'Define Learning Goal'}
               </Button>
            </CardHeader>
-           <CardContent className="p-8 md:p-12 space-y-6">
+           <CardContent className="p-8 md:p-12 space-y-4">
               {plan.objectives.map((obj, oIdx) => (
-                <div key={obj.id} className="flex gap-6 p-6 bg-slate-50/50 rounded-2xl border border-slate-100 items-center group shadow-inner">
-                   <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-black text-slate-300 text-sm shrink-0 shadow-sm group-hover:text-secondary group-hover:border-secondary/30 transition-all">{oIdx+1}</div>
+                <div key={obj.id} className="flex gap-6 p-6 bg-slate-50/50 rounded-xl border border-slate-200 items-center group shadow-inner">
+                   <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-black text-slate-300 text-sm shrink-0 shadow-sm group-hover:text-secondary group-hover:border-secondary transition-all">{oIdx+1}</div>
                    <div className="flex-1 space-y-2 text-start">
                       <Label className="text-[10px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
-                        <Target className="h-3 w-3 text-secondary/50" /> Objective Details
+                        <Target className="h-3 w-3 text-secondary/50" /> Objective Description
                       </Label>
                       <Input value={obj.title} onChange={(e) => {
                         const newObj = [...plan.objectives];
                         newObj[oIdx].title = e.target.value;
                         setPlan({...plan, objectives: newObj});
-                      }} className="h-14 bg-white border border-slate-200 rounded-xl font-bold shadow-sm focus:border-secondary transition-all" placeholder={t.fields.objectiveTitle} />
+                      }} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm focus:border-secondary" placeholder={t.fields.objectiveTitle} />
                    </div>
                    <button onClick={() => removeObjective(oIdx)} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="h-5 w-5" /></button>
                 </div>
@@ -474,20 +468,20 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       </div>
 
       {/* Footer Navigation */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-6 px-4 pt-12 border-t border-slate-100">
+      <div className="flex items-center justify-between gap-6 px-4 pt-10 border-t border-slate-200">
          {step > 1 ? (
-           <Button onClick={() => setStep(step - 1)} variant="outline" className="w-full sm:w-auto h-16 px-10 rounded-2xl font-black text-[12px] uppercase tracking-widest text-slate-500 border-slate-200 hover:bg-slate-50 gap-3 shadow-sm transition-all active:scale-95 bg-white">
+           <Button onClick={() => setStep(step - 1)} variant="outline" className="h-14 px-10 rounded-xl font-black text-[11px] uppercase tracking-widest text-slate-500 border-slate-200 hover:bg-slate-50 gap-3 transition-all active:scale-95 bg-white">
               {isAr ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />} {t.prev}
            </Button>
-         ) : <div className="hidden sm:block" />}
+         ) : <div />}
 
          {step < 4 ? (
-           <Button onClick={() => setStep(step + 1)} className="w-full sm:w-auto h-16 px-16 rounded-2xl bg-primary text-white font-black text-[12px] uppercase tracking-widest shadow-2xl shadow-primary/20 gap-4 group active:scale-95 transition-all">
-              {t.next} {isAr ? <ChevronLeft className="h-6 w-6 group-hover:-translate-x-1 transition-transform" /> : <ChevronRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />}
+           <Button onClick={() => setStep(step + 1)} className="h-14 px-14 rounded-xl bg-primary text-white font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 gap-4 group active:scale-95 transition-all">
+              {t.next} {isAr ? <ChevronLeft className="h-6 w-6" /> : <ChevronRight className="h-6 w-6" />}
            </Button>
          ) : (
-            <Button onClick={() => handleSavePlan('approved')} disabled={isSaving} className="w-full sm:w-auto h-16 px-16 rounded-2xl bg-secondary text-white font-black text-[14px] uppercase tracking-widest shadow-2xl shadow-secondary/20 gap-4 active:scale-95 transition-all hover:bg-secondary/90">
-               {isSaving ? <Loader2 className="h-6 w-6 animate-spin" /> : <CheckCircle2 className="h-6 w-6" />}
+            <Button onClick={() => handleSavePlan('approved')} disabled={isSaving} className="h-14 px-14 rounded-xl bg-secondary text-white font-black text-[12px] uppercase tracking-widest shadow-xl transition-all hover:bg-secondary/90">
+               {isSaving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-5 w-5 mr-2" />}
                {t.approve}
             </Button>
          )}
