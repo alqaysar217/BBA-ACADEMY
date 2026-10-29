@@ -15,8 +15,6 @@ import {
   Loader2, 
   FileText,
   Users,
-  ShieldCheck,
-  Calendar as CalendarIcon,
   MapPin,
   Camera,
   BookOpen,
@@ -25,11 +23,12 @@ import {
   Briefcase,
   Mail,
   Phone,
-  Hash,
-  Type,
   Info,
   GraduationCap,
-  Building
+  Building,
+  Type,
+  Hash,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -192,12 +191,11 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   const defaultImage = student.gender === 'Female' ? '/Female.png' : '/Male.png';
   const profileImage = editData.photoURL || defaultImage;
 
-  const DataField = ({ label, path, type = "text", icon: Icon, className = "" }: any) => {
+  const DataField = ({ label, path, type = "text", className = "" }: any) => {
     const value = path.split('.').reduce((acc: any, part: string) => acc && acc[part], editData);
     return (
-      <div className={cn("space-y-1 text-start", className)}>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-          {Icon && <Icon className="h-3 w-3 text-secondary" />}
+      <div className={cn("space-y-1.5 text-start", className)}>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
           {label}
         </p>
         {isEditing ? (
@@ -205,10 +203,10 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
             type={type}
             value={value || ''} 
             onChange={(e) => handleNestedUpdate(path, e.target.value)}
-            className="h-10 bg-slate-50 border-slate-100 font-bold focus:border-primary"
+            className="h-11 bg-slate-50 border-slate-100 font-bold focus:border-primary transition-all"
           />
         ) : (
-          <p className={cn("text-sm font-bold text-slate-900", !value && "text-slate-300 italic")}>
+          <p className={cn("text-base font-bold text-slate-900 leading-tight", !value && "text-slate-300 italic")}>
             {value || t.notRegistered}
           </p>
         )}
@@ -220,7 +218,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     <div className="max-w-6xl mx-auto space-y-6 pb-20 px-4 sm:px-6">
       <NavigationBar />
 
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-2">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
         <Link href={`/${lang}/admin/students`} className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
           {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           {t.back}
@@ -231,100 +229,110 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
               <Button onClick={() => setIsEditing(false)} variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                 {t.cancel}
               </Button>
-              <Button onClick={saveChanges} disabled={isSaving} className="bg-primary text-white h-10 px-6 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-lg">
+              <Button onClick={saveChanges} disabled={isSaving} className="bg-primary text-white h-11 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl">
                 {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                 {t.save}
               </Button>
             </>
           ) : (
-            <Button onClick={() => setIsEditing(true)} variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all">
+            <Button onClick={() => setIsEditing(true)} variant="outline" className="h-11 px-8 rounded-xl border-slate-200 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">
               <Edit3 className="h-4 w-4 mr-2" /> {t.edit}
             </Button>
           )}
         </div>
       </div>
 
-      {/* CARD 1: PRIMARY IDENTITY (3 ROWS OF DATA) */}
-      <Card className="border-none shadow-premium bg-white overflow-hidden">
-        <CardContent className="p-0">
-          <div className="p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-10">
-             {/* LEFT: Image + ID & Status */}
-             <div className="flex flex-col items-center gap-6 shrink-0">
+      {/* CARD 1: PRIMARY IDENTITY (Spacious 3-Row Layout) */}
+      <Card className="border-none shadow-premium bg-white overflow-hidden rounded-[2rem]">
+        <CardContent className="p-8 sm:p-12 lg:p-14">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-12 lg:gap-20">
+             
+             {/* LEFT/RIGHT COLUMN: Photo + ID & Status */}
+             <div className="flex flex-col items-center gap-6 shrink-0 w-full md:w-auto">
                 <div className="relative group">
-                  <div className="h-44 w-44 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl">
+                  <div className="h-48 w-44 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
                     <Image src={profileImage} alt="Student" fill className="object-cover" unoptimized />
                     {isUploadingPhoto && <div className="absolute inset-0 bg-black/40 flex items-center justify-center"><Loader2 className="h-6 w-6 text-white animate-spin" /></div>}
                   </div>
                   <button 
                     onClick={() => fileInputRef.current?.click()} 
-                    className="absolute -bottom-2 -right-2 h-10 w-10 bg-white shadow-2xl rounded-xl border border-slate-100 flex items-center justify-center text-primary hover:text-secondary transition-all"
+                    className="absolute -bottom-2 -right-2 h-11 w-11 bg-white shadow-2xl rounded-2xl border border-slate-100 flex items-center justify-center text-primary hover:text-secondary transition-all hover:scale-110 active:scale-95"
                   >
                     <Camera className="h-5 w-5" />
                   </button>
                   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
                 </div>
 
-                <div className="text-center space-y-1">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">ID: {id?.toUpperCase()}</p>
+                <div className="text-center space-y-2">
+                   <div className="px-4 py-1 bg-slate-50 rounded-lg border border-slate-100">
+                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">ID</p>
+                     <p className="text-xs font-black text-primary font-mono">{id?.toUpperCase()}</p>
+                   </div>
                    <Badge className={cn(
-                       "border-none text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm",
+                       "border-none text-[9px] font-black uppercase tracking-widest px-5 py-1.5 rounded-full shadow-sm w-full justify-center",
                        student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
                    )}>{student.status}</Badge>
                 </div>
              </div>
 
-             {/* RIGHT: Vitals (3 ROWS) */}
-             <div className="text-center md:text-start flex-1 w-full">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-10 gap-x-8">
-                   {/* Row 1 */}
-                   <DataField label={t.fields.firstName} path="firstName" icon={User} />
-                   <DataField label={t.fields.middleName} path="middleName" icon={Type} />
-                   <DataField label={t.fields.lastName} path="lastName" icon={User} />
+             {/* DATA COLUMN: 3 Rows Grid */}
+             <div className="flex-1 w-full space-y-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-12 gap-x-12">
+                   {/* Row 1: Personal Names */}
+                   <DataField label={t.fields.firstName} path="firstName" />
+                   <DataField label={t.fields.middleName} path="middleName" />
+                   <DataField label={t.fields.lastName} path="lastName" />
                    
-                   {/* Row 2 */}
-                   <DataField label={t.fields.dob} path="dob" type="date" icon={CalendarIcon} />
-                   <DataField label={t.fields.gender} path="gender" icon={Users} />
-                   <DataField label={t.fields.grade} path="gradeLevel" icon={GraduationCap} />
+                   {/* Row 2: Vitals */}
+                   <DataField label={t.fields.dob} path="dob" type="date" />
+                   <DataField label={t.fields.gender} path="gender" />
+                   <DataField label={t.fields.grade} path="gradeLevel" />
 
-                   {/* Row 3 */}
-                   <DataField label={t.fields.phone} path="phone" icon={Phone} />
-                   <DataField label={t.fields.email} path="email" icon={Mail} className="sm:col-span-2" />
+                   {/* Row 3: Communication */}
+                   <DataField label={t.fields.phone} path="phone" />
+                   <DataField label={t.fields.email} path="email" className="sm:col-span-2" />
                 </div>
              </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* CARD 2: RESIDENCE & PROGRAM DETAILS */}
-      <Card className="border-none shadow-premium bg-white overflow-hidden">
-        <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 py-4">
-           <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
+      {/* CARD 2: RESIDENCE & PROGRAM DETAILS (Secondary Stats) */}
+      <Card className="border-none shadow-premium bg-white overflow-hidden rounded-[2rem]">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 sm:px-12 py-5">
+           <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-3">
               <MapPin className="h-4 w-4 text-secondary" />
               {t.sections.residence}
            </CardTitle>
         </CardHeader>
-        <CardContent className="p-6 sm:p-8 lg:p-10 space-y-12">
-           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-              <DataField label={isAr ? 'البرنامج' : 'Program'} path="program" icon={Briefcase} />
-              <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} className="sm:col-span-1 md:col-span-3" />
+        <CardContent className="p-8 sm:p-12 lg:p-14 space-y-16">
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-12">
+              <DataField label={t.fields.program} path="program" />
+              <DataField label={t.fields.addr1} path="address.line1" className="sm:col-span-1 md:col-span-3" />
               
-              <DataField label={t.fields.city} path="address.city" icon={Building} />
-              <DataField label={t.fields.state} path="address.state" icon={MapPin} />
-              <DataField label={t.fields.zip} path="address.zip" icon={Hash} />
+              <DataField label={t.fields.city} path="address.city" />
+              <DataField label={t.fields.state} path="address.state" />
+              <DataField label={t.fields.zip} path="address.zip" />
            </div>
 
-           <div className="pt-8 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-12">
-              <div className="space-y-1 text-center sm:text-start">
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'تاريخ الانضمام' : 'Joined Since'}</p>
-                 <p className="text-sm font-black text-slate-700">
+           <div className="pt-10 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-16 lg:gap-24">
+              <div className="space-y-1.5 text-center sm:text-start">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <CalendarIcon className="h-3 w-3 text-secondary" />
+                    {isAr ? 'تاريخ الانضمام' : 'Joined Since'}
+                 </p>
+                 <p className="text-base font-black text-slate-700">
                     {student.createdAt && typeof student.createdAt.toDate === 'function' 
                        ? format(student.createdAt.toDate(), 'MMMM dd, yyyy') 
                        : '-'}
                  </p>
               </div>
-              <div className="space-y-1 text-center sm:text-start">
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'آخر تحديث' : 'Last Updated'}</p>
-                 <p className="text-sm font-black text-secondary">
+              <div className="space-y-1.5 text-center sm:text-start">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <Info className="h-3 w-3 text-secondary" />
+                    {isAr ? 'آخر تحديث للسجل' : 'Last Master Update'}
+                 </p>
+                 <p className="text-base font-black text-secondary">
                     {student.updatedAt && typeof student.updatedAt.toDate === 'function' 
                        ? format(student.updatedAt.toDate(), 'MMMM dd, HH:mm') 
                        : '-'}
@@ -334,14 +342,14 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </CardContent>
       </Card>
 
-      <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 flex items-start gap-4 mx-2">
-         <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-         <div className="space-y-1">
+      <div className="bg-amber-50/50 p-8 rounded-3xl border border-amber-100 flex items-start gap-6 mx-2 shadow-sm">
+         <Info className="h-7 w-7 text-amber-600 shrink-0 mt-0.5 opacity-60" />
+         <div className="space-y-1.5">
             <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">{isAr ? 'ملاحظة الأرشفة' : 'Registry Note'}</p>
-            <p className="text-xs font-bold text-amber-900/60 leading-relaxed italic text-start">
+            <p className="text-sm font-bold text-amber-900/60 leading-relaxed italic text-start">
                {isAr 
                   ? 'تم تجميع كافة بيانات الطالب في هذا الملف الموحد لضمان سهولة الوصول والتوثيق الأكاديمي.' 
-                  : 'All student vital statistics and address data have been consolidated into this master profile for streamlined academic documentation.'}
+                  : 'All student vital statistics and residence data have been consolidated into this master profile for streamlined academic documentation.'}
             </p>
          </div>
       </div>
