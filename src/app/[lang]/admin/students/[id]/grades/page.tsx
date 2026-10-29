@@ -43,7 +43,8 @@ import {
   FileSpreadsheet,
   BadgeCheck,
   ChevronDown,
-  Globe
+  Globe,
+  Filter
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -107,6 +108,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
   // Column visibility state
   const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'assessment', 'score', 'percent', 'grade', 'date']);
+  
+  // Per-plan assessment type filters
+  const [planFilters, setPlanFilters] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     planId: '',
@@ -178,7 +182,8 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       percent: isAr ? 'النسبة' : 'Percent',
       grade: isAr ? 'التقدير' : 'Grade',
       date: isAr ? 'التاريخ' : 'Date',
-      actions: isAr ? 'إجراءات' : 'Actions'
+      actions: isAr ? 'إجراءات' : 'Actions',
+      filterLabel: isAr ? 'تصفية:' : 'Filter:'
     },
     nav: {
       profile: isAr ? 'الهوية' : 'Identity',
@@ -253,6 +258,10 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
   const toggleColumn = (col: string) => {
     setVisibleColumns(prev => prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]);
+  };
+
+  const handlePlanFilterChange = (planId: string, value: string) => {
+    setPlanFilters(prev => ({ ...prev, [planId]: value }));
   };
 
   if (studentLoading) return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
@@ -388,11 +397,14 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       <Accordion type="multiple" className="space-y-6">
         {plans.map(plan => {
           const planGrades = groupedGrades[plan.id] || [];
+          const currentFilter = planFilters[plan.id] || 'all';
+          const filteredGrades = planGrades.filter(g => currentFilter === 'all' || g.assessmentName === currentFilter);
+
           return (
             <AccordionItem key={plan.id} value={plan.id} className="border-none">
               <Card className="border border-slate-200 shadow-premium rounded-[1.5rem] overflow-hidden bg-white">
-                 <div className="flex flex-col md:flex-row items-center justify-between bg-slate-50/80 border-b border-slate-100 group">
-                    <AccordionTrigger className="flex-1 hover:no-underline p-8 text-start [&[data-state=open]>svg]:rotate-180 transition-colors group-hover:bg-slate-50/50">
+                 <div className="flex flex-col lg:flex-row items-center justify-between bg-slate-50/80 border-b border-slate-100 group px-8 py-4 lg:py-0">
+                    <AccordionTrigger className="flex-1 hover:no-underline py-6 text-start [&[data-state=open]>svg]:rotate-180 transition-colors group-hover:bg-slate-50/50">
                        <div className="flex items-center gap-4">
                           <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center border border-primary/10 shadow-inner"><FileSpreadsheet className="h-6 w-6" /></div>
                           <div>
@@ -402,7 +414,23 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                        </div>
                     </AccordionTrigger>
                     
-                    <div className="flex items-center gap-3 px-8 pb-6 md:pb-0">
+                    <div className="flex flex-wrap items-center gap-3 py-4 lg:py-0">
+                       <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                          <Filter className="h-3.5 w-3.5 text-secondary" />
+                          <span className="text-[10px] font-black uppercase text-slate-400 whitespace-nowrap">{t.table.filterLabel}</span>
+                          <Select value={currentFilter} onValueChange={(v) => handlePlanFilterChange(plan.id, v)}>
+                            <SelectTrigger className="h-8 border-none bg-transparent font-bold text-xs shadow-none focus:ring-0 p-0 w-[120px]">
+                              <SelectValue placeholder="..." />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectItem value="all" className="font-bold text-xs">{isAr ? 'الكل' : 'All'}</SelectItem>
+                              {t.assessmentTypes.map(at => (
+                                <SelectItem key={at.v} value={at.v} className="font-bold text-xs">{at.l}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                       </div>
+
                        <DropdownMenu>
                          <DropdownMenuTrigger asChild>
                            <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm transition-all">
@@ -412,7 +440,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                          <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
                            <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
                            <DropdownMenuSeparator />
-                           {Object.keys(t.table).filter(k => k !== 'columns' && k !== 'actions').map(col => (
+                           {Object.keys(t.table).filter(k => !['columns', 'actions', 'filterLabel'].includes(k)).map(col => (
                              <DropdownMenuCheckboxItem
                                key={col}
                                checked={visibleColumns.includes(col)}
@@ -442,14 +470,16 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                              </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                             {planGrades.length === 0 ? (
+                             {filteredGrades.length === 0 ? (
                                <tr>
                                   <td colSpan={visibleColumns.length + 1} className="py-20 text-center">
                                      <Info className="h-10 w-10 text-slate-100 mx-auto mb-4" />
-                                     <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد درجات مرصودة لهذه الخطة بعد' : 'No grades recorded for this plan'}</p>
+                                     <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">
+                                       {currentFilter === 'all' ? (isAr ? 'لا توجد درجات مرصودة' : 'No grades recorded') : (isAr ? 'لا توجد نتائج لهذا النوع' : 'No results for this type')}
+                                     </p>
                                   </td>
                                </tr>
-                             ) : planGrades.map((g: any) => {
+                             ) : filteredGrades.map((g: any) => {
                                const pct = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
                                const letterGrade = getLetterGrade(pct);
                                
@@ -457,10 +487,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                  <tr key={g.id} className="hover:bg-slate-50/50 transition-colors group">
                                     {visibleColumns.includes('subject') && (
                                       <td className="px-8 py-6">
-                                         <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-xs shadow-lg group-hover:scale-110 transition-transform">{g.subject?.charAt(0).toUpperCase()}</div>
-                                            <span className="font-black text-slate-900 uppercase text-sm">{g.subject}</span>
-                                         </div>
+                                         <span className="font-black text-slate-900 uppercase text-sm">{g.subject}</span>
                                       </td>
                                     )}
                                     {visibleColumns.includes('assessment') && (
