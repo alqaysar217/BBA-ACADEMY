@@ -10,12 +10,13 @@ import {
   ChevronRight, Filter, Download,
   CreditCard, BookOpen, User, Wallet,
   Calendar, X, ArrowUpDown, FileSpreadsheet,
-  CalendarDays, Briefcase
+  CalendarDays, Briefcase, UserSearch
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -35,15 +36,17 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
   
   // States for Filtering
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterName, setFilterName] = useState('');
   const [filterProgram, setFilterProgram] = useState('all');
   const [filterGrade, setFilterGrade] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
+  // Query ordered by creation time descending (Last added on top)
   const studentsQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'students'), orderBy('updatedAt', 'desc'));
+    return query(collection(firestore, 'students'), orderBy('createdAt', 'desc'));
   }, [firestore]);
 
   const { data: students, loading } = useCollection(studentsQuery);
@@ -51,20 +54,23 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
   const filteredStudents = useMemo(() => {
     if (!students) return [];
     return students.filter(s => {
-      // 1. Search filter
+      // 1. Main Search filter (Global)
       const matchesSearch = 
         s.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.parentName?.toLowerCase().includes(searchTerm.toLowerCase());
+        s.id?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // 2. Program filter
+      // 2. Specific Name filter
+      const matchesSpecificName = !filterName || 
+        `${s.firstName} ${s.lastName}`.toLowerCase().includes(filterName.toLowerCase());
+
+      // 3. Program filter
       const matchesProgram = filterProgram === 'all' || s.program === filterProgram;
 
-      // 3. Grade filter
+      // 4. Grade filter
       const matchesGrade = filterGrade === 'all' || String(s.gradeLevel) === filterGrade;
 
-      // 4. Date range filter
+      // 5. Date range filter
       let matchesDate = true;
       if (dateFrom || dateTo) {
         const joinDate = s.createdAt?.toDate ? s.createdAt.toDate() : null;
@@ -77,9 +83,9 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
         }
       }
 
-      return matchesSearch && matchesProgram && matchesGrade && matchesDate;
+      return matchesSearch && matchesSpecificName && matchesProgram && matchesGrade && matchesDate;
     });
-  }, [students, searchTerm, filterProgram, filterGrade, dateFrom, dateTo]);
+  }, [students, searchTerm, filterName, filterProgram, filterGrade, dateFrom, dateTo]);
 
   const exportToCSV = () => {
     if (!filteredStudents.length) return;
@@ -119,9 +125,10 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
   const t = {
     title: isAr ? 'سجل الطلاب النشطين' : 'Active Student Roster',
-    searchPlaceholder: isAr ? 'بحث عن طالب، ولي أمر، أو رقم المعرف...' : 'Search student, parent, or ID...',
+    searchPlaceholder: isAr ? 'بحث سريع باسم الطالب أو المعرف...' : 'Search student name or ID...',
     filters: {
       title: isAr ? 'أدوات الفلترة والبحث' : 'Filter & Search Tools',
+      name: isAr ? 'فلترة حسب الاسم' : 'Filter by Name',
       program: isAr ? 'البرنامج التعليمي' : 'Educational Program',
       grade: isAr ? 'المستوى الدراسي' : 'Grade Level',
       from: isAr ? 'من تاريخ' : 'From Date',
@@ -173,7 +180,19 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
 
             {/* Expandable Filter Grid */}
             {isFilterVisible && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-500">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-500">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                       <UserSearch className="h-3.5 w-3.5 text-secondary" /> {t.filters.name}
+                    </Label>
+                    <Input 
+                       value={filterName} 
+                       onChange={(e) => setFilterName(e.target.value)}
+                       className="h-12 bg-slate-50 border-none rounded-xl font-bold text-xs"
+                       placeholder={isAr ? "اكتب الاسم..." : "Type name..."}
+                    />
+                 </div>
+
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                        <Briefcase className="h-3.5 w-3.5 text-secondary" /> {t.filters.program}
@@ -366,7 +385,7 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
          <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-               {isAr ? 'نظام المزامنة الذكي مفعل' : 'Smart Sync Active'}
+               {isAr ? 'مرتب حسب الإضافة الأحدث' : 'Sorted by Latest Addition'}
             </div>
             <div className="flex items-center gap-2">
                <CreditCard className="h-3 w-3 text-secondary" />
@@ -396,7 +415,3 @@ export default function StudentsRegistryPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
-
-const Label = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-  <label className={cn("block", className)}>{children}</label>
-);
