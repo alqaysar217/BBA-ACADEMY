@@ -44,7 +44,8 @@ import {
   BadgeCheck,
   ChevronDown,
   Globe,
-  Filter
+  Filter,
+  CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -310,10 +311,12 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                    <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center shadow-lg"><ClipboardCheck className="h-6 w-6" /></div>
                    <DialogTitle className="text-xl font-black uppercase tracking-tight">{editGrade ? t.editGrade : t.addGrade}</DialogTitle>
                 </div>
-                <div className="p-8 space-y-8">
+                <div className="p-8 space-y-8" dir={isAr ? 'rtl' : 'ltr'}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-start">
                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400">{t.fields.plan}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
+                           <Layers className="h-3 w-3 text-secondary" /> {t.fields.plan}
+                        </Label>
                         <Select value={formData.planId} onValueChange={(v) => setFormData({...formData, planId: v, subject: ''})}>
                            <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
                               <SelectValue placeholder="..." />
@@ -324,7 +327,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                         </Select>
                      </div>
                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400">{t.fields.subject}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
+                           <BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subject}
+                        </Label>
                         <Select disabled={!formData.planId} value={formData.subject} onValueChange={(v) => setFormData({...formData, subject: v})}>
                            <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
                               <SelectValue placeholder="..." />
@@ -339,7 +344,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                         </Select>
                      </div>
                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400">{t.fields.assessment}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
+                           <ClipboardCheck className="h-3 w-3 text-secondary" /> {t.fields.assessment}
+                        </Label>
                         <Select value={formData.assessmentName} onValueChange={(v) => setFormData({...formData, assessmentName: v})}>
                            <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
                               <SelectValue placeholder="..." />
@@ -350,15 +357,21 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                         </Select>
                      </div>
                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400">{t.fields.date}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
+                           <Calendar className="h-3 w-3 text-secondary" /> {t.fields.date}
+                        </Label>
                         <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
                      </div>
                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400">{t.fields.score}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
+                           <Star className="h-3 w-3 text-secondary" /> {t.fields.score}
+                        </Label>
                         <Input type="number" value={formData.score} onChange={(e) => setFormData({...formData, score: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
                      </div>
                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400">{t.fields.total}</Label>
+                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
+                           <CheckCircle2 className="h-3 w-3 text-secondary" /> {t.fields.total}
+                        </Label>
                         <Input type="number" value={formData.totalScore} onChange={(e) => setFormData({...formData, totalScore: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
                      </div>
                   </div>
