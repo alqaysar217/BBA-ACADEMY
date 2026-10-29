@@ -82,9 +82,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
       finances: isAr ? 'المالية' : 'Finances'
     },
     sections: {
-      personal: isAr ? 'البيانات الشخصية والأساسية' : 'Identity & Vital Statistics',
-      residence: isAr ? 'عنوان السكن المسجل' : 'Registered Residence',
-      registry: isAr ? 'معلومات السجل' : 'Registry Details',
+      personal: isAr ? 'البيانات الشخصية الأساسية' : 'Identity & Vital Statistics',
+      residence: isAr ? 'تفاصيل السجل والسكن' : 'Registry & Residence Details',
     },
     fields: {
       firstName: isAr ? 'الاسم الأول' : 'First Name',
@@ -99,7 +98,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
       addr1: isAr ? 'العنوان' : 'Address',
       city: isAr ? 'المدينة' : 'City',
       state: isAr ? 'الولاية' : 'State',
-      zip: isAr ? 'الرمز البريدي' : 'ZIP'
+      zip: isAr ? 'الرمز البريدي' : 'ZIP',
+      program: isAr ? 'البرنامج' : 'Program'
     }
   };
 
@@ -191,10 +191,10 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   const defaultImage = student.gender === 'Female' ? '/Female.png' : '/Male.png';
   const profileImage = editData.photoURL || defaultImage;
 
-  const DataField = ({ label, path, type = "text", icon: Icon }: any) => {
+  const DataField = ({ label, path, type = "text", icon: Icon, className = "" }: any) => {
     const value = path.split('.').reduce((acc: any, part: string) => acc && acc[part], editData);
     return (
-      <div className="space-y-1 text-start">
+      <div className={cn("space-y-1 text-start", className)}>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
           {Icon && <Icon className="h-3 w-3 text-secondary" />}
           {label}
@@ -216,7 +216,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-20">
+    <div className="max-w-6xl mx-auto space-y-6 pb-20 px-4 sm:px-6">
       <NavigationBar />
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-2">
@@ -243,12 +243,12 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </div>
       </div>
 
-      {/* CARD 1: PRIMARY IDENTITY */}
+      {/* CARD 1: PRIMARY IDENTITY (3 ROWS OF DATA) */}
       <Card className="border-none shadow-premium bg-white overflow-hidden">
         <CardContent className="p-0">
-          <div className="p-8 flex flex-col md:flex-row items-center md:items-start gap-8">
+          <div className="p-8 flex flex-col md:flex-row items-center md:items-start gap-10">
              <div className="relative group shrink-0">
-                <div className="h-40 w-40 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl">
+                <div className="h-44 w-44 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl">
                   <Image src={profileImage} alt="Student" fill className="object-cover" unoptimized />
                   {isUploadingPhoto && <div className="absolute inset-0 bg-black/40 flex items-center justify-center"><Loader2 className="h-6 w-6 text-white animate-spin" /></div>}
                 </div>
@@ -261,37 +261,38 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
              </div>
 
-             <div className="text-center md:text-start space-y-4 flex-1">
-                <div className="space-y-1">
-                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                     <h1 className="text-3xl md:text-4xl font-black text-primary tracking-tighter uppercase">{student.firstName} {student.lastName}</h1>
-                     <Badge className={cn(
-                        "border-none text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm",
-                        student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
-                     )}>{student.status}</Badge>
+             <div className="text-center md:text-start space-y-8 flex-1">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pb-4 border-b border-slate-50">
+                   <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">STUDENT ID: {id?.toUpperCase()}</p>
+                      <Badge className={cn(
+                          "border-none text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm",
+                          student.status === 'active' ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-400"
+                      )}>{student.status}</Badge>
                    </div>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">STUDENT ID: {id?.toUpperCase()}</p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-8">
+                   {/* Row 1 */}
                    <DataField label={t.fields.firstName} path="firstName" icon={User} />
                    <DataField label={t.fields.middleName} path="middleName" icon={Type} />
                    <DataField label={t.fields.lastName} path="lastName" icon={User} />
+                   
+                   {/* Row 2 */}
                    <DataField label={t.fields.dob} path="dob" type="date" icon={CalendarIcon} />
                    <DataField label={t.fields.gender} path="gender" icon={Users} />
                    <DataField label={t.fields.grade} path="gradeLevel" icon={GraduationCap} />
-                   <DataField label={isAr ? 'البرنامج' : 'Program'} path="program" icon={Briefcase} />
+
+                   {/* Row 3 */}
                    <DataField label={t.fields.phone} path="phone" icon={Phone} />
-                   <div className="sm:col-span-2">
-                    <DataField label={t.fields.email} path="email" icon={Mail} />
-                   </div>
+                   <DataField label={t.fields.email} path="email" icon={Mail} className="md:col-span-2" />
                 </div>
              </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* CARD 2: RESIDENCE & REGISTRY LOGS */}
+      {/* CARD 2: RESIDENCE & PROGRAM DETAILS */}
       <Card className="border-none shadow-premium bg-white overflow-hidden">
         <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 py-4">
            <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
@@ -299,11 +300,11 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
               {t.sections.residence}
            </CardTitle>
         </CardHeader>
-        <CardContent className="p-8 lg:p-10 space-y-10">
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="sm:col-span-2">
-                <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} />
-              </div>
+        <CardContent className="p-8 lg:p-10 space-y-12">
+           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <DataField label={t.fields.program} path="program" icon={Briefcase} />
+              <DataField label={t.fields.addr1} path="address.line1" icon={MapPin} className="md:col-span-3" />
+              
               <DataField label={t.fields.city} path="address.city" icon={Building} />
               <DataField label={t.fields.state} path="address.state" icon={MapPin} />
               <DataField label={t.fields.zip} path="address.zip" icon={Hash} />
@@ -344,4 +345,3 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
-
