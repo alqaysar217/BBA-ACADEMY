@@ -289,10 +289,16 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     if (!certificateRef.current) return;
     setIsExportingImage(true);
     try {
+      // Fix for "font is undefined" trim error: Ensure fonts are loaded and use robust toPng options
       const dataUrl = await htmlToImage.toPng(certificateRef.current, {
         quality: 1,
         pixelRatio: 2,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        skipFonts: false,
+        style: {
+           // Force clean font inheritance to avoid trim() on undefined font property
+           font: 'inherit'
+        }
       });
       const link = document.createElement('a');
       link.download = `BBA_Certificate_${student?.firstName}_${selectedPlanId}.png`;
@@ -300,9 +306,13 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       link.click();
       setIsExportingDialogOpen(false);
       toast({ title: isAr ? "تم تحميل الصورة بنجاح" : "Image downloaded successfully" });
-    } catch (error) {
-      console.error('oops, something went wrong!', error);
-      toast({ variant: 'destructive', title: "Export failed" });
+    } catch (error: any) {
+      console.error('Export Error:', error);
+      toast({ 
+        variant: 'destructive', 
+        title: "Export failed", 
+        description: error.message || "Failed to process image capture." 
+      });
     } finally {
       setIsExportingImage(false);
     }
@@ -452,7 +462,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
            </div>
            
            <div className="flex-1 overflow-y-auto bg-slate-100 p-8 custom-scrollbar">
-              {/* Type Switcher in Simulation Header */}
               <div className="max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                  <div className="flex items-center gap-3">
                    <span className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'نوع الكشف:' : 'Report Type:'}</span>
@@ -477,45 +486,43 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                  </Button>
               </div>
 
-              {/* SIMULATION CONTAINER (This is what html-to-image captures) */}
               <div className="flex justify-center">
                  <div 
                    ref={certificateRef}
                    className="bg-white text-slate-900 flex flex-col relative font-sans shadow-2xl overflow-hidden" 
-                   style={{ width: '210mm', height: '297mm', minHeight: '297mm', boxSizing: 'border-box' }}
+                   style={{ 
+                     width: '210mm', 
+                     height: '297mm', 
+                     minHeight: '297mm', 
+                     boxSizing: 'border-box',
+                     fontFamily: 'var(--font-inter), sans-serif'
+                   }}
                  >
-                    {/* Background Seal */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
                        <img src="/logo.png" className="w-96 h-96 grayscale" alt="watermark" />
                     </div>
 
-                    <div className="relative z-10 flex flex-col h-full border-[10mm] border-double border-primary/10 p-10">
-                       {/* Bismillah */}
+                    <div className="relative z-10 flex flex-col h-full border-[10mm] border-double border-primary/10 p-10" style={{ font: 'inherit' }}>
                        <div className="text-center font-serif font-black text-[16pt] text-primary mb-6">
                           بسم الله الرحمن الرحيم
                        </div>
 
-                       {/* Main Header */}
                        <header className="grid grid-cols-3 items-start gap-6 border-b-2 border-primary/20 pb-6 mb-8">
-                          {/* Right: Arabic */}
                           <div className="text-center space-y-1">
                              <p className="text-[10pt] font-black text-primary leading-tight font-arabic">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
                              <p className="text-[8pt] text-slate-500 font-bold font-arabic">ميشيغان - الولايات المتحدة الأمريكية</p>
                           </div>
                           
-                          {/* Center: Logo */}
                           <div className="flex justify-center items-center">
                              <img src="/logo.png" className="h-20 w-20 object-contain" alt="Logo" />
                           </div>
                           
-                          {/* Left: English */}
                           <div className="text-center space-y-1">
                              <p className="text-[9pt] font-black text-primary leading-tight">Masjid Al-Salam & Banaat Academy for Distance Education & Academic Excellence</p>
                              <p className="text-[8pt] text-slate-500 font-bold">Michigan - USA</p>
                           </div>
                        </header>
 
-                       {/* Document Title */}
                        <div className="text-center mb-8 space-y-3">
                           <h1 className="bg-primary text-white py-3 px-12 rounded-lg inline-block text-[14pt] font-black uppercase tracking-widest shadow-lg">
                              {exportType === 'monthly' ? (isAr ? 'شهادة نتيجة الاختبار الشهري' : 'Monthly Examination Report') : (isAr ? 'شهادة نتيجة الاختبار الفصلي' : 'Semester Examination Report')}
@@ -529,7 +536,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           )}
                        </div>
 
-                       {/* Formal Text */}
                        <div className="text-center px-10 mb-10 space-y-4">
                           <p className="text-[12pt] text-slate-800 leading-relaxed font-arabic">
                              تشهد إدارة أكاديمية البنين والبنات - ميشيغان، بأن الطالب/ـة: 
@@ -541,7 +547,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </p>
                        </div>
 
-                       {/* Dynamic Matrix Table */}
                        <div className="flex-1">
                           <table className="w-full border-collapse border-2 border-primary/20 text-[10pt]">
                              <thead>
@@ -558,7 +563,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                 </tr>
                              </thead>
                              <tbody>
-                                {/* Monthly Assessments */}
                                 <tr className="bg-slate-50/50 h-14">
                                    <td className="border border-slate-200 p-4 font-black text-slate-700 font-arabic">Monthly Assessment <br/> الأعمال الشهرية</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
@@ -568,7 +572,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    <td className="border border-slate-200 p-2 text-center">-</td>
                                    <td className="border border-slate-200 p-2 text-center">-</td>
                                 </tr>
-                                {/* Semester Exams */}
                                 <tr className="bg-white h-14">
                                    <td className="border border-slate-200 p-4 font-black text-slate-700 font-arabic">Term Examinations <br/> الاختبارات الفصلية</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
@@ -578,7 +581,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    <td className="border border-slate-200 p-2 text-center">-</td>
                                    <td className="border border-slate-200 p-2 text-center">-</td>
                                 </tr>
-                                {/* Row: Total */}
                                 <tr className="bg-secondary/5 font-black border-t-2 border-primary/10 h-16">
                                    <td className="border border-primary/10 p-4 text-primary font-arabic">Total (AR / EN) <br/> الإجمالي (عربي / إنجليزي)</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
@@ -592,7 +594,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                              </tbody>
                           </table>
 
-                          {/* Summary Info Bar */}
                           <div className="mt-8 grid grid-cols-3 gap-6 font-arabic px-2">
                              <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center shadow-sm">
                                 <span className="text-[10pt] font-black text-slate-400 uppercase tracking-widest">Total Points</span>
@@ -609,7 +610,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </div>
                        </div>
 
-                       {/* Signatures */}
                        <footer className="grid grid-cols-3 gap-12 mt-20 pt-10 border-t-2 border-slate-100 text-center font-arabic">
                           <div className="space-y-8">
                              <div className="space-y-1">
@@ -859,3 +859,4 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
+
