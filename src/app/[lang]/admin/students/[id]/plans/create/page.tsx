@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect } from 'react';
@@ -11,7 +10,7 @@ import {
   Save, Trash2, Layers, Info,
   ListTree, X, Loader2, Calendar, User, Type, FileText,
   Clock, CheckCircle2, GraduationCap, Star, ClipboardCheck,
-  Languages, Search, Trash
+  Languages, Search, Trash, Globe
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +73,8 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
       startDate: isAr ? 'تاريخ البداية' : 'Start Date',
       endDate: isAr ? 'تاريخ الانتهاء' : 'End Date',
       notes: isAr ? 'ملاحظات إضافية' : 'General Notes',
-      subjectName: isAr ? 'اسم المادة' : 'Subject Name',
+      subjectNameAr: isAr ? 'اسم المادة (عربي)' : 'Subject Name (Arabic)',
+      subjectNameEn: isAr ? 'اسم المادة (إنجليزي)' : 'Subject Name (English)',
       subjectTeacher: isAr ? 'معلم المادة' : 'Subject Teacher',
       unitTitle: isAr ? 'عنوان الوحدة (مثلاً: أساسيات الجبر)' : 'Unit Title (e.g. Algebra Basics)',
       topicTitle: isAr ? 'عنوان الدرس أو الموضوع' : 'Topic title...',
@@ -92,7 +92,8 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
       ...prev,
       subjects: [...prev.subjects, {
         id: Math.random().toString(36).substring(7),
-        name: '',
+        nameAr: '',
+        nameEn: '',
         teacher: '',
         units: []
       }]
@@ -335,19 +336,25 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
                           <div className="md:col-span-1 flex items-center justify-center">
                               <div className="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-300 flex items-center justify-center font-black text-lg shadow-inner">{sIdx+1}</div>
                           </div>
-                          <div className="md:col-span-5 space-y-2 text-start">
+                          <div className="md:col-span-3 space-y-2 text-start">
                               <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
-                                <BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subjectName}
+                                <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameAr}
                               </Label>
-                              <Input value={sub.name} onChange={(e) => updateSubject(sIdx, 'name', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" placeholder={isAr ? 'مثلاً: الرياضيات' : 'e.g. Mathematics'} />
+                              <Input value={sub.nameAr} onChange={(e) => updateSubject(sIdx, 'nameAr', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" placeholder="مثلاً: الرياضيات" />
                           </div>
-                          <div className="md:col-span-4 space-y-2 text-start">
+                          <div className="md:col-span-3 space-y-2 text-start">
+                              <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
+                                <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameEn}
+                              </Label>
+                              <Input value={sub.nameEn} onChange={(e) => updateSubject(sIdx, 'nameEn', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" placeholder="e.g. Mathematics" />
+                          </div>
+                          <div className="md:col-span-3 space-y-2 text-start">
                               <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                                 <User className="h-3 w-3 text-secondary" /> {t.fields.subjectTeacher}
                               </Label>
                               <Input value={sub.teacher} onChange={(e) => updateSubject(sIdx, 'teacher', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" placeholder={isAr ? 'اسم المعلم' : 'Teacher Name'} />
                           </div>
-                          <div className="md:col-span-2 flex justify-end">
+                          <div className="md:col-span-2 flex justify-end gap-2">
                               <Button onClick={() => removeSubject(sIdx)} variant="ghost" className="h-12 w-12 rounded-xl text-red-300 hover:text-red-500 hover:bg-red-50 transition-all">
                                 <Trash2 className="h-5 w-5" />
                               </Button>
@@ -370,7 +377,7 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
                         <div className="flex items-center gap-4">
                           <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Layers className="h-6 w-6" /></div>
                           <div>
-                            <CardTitle className="text-lg font-black uppercase tracking-widest">{sub.name || (isAr ? 'مادة بدون اسم' : 'Unnamed Subject')}</CardTitle>
+                            <CardTitle className="text-lg font-black uppercase tracking-widest">{isAr ? (sub.nameAr || sub.nameEn || 'مادة بدون اسم') : (sub.nameEn || sub.nameAr || 'Unnamed Subject')}</CardTitle>
                             <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">{sub.teacher || '-'}</p>
                           </div>
                         </div>

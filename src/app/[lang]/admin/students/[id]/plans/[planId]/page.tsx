@@ -12,7 +12,7 @@ import {
   RotateCcw, Save, LayoutTemplate, PencilLine,
   Search, ExternalLink, Loader2, Award,
   Check, X, AlertTriangle, ClipboardCheck,
-  MessageSquare, Star, User
+  MessageSquare, Star, User, Globe
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -109,7 +109,8 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
         year: plan.year,
         term: plan.term,
         subjects: plan.subjects.map((s: any) => ({
-          name: s.name,
+          nameAr: s.nameAr || '',
+          nameEn: s.nameEn || '',
           teacher: s.teacher,
           units: s.units.map((u: any) => ({
             title: u.title,
@@ -208,7 +209,9 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
                        <div className="flex items-center gap-6 text-start">
                           <div className="h-11 w-11 rounded-xl bg-primary/5 text-primary flex items-center justify-center font-black shadow-inner group-hover/acc:bg-primary group-hover/acc:text-white transition-all">{sIdx+1}</div>
                           <div className="space-y-0.5">
-                             <h4 className="font-black text-slate-900 uppercase tracking-tight">{sub.name}</h4>
+                             <h4 className="font-black text-slate-900 uppercase tracking-tight">
+                                {isAr ? (sub.nameAr || sub.nameEn) : (sub.nameEn || sub.nameAr)}
+                             </h4>
                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><User className="h-3 w-3 text-secondary" /> {sub.teacher}</p>
                           </div>
                        </div>

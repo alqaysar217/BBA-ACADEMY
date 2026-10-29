@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -11,7 +10,7 @@ import {
   Save, Trash2, Layers, Info,
   ListTree, X, PencilLine, Loader2, Calendar, User, Type, FileText,
   Clock, CheckCircle2, GraduationCap, Star, ClipboardCheck,
-  Languages, Search, Trash
+  Languages, Search, Trash, Globe
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -93,7 +92,8 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       startDate: isAr ? 'تاريخ البداية' : 'Start Date',
       endDate: isAr ? 'تاريخ الانتهاء' : 'End Date',
       notes: isAr ? 'ملاحظات إضافية' : 'General Notes',
-      subjectName: isAr ? 'اسم المادة' : 'Subject Name',
+      subjectNameAr: isAr ? 'اسم المادة (عربي)' : 'Subject Name (Arabic)',
+      subjectNameEn: isAr ? 'اسم المادة (إنجليزي)' : 'Subject Name (English)',
       subjectTeacher: isAr ? 'معلم المادة' : 'Subject Teacher',
       unitTitle: isAr ? 'عنوان الوحدة' : 'Unit Title',
       topicTitle: isAr ? 'عنوان الدرس' : 'Topic title...',
@@ -111,7 +111,8 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       ...prev,
       subjects: [...prev.subjects, {
         id: Math.random().toString(36).substring(7),
-        name: '',
+        nameAr: '',
+        nameEn: '',
         teacher: '',
         units: []
       }]
@@ -350,17 +351,23 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
               {plan.subjects.map((sub, sIdx) => (
                 <Card key={sub.id} className="border-none shadow-premium rounded-2xl bg-white overflow-hidden border border-slate-100 group">
                    <CardContent className="p-8">
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
                          <div className="md:col-span-1 flex items-center justify-center">
                             <div className="h-12 w-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-300 flex items-center justify-center font-black text-lg shadow-inner">{sIdx+1}</div>
                          </div>
-                         <div className="md:col-span-5 space-y-2 text-start">
+                         <div className="md:col-span-3 space-y-2 text-start">
                             <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
-                              <BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subjectName}
+                              <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameAr}
                             </Label>
-                            <Input value={sub.name} onChange={(e) => updateSubject(sIdx, 'name', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
+                            <Input value={sub.nameAr} onChange={(e) => updateSubject(sIdx, 'nameAr', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
                          </div>
-                         <div className="md:col-span-4 space-y-2 text-start">
+                         <div className="md:col-span-3 space-y-2 text-start">
+                            <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
+                              <Globe className="h-3 w-3 text-secondary" /> {t.fields.subjectNameEn}
+                            </Label>
+                            <Input value={sub.nameEn} onChange={(e) => updateSubject(sIdx, 'nameEn', e.target.value)} className="h-12 bg-white border border-slate-200 rounded-xl font-bold shadow-sm" />
+                         </div>
+                         <div className="md:col-span-3 space-y-2 text-start">
                             <Label className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2 px-1">
                               <User className="h-3 w-3 text-secondary" /> {t.fields.subjectTeacher}
                             </Label>
@@ -387,7 +394,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
                       <div className="flex items-center gap-4">
                          <div className="h-12 w-12 rounded-xl bg-secondary text-white flex items-center justify-center shadow-lg"><Layers className="h-6 w-6" /></div>
                          <div>
-                            <CardTitle className="text-lg font-black uppercase tracking-widest">{sub.name || (isAr ? 'مادة غير محددة' : 'Unnamed Subject')}</CardTitle>
+                            <CardTitle className="text-lg font-black uppercase tracking-widest">{isAr ? (sub.nameAr || sub.nameEn || 'مادة غير محددة') : (sub.nameEn || sub.nameAr || 'Unnamed Subject')}</CardTitle>
                             <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">{sub.teacher || '-'}</p>
                          </div>
                       </div>
