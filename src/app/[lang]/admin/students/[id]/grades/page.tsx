@@ -96,7 +96,6 @@ import {
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function StudentGradesIndividualPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -114,13 +113,16 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   // Print Dialog States
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const [selectedPrintPlanId, setSelectedPrintPlanId] = useState<string | null>(null);
+  const [printType, setPrintType] = useState<'monthly' | 'final'>('final');
 
-  // Column visibility state - Removed 'assessment'
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'score', 'percent', 'grade', 'date']);
+  // Column visibility state
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'reportType', 'score', 'percent', 'grade', 'date']);
+  const [activeTypeFilter, setActiveTypeFilter] = useState<string>('all');
 
   const [formData, setFormData] = useState({
     planId: '',
     subject: '',
+    reportType: 'monthly', // New field: monthly or final
     score: '',
     totalScore: '100',
     date: new Date().toISOString().split('T')[0]
@@ -174,13 +176,19 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     fields: {
       plan: isAr ? 'الخطة الدراسية (الترم)' : 'Academic Plan (Term)',
       subject: isAr ? 'المادة الدراسية' : 'Academic Subject',
-      score: isAr ? 'الدرجة' : 'Score',
+      reportType: isAr ? 'نوع الدرجة' : 'Grade Type',
+      score: isAr ? 'الدرجة المستحقة' : 'Earned Score',
       total: isAr ? 'الدرجة الكلية' : 'Total Score',
-      date: isAr ? 'التاريخ' : 'Date'
+      date: isAr ? 'تاريخ التقييم' : 'Evaluation Date'
     },
+    reportTypes: [
+      { v: 'monthly', l: isAr ? 'درجة شهرية' : 'Monthly Grade' },
+      { v: 'final', l: isAr ? 'درجة فصلية / نهائية' : 'Semester / Final Grade' }
+    ],
     table: {
       columns: isAr ? 'الأعمدة' : 'Columns',
       subject: isAr ? 'المادة' : 'Subject',
+      reportType: isAr ? 'النوع' : 'Type',
       result: isAr ? 'النتيجة' : 'Result',
       percent: isAr ? 'النسبة' : 'Percent',
       grade: isAr ? 'التقدير' : 'Grade',
@@ -199,7 +207,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     report: {
       btn: isAr ? 'تصدير الشهادة' : 'Export Transcript',
       configTitle: isAr ? 'إعدادات تصدير الشهادة' : 'Transcript Export Settings',
-      configDesc: isAr ? 'سيتم تصدير كشف الدرجات الرسمي بناءً على الخطة الدراسية المختارة.' : 'The official transcript will be exported based on the selected academic plan.',
+      configDesc: isAr ? 'اختر نوع الدرجات التي ترغب في تضمينها في الكشف.' : 'Select the type of grades you wish to include in the transcript.',
       generate: isAr ? 'توليد الشهادة' : 'Generate Certificate',
       bismillah: 'بسم الله الرحمن الرحيم',
       academyEn: 'Baneen and Banaat Academy',
@@ -221,6 +229,10 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     rawGrades.forEach((g: any) => {
       if (!groups[g.planId]) groups[g.planId] = [];
       groups[g.planId].push(g);
+    });
+    // Sort within groups by date descending
+    Object.keys(groups).forEach(key => {
+       groups[key].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
     return groups;
   }, [rawGrades]);
@@ -252,7 +264,14 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       }
       setIsAddOpen(false);
       setEditGrade(null);
-      setFormData({ planId: '', subject: '', score: '', totalScore: '100', date: new Date().toISOString().split('T')[0] });
+      setFormData({ 
+        planId: '', 
+        subject: '', 
+        reportType: 'monthly',
+        score: '', 
+        totalScore: '100', 
+        date: new Date().toISOString().split('T')[0] 
+      });
       toast({ title: isAr ? "تم الحفظ بنجاح" : "Saved Successfully" });
     } finally {
       setIsProcessing(false);
@@ -281,7 +300,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     const style = document.createElement('style');
     style.innerHTML = `
       @media print {
-        @page { size: auto; margin: 0; }
+        @page { size: portrait; margin: 0; }
         body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
         .no-print { display: none !important; }
         #printable-report-${planId} { 
@@ -289,7 +308,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
           position: relative;
           width: 100%;
           min-height: 100vh;
-          padding: 2cm;
+          padding: 1.5cm;
           background: white !important;
           box-sizing: border-box;
           z-index: 9999;
@@ -347,9 +366,11 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                 </Button>
               </DialogTrigger>
               <DialogContent className={cn("max-w-2xl rounded-2xl border-none shadow-2xl p-0 overflow-hidden", isAr && "font-arabic")} dir={isAr ? 'rtl' : 'ltr'}>
-                <div className="bg-primary p-8 text-white flex items-center gap-4">
-                   <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center shadow-lg"><ClipboardCheck className="h-6 w-6" /></div>
-                   <DialogTitle className="text-xl font-black uppercase tracking-tight text-start">{editGrade ? t.editGrade : t.addGrade}</DialogTitle>
+                <div className="bg-primary p-8 text-white flex items-center justify-between">
+                   <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center shadow-lg"><ClipboardCheck className="h-6 w-6" /></div>
+                      <DialogTitle className="text-xl font-black uppercase tracking-tight text-start">{editGrade ? t.editGrade : t.addGrade}</DialogTitle>
+                   </div>
                 </div>
                 <div className="p-8 space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-start">
@@ -383,25 +404,46 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                            </SelectContent>
                         </Select>
                      </div>
+
                      <div className="space-y-1.5">
                         <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
-                           <Calendar className="h-3 w-3 text-secondary" /> {t.fields.date}
+                           <ClipboardCheck className="h-3 w-3 text-secondary" /> {t.fields.reportType}
                         </Label>
-                        <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+                        <Select value={formData.reportType} onValueChange={(v) => setFormData({...formData, reportType: v})}>
+                           <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
+                              <SelectValue />
+                           </SelectTrigger>
+                           <SelectContent>
+                              {t.reportTypes.map(type => (
+                                <SelectItem key={type.v} value={type.v} className="font-bold py-3">{type.l}</SelectItem>
+                              ))}
+                           </SelectContent>
+                        </Select>
                      </div>
-                     <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
-                           <Star className="h-3 w-3 text-secondary" /> {t.fields.score}
-                        </Label>
-                        <Input type="number" value={formData.score} onChange={(e) => setFormData({...formData, score: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
-                     </div>
-                     <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
-                           <CheckCircle2 className="h-3 w-3 text-secondary" /> {t.fields.total}
-                        </Label>
-                        <Input type="number" value={formData.totalScore} onChange={(e) => setFormData({...formData, totalScore: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                           <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                              <Star className="h-3 w-3 text-secondary" /> {t.fields.score}
+                           </Label>
+                           <Input type="number" value={formData.score} onChange={(e) => setFormData({...formData, score: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+                        </div>
+                        <div className="space-y-1.5">
+                           <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                              <CheckCircle2 className="h-3 w-3 text-secondary" /> {t.fields.total}
+                           </Label>
+                           <Input type="number" value={formData.totalScore} onChange={(e) => setFormData({...formData, totalScore: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+                        </div>
                      </div>
                   </div>
+                  
+                  <div className="space-y-1.5 text-start">
+                     <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
+                        <Calendar className="h-3 w-3 text-secondary" /> {t.fields.date}
+                     </Label>
+                     <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} className="h-12 border-slate-200 rounded-xl font-bold" />
+                  </div>
+
                   <div className="flex justify-end gap-3 pt-8 border-t">
                      <Button variant="ghost" onClick={() => setIsAddOpen(false)} className="font-black text-[10px] uppercase tracking-widest text-slate-400">{t.cancel}</Button>
                      <Button onClick={handleSave} disabled={isProcessing} className="h-12 px-10 rounded-xl bg-primary text-white font-black text-[10px] uppercase shadow-xl">
@@ -416,7 +458,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
       {/* Report Configuration Dialog */}
       <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
-        <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden">
+        <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
            <div className="bg-primary p-8 text-white text-center flex flex-col items-center gap-4">
               <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center shadow-lg"><FileBadge className="h-7 w-7" /></div>
               <div className="space-y-1">
@@ -424,7 +466,20 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                 <DialogDescription className="text-white/60 font-bold text-xs">{t.report.configDesc}</DialogDescription>
               </div>
            </div>
-           <div className="p-8 space-y-6">
+           <div className="p-8 space-y-6 text-start">
+              <div className="space-y-2">
+                 <Label className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'اختر نوع الدرجات' : 'Select Grade Categories'}</Label>
+                 <Select value={printType} onValueChange={(v: any) => setPrintType(v)}>
+                    <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold">
+                       <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                       {t.reportTypes.map(type => (
+                         <SelectItem key={type.v} value={type.v} className="font-bold py-3">{type.l}</SelectItem>
+                       ))}
+                    </SelectContent>
+                 </Select>
+              </div>
               <Button 
                  onClick={() => selectedPrintPlanId && handlePrint(selectedPrintPlanId)}
                  className="w-full h-14 bg-secondary hover:bg-primary text-white font-black rounded-xl shadow-xl transition-all text-sm uppercase tracking-widest"
@@ -457,7 +512,8 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       {/* Collapsible Grade Tables Organized by Plan */}
       <Accordion type="multiple" className="space-y-6">
         {plans.map(plan => {
-          const planGrades = groupedGrades[plan.id] || [];
+          const planGradesRaw = groupedGrades[plan.id] || [];
+          const filteredGrades = planGradesRaw.filter(g => activeTypeFilter === 'all' || g.reportType === activeTypeFilter);
 
           return (
             <AccordionItem key={plan.id} value={plan.id} className="border-none">
@@ -475,6 +531,19 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     
                     <div className="flex flex-wrap items-center gap-3 py-4 lg:py-0">
                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+                             <span className="text-[9px] font-black text-slate-400 uppercase">{t.table.filterLabel}</span>
+                             <Select value={activeTypeFilter} onValueChange={setActiveTypeFilter}>
+                                <SelectTrigger className="h-8 border-none bg-transparent font-bold text-[10px] uppercase p-0 w-24">
+                                   <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                   <SelectItem value="all">{isAr ? 'الكل' : 'All'}</SelectItem>
+                                   {t.reportTypes.map(rt => <SelectItem key={type.v} value={rt.v}>{rt.l}</SelectItem>)}
+                                </SelectContent>
+                             </Select>
+                          </div>
+
                           <Button 
                             onClick={() => {
                               setSelectedPrintPlanId(plan.id);
@@ -517,6 +586,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           <thead>
                              <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                 {visibleColumns.includes('subject') && <th className="px-8 py-5 text-start w-1/4">{t.table.subject}</th>}
+                                {visibleColumns.includes('reportType') && <th className="px-8 py-5 text-center">{t.table.reportType}</th>}
                                 {visibleColumns.includes('result') && <th className="px-8 py-5 text-center">{t.table.result}</th>}
                                 {visibleColumns.includes('percent') && <th className="px-8 py-5 text-center">{t.table.percent}</th>}
                                 {visibleColumns.includes('grade') && <th className="px-8 py-5 text-center">{t.table.grade}</th>}
@@ -525,14 +595,14 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                              </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                             {planGrades.length === 0 ? (
+                             {filteredGrades.length === 0 ? (
                                <tr>
                                   <td colSpan={visibleColumns.length + 1} className="py-20 text-center">
                                      <Info className="h-10 w-10 text-slate-100 mx-auto mb-4" />
                                      <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{isAr ? 'لا توجد درجات مرصودة' : 'No grades recorded'}</p>
                                   </td>
                                </tr>
-                             ) : planGrades.map((g: any) => {
+                             ) : filteredGrades.map((g: any) => {
                                const pct = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
                                const letterGrade = getLetterGrade(pct);
                                
@@ -541,6 +611,13 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                     {visibleColumns.includes('subject') && (
                                       <td className="px-8 py-6">
                                          <span className="font-black text-slate-900 uppercase text-sm">{g.subject}</span>
+                                      </td>
+                                    )}
+                                    {visibleColumns.includes('reportType') && (
+                                      <td className="px-8 py-6 text-center">
+                                         <Badge variant="outline" className="bg-slate-50 border-none font-bold text-[9px] uppercase tracking-tighter">
+                                            {g.reportType === 'monthly' ? (isAr ? 'شهري' : 'Monthly') : (isAr ? 'فصلي' : 'Semester')}
+                                         </Badge>
                                       </td>
                                     )}
                                     {visibleColumns.includes('result') && (
@@ -592,7 +669,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     </div>
                  </AccordionContent>
 
-                 {/* PRINTABLE TRANSCRIPT COMPONENT (Official English Focus) */}
+                 {/* PRINTABLE TRANSCRIPT COMPONENT */}
                  <div id={`printable-report-${plan.id}`} className="hidden" dir="ltr">
                     <div className="flex flex-col h-full bg-white text-slate-900 text-center">
                        {/* Header */}
@@ -603,8 +680,8 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                 <h2 className="text-2xl font-black text-primary uppercase leading-tight">{t.report.academyEn}</h2>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.report.subEn}</p>
                              </div>
-                             <div className="shrink-0 flex justify-center">
-                                <img src="/logo.png" className="h-32 w-32 object-contain" alt="BBA Official Seal" />
+                             <div className="shrink-0 flex justify-center px-4">
+                                <img src="/logo.png" className="h-28 w-28 object-contain" alt="BBA Official Seal" />
                              </div>
                              <div className="text-right w-[40%] space-y-1 font-arabic" dir="rtl">
                                 <h2 className="text-2xl font-black text-primary leading-tight">{t.report.academyAr}</h2>
@@ -616,18 +693,20 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                        {/* Title & Student Meta */}
                        <div className="space-y-6 mb-10">
                           <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">{t.report.certTitle}</h1>
+                          <Badge variant="outline" className="h-8 px-6 bg-slate-50 border-2 border-slate-900 text-slate-900 font-black uppercase text-[10px] tracking-[0.2em] mb-4">
+                             {printType === 'monthly' ? 'Monthly Academic Report' : 'Semester Final Report'}
+                          </Badge>
                           
                           <div className="grid grid-cols-1 gap-4 text-center">
                              <p className="text-lg font-medium text-slate-600 italic">{t.report.certIntro}</p>
                              <h2 className="text-3xl font-black text-primary uppercase underline underline-offset-8 decoration-secondary/30">
                                 {student?.firstName} {student?.lastName}
                              </h2>
-                             <div className="flex justify-center items-center gap-4 text-sm font-bold text-slate-500 uppercase tracking-widest">
-                                <span>Academic Year: {plan.year}</span>
+                             <div className="flex justify-center items-center gap-6 text-sm font-bold text-slate-500 uppercase tracking-widest">
+                                <span>Year: {plan.year}</span>
                                 <span className="h-1 w-1 bg-slate-300 rounded-full" />
                                 <span>Term: {plan.term}</span>
                              </div>
-                             <p className="text-xs text-slate-400 max-w-2xl mx-auto">{t.report.certMeta}</p>
                           </div>
                        </div>
 
@@ -638,8 +717,8 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                 <tr className="bg-slate-900 text-white uppercase text-[10px] tracking-widest font-black h-16">
                                    <th className="border-r border-white/10 px-4 w-[40%] text-left">Subject / Course Name</th>
                                    <th className="border-r border-white/10 px-4">Evaluation Date</th>
-                                   <th className="border-r border-white/10 px-4">Result</th>
-                                   <th className="border-r border-white/10 px-4">{t.report.totalScore}</th>
+                                   <th className="border-r border-white/10 px-4">Score</th>
+                                   <th className="border-r border-white/10 px-4">Total</th>
                                    <th className="px-4">Grade</th>
                                 </tr>
                              </thead>
@@ -647,27 +726,28 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                 {plan.subjects.map((sub: any, sIdx: number) => {
                                    const subNameEn = sub.nameEn || sub.nameAr;
                                    const subNameAr = sub.nameAr || sub.nameEn;
-                                   const subGrades = planGrades.filter(g => g.subject === subNameEn || g.subject === subNameAr);
+                                   // Filter by selected print type
+                                   const subGrades = planGradesRaw.filter(g => (g.subject === subNameEn || g.subject === subNameAr) && g.reportType === printType);
                                    
-                                   const primaryGrade = subGrades[0]; // Take the latest or primary grade for the subject in this plan
+                                   const primaryGrade = subGrades[0];
                                    const totalPct = primaryGrade ? Math.round((Number(primaryGrade.score)/Number(primaryGrade.totalScore))*100) : 0;
 
                                    return (
-                                     <tr key={sIdx} className="h-20 border-b-2 border-slate-200 hover:bg-slate-50 transition-colors">
+                                     <tr key={sIdx} className="h-16 border-b-2 border-slate-200">
                                         <td className="border-r-2 border-slate-200 px-6 text-left">
-                                           <div className="flex flex-col gap-1">
-                                              <span className="text-base font-black text-primary uppercase">{subNameEn}</span>
-                                              <span className="text-[10px] font-arabic font-bold text-slate-400" dir="rtl">{subNameAr}</span>
+                                           <div className="flex flex-col gap-0.5">
+                                              <span className="text-sm font-black text-primary uppercase">{subNameEn}</span>
+                                              <span className="text-[9px] font-arabic font-bold text-slate-400" dir="rtl">{subNameAr}</span>
                                            </div>
                                         </td>
                                         <td className="border-r-2 border-slate-200 px-4 text-xs text-slate-500 font-medium">
                                            {primaryGrade?.date || '-'}
                                         </td>
                                         <td className="border-r-2 border-slate-200 px-4 text-primary font-black text-lg">
-                                           {primaryGrade ? `${primaryGrade.score} / ${primaryGrade.totalScore}` : '-'}
+                                           {primaryGrade ? primaryGrade.score : '-'}
                                         </td>
-                                        <td className="border-r-2 border-slate-200 px-4 text-2xl font-black text-primary tracking-tighter">
-                                           {primaryGrade ? `${totalPct}%` : '-'}
+                                        <td className="border-r-2 border-slate-200 px-4 text-lg font-black text-slate-400">
+                                           {primaryGrade ? primaryGrade.totalScore : '-'}
                                         </td>
                                         <td className="px-4">
                                            <div className="h-10 w-10 bg-slate-900 text-white rounded-lg flex items-center justify-center mx-auto text-xl font-black">
@@ -700,8 +780,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </div>
                        </div>
 
-                       {/* Security & Date */}
-                       <div className="mt-12 pt-6 border-t border-slate-100 flex justify-between items-center opacity-40">
+                       <div className="mt-12 pt-6 border-t border-slate-100 flex justify-between items-center opacity-40 px-2">
                           <p className="text-[8px] font-bold text-slate-400 tracking-[0.3em] uppercase">OFFICIAL BBA ACADEMIC RECORD • SYSTEM SECURED</p>
                           <p className="text-[8px] font-bold text-slate-400 uppercase">DATE GENERATED: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                        </div>
