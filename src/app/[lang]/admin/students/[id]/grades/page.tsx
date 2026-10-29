@@ -224,7 +224,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       rowMonthly: 'Monthly Assessments / أعمال السنة',
       rowFinal: 'Term Exam / الاختبار الفصلي',
       rowTotal: 'Total / الإجمالي',
-      colGrade: 'Grade / التقدير',
+      colGrade: 'Grade / التتقدير',
       overallScore: 'Overall Score',
       finalResult: 'Final Result',
       pass: 'Pass / ناجح',
