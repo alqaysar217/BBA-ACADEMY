@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -34,6 +33,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 import Link from 'next/link';
 
 export default function StudentDocumentsPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
