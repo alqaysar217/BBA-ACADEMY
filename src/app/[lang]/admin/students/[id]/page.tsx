@@ -36,7 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -228,6 +228,25 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     return path.split('.').reduce((acc: any, part: string) => acc && acc[part], editData);
   };
 
+  const formatSystemDate = (val: any, showTime = false) => {
+    if (!val) return '-';
+    try {
+      let date: Date;
+      if (typeof val.toDate === 'function') {
+        date = val.toDate();
+      } else if (val instanceof Date) {
+        date = val;
+      } else {
+        date = new Date(val);
+      }
+
+      if (!isValid(date)) return '-';
+      return format(date, showTime ? 'MMMM dd, HH:mm' : 'MMMM dd, yyyy');
+    } catch (e) {
+      return '-';
+    }
+  };
+
   if (loading || !student || !editData) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
       <Loader2 className="h-10 w-10 text-primary animate-spin" />
@@ -240,7 +259,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6 animate-in fade-in duration-700">
       
-      {/* 1. Navigation Bar (Stable implementation) */}
+      {/* 1. Navigation Bar */}
       <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl">
          {navItems.map(nav => {
            const isActive = pathname === nav.href;
@@ -286,7 +305,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </div>
       </div>
 
-      {/* 2. MAIN IDENTITY CARD (Three Rows Layout) */}
+      {/* 2. MAIN IDENTITY CARD */}
       <Card className="border-none shadow-premium bg-white overflow-hidden rounded-2xl w-full">
         <CardContent className="p-6 md:p-10 lg:p-12">
           <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-12 lg:gap-16">
@@ -319,7 +338,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                 </div>
              </div>
 
-             {/* RIGHT: VITAL DATA (3 Organized Rows) */}
+             {/* RIGHT: VITAL DATA */}
              <div className="flex-1 w-full flex flex-col justify-center space-y-8 md:space-y-10">
                 {/* Row 1: Full Names */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -374,11 +393,9 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                     <CalendarIcon className="h-3 w-3 text-secondary/70" />
                     {isAr ? 'تاريخ الانضمام' : 'Joined Since'}
                  </p>
-                 <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl">
+                 <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl transition-all hover:bg-white hover:shadow-sm">
                     <p className="text-sm md:text-base font-black text-slate-700">
-                       {editData.createdAt && typeof editData.createdAt.toDate === 'function' 
-                          ? format(editData.createdAt.toDate(), 'MMMM dd, yyyy') 
-                          : '-'}
+                       {formatSystemDate(editData.createdAt)}
                     </p>
                  </div>
               </div>
@@ -387,11 +404,9 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                     <Info className="h-3 w-3 text-secondary/70" />
                     {isAr ? 'آخر تحديث للسجل' : 'Last Master Update'}
                  </p>
-                 <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl">
+                 <div className="min-h-[2.75rem] flex items-center px-4 py-2.5 bg-slate-50/50 border border-slate-100 rounded-xl transition-all hover:bg-white hover:shadow-sm">
                     <p className="text-sm md:text-base font-black text-secondary">
-                       {editData.updatedAt && typeof editData.updatedAt.toDate === 'function' 
-                          ? format(editData.updatedAt.toDate(), 'MMMM dd, HH:mm') 
-                          : '-'}
+                       {formatSystemDate(editData.updatedAt, true)}
                     </p>
                  </div>
               </div>
@@ -405,11 +420,12 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
             <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">{isAr ? 'ملاحظة الأرشفة' : 'Registry Note'}</p>
             <p className="text-xs md:text-sm font-bold text-amber-900/60 leading-relaxed italic">
                {isAr 
-                  ? 'تم تجميع كافة بيانات الطالب في هذا الملف الموحد لضمان سهولة الوصول والتوثيق الأكاديمي.' 
-                  : 'All student vital statistics and residence data have been consolidated into this master profile for streamlined academic documentation.'}
+                  ? 'تاريخ الانضمام يوثق اللحظة التي تم فيها تحويل الطالب من مرحلة تقديم الطلب إلى طالب نشط في الأكاديمية.' 
+                  : 'Joined Since records the exact moment the candidate was promoted from an applicant to an active student in the registry.'}
             </p>
          </div>
       </div>
     </div>
   );
 }
+
