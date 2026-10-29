@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect, useMemo, useRef } from 'react';
@@ -10,7 +9,7 @@ import {
   Users, User, ChevronLeft, ChevronRight, Mail, Phone, MessageCircle, 
   Edit3, Save, Loader2, BookOpen, ClipboardCheck, CreditCard, FileText, 
   Plus, MessageSquare, MapPin, Heart, Info, Globe, ShieldCheck, Type,
-  Paperclip, FileUp, FileCheck, Send, Eye, X, Loader2 as Spinner
+  Paperclip, FileUp, FileCheck, Send, Eye, X, Building, Loader2 as Spinner
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -247,6 +246,7 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
       await updateDoc(studentRef, { 
         parent1: editData.parent1 || {},
         parent2: editData.parent2 || null,
+        address: editData.address || {},
         updatedAt: serverTimestamp() 
       });
       setIsEditing(false);
@@ -729,3 +729,4 @@ export default function StudentGuardiansPage({ params }: { params: Promise<{ lan
     </div>
   );
 }
+
