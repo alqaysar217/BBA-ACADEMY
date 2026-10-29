@@ -42,7 +42,8 @@ import {
   AlertTriangle,
   FileSpreadsheet,
   BadgeCheck,
-  ChevronDown
+  ChevronDown,
+  Globe
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -390,8 +391,8 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
           return (
             <AccordionItem key={plan.id} value={plan.id} className="border-none">
               <Card className="border border-slate-200 shadow-premium rounded-[1.5rem] overflow-hidden bg-white">
-                 <AccordionTrigger className="hover:no-underline p-0 group">
-                    <CardHeader className="bg-slate-50/80 p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 text-start w-full transition-colors group-data-[state=open]:bg-white">
+                 <div className="flex flex-col md:flex-row items-center justify-between bg-slate-50/80 border-b border-slate-100 group">
+                    <AccordionTrigger className="flex-1 hover:no-underline p-8 text-start [&[data-state=open]>svg]:rotate-180 transition-colors group-hover:bg-slate-50/50">
                        <div className="flex items-center gap-4">
                           <div className="h-12 w-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center border border-primary/10 shadow-inner"><FileSpreadsheet className="h-6 w-6" /></div>
                           <div>
@@ -399,37 +400,32 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{plan.year} • {plan.term}</p>
                           </div>
                        </div>
-                       <div className="flex items-center gap-3">
-                          {/* Column Toggle Dropdown (Stop Propagation to prevent accordion toggle) */}
-                          <div onClick={(e) => e.stopPropagation()}>
-                             <DropdownMenu>
-                               <DropdownMenuTrigger asChild>
-                                 <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2">
-                                   <Columns className="h-4 w-4" /> {t.table.columns}
-                                 </Button>
-                               </DropdownMenuTrigger>
-                               <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
-                                 <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
-                                 <DropdownMenuSeparator />
-                                 {Object.keys(t.table).filter(k => k !== 'columns' && k !== 'actions').map(col => (
-                                   <DropdownMenuCheckboxItem
-                                     key={col}
-                                     checked={visibleColumns.includes(col)}
-                                     onCheckedChange={() => toggleColumn(col)}
-                                     className="rounded-lg font-bold text-xs py-2.5"
-                                   >
-                                     {t.table[col as keyof typeof t.table]}
-                                   </DropdownMenuCheckboxItem>
-                                 ))}
-                               </DropdownMenuContent>
-                             </DropdownMenu>
-                          </div>
-                          <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-data-[state=open]:rotate-180 transition-transform">
-                             <ChevronDown className="h-4 w-4" />
-                          </div>
-                       </div>
-                    </CardHeader>
-                 </AccordionTrigger>
+                    </AccordionTrigger>
+                    
+                    <div className="flex items-center gap-3 px-8 pb-6 md:pb-0">
+                       <DropdownMenu>
+                         <DropdownMenuTrigger asChild>
+                           <Button variant="outline" className="h-10 px-6 rounded-lg border-slate-200 text-slate-500 font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm transition-all">
+                             <Columns className="h-4 w-4" /> {t.table.columns}
+                           </Button>
+                         </DropdownMenuTrigger>
+                         <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-2xl border-slate-100 p-2">
+                           <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase">{isAr ? 'إظهار / إخفاء' : 'Show/Hide Columns'}</DropdownMenuLabel>
+                           <DropdownMenuSeparator />
+                           {Object.keys(t.table).filter(k => k !== 'columns' && k !== 'actions').map(col => (
+                             <DropdownMenuCheckboxItem
+                               key={col}
+                               checked={visibleColumns.includes(col)}
+                               onCheckedChange={() => toggleColumn(col)}
+                               className="rounded-lg font-bold text-xs py-2.5"
+                             >
+                               {t.table[col as keyof typeof t.table]}
+                             </DropdownMenuCheckboxItem>
+                           ))}
+                         </DropdownMenuContent>
+                       </DropdownMenu>
+                    </div>
+                 </div>
 
                  <AccordionContent className="p-0 border-t border-slate-100">
                     <div className="overflow-x-auto">
@@ -526,11 +522,14 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
       <div className="bg-blue-50/50 p-8 rounded-3xl border border-blue-100 flex items-start gap-6 shadow-sm mx-2">
          <Info className="h-6 w-6 text-blue-600 shrink-0 mt-1 opacity-60" />
-         <p className="text-xs font-bold text-blue-900/60 leading-relaxed italic text-start">
-            {isAr 
-              ? 'تستخدم هذه الجداول كمرجع أساسي لإصدار التقارير الأكاديمية والشهادات. يتم حساب التقديرات تلقائياً لضمان الدقة وتوفير سجل أكاديمي شامل للطالب.' 
-              : 'These tables serve as the primary reference for academic reports and certificates. Grades are calculated automatically to ensure accuracy and maintain a comprehensive academic record.'}
-         </p>
+         <div className="space-y-1 text-start">
+            <p className="text-[10px] font-black text-blue-900 uppercase tracking-widest">{isAr ? 'إرشادات الأرشفة والتقارير' : 'Archiving & Reporting Guidance'}</p>
+            <p className="text-xs font-bold text-blue-900/60 leading-relaxed italic">
+               {isAr 
+                 ? 'تستخدم هذه الجداول كمرجع أساسي لإصدار التقارير الأكاديمية والشهادات. يتم حساب التقديرات تلقائياً لضمان الدقة وتوفير سجل أكاديمي شامل للطالب.' 
+                 : 'These tables serve as the primary reference for academic reports and certificates. Grades are calculated automatically to ensure accuracy and maintain a comprehensive academic record.'}
+            </p>
+         </div>
       </div>
 
       {/* Delete Confirmation */}
@@ -569,9 +568,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #e2e8f0;
           border-radius: 10px;
-        }
-        .shadow-premium {
-          box-shadow: 0 10px 15px -3px rgba(11, 31, 91, 0.03), 0 4px 6px -4px rgba(11, 31, 91, 0.02);
         }
       `}</style>
     </div>
