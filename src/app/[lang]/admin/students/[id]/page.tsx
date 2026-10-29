@@ -138,22 +138,57 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     );
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new (window as any).Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_SIZE = 600; 
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && studentRef) {
       setIsUploadingPhoto(true);
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result as string;
-        try {
-          await updateDoc(studentRef, { photoURL: base64, updatedAt: serverTimestamp() });
-          setEditData((prev: any) => ({ ...prev, photoURL: base64 }));
-          toast({ title: isAr ? "تم تحديث الصورة" : "Photo updated" });
-        } finally {
-          setIsUploadingPhoto(false);
-        }
-      };
-      reader.readAsDataURL(file);
+      try {
+        const base64 = await compressImage(file);
+        await updateDoc(studentRef, { photoURL: base64, updatedAt: serverTimestamp() });
+        setEditData((prev: any) => ({ ...prev, photoURL: base64 }));
+        toast({ title: isAr ? "تم تحديث الصورة" : "Photo updated" });
+      } catch (err: any) {
+        console.error(err);
+        toast({ variant: "destructive", title: isAr ? "فشل رفع الصورة" : "Upload failed", description: err.message });
+      } finally {
+        setIsUploadingPhoto(false);
+      }
     }
   };
 
@@ -373,4 +408,3 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
     </div>
   );
 }
-

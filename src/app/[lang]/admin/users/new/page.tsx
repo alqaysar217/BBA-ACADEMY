@@ -50,15 +50,53 @@ export default function NewUserPage({ params }: { params: Promise<{ lang: Locale
     { value: 'viewer', label: isAr ? 'مشاهد (Viewer)' : 'Viewer Only' },
   ];
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new (window as any).Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_SIZE = 400; 
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string);
-        setFormData(prev => ({ ...prev, photoURL: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressed = await compressImage(file);
+        setPhotoPreview(compressed);
+        setFormData(prev => ({ ...prev, photoURL: compressed }));
+      } catch (err) {
+        console.error(err);
+        toast({ variant: "destructive", title: "Image process failed" });
+      }
     }
   };
 
