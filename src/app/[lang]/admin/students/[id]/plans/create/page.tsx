@@ -1,16 +1,15 @@
 
 'use client';
 
-import { use, useState, useMemo } from 'react';
+import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore } from '@/firebase';
-import { doc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   BookOpen, Target, Plus, ChevronRight, ChevronLeft, 
-  Save, Trash2, Layers, CheckCircle2, Star, Info,
-  GraduationCap, Users, Calendar, Clock, Type, ListTree,
-  RotateCcw, X, Edit3, ArrowRight, ArrowLeft, Loader2
+  Save, Trash2, Layers, Info,
+  ListTree, X, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,7 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
   const firestore = useFirestore();
   const router = useRouter();
 
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -43,12 +43,15 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
     objectives: [] as any[],
   });
 
-  // Subjects & Units Handlers
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const addSubject = () => {
     setPlan(prev => ({
       ...prev,
       subjects: [...prev.subjects, {
-        id: crypto.randomUUID(),
+        id: Math.random().toString(36).substring(7),
         name: '',
         teacher: '',
         units: []
@@ -71,7 +74,7 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
   const addUnit = (subjectIdx: number) => {
     const newSubjects = [...plan.subjects];
     newSubjects[subjectIdx].units.push({
-      id: crypto.randomUUID(),
+      id: Math.random().toString(36).substring(7),
       title: '',
       topics: []
     });
@@ -87,7 +90,7 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
   const addTopic = (subjectIdx: number, unitIdx: number) => {
     const newSubjects = [...plan.subjects];
     newSubjects[subjectIdx].units[unitIdx].topics.push({
-      id: crypto.randomUUID(),
+      id: Math.random().toString(36).substring(7),
       title: '',
       status: 'not_started'
     });
@@ -104,7 +107,7 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
     setPlan(prev => ({
       ...prev,
       objectives: [...prev.objectives, {
-        id: crypto.randomUUID(),
+        id: Math.random().toString(36).substring(7),
         title: '',
         status: 'not_started'
       }]
@@ -147,6 +150,8 @@ export default function CreateAcademicPlanPage({ params }: { params: Promise<{ l
       { id: 4, name: isAr ? 'الأهداف التعليمية' : 'Learning Objectives', icon: Target },
     ]
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-32">

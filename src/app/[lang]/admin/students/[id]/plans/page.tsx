@@ -1,11 +1,11 @@
 
 'use client';
 
-import { use, useState, useMemo } from 'react';
+import { use, useState, useMemo, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useDoc, useCollection } from '@/firebase';
-import { doc, collection, query, where, orderBy, deleteDoc } from 'firebase/firestore';
+import { doc, collection, query, where, deleteDoc } from 'firebase/firestore';
 import { 
   BookOpen, User, CreditCard, ClipboardCheck, 
   ChevronLeft, ChevronRight, Target, Clock,
@@ -39,23 +39,37 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
   const router = useRouter();
   const pathname = usePathname();
 
+  const [mounted, setMounted] = useState(false);
   const [deletePlanId, setDeletePlanId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 1. Student Identity Reference
   const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
   const { data: student, loading: studentLoading } = useDoc(studentRef);
 
-  // 2. Fetch Plans for this Student
+  // 2. Fetch Plans for this Student (Simplified query to avoid Index requirements)
   const plansQuery = useMemo(() => {
     if (!firestore || !id) return null;
     return query(
       collection(firestore, 'academic_plans'), 
-      where('studentId', '==', id),
-      orderBy('createdAt', 'desc')
+      where('studentId', '==', id)
     );
   }, [firestore, id]);
 
-  const { data: plans, loading: plansLoading } = useCollection(plansQuery);
+  const { data: rawPlans, loading: plansLoading } = useCollection(plansQuery);
+
+  // Sort plans client-side to prevent "Query requires an index" error
+  const plans = useMemo(() => {
+    if (!rawPlans) return [];
+    return [...rawPlans].sort((a: any, b: any) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(0);
+      return dateB.getTime() - dateA.getTime();
+    });
+  }, [rawPlans]);
 
   const t = {
     title: isAr ? 'السجل الأكاديمي والخطط' : 'Academic Registry & Plans',
@@ -127,8 +141,8 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
     }
   };
 
-  if (studentLoading) return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+  if (!mounted || studentLoading) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center">
       <Loader2 className="h-10 w-10 animate-spin text-primary" />
       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{isAr ? 'جاري مزامنة السجل الأكاديمي...' : 'Syncing Academic Registry...'}</p>
     </div>
@@ -150,7 +164,7 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
               unoptimized 
              />
           </div>
-          <div className="space-y-0.5">
+          <div className="space-y-0.5 text-start">
              <h1 className="text-xl font-black text-primary uppercase tracking-tight">{student?.firstName} {student?.lastName}</h1>
              <div className="flex items-center gap-2">
                 <Badge variant="outline" className="bg-secondary/5 text-secondary border-none font-black text-[9px] uppercase tracking-widest px-3">Grade {student?.gradeLevel}</Badge>
@@ -158,7 +172,7 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
              </div>
           </div>
         </div>
-        <Button asChild className="bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 gap-2 hover:bg-primary/90 transition-all">
+        <Button asChild className="bg-primary text-white h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-2 hover:bg-primary/90 transition-all">
           <Link href={`/${lang}/admin/students/${id}/plans/create`}>
             <Plus className="h-4 w-4 text-secondary" />
             {t.createNew}
@@ -196,7 +210,7 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
                       <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
                          <Target className="h-5 w-5 text-secondary" />
                       </div>
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 text-start">
                          <CardTitle className="text-sm font-black uppercase text-primary tracking-tight">{plan.name}</CardTitle>
                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{plan.year} • {plan.term}</p>
                       </div>
@@ -209,7 +223,7 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
                    </Badge>
                 </CardHeader>
                 <CardContent className="p-8 space-y-8">
-                   <div className="grid grid-cols-2 gap-6">
+                   <div className="grid grid-cols-2 gap-6 text-start">
                       <div className="space-y-1">
                          <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em]">Start Date</p>
                          <p className="text-xs font-bold text-slate-600 flex items-center gap-2"><Calendar className="h-3 w-3 text-secondary" /> {plan.startDate}</p>
@@ -222,7 +236,7 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
 
                    <div className="space-y-3">
                       <div className="flex justify-between items-end">
-                         <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">Execution Progress</p>
+                         <p className="text-[9px] font-black text-primary uppercase tracking-[0.3em]">{isAr ? 'تقدم التنفيذ' : 'Execution Progress'}</p>
                          <span className="text-lg font-black text-primary">{plan.progress || 0}%</span>
                       </div>
                       <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">

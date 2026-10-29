@@ -8,9 +8,8 @@ import { useFirestore, useDoc } from '@/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { 
   BookOpen, Target, Plus, ChevronRight, ChevronLeft, 
-  Save, Trash2, Layers, CheckCircle2, Star, Info,
-  GraduationCap, Users, Calendar, Clock, Type, ListTree,
-  RotateCcw, X, Edit3, ArrowRight, ArrowLeft, Loader2
+  Save, Trash2, Layers, Info,
+  ListTree, X, PencilLine, Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
   const firestore = useFirestore();
   const router = useRouter();
 
+  const [mounted, setMounted] = useState(false);
   const isEditMode = !!planId && planId.length > 0;
   const currentPlanId = isEditMode ? planId![0] : null;
 
@@ -50,6 +50,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
   });
 
   useEffect(() => {
+    setMounted(true);
     if (existingPlan) {
       setPlan({
         name: existingPlan.name || '',
@@ -65,12 +66,11 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
     }
   }, [existingPlan]);
 
-  // Subjects & Units Handlers
   const addSubject = () => {
     setPlan(prev => ({
       ...prev,
       subjects: [...prev.subjects, {
-        id: crypto.randomUUID(),
+        id: Math.random().toString(36).substring(7),
         name: '',
         teacher: '',
         units: []
@@ -93,7 +93,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
   const addUnit = (subjectIdx: number) => {
     const newSubjects = [...plan.subjects];
     newSubjects[subjectIdx].units.push({
-      id: crypto.randomUUID(),
+      id: Math.random().toString(36).substring(7),
       title: '',
       topics: []
     });
@@ -115,7 +115,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
   const addTopic = (subjectIdx: number, unitIdx: number) => {
     const newSubjects = [...plan.subjects];
     newSubjects[subjectIdx].units[unitIdx].topics.push({
-      id: crypto.randomUUID(),
+      id: Math.random().toString(36).substring(7),
       title: '',
       status: 'not_started'
     });
@@ -138,7 +138,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
     setPlan(prev => ({
       ...prev,
       objectives: [...prev.objectives, {
-        id: crypto.randomUUID(),
+        id: Math.random().toString(36).substring(7),
         title: '',
         status: 'not_started'
       }]
@@ -182,7 +182,7 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
     ]
   };
 
-  if (loading && isEditMode) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
+  if (!mounted || (loading && isEditMode)) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-32">
@@ -393,13 +393,13 @@ export default function AcademicPlanEditorPage({ params }: { params: Promise<{ l
       <div className="flex justify-between items-center px-4 pt-10 border-t border-slate-100">
          {step > 1 ? (
            <Button onClick={() => setStep(step - 1)} variant="ghost" className="h-14 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 gap-2">
-              <ChevronLeft className={cn("h-5 w-5", isAr && "rotate-180")} /> Previous
+              <ChevronLeft className={cn("h-5 w-5", isAr && "rotate-180")} /> {isAr ? 'السابق' : 'Previous Stage'}
            </Button>
          ) : <div />}
 
          {step < 4 && (
            <Button onClick={() => setStep(step + 1)} className="h-14 px-12 rounded-xl bg-primary text-white font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/10 gap-3 group">
-              Next Stage <ChevronRight className={cn("h-5 w-5 group-hover:translate-x-1 transition-transform", isAr && "rotate-180")} />
+              {isAr ? 'المرحلة التالية' : 'Next Stage'} <ChevronRight className={cn("h-5 w-5 group-hover:translate-x-1 transition-transform", isAr && "rotate-180")} />
            </Button>
          )}
       </div>

@@ -1,8 +1,8 @@
 
 'use client';
 
-import { use, useState, useEffect, useMemo } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { use, useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useDoc, useUser } from '@/firebase';
 import { doc, updateDoc, serverTimestamp, addDoc, collection } from 'firebase/firestore';
@@ -26,6 +26,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Link from 'next/link';
 
 export default function PlanMonitoringPage({ params }: { params: Promise<{ lang: Locale, id: string, planId: string }> }) {
   const { lang, id, planId } = use(params);
@@ -34,10 +35,15 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
   const firestore = useFirestore();
   const router = useRouter();
 
+  const [mounted, setMounted] = useState(false);
+  const [isTemplating, setIsTemplating] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const planRef = useMemo(() => (firestore && planId) ? doc(firestore, 'academic_plans', planId) : null, [firestore, planId]);
   const { data: plan, loading } = useDoc(planRef);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isTemplating, setIsTemplating] = useState(false);
 
   // Monitor Logic: Update Status of Topics or Objectives
   const updateTopicStatus = async (sIdx: number, uIdx: number, tIdx: number, newStatus: string) => {
@@ -109,7 +115,7 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
     }
   };
 
-  if (loading || !plan) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
+  if (!mounted || loading || !plan) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 pb-32">
@@ -174,7 +180,7 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
          {/* LEFT: Execution Tracker (Topics) */}
          <div className="lg:col-span-8 space-y-6">
-            <div className="flex items-center justify-between px-2">
+            <div className="flex items-center justify-between px-2 text-start">
                <h2 className="text-lg font-black uppercase text-primary tracking-widest flex items-center gap-3">
                   <ListTree className="h-5 w-5 text-secondary" />
                   {isAr ? 'متابعة الموضوعات والدروس' : 'Topic Execution Matrix'}
@@ -242,7 +248,7 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
 
          {/* RIGHT: Objectives Monitoring */}
          <div className="lg:col-span-4 space-y-6">
-            <h2 className="text-lg font-black uppercase text-primary tracking-widest flex items-center gap-3">
+            <h2 className="text-lg font-black uppercase text-primary tracking-widest flex items-center gap-3 text-start">
                <Target className="h-5 w-5 text-secondary" />
                {isAr ? 'الأهداف المحققة' : 'Milestones'}
             </h2>
