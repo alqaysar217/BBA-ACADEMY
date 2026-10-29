@@ -151,7 +151,7 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-32 px-4">
+    <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4">
       <NavigationBar />
 
       {/* Student Identity Header */}
@@ -199,7 +199,7 @@ export default function StudentPlansListPage({ params }: { params: Promise<{ lan
               <p className="text-slate-400 font-black uppercase text-xs tracking-widest">{t.empty}</p>
               <p className="text-[10px] font-bold text-slate-300 uppercase italic max-w-xs mx-auto leading-relaxed">{t.emptySub}</p>
            </div>
-           <Button asChild variant="outline" className="border-secondary/20 text-secondary font-black text-[10px] h-11 px-10 rounded-xl uppercase tracking-widest hover:bg-secondary/5 shadow-sm">
+           <Button asChild variant="outline" className="border-secondary/20 text-secondary font-black text-[10px] h-11 px-10 rounded-xl uppercase tracking-widest hover:bg-secondary/5 shadow-sm bg-white">
               <Link href={`/${lang}/admin/students/${id}/plans/create`}>{t.createNew}</Link>
            </Button>
         </div>

@@ -12,7 +12,7 @@ import {
   RotateCcw, Save, LayoutTemplate, PencilLine,
   Search, ExternalLink, Loader2, Award,
   Check, X, AlertTriangle, ClipboardCheck,
-  MessageSquare, Star
+  MessageSquare, Star, User
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -132,7 +132,7 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
   if (!mounted || loading || !plan) return <div className="p-20 text-center animate-pulse"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10 pb-32 px-4">
+    <div className="max-w-7xl mx-auto space-y-10 pb-32 px-4">
       {/* Action Header Card */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
          <div className="absolute top-0 right-0 p-8 opacity-10"><Award className="h-48 w-48 text-secondary" /></div>
@@ -161,7 +161,7 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
       {/* Progress Cards Matrix */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
          <Card className="border-none shadow-premium rounded-2xl bg-white p-6 space-y-4 text-start border border-slate-50">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><Star className="h-3 w-3 text-secondary" /> {t.progressLabel}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><Star className="h-3 w-3 text-secondary" /> {t.progressLabel}</p>
             <div className="flex items-end justify-between">
                <h3 className="text-4xl font-black text-primary">{plan.progress || 0}%</h3>
                <div className="h-10 w-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shadow-inner"><CheckCircle2 className="h-5 w-5" /></div>
@@ -172,20 +172,20 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
          </Card>
 
          <Card className="border-none shadow-premium rounded-2xl bg-white p-6 space-y-2 text-center flex flex-col justify-center border border-slate-50">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.courseLoad}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.courseLoad}</p>
             <h3 className="text-3xl font-black text-slate-900">{plan.subjects?.length || 0}</h3>
             <p className="text-[8px] font-bold text-slate-300 uppercase tracking-[0.2em]">{t.coreSubjects}</p>
          </Card>
 
          <Card className="border-none shadow-premium rounded-2xl bg-white p-6 space-y-2 text-center flex flex-col justify-center border border-slate-50">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.planStart}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.planStart}</p>
             <h3 className="text-xl font-black text-slate-900 truncate px-2">{plan.startDate || '-'}</h3>
             <p className="text-[8px] font-bold text-slate-300 uppercase tracking-[0.2em]">{t.targetRelease}</p>
          </Card>
 
          <Card className="border-none shadow-premium rounded-2xl bg-primary text-white p-6 space-y-2 text-center flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 right-0 p-2 opacity-10"><Clock className="h-20 w-20" /></div>
-            <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">{t.deadline}</p>
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t.deadline}</p>
             <h3 className="text-xl font-black relative z-10 truncate px-2">{plan.endDate || '-'}</h3>
             <p className="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em] relative z-10">{t.endSession}</p>
          </Card>
@@ -203,7 +203,7 @@ export default function PlanMonitoringPage({ params }: { params: Promise<{ lang:
 
             <Accordion type="multiple" className="space-y-4">
                {plan.subjects.map((sub: any, sIdx: number) => (
-                 <AccordionItem key={sub.id || sIdx} value={`sub-${sub.id || sIdx}`} className="border-none bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden group/acc hover:shadow-md transition-all">
+                 <AccordionItem key={sub.id || sIdx} value={`sub-${sub.id || sIdx}`} className="border-none bg-white rounded-2xl shadow-premium border border-slate-100 overflow-hidden group/acc hover:shadow-xl transition-all">
                     <AccordionTrigger className="p-6 hover:no-underline hover:bg-slate-50/50 transition-colors">
                        <div className="flex items-center gap-6 text-start">
                           <div className="h-11 w-11 rounded-xl bg-primary/5 text-primary flex items-center justify-center font-black shadow-inner group-hover/acc:bg-primary group-hover/acc:text-white transition-all">{sIdx+1}</div>
