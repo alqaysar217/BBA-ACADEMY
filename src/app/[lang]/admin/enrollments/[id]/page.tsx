@@ -42,7 +42,8 @@ import {
   Paperclip,
   Trash2,
   Upload,
-  FileUp
+  FileUp,
+  RotateCcw
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -202,6 +203,7 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
       provision: isAr ? 'تفعيل الملف' : 'Provision',
       enrolled: isAr ? 'تم التسجيل' : 'ENROLLED',
       logMessage: isAr ? 'إرسال وتوثيق المراسلة' : 'Dispatch & Record Correspondence',
+      undo: isAr ? 'تراجع عن التسجيل' : 'Undo Enrollment'
     },
     sections: {
       guardians: isAr ? 'بيانات أولياء الأمور' : 'Guardians Information',
@@ -292,6 +294,26 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
     toast({ title: isAr ? "تم تحديث حالة الطالب" : "Student Status Updated" });
   };
 
+  const undoEnrollment = (studentIdx: number) => {
+    if (!docRef || !app) return;
+    const student = app.students[studentIdx];
+    
+    if (!window.confirm(isAr ? `هل أنت متأكد من إلغاء حالة التسجيل لـ ${student.firstName}؟` : `Are you sure you want to undo enrollment for ${student.firstName}?`)) return;
+
+    setIsProcessing(true);
+    const updatedStudents = [...app.students];
+    updatedStudents[studentIdx].isEnrolled = false;
+    
+    updateDoc(docRef, { 
+      students: updatedStudents, 
+      updatedAt: serverTimestamp() 
+    })
+    .then(() => {
+       toast({ title: isAr ? "تم التراجع عن التسجيل في الاستمارة" : "Enrollment state reverted in form" });
+    })
+    .finally(() => setIsProcessing(false));
+  };
+
   const enrollStudent = (studentIdx: number) => {
     if (!firestore || !app || !docRef) return;
     const student = app.students[studentIdx];
@@ -338,7 +360,8 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
            totalPaid: 0,
            payments: []
         },
-        submittedAt: app.submittedAt || null, // Preserve submission date for timeline reference
+        files: app.files || [], // Copy files from enrollment to student record
+        submittedAt: app.submittedAt || null, 
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
@@ -826,9 +849,19 @@ export default function ApplicationReviewDetailPage({ params }: { params: Promis
                          </TableCell>
                          <TableCell className="px-6 text-center">
                             {st.isEnrolled ? (
-                              <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit mx-auto shadow-sm">
-                                 <BadgeCheck className="h-4 w-4" /> {t.actions.enrolled}
-                              </Badge>
+                              <div className="space-y-2">
+                                <Badge className="bg-green-100 text-green-600 border-none font-black text-[9px] py-2 px-4 rounded-xl flex items-center gap-2 w-fit mx-auto shadow-sm">
+                                   <BadgeCheck className="h-4 w-4" /> {t.actions.enrolled}
+                                </Badge>
+                                <button 
+                                  onClick={() => undoEnrollment(i)}
+                                  disabled={isProcessing}
+                                  className="text-[8px] font-black text-slate-400 hover:text-red-500 uppercase tracking-widest flex items-center justify-center gap-1 transition-colors mx-auto"
+                                >
+                                  {isProcessing ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <RotateCcw className="h-2.5 w-2.5" />}
+                                  {t.actions.undo}
+                                </button>
+                              </div>
                             ) : (
                               <Button 
                                 onClick={() => enrollStudent(i)} 
