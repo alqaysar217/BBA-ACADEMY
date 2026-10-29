@@ -194,7 +194,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   const DataField = ({ label, path, type = "text", className = "" }: any) => {
     const value = path.split('.').reduce((acc: any, part: string) => acc && acc[part], editData);
     return (
-      <div className={cn("space-y-1.5 text-start", className)}>
+      <div className={cn("space-y-2 text-start w-full", className)}>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
           {label}
         </p>
@@ -203,10 +203,10 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
             type={type}
             value={value || ''} 
             onChange={(e) => handleNestedUpdate(path, e.target.value)}
-            className="h-11 bg-slate-50 border-slate-100 font-bold focus:border-primary transition-all"
+            className="h-11 bg-slate-50 border-slate-100 font-bold focus:border-primary transition-all w-full"
           />
         ) : (
-          <p className={cn("text-base font-bold text-slate-900 leading-tight", !value && "text-slate-300 italic")}>
+          <p className={cn("text-base font-bold text-slate-900 leading-tight min-h-[1.5rem]", !value && "text-slate-300 italic")}>
             {value || t.notRegistered}
           </p>
         )}
@@ -215,15 +215,15 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-20 px-4 sm:px-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6 pb-20 px-4 sm:px-6">
       <NavigationBar />
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-2">
-        <Link href={`/${lang}/admin/students`} className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+        <Link href={`/${lang}/admin/students`} className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest shrink-0">
           {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           {t.back}
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-end">
           {isEditing ? (
             <>
               <Button onClick={() => setIsEditing(false)} variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -242,31 +242,31 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </div>
       </div>
 
-      {/* CARD 1: PRIMARY IDENTITY (Spacious 3-Row Layout) */}
-      <Card className="border-none shadow-premium bg-white overflow-hidden rounded-[2rem]">
-        <CardContent className="p-8 sm:p-12 lg:p-14">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-12 lg:gap-20">
+      {/* CARD 1: PRIMARY IDENTITY (Spacious responsive layout) */}
+      <Card className="border-none shadow-premium bg-white overflow-hidden rounded-2xl w-full">
+        <CardContent className="p-6 md:p-10 lg:p-12">
+          <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-12 lg:gap-16">
              
-             {/* LEFT/RIGHT COLUMN: Photo + ID & Status */}
-             <div className="flex flex-col items-center gap-6 shrink-0 w-full md:w-auto">
-                <div className="relative group">
-                  <div className="h-48 w-44 rounded-3xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+             {/* PHOTO & BASIC IDENTIFIERS */}
+             <div className="flex flex-col items-center gap-6 shrink-0 w-full md:w-48 lg:w-56">
+                <div className="relative group w-full max-w-[180px] md:max-w-none aspect-square md:aspect-[4/5]">
+                  <div className="h-full w-full rounded-2xl bg-slate-50 border-4 border-white overflow-hidden relative shadow-lg transition-transform duration-500 group-hover:scale-[1.02]">
                     <Image src={profileImage} alt="Student" fill className="object-cover" unoptimized />
                     {isUploadingPhoto && <div className="absolute inset-0 bg-black/40 flex items-center justify-center"><Loader2 className="h-6 w-6 text-white animate-spin" /></div>}
                   </div>
                   <button 
                     onClick={() => fileInputRef.current?.click()} 
-                    className="absolute -bottom-2 -right-2 h-11 w-11 bg-white shadow-2xl rounded-2xl border border-slate-100 flex items-center justify-center text-primary hover:text-secondary transition-all hover:scale-110 active:scale-95"
+                    className="absolute -bottom-2 -right-2 h-10 w-10 bg-white shadow-2xl rounded-xl border border-slate-100 flex items-center justify-center text-primary hover:text-secondary transition-all hover:scale-110 active:scale-95"
                   >
-                    <Camera className="h-5 w-5" />
+                    <Camera className="h-4 w-4" />
                   </button>
                   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhotoUpload} />
                 </div>
 
-                <div className="text-center space-y-2">
-                   <div className="px-4 py-1 bg-slate-50 rounded-lg border border-slate-100">
+                <div className="text-center space-y-3 w-full">
+                   <div className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">ID</p>
-                     <p className="text-xs font-black text-primary font-mono">{id?.toUpperCase()}</p>
+                     <p className="text-xs font-black text-primary font-mono truncate">{id?.toUpperCase()}</p>
                    </div>
                    <Badge className={cn(
                        "border-none text-[9px] font-black uppercase tracking-widest px-5 py-1.5 rounded-full shadow-sm w-full justify-center",
@@ -275,9 +275,9 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
                 </div>
              </div>
 
-             {/* DATA COLUMN: 3 Rows Grid */}
-             <div className="flex-1 w-full space-y-12">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-12 gap-x-12">
+             {/* MAIN DATA GRID (3 Rows - Responsive) */}
+             <div className="flex-1 w-full space-y-10 lg:space-y-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-8 lg:gap-x-12">
                    {/* Row 1: Personal Names */}
                    <DataField label={t.fields.firstName} path="firstName" />
                    <DataField label={t.fields.middleName} path="middleName" />
@@ -297,16 +297,16 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </CardContent>
       </Card>
 
-      {/* CARD 2: RESIDENCE & PROGRAM DETAILS (Secondary Stats) */}
-      <Card className="border-none shadow-premium bg-white overflow-hidden rounded-[2rem]">
-        <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-8 sm:px-12 py-5">
+      {/* CARD 2: RESIDENCE & PROGRAM DETAILS */}
+      <Card className="border-none shadow-premium bg-white overflow-hidden rounded-2xl w-full">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 px-6 md:px-10 py-5">
            <CardTitle className="text-[11px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-3">
               <MapPin className="h-4 w-4 text-secondary" />
               {t.sections.residence}
            </CardTitle>
         </CardHeader>
-        <CardContent className="p-8 sm:p-12 lg:p-14 space-y-16">
-           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-12">
+        <CardContent className="p-6 md:p-10 lg:p-12 space-y-12">
+           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-8 lg:gap-x-12">
               <DataField label={t.fields.program} path="program" />
               <DataField label={t.fields.addr1} path="address.line1" className="sm:col-span-1 md:col-span-3" />
               
@@ -315,24 +315,24 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
               <DataField label={t.fields.zip} path="address.zip" />
            </div>
 
-           <div className="pt-10 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-16 lg:gap-24">
-              <div className="space-y-1.5 text-center sm:text-start">
+           <div className="pt-10 border-t border-slate-50 flex flex-wrap items-center gap-10 md:gap-20">
+              <div className="space-y-1.5">
                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <CalendarIcon className="h-3 w-3 text-secondary" />
                     {isAr ? 'تاريخ الانضمام' : 'Joined Since'}
                  </p>
-                 <p className="text-base font-black text-slate-700">
+                 <p className="text-sm md:text-base font-black text-slate-700">
                     {student.createdAt && typeof student.createdAt.toDate === 'function' 
                        ? format(student.createdAt.toDate(), 'MMMM dd, yyyy') 
                        : '-'}
                  </p>
               </div>
-              <div className="space-y-1.5 text-center sm:text-start">
+              <div className="space-y-1.5">
                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Info className="h-3 w-3 text-secondary" />
                     {isAr ? 'آخر تحديث للسجل' : 'Last Master Update'}
                  </p>
-                 <p className="text-base font-black text-secondary">
+                 <p className="text-sm md:text-base font-black text-secondary">
                     {student.updatedAt && typeof student.updatedAt.toDate === 'function' 
                        ? format(student.updatedAt.toDate(), 'MMMM dd, HH:mm') 
                        : '-'}
@@ -342,11 +342,11 @@ export default function StudentProfilePage({ params }: { params: Promise<{ lang:
         </CardContent>
       </Card>
 
-      <div className="bg-amber-50/50 p-8 rounded-3xl border border-amber-100 flex items-start gap-6 mx-2 shadow-sm">
-         <Info className="h-7 w-7 text-amber-600 shrink-0 mt-0.5 opacity-60" />
+      <div className="bg-amber-50/50 p-6 md:p-8 rounded-2xl border border-amber-100 flex items-start gap-5 mx-2 shadow-sm">
+         <Info className="h-6 w-6 text-amber-600 shrink-0 mt-1 opacity-60" />
          <div className="space-y-1.5">
             <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">{isAr ? 'ملاحظة الأرشفة' : 'Registry Note'}</p>
-            <p className="text-sm font-bold text-amber-900/60 leading-relaxed italic text-start">
+            <p className="text-xs md:text-sm font-bold text-amber-900/60 leading-relaxed italic text-start">
                {isAr 
                   ? 'تم تجميع كافة بيانات الطالب في هذا الملف الموحد لضمان سهولة الوصول والتوثيق الأكاديمي.' 
                   : 'All student vital statistics and residence data have been consolidated into this master profile for streamlined academic documentation.'}
