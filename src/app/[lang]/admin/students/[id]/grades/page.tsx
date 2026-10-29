@@ -209,26 +209,23 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       configTitle: isAr ? 'إعدادات تصدير الشهادة' : 'Transcript Export Settings',
       configDesc: isAr ? 'اختر نوع الدرجات التي ترغب في تضمينها في الكشف.' : 'Select the type of grades you wish to include in the transcript.',
       generate: isAr ? 'توليد الشهادة' : 'Generate Certificate',
-      bismillah: 'بسم الله الرحمن الرحيم',
-      academyEn: 'Masjid Al-Salam & Banaat Academy for Distance Education & Academic Excellence',
+      academyEn: 'MASJID AL-SALAM & BANAAT ACADEMY',
       academyAr: 'أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي',
-      certTitleEn: 'Official Semester Examination Report',
+      certTitleEn: 'OFFICIAL SEMESTER EXAMINATION REPORT',
       certTitleAr: 'شهادة نتيجة الاختبار الفصلي',
-      certIntroEn: 'The Administration of Baneen and Banaat Academy hereby certifies that the student:',
-      certIntroAr: 'تشهد إدارة أكاديمية البنين والبنات - ميشيغان، بأن الطالب/ـة:',
-      certMetaEn: 'has successfully completed the requirements for the indicated academic term. In recognition of their fruitful efforts and perseverance, this certificate is awarded with our best wishes for continued success.',
-      certMetaAr: 'قد أتم/ت متطلبات الاختبارات للفصل الدراسي المحدد بكل جدارة واقتدار، وتقديراً لجهوده/ا المثمرة ومثابرته/ا، تُمنح هذه الشهادة مع خالص التمنيات له/ا دوام النجاح والتألق.',
+      certIntroEn: 'The administration certifies the student has successfully completed the term.',
+      certIntroAr: 'تشهد إدارة الأكاديمية بأن الطالب قد أتم متطلبات الفصل بنجاح.',
       signAdminEn: 'Academy Director',
       signAdminAr: 'مدير الأكاديمية',
       signTeacherEn: 'Subject Teacher',
       signTeacherAr: 'معلم المادة',
-      signRegEn: 'Admission & Registration',
+      signRegEn: 'Admissions & Registration',
       signRegAr: 'القبول والتسجيل',
       rowMonthlyEn: 'Monthly Assessment',
       rowMonthlyAr: 'الأعمال الشهرية',
       rowFinalEn: 'Term Examinations',
       rowFinalAr: 'الاختبارات الفصلية',
-      rowTotalEn: 'Total (AR / EN)',
+      rowTotalEn: 'Total (AR/EN)',
       rowTotalAr: 'الإجمالي (عربي / إنجليزي)',
       colGradeEn: 'Grade',
       colGradeAr: 'التقدير',
@@ -236,11 +233,11 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       colTotalAr: 'الإجمالي',
       colSubjectEn: 'Course Name',
       colSubjectAr: 'اسم المادة',
-      overallScore: 'Total Points / الإجمالي الكلي لجميع النقاط',
+      overallScore: 'Overall Score / إجمالي النقاط',
       overallGrade: 'Overall Grade / التقدير الكلي',
       finalResult: 'Final Result / النتيجة النهائية',
-      pass: 'Pass / ناجح ومنقول إلى الصف التالي',
-      fail: 'Fail / راسب'
+      pass: 'PASS / ناجح',
+      fail: 'FAIL / راسب'
     }
   };
 
@@ -323,25 +320,29 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
     style.innerHTML = `
       @media print {
-        @page { size: A4 portrait; margin: 0; }
+        @page { 
+          size: A4 portrait; 
+          margin: 8mm; 
+        }
         body * { visibility: hidden !important; overflow: visible !important; }
         #printable-report-${planId}, #printable-report-${planId} * { visibility: visible !important; }
         #printable-report-${planId} {
           position: fixed !important;
           left: 0 !important;
           top: 0 !important;
-          width: 210mm !important;
-          height: 297mm !important;
+          width: 100% !important;
+          height: auto !important;
           margin: 0 !important;
-          padding: 12mm !important;
+          padding: 0 !important;
           background: white !important;
           z-index: 9999999 !important;
           display: flex !important;
           flex-direction: column !important;
           box-sizing: border-box !important;
           font-family: 'Times New Roman', serif !important;
+          color: #000 !important;
         }
-        .print-only-block { display: block !important; }
+        .print-only-block { display: flex !important; }
         button, nav, header, footer, [role="dialog"], .dialog-overlay { display: none !important; }
       }
     `;
@@ -692,207 +693,164 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     </div>
                  </AccordionContent>
 
-                 {/* OFFICIAL A4 PORTRAIT REPORT CARD */}
+                 {/* STRICT SINGLE PAGE A4 REPORT CARD */}
                  <div id={`printable-report-${plan.id}`} className="hidden print-only-block" dir="ltr">
-                    <div className="flex flex-col h-full bg-white text-slate-900 p-0 leading-normal">
+                    <div style={{ position: 'relative', width: '100%', minHeight: '280mm', backgroundColor: '#fff', padding: '0', display: 'flex', flexDirection: 'column' }}>
                        
-                       {/* [ Bismillah ] */}
-                       <div className="text-center mb-6">
-                          <p className="text-xl font-bold italic font-serif">{t.report.bismillah}</p>
+                       {/* Watermark Logo */}
+                       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: '0.03', zIndex: 0 }}>
+                          <img src="/logo.png" style={{ width: '350px', height: 'auto' }} />
                        </div>
 
-                       {/* [ Main Header - 3 Columns ] */}
-                       <div className="flex items-center justify-between border-b-4 border-slate-900 pb-6 mb-8 gap-4">
-                          {/* Right (Arabic Text) */}
-                          <div className="text-right w-[35%] font-arabic" dir="rtl">
-                             <h2 className="text-sm font-black text-slate-900 leading-tight">{t.report.academyAr}</h2>
-                             <p className="text-[9px] font-bold text-slate-500 mt-1">ميشيغان - الولايات المتحدة الأمريكية</p>
-                          </div>
-                          {/* Center (Logo) */}
-                          <div className="shrink-0">
-                             <img src="/logo.png" className="h-20 w-20 object-contain" alt="BBA Logo" />
-                          </div>
-                          {/* Left (English Text) */}
-                          <div className="text-left w-[35%]">
-                             <h2 className="text-sm font-black text-slate-900 leading-tight uppercase">{t.report.academyEn}</h2>
-                             <p className="text-[9px] font-bold text-slate-500 mt-1">Michigan - USA</p>
-                          </div>
-                       </div>
-
-                       {/* [ Certificate Title ] */}
-                       <div className="text-center space-y-2 mb-10">
-                          <h1 className="text-3xl font-black uppercase tracking-widest text-slate-900">
-                             {t.report.certTitleEn}
-                          </h1>
-                          <h2 className="text-xl font-black font-arabic text-slate-800" dir="rtl">
-                             {t.report.certTitleAr}
-                          </h2>
-                          <div className="flex justify-center gap-10 pt-2 font-bold text-sm text-slate-600">
-                             <span>Academic Year / العام الدراسي: {plan.year}</span>
-                             <span>Term / الفصل الدراسي: {plan.term}</span>
-                          </div>
-                       </div>
-
-                       {/* [ Formal Intro Text ] */}
-                       <div className="text-center space-y-6 mb-12">
-                          <div className="space-y-1">
-                             <p className="text-sm italic text-slate-500 font-serif">{t.report.certIntroEn}</p>
-                             <p className="text-base font-arabic font-bold text-slate-700" dir="rtl">{t.report.certIntroAr}</p>
-                          </div>
+                       <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
                           
-                          <div className="relative inline-block px-16 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl">
-                             <h2 className="text-2xl font-black text-primary uppercase">{student?.firstName} {student?.lastName}</h2>
-                             <div className="text-xs font-bold text-slate-400 mt-1">Grade / الصف: {student?.gradeLevel}</div>
-                          </div>
-
-                          <div className="space-y-1 max-w-3xl mx-auto">
-                             <p className="text-sm italic text-slate-500 font-serif leading-relaxed px-10">{t.report.certMetaEn}</p>
-                             <p className="text-base font-arabic font-bold text-slate-700 leading-relaxed px-10" dir="rtl">{t.report.certMetaAr}</p>
-                          </div>
-                       </div>
-
-                       {/* [ Matrix Grade Table ] */}
-                       <div className="flex-1 mb-10 overflow-hidden">
-                          <table className="w-full border-collapse text-center table-fixed border-[3px] border-slate-900">
-                             <thead className="bg-slate-900 text-white">
-                                <tr className="h-20">
-                                   <th className="border-r border-white/20 w-[180px] text-[10px] font-black uppercase">
-                                      {t.report.colSubjectEn}<br/>{t.report.colSubjectAr}
-                                   </th>
-                                   {plan.subjects.map((sub: any, sIdx: number) => (
-                                     <th key={sIdx} className="border-r border-white/20 px-1 text-[9px] font-bold">
-                                        <div className="flex flex-col gap-1 uppercase">
-                                           <span className="truncate">{sub.nameEn || sub.nameAr}</span>
-                                           <div className="h-px w-6 bg-white/20 mx-auto" />
-                                           <span className="font-arabic" dir="rtl">{sub.nameAr || sub.nameEn}</span>
-                                        </div>
-                                     </th>
-                                   ))}
-                                   <th className="border-r border-white/20 w-[80px] text-[10px] font-black uppercase">
-                                      {t.report.colGradeEn}<br/>{t.report.colGradeAr}
-                                   </th>
-                                   <th className="w-[80px] text-[10px] font-black uppercase">
-                                      {t.report.colTotalEn}<br/>{t.report.colTotalAr}
-                                   </th>
-                                </tr>
-                             </thead>
-                             <tbody className="text-[12px] font-bold">
-                                {/* Row 1: Monthly Assessment */}
-                                <tr className="h-16 border-b-2 border-slate-200 bg-slate-50/50">
-                                   <td className="border-r-2 border-slate-200 font-black uppercase text-[10px] bg-slate-100/50 text-left px-4">
-                                      {t.report.rowMonthlyEn}<br/>
-                                      <span className="font-arabic text-xs" dir="rtl">{t.report.rowMonthlyAr}</span>
-                                   </td>
-                                   {plan.subjects.map((sub: any, sIdx: number) => {
-                                      const grade = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'monthly');
-                                      return (
-                                        <td key={sIdx} className="border-r-2 border-slate-200 text-lg">
-                                          {grade ? grade.score : '-'}
-                                        </td>
-                                      );
-                                   })}
-                                   <td className="border-r-2 border-slate-200 bg-slate-100">-</td>
-                                   <td className="bg-slate-100">-</td>
-                                </tr>
-
-                                {/* Row 2: Term Examinations */}
-                                <tr className="h-16 border-b-2 border-slate-200">
-                                   <td className="border-r-2 border-slate-200 font-black uppercase text-[10px] bg-slate-100/50 text-left px-4">
-                                      {t.report.rowFinalEn}<br/>
-                                      <span className="font-arabic text-xs" dir="rtl">{t.report.rowFinalAr}</span>
-                                   </td>
-                                   {plan.subjects.map((sub: any, sIdx: number) => {
-                                      const grade = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'final');
-                                      return (
-                                        <td key={sIdx} className="border-r-2 border-slate-200 text-lg">
-                                          {grade ? grade.score : '-'}
-                                        </td>
-                                      );
-                                   })}
-                                   <td className="border-r-2 border-slate-200 bg-slate-100">-</td>
-                                   <td className="bg-slate-100">-</td>
-                                </tr>
-
-                                {/* Row 3: Totals */}
-                                <tr className="h-20 bg-primary/5">
-                                   <td className="border-r-2 border-slate-200 font-black uppercase text-[11px] text-primary text-left px-4">
-                                      {t.report.rowTotalEn}<br/>
-                                      <span className="font-arabic text-sm" dir="rtl">{t.report.rowTotalAr}</span>
-                                   </td>
-                                   {plan.subjects.map((sub: any, sIdx: number) => {
-                                      const relevant = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === printType);
-                                      const pct = relevant ? Math.round((Number(relevant.score) / Number(relevant.totalScore)) * 100) : 0;
-                                      return (
-                                        <td key={sIdx} className="border-r-2 border-slate-200 font-black text-primary text-xl">
-                                          {pct > 0 ? `${pct}%` : '-'}
-                                        </td>
-                                      );
-                                   })}
-                                   <td className="border-r-2 border-slate-200 bg-slate-900 text-white font-black text-2xl">
-                                      {stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}
-                                   </td>
-                                   <td className="bg-slate-900 text-white font-black text-2xl">
-                                      {stats.avg}%
-                                   </td>
-                                </tr>
-                             </tbody>
-                          </table>
-                       </div>
-
-                       {/* [ Summary Totals ] */}
-                       <div className="grid grid-cols-3 gap-6 mb-12">
-                          <div className="border-[3px] border-slate-900 p-5 rounded-2xl text-center bg-slate-50 space-y-1">
-                             <p className="text-[10px] font-black uppercase text-slate-400">{t.report.overallScore}</p>
-                             <p className="text-3xl font-black text-primary">{stats.avg}%</p>
-                          </div>
-                          <div className="border-[3px] border-slate-900 p-5 rounded-2xl text-center bg-slate-50 space-y-1">
-                             <p className="text-[10px] font-black uppercase text-slate-400">{t.report.overallGrade}</p>
-                             <p className="text-3xl font-black text-primary">{getLetterGrade(stats.avg)}</p>
-                          </div>
-                          <div className="border-[3px] border-slate-900 p-5 rounded-2xl text-center bg-slate-900 text-white space-y-1">
-                             <p className="text-[10px] font-black uppercase text-white/50">{t.report.finalResult}</p>
-                             <p className="text-xl font-black">{stats.avg >= 60 ? t.report.pass.split(' / ')[0] : t.report.fail.split(' / ')[0]}</p>
-                             <p className="text-xs font-bold text-white/70 italic uppercase">{stats.avg >= 60 ? 'Pass' : 'Fail'}</p>
-                          </div>
-                       </div>
-
-                       {/* [ Triple Signature Blocks ] */}
-                       <div className="grid grid-cols-3 gap-12 text-center mt-auto pb-10">
-                          <div className="space-y-16">
-                             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400 border-b border-slate-100 pb-2">
-                                {t.report.signTeacherEn}<br/>{t.report.signTeacherAr}
-                             </p>
-                             <div className="pt-2 border-t-2 border-slate-900 min-h-[16px]">
-                                <span className="text-[11px] font-bold text-slate-400">Signature & Date</span>
+                          {/* Compact Triple Header */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', paddingBottom: '8px', borderBottom: '2px solid #0F2C59' }}>
+                             <div style={{ width: '38%', textAlign: 'right', fontFamily: 'var(--font-noto-sans-arabic)' }}>
+                                <p style={{ fontSize: '11pt', fontWeight: '900', color: '#0F2C59', margin: '0', lineHeight: '1.2' }}>{t.report.academyAr}</p>
+                                <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '3px 0 0' }}>ميشيغان - الولايات المتحدة الأمريكية</p>
+                             </div>
+                             <div style={{ width: '20%', textAlign: 'center' }}>
+                                <img src="/logo.png" style={{ maxHeight: '50px', width: 'auto', objectFit: 'contain' }} />
+                             </div>
+                             <div style={{ width: '38%', textAlign: 'left' }}>
+                                <p style={{ fontSize: '10pt', fontWeight: '900', color: '#0F2C59', margin: '0', lineHeight: '1.2' }}>{t.report.academyEn}</p>
+                                <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '3px 0 0' }}>Michigan - USA</p>
                              </div>
                           </div>
-                          <div className="space-y-16">
-                             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400 border-b border-slate-100 pb-2">
-                                {t.report.signRegEn}<br/>{t.report.signRegAr}
-                             </p>
-                             <div className="pt-2 border-t-2 border-slate-900 min-h-[16px]">
-                                <span className="text-[11px] font-bold text-slate-400">Official Stamp</span>
-                             </div>
+
+                          {/* Document Title Badge */}
+                          <div style={{ backgroundColor: '#0F2C59', color: '#fff', padding: '6px 12px', textAlign: 'center', borderRadius: '4px', marginBottom: '10px' }}>
+                             <h1 style={{ margin: '0', fontSize: '11pt', fontWeight: '900', letterSpacing: '1px' }}>
+                                {t.report.certTitleEn} / {t.report.certTitleAr}
+                             </h1>
                           </div>
-                          <div className="space-y-16">
-                             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400 border-b border-slate-100 pb-2">
-                                {t.report.signAdminEn}<br/>{t.report.signAdminAr}
-                             </p>
-                             <div className="pt-2 border-t-2 border-slate-900 relative">
-                                <p className="text-sm font-black text-primary">Dr. Mustafa Ali</p>
-                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-[0.08] pointer-events-none">
-                                   <img src="/logo.png" className="h-20 w-20 grayscale" />
+
+                          {/* Compact Student Info Card */}
+                          <div style={{ backgroundColor: '#F8F9FA', border: '1px solid #E9ECEF', borderRadius: '8px', padding: '10px 15px', marginBottom: '10px' }}>
+                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ textAlign: 'left', width: '48%' }}>
+                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }}><strong>Student Name:</strong> {student?.firstName} {student?.lastName}</p>
+                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }}><strong>Academic Year:</strong> {plan.year} | <strong>Term:</strong> {plan.term}</p>
+                                   <p style={{ fontSize: '9pt', margin: '0', color: '#444' }}><strong>Grade:</strong> {student?.gradeLevel}</p>
+                                </div>
+                                <div style={{ textAlign: 'right', width: '48%', fontFamily: 'var(--font-noto-sans-arabic)' }}>
+                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }} dir="rtl"><strong>اسم الطالب(ة):</strong> {student?.firstName} {student?.lastName}</p>
+                                   <p style={{ fontSize: '9pt', margin: '0 0 4px', color: '#444' }} dir="rtl"><strong>العام الدراسي:</strong> {plan.year} | <strong>الفصل:</strong> {plan.term === 'First Semester' ? 'الأول' : 'الثاني'}</p>
+                                   <p style={{ fontSize: '9pt', margin: '0', color: '#444' }} dir="rtl"><strong>الصف الدراسي:</strong> {student?.gradeLevel}</p>
                                 </div>
                              </div>
                           </div>
-                       </div>
 
-                       {/* [ Footer Details ] */}
-                       <div className="flex justify-between items-center opacity-30 border-t border-slate-100 pt-6">
-                          <p className="text-[8px] font-black uppercase tracking-widest">Digital Registry Verification: {id?.toUpperCase()}</p>
-                          <p className="text-[8px] font-black uppercase tracking-widest">Issued On: {new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                       </div>
+                          {/* Concise Certification Text */}
+                          <div style={{ textAlign: 'center', marginBottom: '12px', padding: '0 20px' }}>
+                             <p style={{ fontSize: '9.5pt', fontWeight: '700', color: '#333', margin: '0', lineHeight: '1.4' }}>
+                                {t.report.certIntroAr}
+                                <br/>
+                                <span style={{ fontSize: '8.5pt', fontWeight: '500', color: '#666', fontStyle: 'italic' }}>{t.report.certIntroEn}</span>
+                             </p>
+                          </div>
 
+                          {/* Fixed-Alignment Grades Matrix */}
+                          <div style={{ flex: 1 }}>
+                             <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', border: '2px solid #0F2C59' }}>
+                                <thead>
+                                   <tr style={{ backgroundColor: '#0F2C59', color: '#fff' }}>
+                                      <th style={{ width: '18%', border: '1px solid #fff', padding: '6px', fontSize: '9pt', fontWeight: '900' }}>{t.table.filterLabel} / Category</th>
+                                      {plan.subjects.map((sub: any, sIdx: number) => (
+                                        <th key={sIdx} style={{ border: '1px solid #fff', padding: '4px', fontSize: '8pt', fontWeight: '900', textAlign: 'center' }}>
+                                           <div style={{ fontFamily: 'var(--font-noto-sans-arabic)', marginBottom: '2px' }}>{sub.nameAr || sub.nameEn}</div>
+                                           <div style={{ opacity: '0.9', fontSize: '7pt' }}>{sub.nameEn || sub.nameAr}</div>
+                                        </th>
+                                      ))}
+                                      <th style={{ width: '10%', border: '1px solid #fff', padding: '4px', fontSize: '8pt', fontWeight: '900' }}>{t.report.colGradeEn}</th>
+                                      <th style={{ width: '10%', border: '1px solid #fff', padding: '4px', fontSize: '8pt', fontWeight: '900' }}>{t.report.colTotalEn}</th>
+                                   </tr>
+                                </thead>
+                                <tbody style={{ textAlign: 'center', fontSize: '9.5pt', fontWeight: '700' }}>
+                                   {/* Monthly Assessment Row */}
+                                   <tr style={{ height: '40px', backgroundColor: '#fcfcfc' }}>
+                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA', fontSize: '8pt', textAlign: 'left', padding: '0 8px' }}>
+                                         <strong>{t.report.rowMonthlyAr}</strong><br/><span style={{ fontSize: '7pt', color: '#666' }}>Monthly Assessment</span>
+                                      </td>
+                                      {plan.subjects.map((sub: any, sIdx: number) => {
+                                         const grade = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'monthly');
+                                         return <td key={sIdx} style={{ border: '1px solid #DEE2E6' }}>{grade ? grade.score : '-'}</td>;
+                                      })}
+                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
+                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
+                                   </tr>
+                                   {/* Term Exams Row */}
+                                   <tr style={{ height: '40px' }}>
+                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA', fontSize: '8pt', textAlign: 'left', padding: '0 8px' }}>
+                                         <strong>{t.report.rowFinalAr}</strong><br/><span style={{ fontSize: '7pt', color: '#666' }}>Term Examinations</span>
+                                      </td>
+                                      {plan.subjects.map((sub: any, sIdx: number) => {
+                                         const grade = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === 'final');
+                                         return <td key={sIdx} style={{ border: '1px solid #DEE2E6' }}>{grade ? grade.score : '-'}</td>;
+                                      })}
+                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
+                                      <td style={{ border: '1px solid #DEE2E6', backgroundColor: '#F8F9FA' }}>-</td>
+                                   </tr>
+                                   {/* Total Row */}
+                                   <tr style={{ height: '45px', backgroundColor: '#E9ECEF' }}>
+                                      <td style={{ border: '1px solid #0F2C59', fontSize: '8pt', textAlign: 'left', padding: '0 8px' }}>
+                                         <strong>{t.report.rowTotalAr}</strong><br/><span style={{ fontSize: '7pt' }}>Total Points</span>
+                                      </td>
+                                      {plan.subjects.map((sub: any, sIdx: number) => {
+                                         const relevant = planGradesRaw.find(g => g.planId === plan.id && g.subject === (sub.nameEn || sub.nameAr) && g.reportType === printType);
+                                         const pct = relevant ? Math.round((Number(relevant.score) / Number(relevant.totalScore)) * 100) : 0;
+                                         return <td key={sIdx} style={{ border: '1px solid #0F2C59', color: '#0F2C59', fontSize: '11pt' }}>{pct > 0 ? `${pct}%` : '-'}</td>;
+                                      })}
+                                      <td style={{ border: '1px solid #0F2C59', backgroundColor: '#0F2C59', color: '#fff', fontSize: '14pt' }}>{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</td>
+                                      <td style={{ border: '1px solid #0F2C59', backgroundColor: '#0F2C59', color: '#fff', fontSize: '14pt' }}>{stats.avg}%</td>
+                                   </tr>
+                                </tbody>
+                             </table>
+
+                             {/* Summary Bar */}
+                             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '15px' }}>
+                                <div style={{ border: '2px solid #0F2C59', padding: '5px 20px', borderRadius: '6px', textAlign: 'center', minWidth: '150px' }}>
+                                   <span style={{ fontSize: '8pt', fontWeight: '900', color: '#666', display: 'block', textTransform: 'uppercase' }}>{t.report.overallScore}</span>
+                                   <span style={{ fontSize: '14pt', fontWeight: '900', color: '#0F2C59' }}>{stats.avg}%</span>
+                                </div>
+                                <div style={{ border: '2px solid #0F2C59', padding: '5px 20px', borderRadius: '6px', textAlign: 'center', minWidth: '150px' }}>
+                                   <span style={{ fontSize: '8pt', fontWeight: '900', color: '#666', display: 'block', textTransform: 'uppercase' }}>{t.report.overallGrade}</span>
+                                   <span style={{ fontSize: '14pt', fontWeight: '900', color: '#0F2C59' }}>{getLetterGrade(stats.avg)}</span>
+                                </div>
+                                <div style={{ backgroundColor: '#0F2C59', border: '2px solid #0F2C59', padding: '5px 20px', borderRadius: '6px', textAlign: 'center', minWidth: '150px' }}>
+                                   <span style={{ fontSize: '8pt', fontWeight: '900', color: 'rgba(255,255,255,0.7)', display: 'block', textTransform: 'uppercase' }}>{t.report.finalResult}</span>
+                                   <span style={{ fontSize: '12pt', fontWeight: '900', color: '#fff' }}>{stats.avg >= 60 ? t.report.pass : t.report.fail}</span>
+                                </div>
+                             </div>
+                          </div>
+
+                          {/* Footer Signature Block - Fixed Bottom */}
+                          <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px', textAlign: 'center', paddingBottom: '10px' }}>
+                             <div style={{ padding: '0 10px' }}>
+                                <div style={{ borderTop: '1px solid #000', paddingTop: '8px' }}>
+                                   <p style={{ fontSize: '10pt', fontWeight: '900', margin: '0' }}>{t.report.signTeacherAr}</p>
+                                   <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '2px 0 0' }}>{t.report.signTeacherEn}</p>
+                                   <p style={{ fontSize: '7pt', color: '#999', marginTop: '12px' }}>Signature & Date</p>
+                                </div>
+                             </div>
+                             <div style={{ padding: '0 10px' }}>
+                                <div style={{ borderTop: '1px solid #000', paddingTop: '8px' }}>
+                                   <p style={{ fontSize: '10pt', fontWeight: '900', margin: '0' }}>{t.report.signRegAr}</p>
+                                   <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '2px 0 0' }}>{t.report.signRegEn}</p>
+                                   <p style={{ fontSize: '7pt', color: '#999', marginTop: '12px' }}>Official Stamp</p>
+                                </div>
+                             </div>
+                             <div style={{ padding: '0 10px' }}>
+                                <div style={{ borderTop: '1px solid #000', paddingTop: '8px' }}>
+                                   <p style={{ fontSize: '10pt', fontWeight: '900', margin: '0' }}>{t.report.signAdminAr}</p>
+                                   <p style={{ fontSize: '8pt', fontWeight: '700', color: '#666', margin: '2px 0 0' }}>{t.report.signAdminEn}</p>
+                                   <p style={{ fontSize: '9pt', fontWeight: '900', color: '#0F2C59', marginTop: '10px', marginBottom: '0' }}>Dr. Mustafa Ali</p>
+                                </div>
+                             </div>
+                          </div>
+
+                       </div>
                     </div>
                  </div>
               </Card>
