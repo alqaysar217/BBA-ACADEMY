@@ -45,7 +45,8 @@ import {
   Globe,
   Filter,
   CheckCircle2,
-  Printer
+  Printer,
+  FileBadge
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
+  DialogFooter
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -107,6 +110,11 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const [isProcessing, setIsProcessing] = useState(false);
   const [editGrade, setEditGrade] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // Print Dialog States
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [selectedPrintPlanId, setSelectedPrintPlanId] = useState<string | null>(null);
+  const [printReportType, setPrintReportType] = useState<'Monthly' | 'Final'>('Final');
 
   // Column visibility state
   const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'assessment', 'score', 'percent', 'grade', 'date']);
@@ -204,17 +212,24 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     ],
     report: {
       btn: isAr ? 'تصدير الشهادة' : 'Export Transcript',
+      configTitle: isAr ? 'إعدادات تصدير الشهادة' : 'Transcript Export Settings',
+      configDesc: isAr ? 'اختر نوع التقرير المطلوب لاستخراج الدرجات الصحيحة.' : 'Select the report type to extract the correct academic grades.',
+      typeLabel: isAr ? 'فئة التقرير' : 'Report Category',
+      typeMonthly: isAr ? 'تقرير شهري (دوري)' : 'Monthly Performance Report',
+      typeFinal: isAr ? 'تقرير نهائي (رسمي)' : 'Final Official Transcript',
+      generate: isAr ? 'توليد الشهادة' : 'Generate Certificate',
       bismillah: 'بسم الله الرحمن الرحيم',
       academyEn: 'Baneen and Banaat Academy',
       academyAr: 'أكاديمية بنين وبنات للتعليم المنزلي',
       subAr: 'للتعليم عن بعد والتفوق الأكاديمي',
       subEn: 'For Homeschooling & Remote Learning',
-      certTitle: isAr ? 'كشف الدرجات الأكاديمي' : 'OFFICIAL TRANSCRIPT',
-      certIntro: isAr ? 'تشهد الأكاديمية بأن الطالب:' : 'The Academy certifies that student:',
-      certMeta: isAr ? 'قد أتم متطلبات الخط الدراسية المذكورة أدناه بنجاح.' : 'has successfully completed the academic requirements listed below.',
-      signAdmin: isAr ? 'مدير الأكاديمية' : 'Academy Director',
-      signReg: isAr ? 'مسؤول القبول والتسجيل' : 'Admissions Officer',
-      totalScore: isAr ? 'المجموع الكلي' : 'Total Score (%)'
+      certTitle: 'OFFICIAL ACADEMIC TRANSCRIPT',
+      certIntro: 'This is to certify that the student:',
+      certMeta: 'has successfully met the academic standards and requirements for the following program.',
+      signAdmin: 'Academy Director',
+      signDean: 'Academy Dean',
+      signReg: 'Registrar Office',
+      totalScore: 'Final Grade (%)'
     }
   };
 
@@ -284,39 +299,34 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     const printContent = document.getElementById(`printable-report-${planId}`);
     if (!printContent) return;
 
-    const originalDisplay = printContent.style.display;
-    printContent.style.display = 'block';
-    
-    // Add print-specific style for landscape
     const style = document.createElement('style');
     style.innerHTML = `
       @media print {
-        @page { size: landscape; margin: 1cm; }
-        body * { visibility: hidden; }
-        #printable-report-${planId}, #printable-report-${planId} * { visibility: visible; }
+        @page { size: auto; margin: 0; }
+        body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
+        .no-print { display: none !important; }
         #printable-report-${planId} { 
-          position: fixed; 
-          left: 0; 
-          top: 0; 
-          width: 100%; 
-          height: 100%; 
-          background: white !important; 
-          z-index: 9999; 
-          padding: 2cm;
           display: block !important;
+          position: relative;
+          width: 100%;
+          min-height: 100vh;
+          padding: 2.5cm;
+          background: white !important;
+          box-sizing: border-box;
+          z-index: 9999;
+          font-family: 'Times New Roman', serif;
         }
+        main, header, nav, aside, footer { display: none !important; }
       }
     `;
     document.head.appendChild(style);
 
     window.print();
-
-    // Clean up
     document.head.removeChild(style);
-    printContent.style.display = originalDisplay;
+    setIsPrintDialogOpen(false);
   };
 
-  if (studentLoading) return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" /></div>;
+  if (studentLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4 animate-in fade-in duration-500">
@@ -438,6 +448,39 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </div>
       </div>
 
+      {/* Report Configuration Dialog */}
+      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden">
+           <div className="bg-primary p-8 text-white text-center flex flex-col items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center shadow-lg"><FileBadge className="h-7 w-7" /></div>
+              <div className="space-y-1">
+                <DialogTitle className="text-xl font-black uppercase tracking-tight">{t.report.configTitle}</DialogTitle>
+                <DialogDescription className="text-white/60 font-bold text-xs">{t.report.configDesc}</DialogDescription>
+              </div>
+           </div>
+           <div className="p-8 space-y-6">
+              <div className="space-y-3">
+                 <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.report.typeLabel}</Label>
+                 <Select value={printReportType} onValueChange={(v: any) => setPrintReportType(v)}>
+                    <SelectTrigger className="h-14 border-slate-200 rounded-xl font-bold text-slate-700">
+                       <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                       <SelectItem value="Monthly" className="font-bold py-3">{t.report.typeMonthly}</SelectItem>
+                       <SelectItem value="Final" className="font-bold py-3">{t.report.typeFinal}</SelectItem>
+                    </SelectContent>
+                 </Select>
+              </div>
+              <Button 
+                 onClick={() => selectedPrintPlanId && handlePrint(selectedPrintPlanId)}
+                 className="w-full h-14 bg-secondary hover:bg-primary text-white font-black rounded-xl shadow-xl transition-all text-sm uppercase tracking-widest"
+              >
+                 <Printer className="h-5 w-5 mr-2" /> {t.report.generate}
+              </Button>
+           </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          <Card className="border border-slate-200 shadow-sm bg-white p-6 flex flex-col items-center text-center space-y-2 relative overflow-hidden group">
@@ -496,7 +539,14 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                        </div>
 
                        <div className="flex items-center gap-2">
-                          <Button onClick={() => handlePrint(plan.id)} variant="outline" className="h-10 px-4 rounded-lg border-slate-200 text-primary font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm">
+                          <Button 
+                            onClick={() => {
+                              setSelectedPrintPlanId(plan.id);
+                              setIsPrintDialogOpen(true);
+                            }} 
+                            variant="outline" 
+                            className="h-10 px-4 rounded-lg border-slate-200 text-primary font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm"
+                          >
                              <Printer className="h-4 w-4" /> {t.report.btn}
                           </Button>
 
@@ -612,98 +662,129 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     </div>
                  </AccordionContent>
 
-                 {/* PRINTABLE REPORT CARD COMPONENT (Hidden by default) */}
-                 <div id={`printable-report-${plan.id}`} className="hidden print:block fixed inset-0 bg-white z-[9999] p-12 overflow-y-auto" dir="rtl">
-                    <div className="text-center mb-8">
-                       <p className="text-2xl font-bold mb-4 font-serif">{t.report.bismillah}</p>
-                       <div className="flex justify-between items-center px-4">
-                          <div className="text-start w-1/3 space-y-1">
-                             <h2 className="text-xl font-black text-[#0b1f5b] uppercase leading-none">{t.report.academyEn}</h2>
-                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{t.report.subEn}</p>
-                          </div>
-                          <div className="flex justify-center w-1/3">
-                             <img src="/logo.png" className="h-28 w-28 object-contain" alt="Logo" />
-                          </div>
-                          <div className="text-end w-1/3 space-y-1">
-                             <h2 className="text-xl font-black text-[#0b1f5b] font-arabic leading-none">{t.report.academyAr}</h2>
-                             <p className="text-[10px] font-black text-slate-500 font-arabic">{t.report.subAr}</p>
-                          </div>
-                       </div>
-                    </div>
-
-                    <div className="h-1.5 w-full bg-[#0b1f5b] my-8" />
-
-                    <div className="text-center space-y-8 my-12">
-                       <h1 className="text-4xl font-black text-slate-900 border-b-4 border-[#0b1f5b] inline-block pb-2 px-10 uppercase tracking-tight">{t.report.certTitle}</h1>
-                       <div className="text-xl font-bold text-slate-700 space-y-4">
-                          <p>{t.report.certIntro} <span className="text-[#0b1f5b] font-black mx-2 text-3xl underline underline-offset-8"> {student?.firstName} {student?.lastName} </span></p>
-                          <p>{isAr ? 'السجل الدراسي لـ:' : 'Academic Plan:'} <span className="text-[#1A73E8] font-black mx-1"> {plan.name} </span> | {isAr ? 'العام:' : 'AY:'} <span className="text-[#1A73E8] font-black mx-1"> {plan.year} </span></p>
-                          <p className="text-sm opacity-70 italic">{t.report.certMeta}</p>
-                       </div>
-                    </div>
-
-                    <table className="w-full border-collapse border-4 border-[#0b1f5b] mb-16 overflow-hidden rounded-lg shadow-xl">
-                       <thead>
-                          <tr className="bg-[#0b1f5b] text-white text-lg">
-                             <th className="border-2 border-white/20 p-5 w-[35%]">{isAr ? 'المادة الدراسية' : 'Subject'} / Subject</th>
-                             <th className="border-2 border-white/20 p-5">{isAr ? 'التقييمات' : 'Assessments'}</th>
-                             <th className="border-2 border-white/20 p-5">{isAr ? 'الاختبار النهائي' : 'Final Exam'}</th>
-                             <th className="border-2 border-white/20 p-5">{t.report.totalScore}</th>
-                             <th className="border-2 border-white/20 p-5">{isAr ? 'التقدير' : 'Grade'}</th>
-                          </tr>
-                       </thead>
-                       <tbody className="divide-y divide-slate-100">
-                          {plan.subjects.map((sub: any, sIdx: number) => {
-                             const subName = isAr ? (sub.nameAr || sub.nameEn) : (sub.nameEn || sub.nameAr);
-                             const subGrades = planGrades.filter(g => g.subject === subName);
-                             const finalExam = subGrades.find(g => g.assessmentName === 'Final Exam');
-                             const nonFinals = subGrades.filter(g => g.assessmentName !== 'Final Exam');
-                             
-                             const avgScore = subGrades.length ? Math.round(subGrades.reduce((a,c) => a + (Number(c.score)/Number(c.totalScore))*100, 0) / subGrades.length) : 0;
-                             
-                             return (
-                               <tr key={sIdx} className="text-center font-bold text-slate-800 odd:bg-slate-50/50">
-                                  <td className="border-2 border-slate-100 p-5 text-start">
-                                     <div className="flex flex-col">
-                                        <span className="text-lg font-black text-[#0b1f5b]">{sub.nameAr}</span>
-                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{sub.nameEn}</span>
-                                     </div>
-                                  </td>
-                                  <td className="border-2 border-slate-100 p-5">
-                                     <div className="flex flex-col gap-1">
-                                        {nonFinals.length > 0 ? (
-                                           nonFinals.map((ng, ni) => <span key={ni} className="text-[10px] text-slate-500">{ng.assessmentName}: {ng.score}</span>)
-                                        ) : '-'}
-                                     </div>
-                                  </td>
-                                  <td className="border-2 border-slate-100 p-5 text-xl">{finalExam ? finalExam.score : '-'}</td>
-                                  <td className="border-2 border-slate-100 p-5 text-2xl font-black text-[#0b1f5b]">{avgScore}%</td>
-                                  <td className="border-2 border-slate-100 p-5">
-                                     <div className="h-10 w-10 rounded bg-[#0b1f5b] text-white flex items-center justify-center mx-auto text-xl">{getLetterGrade(avgScore)}</div>
-                                  </td>
-                               </tr>
-                             );
-                          })}
-                       </tbody>
-                    </table>
-
-                    <div className="grid grid-cols-2 gap-32 mt-20 px-10">
-                       <div className="text-center space-y-16">
-                          <p className="font-black border-b-2 border-[#0b1f5b] pb-3 text-lg uppercase tracking-tight">{t.report.signReg}</p>
-                          <div className="h-24" />
-                       </div>
-                       <div className="text-center space-y-16">
-                          <p className="font-black border-b-2 border-[#0b1f5b] pb-3 text-lg uppercase tracking-tight">{t.report.signAdmin}</p>
-                          <div className="h-24 relative flex flex-col items-center justify-center">
-                             <p className="font-black text-[#0b1f5b] text-xl mt-4">Dr. Mustafa Ali</p>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase">Academy Director</p>
+                 {/* PRINTABLE TRANSCRIPT COMPONENT (Official English Focus) */}
+                 <div id={`printable-report-${plan.id}`} className="hidden" dir="ltr">
+                    <div className="flex flex-col h-full bg-white text-slate-900 text-center">
+                       {/* Header */}
+                       <div className="mb-8 space-y-6">
+                          <p className="text-2xl font-bold font-serif">{t.report.bismillah}</p>
+                          <div className="flex items-center justify-between border-b-4 border-primary pb-6 px-1">
+                             <div className="text-left w-[40%] space-y-1">
+                                <h2 className="text-2xl font-black text-primary uppercase leading-tight">{t.report.academyEn}</h2>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.report.subEn}</p>
+                             </div>
+                             <div className="shrink-0 flex justify-center">
+                                <img src="/logo.png" className="h-32 w-32 object-contain" alt="BBA Official Seal" />
+                             </div>
+                             <div className="text-right w-[40%] space-y-1 font-arabic" dir="rtl">
+                                <h2 className="text-2xl font-black text-primary leading-tight">{t.report.academyAr}</h2>
+                                <p className="text-[10px] font-bold text-slate-400">{t.report.subAr}</p>
+                             </div>
                           </div>
                        </div>
-                    </div>
 
-                    <div className="mt-20 pt-10 border-t border-slate-100 flex justify-between items-center opacity-40">
-                       <p className="text-[9px] font-bold text-slate-400">OFFICIAL ACADEMIC RECORD - BBA OS VERSION 2.0</p>
-                       <p className="text-[9px] font-bold text-slate-400" dir="ltr">{new Date().toLocaleDateString()}</p>
+                       {/* Title & Student Meta */}
+                       <div className="space-y-6 mb-10">
+                          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight">{t.report.certTitle}</h1>
+                          <div className="inline-block px-8 py-1.5 bg-slate-50 border-2 border-slate-200 rounded-full font-black text-xs uppercase tracking-widest text-primary">
+                             Category: {printReportType === 'Monthly' ? t.report.typeMonthly : t.report.typeFinal}
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-4 text-center">
+                             <p className="text-lg font-medium text-slate-600 italic">{t.report.certIntro}</p>
+                             <h2 className="text-3xl font-black text-primary uppercase underline underline-offset-8 decoration-secondary/30">
+                                {student?.firstName} {student?.lastName}
+                             </h2>
+                             <div className="flex justify-center items-center gap-4 text-sm font-bold text-slate-500 uppercase tracking-widest">
+                                <span>Academic Year: {plan.year}</span>
+                                <span className="h-1 w-1 bg-slate-300 rounded-full" />
+                                <span>Term: {plan.term}</span>
+                             </div>
+                             <p className="text-xs text-slate-400 max-w-2xl mx-auto">{t.report.certMeta}</p>
+                          </div>
+                       </div>
+
+                       {/* Academic Results Table */}
+                       <div className="flex-1">
+                          <table className="w-full border-collapse border-4 border-slate-900 overflow-hidden shadow-sm">
+                             <thead>
+                                <tr className="bg-slate-900 text-white uppercase text-[10px] tracking-widest font-black h-16">
+                                   <th className="border-r border-white/10 px-4 w-[35%] text-left">Subject / Course Name</th>
+                                   <th className="border-r border-white/10 px-4">Evaluation Details</th>
+                                   <th className="border-r border-white/10 px-4">Assessment Grade</th>
+                                   <th className="border-r border-white/10 px-4">{t.report.totalScore}</th>
+                                   <th className="px-4">Grade</th>
+                                </tr>
+                             </thead>
+                             <tbody className="font-bold text-sm">
+                                {plan.subjects.map((sub: any, sIdx: number) => {
+                                   const subNameEn = sub.nameEn || sub.nameAr;
+                                   const subNameAr = sub.nameAr || sub.nameEn;
+                                   const subGrades = planGrades.filter(g => g.subject === subNameEn || g.subject === subNameAr);
+                                   
+                                   const relevantGrades = printReportType === 'Final' 
+                                      ? subGrades.filter(g => g.assessmentName === 'Final Exam' || g.assessmentName === 'Midterm Exam')
+                                      : subGrades.filter(g => g.assessmentName === 'Monthly Exam' || g.assessmentName === 'Assignment');
+
+                                   const totalScore = subGrades.length ? Math.round(subGrades.reduce((a,c) => a + (Number(c.score)/Number(c.totalScore))*100, 0) / subGrades.length) : 0;
+
+                                   return (
+                                     <tr key={sIdx} className="h-20 border-b-2 border-slate-200 hover:bg-slate-50 transition-colors">
+                                        <td className="border-r-2 border-slate-200 px-6 text-left">
+                                           <div className="flex flex-col gap-1">
+                                              <span className="text-base font-black text-primary uppercase">{subNameEn}</span>
+                                              <span className="text-[10px] font-arabic font-bold text-slate-400" dir="rtl">{subNameAr}</span>
+                                           </div>
+                                        </td>
+                                        <td className="border-r-2 border-slate-200 px-4 text-xs text-slate-500 font-medium italic">
+                                           <div className="flex flex-col gap-0.5">
+                                              {relevantGrades.length > 0 ? (
+                                                relevantGrades.map((rg, ri) => <span key={ri}>{rg.assessmentName}: {rg.score}/{rg.totalScore}</span>)
+                                              ) : 'No recorded assessments'}
+                                           </div>
+                                        </td>
+                                        <td className="border-r-2 border-slate-200 px-4 text-primary font-black text-lg">
+                                           {subGrades.find(g => g.assessmentName === 'Final Exam')?.score || '-'}
+                                        </td>
+                                        <td className="border-r-2 border-slate-200 px-4 text-2xl font-black text-primary tracking-tighter">
+                                           {totalScore}%
+                                        </td>
+                                        <td className="px-4">
+                                           <div className="h-10 w-10 bg-slate-900 text-white rounded-lg flex items-center justify-center mx-auto text-xl font-black">
+                                              {getLetterGrade(totalScore)}
+                                           </div>
+                                        </td>
+                                     </tr>
+                                   );
+                                })}
+                             </tbody>
+                          </table>
+                       </div>
+
+                       {/* Signatures Footer */}
+                       <div className="mt-16 grid grid-cols-3 gap-8 px-4">
+                          <div className="space-y-16 border-t-2 border-slate-200 pt-4 text-center">
+                             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400">{t.report.signAdmin}</p>
+                             <div className="space-y-1">
+                                <p className="text-sm font-black text-primary">Dr. Mustafa Ali</p>
+                                <div className="h-px w-32 bg-slate-100 mx-auto" />
+                             </div>
+                          </div>
+                          <div className="space-y-16 border-t-2 border-slate-200 pt-4 text-center">
+                             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400">{t.report.signDean}</p>
+                             <div className="h-px w-32 bg-slate-100 mx-auto mt-16" />
+                          </div>
+                          <div className="space-y-16 border-t-2 border-slate-200 pt-4 text-center">
+                             <p className="font-black uppercase text-[10px] tracking-widest text-slate-400">{t.report.signReg}</p>
+                             <div className="h-px w-32 bg-slate-100 mx-auto mt-16" />
+                          </div>
+                       </div>
+
+                       {/* Security & Date */}
+                       <div className="mt-12 pt-6 border-t border-slate-100 flex justify-between items-center opacity-40">
+                          <p className="text-[8px] font-bold text-slate-400 tracking-[0.3em] uppercase">OFFICIAL BBA ACADEMIC RECORD • SYSTEM SECURED</p>
+                          <p className="text-[8px] font-bold text-slate-400 uppercase">DATE GENERATED: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                       </div>
                     </div>
                  </div>
               </Card>
