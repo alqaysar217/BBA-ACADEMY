@@ -26,14 +26,29 @@ import {
   ExternalLink,
   Info,
   History,
-  FileSignature
+  FileSignature,
+  Archive,
+  RefreshCw,
+  Clock,
+  ShieldAlert,
+  AlertTriangle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import Link from 'next/link';
 
 export default function StudentDocumentsPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
@@ -43,7 +58,11 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
   const router = useRouter();
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [fileToArchive, setFileToArchive] = useState<{idx: number, name: string} | null>(null);
+  const [showTrash, setShowTrash] = useState(false);
 
   const studentRef = useMemo(() => (firestore && id) ? doc(firestore, 'students', id) : null, [firestore, id]);
   const { data: student, loading: studentLoading } = useDoc(studentRef);
@@ -73,10 +92,14 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
     back: isAr ? 'العودة' : 'Back',
     upload: isAr ? 'رفع مستند جديد' : 'Upload New Document',
     noDocs: isAr ? 'لا توجد مستندات مسجلة حالياً.' : 'No artifacts found in the vault.',
-    deleteConfirm: isAr ? 'هل أنت متأكد من حذف هذا المستند؟' : 'Are you sure you want to delete this document?',
+    trashTitle: isAr ? 'سلة المهملات (مؤقتة)' : 'Trash Bin (Temporary)',
+    trashDesc: isAr ? 'المستندات التي يتم حذفها تبقى هنا لمدة 30 يوماً قبل الحذف النهائي.' : 'Deleted documents stay here for 30 days before permanent purging.',
+    deleteConfirm: isAr ? 'هل أنت متأكد من الحذف؟' : 'Confirm Deletion',
+    deleteWarning: isAr ? 'سيتم نقل هذا الملف لسلة المهملات وسيفقد ظهوره في الملف الرئيسي.' : 'This file will be moved to the trash bin and will be hidden from the main profile.',
     sources: {
       enrollment: isAr ? 'من الاستمارة' : 'From Form',
-      manual: isAr ? 'رفع يدوي' : 'Manual Upload'
+      manual: isAr ? 'رفع يدوي' : 'Manual Upload',
+      trash: isAr ? 'محذوف مؤقتاً' : 'Recently Deleted'
     },
     nav: {
       profile: isAr ? 'الهوية' : 'Identity',
@@ -145,7 +168,8 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
           size: file.size,
           data: base64,
           uploadedAt: new Date().toISOString(),
-          source: 'manual'
+          source: 'manual',
+          status: 'active'
         });
       }
 
@@ -164,29 +188,63 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
     }
   };
 
-  const deleteFile = async (idx: number, source: 'manual' | 'enrollment') => {
-    if (source === 'enrollment') {
-      toast({ variant: "destructive", title: isAr ? "لا يمكن حذف مستندات الاستمارة" : "Cannot delete form documents" });
-      return;
-    }
-
-    if (!studentRef || !student || !window.confirm(t.deleteConfirm)) return;
+  const archiveFile = async () => {
+    if (!studentRef || !student || !fileToArchive) return;
     
-    const manualFiles = (student.files || []).filter((f: any) => f.source !== 'enrollment');
-    const updatedManual = [...manualFiles];
-    updatedManual.splice(idx, 1);
+    const updatedFiles = (student.files || []).map((f: any, i: number) => {
+      if (i === fileToArchive.idx) {
+        return { ...f, status: 'archived', archivedAt: new Date().toISOString() };
+      }
+      return f;
+    });
     
     try {
-      await updateDoc(studentRef, { files: updatedManual, updatedAt: serverTimestamp() });
-      toast({ title: isAr ? "تم حذف المستند" : "Document removed" });
+      await updateDoc(studentRef, { files: updatedFiles, updatedAt: serverTimestamp() });
+      toast({ title: isAr ? "تم نقل المستند للمهملات" : "Document moved to trash" });
+      setIsDeleteDialogOpen(false);
+      setFileToArchive(null);
+    } catch (err) {
+      toast({ variant: "destructive", title: "Error archiving file" });
+    }
+  };
+
+  const restoreFile = async (idx: number) => {
+    if (!studentRef || !student) return;
+    
+    const updatedFiles = (student.files || []).map((f: any, i: number) => {
+      if (i === idx) {
+        return { ...f, status: 'active', archivedAt: null };
+      }
+      return f;
+    });
+    
+    try {
+      await updateDoc(studentRef, { files: updatedFiles, updatedAt: serverTimestamp() });
+      toast({ title: isAr ? "تمت استعادة المستند" : "Document restored" });
+    } catch (err) {
+      toast({ variant: "destructive", title: "Error restoring file" });
+    }
+  };
+
+  const permanentDelete = async (idx: number) => {
+    if (!studentRef || !student || !window.confirm(isAr ? 'حذف نهائي؟ لا يمكن التراجع.' : 'Permanent delete? Cannot be undone.')) return;
+    
+    const updatedFiles = [...(student.files || [])];
+    updatedFiles.splice(idx, 1);
+    
+    try {
+      await updateDoc(studentRef, { files: updatedFiles, updatedAt: serverTimestamp() });
+      toast({ title: isAr ? "تم الحذف النهائي" : "Permanently deleted" });
     } catch (err) {
       toast({ variant: "destructive", title: "Error deleting file" });
     }
   };
 
-  const allFiles = useMemo(() => {
-    const studentFiles = (student?.files || []).map((f: any) => ({ ...f, source: f.source || 'manual' }));
-    // Merge, avoid duplicates if they were already copied
+  const activeFiles = useMemo(() => {
+    const studentFiles = (student?.files || [])
+      .map((f: any, i: number) => ({ ...f, source: f.source || 'manual', originalIndex: i }))
+      .filter((f: any) => f.status !== 'archived');
+
     const merged = [...studentFiles];
     enrollmentFiles.forEach(ef => {
        const exists = merged.find(mf => mf.name === ef.name && mf.size === ef.size);
@@ -194,6 +252,12 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
     });
     return merged;
   }, [student?.files, enrollmentFiles]);
+
+  const trashFiles = useMemo(() => {
+    return (student?.files || [])
+      .map((f: any, i: number) => ({ ...f, originalIndex: i }))
+      .filter((f: any) => f.status === 'archived');
+  }, [student?.files]);
 
   if (studentLoading || !student) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
@@ -213,6 +277,18 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
         </Button>
         <div className="flex items-center gap-3">
           <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileUpload} />
+          {trashFiles.length > 0 && (
+            <Button 
+              variant="outline" 
+              onClick={() => setShowTrash(!showTrash)}
+              className={cn(
+                "h-11 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 transition-all",
+                showTrash ? "bg-amber-500 text-white border-amber-500" : "border-slate-200 text-slate-400 hover:bg-slate-50"
+              )}
+            >
+              <Trash2 className="h-4 w-4" /> {isAr ? 'سلة المهملات' : 'Trash Bin'} ({trashFiles.length})
+            </Button>
+          )}
           <Button 
             onClick={() => fileInputRef.current?.click()} 
             disabled={isUploading}
@@ -229,8 +305,9 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
          <p className="text-slate-400 font-bold uppercase text-[9px] tracking-widest">{isAr ? 'تصفح مستندات التقديم والملفات الإدارية المضافة' : 'Browse submission docs & added administrative files'}</p>
       </div>
 
+      {/* Main Document Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-        {allFiles.length > 0 ? allFiles.map((file: any, idx: number) => (
+        {activeFiles.length > 0 ? activeFiles.map((file: any, idx: number) => (
           <Card key={idx} className="border-none shadow-premium bg-white overflow-hidden group hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
              <div className="p-6 space-y-6">
                 <div className="flex items-start justify-between">
@@ -251,7 +328,7 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
                          <ExternalLink className="h-4 w-4" />
                       </Button>
                       {file.source === 'manual' && (
-                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-slate-300 hover:text-red-500" onClick={() => deleteFile(idx, 'manual')}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-slate-300 hover:text-red-500" onClick={() => { setFileToArchive({idx: file.originalIndex, name: file.name}); setIsDeleteDialogOpen(true); }}>
                            <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
@@ -304,14 +381,91 @@ export default function StudentDocumentsPage({ params }: { params: Promise<{ lan
         )}
       </div>
 
+      {/* Trash Bin Section */}
+      {showTrash && trashFiles.length > 0 && (
+        <div className="pt-20 space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+           <div className="flex items-center gap-4 px-2">
+              <div className="h-12 w-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg"><Archive className="h-6 w-6" /></div>
+              <div className="text-start">
+                 <h2 className="text-xl font-black text-amber-600 uppercase tracking-tight">{t.trashTitle}</h2>
+                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.trashDesc}</p>
+              </div>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trashFiles.map((file: any, i: number) => {
+                const daysOld = file.archivedAt ? differenceInDays(new Date(), new Date(file.archivedAt)) : 0;
+                const daysLeft = Math.max(0, 30 - daysOld);
+                
+                return (
+                  <Card key={i} className="border-none shadow-sm bg-slate-50/50 overflow-hidden group border border-slate-100">
+                    <div className="p-6 space-y-4">
+                       <div className="flex justify-between items-start">
+                          <div className="h-10 w-10 rounded-lg bg-slate-200 flex items-center justify-center text-slate-400"><FileText className="h-5 w-5" /></div>
+                          <div className="flex gap-1">
+                             <Button onClick={() => restoreFile(file.originalIndex)} size="icon" variant="outline" className="h-8 w-8 rounded-lg border-green-100 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all">
+                                <RefreshCw className="h-4 w-4" />
+                             </Button>
+                             <Button onClick={() => permanentDelete(file.originalIndex)} size="icon" variant="outline" className="h-8 w-8 rounded-lg border-red-100 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all">
+                                <Trash2 className="h-4 w-4" />
+                             </Button>
+                          </div>
+                       </div>
+                       <div className="space-y-1 text-start">
+                          <p className="text-xs font-black text-slate-400 line-through truncate uppercase">{file.name}</p>
+                          <div className="flex items-center gap-2">
+                             <div className="h-1 w-16 bg-slate-200 rounded-full overflow-hidden">
+                                <div className={cn("h-full", daysLeft < 5 ? "bg-red-500" : "bg-amber-500")} style={{ width: `${(daysLeft / 30) * 100}%` }} />
+                             </div>
+                             <span className={cn("text-[9px] font-black uppercase", daysLeft < 5 ? "text-red-500" : "text-amber-600")}>
+                                {daysLeft} {isAr ? 'يوم متبقي' : 'days left'}
+                             </span>
+                          </div>
+                       </div>
+                    </div>
+                  </Card>
+                );
+              })}
+           </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-md border-none shadow-2xl rounded-2xl p-0 overflow-hidden bg-white">
+          <div className="bg-red-500 p-8 text-white flex flex-col items-center gap-4 text-center">
+             <div className="h-16 w-16 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl">
+                <AlertTriangle className="h-8 w-8 text-white" />
+             </div>
+             <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">{t.deleteConfirm}</AlertDialogTitle>
+          </div>
+          <div className="p-10 space-y-6 text-center">
+             <div className="space-y-2">
+                <p className="text-slate-900 font-black text-lg">"{fileToArchive?.name}"</p>
+                <AlertDialogDescription className="text-slate-600 font-bold text-base leading-relaxed">
+                   {t.deleteWarning}
+                </AlertDialogDescription>
+             </div>
+             <div className="flex flex-col gap-3">
+               <Button onClick={archiveFile} className="h-14 rounded-xl bg-red-600 text-white font-black uppercase tracking-widest transition-all shadow-xl shadow-red-500/20 hover:bg-red-700">
+                  {isAr ? 'نقل للمهملات' : 'Move to Trash'}
+               </Button>
+               <Button variant="ghost" onClick={() => { setIsDeleteDialogOpen(false); setFileToArchive(null); }} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest">
+                  {isAr ? 'إلغاء' : 'Cancel'}
+               </Button>
+             </div>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="bg-amber-50/50 p-6 rounded-2xl border border-amber-100 flex items-start gap-4 mx-2 shadow-sm">
          <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5 opacity-60" />
          <div className="space-y-1">
             <p className="text-[10px] font-black text-amber-900 uppercase tracking-widest">{isAr ? 'ملاحظة حول المستندات' : 'Vault Security Note'}</p>
             <p className="text-xs font-bold text-amber-900/60 leading-relaxed italic text-start">
                {isAr 
-                  ? 'يتم عرض مستندات الاستمارة الأصلية كمرجع دائم ولا يمكن حذفها لضمان النزاهة الأكاديمية. يمكنك إضافة مستندات جديدة في أي وقت.' 
-                  : 'Original form documents are displayed as permanent references and cannot be deleted to ensure academic integrity. You can add new documents at any time.'}
+                  ? 'يتم عرض مستندات الاستمارة الأصلية كمرجع دائم ولا يمكن حذفها لضمان النزاهة الأكاديمية. الملفات المرفوعة يدوياً يمكن أرشفتها وستحذف نهائياً بعد 30 يوماً.' 
+                  : 'Original form documents are displayed as permanent references and cannot be deleted. Manually uploaded files can be archived and will be permanently purged after 30 days.'}
             </p>
          </div>
       </div>
