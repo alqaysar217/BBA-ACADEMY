@@ -1,7 +1,7 @@
 
 'use client';
 
-import { use, useState, useMemo, useEffect } from 'react';
+import { use, useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { useFirestore, useDoc, useCollection, useUser } from '@/firebase';
@@ -46,10 +46,12 @@ import {
   Globe,
   Filter,
   CheckCircle2,
-  Printer,
+  Image as ImageIcon,
+  Download,
   FileBadge,
   Type,
-  Send
+  Send,
+  Printer
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -99,6 +101,7 @@ import {
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import * as htmlToImage from 'html-to-image';
 
 export default function StudentGradesIndividualPage({ params }: { params: Promise<{ lang: Locale, id: string }> }) {
   const { lang, id } = use(params);
@@ -107,16 +110,18 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const firestore = useFirestore();
   const router = useRouter();
   const pathname = usePathname();
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [editGrade, setEditGrade] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // Print Dialog States
-  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
-  const [selectedPrintPlanId, setSelectedPrintPlanId] = useState<string | null>(null);
-  const [printType, setPrintType] = useState<'monthly' | 'final'>('final');
+  // Simulation & Export States
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [exportType, setExportType] = useState<'monthly' | 'final'>('final');
+  const [isExportingImage, setIsExportingImage] = useState(false);
 
   // Column visibility state
   const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'score', 'percent', 'grade', 'date']);
@@ -206,11 +211,12 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       actions: isAr ? 'إجراءات' : 'Actions',
       filterLabel: isAr ? 'تصفية:' : 'Filter:'
     },
-    report: {
-      btn: isAr ? 'تصدير الشهادة' : 'Export Transcript',
-      configTitle: isAr ? 'إعدادات تصدير الشهادة' : 'Transcript Export Settings',
-      configDesc: isAr ? 'اختر نوع الدرجات التي ترغب في تضمينها في الكشف.' : 'Select the type of grades you wish to include in the transcript.',
-      generate: isAr ? 'توليد الشهادة' : 'Generate Certificate'
+    export: {
+      btn: isAr ? 'تصدير الشهادة' : 'Export Certificate',
+      configTitle: isAr ? 'معاينة الشهادة الرسمية' : 'Official Certificate Preview',
+      configDesc: isAr ? 'يرجى مراجعة بيانات الشهادة قبل التحميل كصورة.' : 'Please review the certificate data before downloading as an image.',
+      download: isAr ? 'تحميل الشهادة كصورة' : 'Download Certificate Image',
+      preparing: isAr ? 'جاري التوليد...' : 'Generating Image...',
     }
   };
 
@@ -279,49 +285,27 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     setVisibleColumns(prev => prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]);
   };
 
-  const handlePrint = (planId: string) => {
-    const reportEl = document.getElementById(`printable-report-${planId}`);
-    if (!reportEl) return;
-
-    const styleId = 'print-engine-styles';
-    let style = document.getElementById(styleId) as HTMLStyleElement;
-    if (!style) {
-      style = document.createElement('style');
-      style.id = styleId;
-      document.head.appendChild(style);
+  const downloadAsImage = async () => {
+    if (!certificateRef.current) return;
+    setIsExportingImage(true);
+    try {
+      const dataUrl = await htmlToImage.toPng(certificateRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: '#ffffff'
+      });
+      const link = document.createElement('a');
+      link.download = `BBA_Certificate_${student?.firstName}_${selectedPlanId}.png`;
+      link.href = dataUrl;
+      link.click();
+      setIsExportingDialogOpen(false);
+      toast({ title: isAr ? "تم تحميل الصورة بنجاح" : "Image downloaded successfully" });
+    } catch (error) {
+      console.error('oops, something went wrong!', error);
+      toast({ variant: 'destructive', title: "Export failed" });
+    } finally {
+      setIsExportingImage(false);
     }
-
-    style.innerHTML = `
-      @media print {
-        @page { size: A4 portrait; margin: 0; }
-        body * { visibility: hidden !important; overflow: visible !important; }
-        #printable-report-${planId}, #printable-report-${planId} * { visibility: visible !important; }
-        #printable-report-${planId} {
-          position: fixed !important;
-          left: 0 !important;
-          top: 0 !important;
-          width: 210mm !important;
-          height: 297mm !important;
-          margin: 0 !important;
-          padding: 8mm !important;
-          background: white !important;
-          z-index: 9999999 !important;
-          display: flex !important;
-          flex-direction: column !important;
-          justify-content: space-between !important;
-          box-sizing: border-box !important;
-        }
-        .print-only-block { display: flex !important; }
-        button, nav, header, footer, [role="dialog"], .dialog-overlay { display: none !important; }
-      }
-    `;
-
-    setIsPrintDialogOpen(false);
-    
-    setTimeout(() => {
-      window.print();
-      style.innerHTML = '';
-    }, 400);
   };
 
   if (studentLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
@@ -367,7 +351,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
               </DialogTrigger>
               <DialogContent className={cn("max-w-2xl rounded-2xl border-none shadow-2xl p-0 overflow-hidden", isAr && "font-arabic")} dir={isAr ? 'rtl' : 'ltr'}>
                 <div className="bg-primary p-8 text-white flex items-center justify-between">
-                   <div className="flex items-center gap-4">
+                   <div className="flex items-center gap-4 text-start">
                       <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center shadow-lg"><ClipboardCheck className="h-6 w-6" /></div>
                       <DialogTitle className="text-xl font-black uppercase tracking-tight text-start">{editGrade ? t.editGrade : t.addGrade}</DialogTitle>
                    </div>
@@ -456,36 +440,211 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </div>
       </div>
 
-      {/* 3. Export Config Dialog */}
-      <Dialog open={isPrintDialogOpen} onOpenChange={setIsPrintDialogOpen}>
-        <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden" dir={isAr ? 'rtl' : 'ltr'}>
-           <div className="bg-primary p-8 text-white text-center flex flex-col items-center gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center shadow-lg"><FileBadge className="h-7 w-7" /></div>
-              <div className="space-y-1">
-                <DialogTitle className="text-xl font-black uppercase tracking-tight">{t.report.configTitle}</DialogTitle>
-                <DialogDescription className="text-white/60 font-bold text-xs">{t.report.configDesc}</DialogDescription>
+      {/* 3. Export Simulation Dialog */}
+      <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+        <DialogContent className="max-w-5xl rounded-2xl border-none shadow-2xl p-0 overflow-hidden flex flex-col h-[90vh]" dir={isAr ? 'rtl' : 'ltr'}>
+           <div className="bg-primary p-6 text-white text-center flex flex-col items-center gap-3 shrink-0">
+              <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-lg"><FileBadge className="h-6 w-6" /></div>
+              <div className="space-y-0.5">
+                <DialogTitle className="text-xl font-black uppercase tracking-tight">{t.export.configTitle}</DialogTitle>
+                <DialogDescription className="text-white/60 font-bold text-xs">{t.export.configDesc}</DialogDescription>
               </div>
            </div>
-           <div className="p-8 space-y-6 text-start">
-              <div className="space-y-2">
-                 <Label className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'اختر نوع الدرجات' : 'Select Grade Categories'}</Label>
-                 <Select value={printType} onValueChange={(v: any) => setPrintType(v)}>
-                    <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold">
-                       <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                       {t.reportTypes.map(rt => (
-                         <SelectItem key={rt.v} value={rt.v} className="font-bold py-3">{rt.l}</SelectItem>
-                       ))}
-                    </SelectContent>
-                 </Select>
+           
+           <div className="flex-1 overflow-y-auto bg-slate-100 p-8 custom-scrollbar">
+              {/* Type Switcher in Simulation Header */}
+              <div className="max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                 <div className="flex items-center gap-3">
+                   <span className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'نوع الكشف:' : 'Report Type:'}</span>
+                   <Select value={exportType} onValueChange={(v: any) => setExportType(v)}>
+                      <SelectTrigger className="h-10 w-44 border-slate-200 rounded-lg font-bold">
+                         <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                         {t.reportTypes.map(rt => (
+                           <SelectItem key={rt.v} value={rt.v} className="font-bold py-2.5 text-xs">{rt.l}</SelectItem>
+                         ))}
+                      </SelectContent>
+                   </Select>
+                 </div>
+                 <Button 
+                    onClick={downloadAsImage}
+                    disabled={isExportingImage}
+                    className="h-10 px-8 bg-secondary hover:bg-primary text-white font-black rounded-lg shadow-xl transition-all text-xs uppercase tracking-widest gap-2"
+                 >
+                    {isExportingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    {t.export.download}
+                 </Button>
               </div>
-              <Button 
-                 onClick={() => selectedPrintPlanId && handlePrint(selectedPrintPlanId)}
-                 className="w-full h-14 bg-secondary hover:bg-primary text-white font-black rounded-xl shadow-xl transition-all text-sm uppercase tracking-widest"
-              >
-                 <Printer className="h-5 w-5 mr-2" /> {t.report.generate}
-              </Button>
+
+              {/* SIMULATION CONTAINER (This is what html-to-image captures) */}
+              <div className="flex justify-center">
+                 <div 
+                   ref={certificateRef}
+                   className="bg-white text-slate-900 flex flex-col relative font-sans shadow-2xl overflow-hidden" 
+                   style={{ width: '210mm', height: '297mm', minHeight: '297mm', boxSizing: 'border-box' }}
+                 >
+                    {/* Background Seal */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
+                       <img src="/logo.png" className="w-96 h-96 grayscale" alt="watermark" />
+                    </div>
+
+                    <div className="relative z-10 flex flex-col h-full border-[10mm] border-double border-primary/10 p-10">
+                       {/* Bismillah */}
+                       <div className="text-center font-serif font-black text-[16pt] text-primary mb-6">
+                          بسم الله الرحمن الرحيم
+                       </div>
+
+                       {/* Main Header */}
+                       <header className="grid grid-cols-3 items-start gap-6 border-b-2 border-primary/20 pb-6 mb-8">
+                          {/* Right: Arabic */}
+                          <div className="text-center space-y-1">
+                             <p className="text-[10pt] font-black text-primary leading-tight font-arabic">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
+                             <p className="text-[8pt] text-slate-500 font-bold font-arabic">ميشيغان - الولايات المتحدة الأمريكية</p>
+                          </div>
+                          
+                          {/* Center: Logo */}
+                          <div className="flex justify-center items-center">
+                             <img src="/logo.png" className="h-20 w-20 object-contain" alt="Logo" />
+                          </div>
+                          
+                          {/* Left: English */}
+                          <div className="text-center space-y-1">
+                             <p className="text-[9pt] font-black text-primary leading-tight">Masjid Al-Salam & Banaat Academy for Distance Education & Academic Excellence</p>
+                             <p className="text-[8pt] text-slate-500 font-bold">Michigan - USA</p>
+                          </div>
+                       </header>
+
+                       {/* Document Title */}
+                       <div className="text-center mb-8 space-y-3">
+                          <h1 className="bg-primary text-white py-3 px-12 rounded-lg inline-block text-[14pt] font-black uppercase tracking-widest shadow-lg">
+                             {exportType === 'monthly' ? (isAr ? 'شهادة نتيجة الاختبار الشهري' : 'Monthly Examination Report') : (isAr ? 'شهادة نتيجة الاختبار الفصلي' : 'Semester Examination Report')}
+                          </h1>
+                          {plans.find(p => p.id === selectedPlanId) && (
+                             <div className="flex justify-center gap-8 text-[11pt] font-black text-slate-600 uppercase tracking-tight pt-2">
+                                <span>Academic Year: {plans.find(p => p.id === selectedPlanId)?.year}</span>
+                                <span className="text-secondary opacity-30">|</span>
+                                <span>Term: {plans.find(p => p.id === selectedPlanId)?.term}</span>
+                             </div>
+                          )}
+                       </div>
+
+                       {/* Formal Text */}
+                       <div className="text-center px-10 mb-10 space-y-4">
+                          <p className="text-[12pt] text-slate-800 leading-relaxed font-arabic">
+                             تشهد إدارة أكاديمية البنين والبنات - ميشيغان، بأن الطالب/ـة: 
+                             <span className="mx-2 px-8 border-b-2 border-primary font-black text-primary text-[14pt]">{student?.firstName} {student?.lastName}</span>
+                          </p>
+                          <p className="text-[12pt] text-slate-800 leading-relaxed font-arabic">
+                             بالمقيد في الصف / المرحلة: <span className="mx-2 font-black text-primary">{student?.gradeLevel}</span>، قد أتم/ت متطلبات الاختبارات للفصل الدراسي 
+                             <span className="mx-2 font-black text-primary">{plans.find(p => p.id === selectedPlanId)?.term === 'First Semester' ? 'الأول' : 'الثاني'}</span> بكل جدارة واقتدار، وتقديراً لجهوده/ا المثمرة ومثابرته/ا، تُمنح هذه الشهادة مع خالص التمنيات له/ا دوام النجاح والتألق.
+                          </p>
+                       </div>
+
+                       {/* Dynamic Matrix Table */}
+                       <div className="flex-1">
+                          <table className="w-full border-collapse border-2 border-primary/20 text-[10pt]">
+                             <thead>
+                                <tr className="bg-primary text-white h-20">
+                                   <th className="border border-white/20 p-3 text-center w-40 font-arabic uppercase leading-tight">اسم المادة <br/> Course Name</th>
+                                   {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
+                                      <th key={sIdx} className="border border-white/20 p-2 text-center">
+                                         <div className="font-arabic font-black leading-tight text-[11pt]">{sub.nameAr || '-'}</div>
+                                         <div className="text-[9pt] font-medium opacity-80 uppercase">{sub.nameEn || '-'}</div>
+                                      </th>
+                                   ))}
+                                   <th className="border border-white/20 p-3 text-center w-24 font-arabic uppercase">التقدير <br/> Grade</th>
+                                   <th className="border border-white/20 p-3 text-center w-24 font-arabic uppercase">الإجمالي <br/> Total</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                {/* Monthly Assessments */}
+                                <tr className="bg-slate-50/50 h-14">
+                                   <td className="border border-slate-200 p-4 font-black text-slate-700 font-arabic">Monthly Assessment <br/> الأعمال الشهرية</td>
+                                   {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
+                                      const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
+                                      return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
+                                   })}
+                                   <td className="border border-slate-200 p-2 text-center">-</td>
+                                   <td className="border border-slate-200 p-2 text-center">-</td>
+                                </tr>
+                                {/* Semester Exams */}
+                                <tr className="bg-white h-14">
+                                   <td className="border border-slate-200 p-4 font-black text-slate-700 font-arabic">Term Examinations <br/> الاختبارات الفصلية</td>
+                                   {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
+                                      const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
+                                      return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
+                                   })}
+                                   <td className="border border-slate-200 p-2 text-center">-</td>
+                                   <td className="border border-slate-200 p-2 text-center">-</td>
+                                </tr>
+                                {/* Row: Total */}
+                                <tr className="bg-secondary/5 font-black border-t-2 border-primary/10 h-16">
+                                   <td className="border border-primary/10 p-4 text-primary font-arabic">Total (AR / EN) <br/> الإجمالي (عربي / إنجليزي)</td>
+                                   {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
+                                      const grades = groupedGrades[selectedPlanId!]?.filter(g => g.subject === (sub.nameEn || sub.nameAr)) || [];
+                                      const pct = grades.length ? Math.round(grades.reduce((a,b) => a + (Number(b.score)/Number(b.totalScore))*100, 0) / grades.length) : 0;
+                                      return <td key={sIdx} className="border border-primary/10 p-2 text-center text-primary text-[12pt]">{pct > 0 ? `${pct}%` : '-'}</td>;
+                                   })}
+                                   <td className="border border-primary/10 p-2 text-center bg-primary text-white text-[12pt]">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</td>
+                                   <td className="border border-primary/10 p-2 text-center bg-primary text-white text-[12pt]">{stats.avg}%</td>
+                                </tr>
+                             </tbody>
+                          </table>
+
+                          {/* Summary Info Bar */}
+                          <div className="mt-8 grid grid-cols-3 gap-6 font-arabic px-2">
+                             <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center shadow-sm">
+                                <span className="text-[10pt] font-black text-slate-400 uppercase tracking-widest">Total Points</span>
+                                <span className="text-2xl font-black text-primary">{stats.avg}%</span>
+                             </div>
+                             <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center shadow-sm">
+                                <span className="text-[10pt] font-black text-slate-400 uppercase tracking-widest">Overall Grade</span>
+                                <span className="text-2xl font-black text-primary">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</span>
+                             </div>
+                             <div className="bg-primary p-5 rounded-2xl shadow-xl flex justify-between items-center text-white">
+                                <span className="text-[10pt] font-black opacity-60 uppercase">Final Result</span>
+                                <span className="text-xl font-black">{isAr ? 'ناجح ومنقول' : 'PASS / PROMOTED'}</span>
+                             </div>
+                          </div>
+                       </div>
+
+                       {/* Signatures */}
+                       <footer className="grid grid-cols-3 gap-12 mt-20 pt-10 border-t-2 border-slate-100 text-center font-arabic">
+                          <div className="space-y-8">
+                             <div className="space-y-1">
+                                <p className="text-[11pt] font-black text-slate-900">معلم المادة</p>
+                                <p className="text-[9pt] text-slate-400 font-bold uppercase tracking-widest">Subject Teacher</p>
+                             </div>
+                             <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
+                                <p className="text-[9pt] text-slate-300 italic">Signature & Date</p>
+                             </div>
+                          </div>
+                          
+                          <div className="space-y-8">
+                             <div className="space-y-1">
+                                <p className="text-[11pt] font-black text-slate-900">القبول والتسجيل</p>
+                                <p className="text-[9pt] text-slate-400 font-bold uppercase tracking-widest">Admission & Registration</p>
+                             </div>
+                             <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
+                                <p className="text-[9pt] text-slate-300 italic">Official Seal</p>
+                             </div>
+                          </div>
+                          
+                          <div className="space-y-8">
+                             <div className="space-y-1">
+                                <p className="text-[11pt] font-black text-slate-900">مدير الأكاديمية</p>
+                                <p className="text-[9pt] text-slate-400 font-bold uppercase tracking-widest">Academy Director</p>
+                             </div>
+                             <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
+                                <p className="text-[10pt] font-black text-primary">Dr. Mustafa Ali</p>
+                                <p className="text-[9pt] text-slate-300 italic">Approved & Signed</p>
+                             </div>
+                          </div>
+                       </footer>
+                    </div>
+                 </div>
+              </div>
            </div>
         </DialogContent>
       </Dialog>
@@ -509,12 +668,11 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </Card>
       </div>
 
-      {/* 5. Plan Tables & Hidden Printable Report Template */}
+      {/* 5. Plan Tables */}
       <Accordion type="multiple" className="space-y-6">
         {plans.map(plan => {
           const planGradesRaw = groupedGrades[plan.id] || [];
           const filteredGrades = planGradesRaw.filter(g => activeTypeFilter === 'all' || g.reportType === activeTypeFilter);
-          const planSubjects = plan.subjects || [];
 
           return (
             <AccordionItem key={plan.id} value={plan.id} className="border-none">
@@ -548,13 +706,13 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           <Button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedPrintPlanId(plan.id);
-                              setIsPrintDialogOpen(true);
+                              setSelectedPlanId(plan.id);
+                              setIsExportDialogOpen(true);
                             }} 
                             variant="outline" 
                             className="h-10 px-4 rounded-lg border-slate-200 text-primary font-black text-[10px] uppercase gap-2 bg-white hover:bg-slate-50 shadow-sm"
                           >
-                             <Printer className="h-4 w-4" /> {t.report.btn}
+                             <ImageIcon className="h-4 w-4" /> {t.export.btn}
                           </Button>
 
                           <DropdownMenu>
@@ -659,174 +817,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     </div>
                  </AccordionContent>
               </Card>
-
-              {/* ========================================================================= */}
-              {/* STRICT SINGLE-PAGE A4 BILINGUAL ACADEMIC CERTIFICATE TEMPLATE            */}
-              {/* ========================================================================= */}
-              <div id={`printable-report-${plan.id}`} className="hidden print-only-block bg-white text-slate-900 flex-col relative font-sans" style={{ width: '210mm', height: '297mm', boxSizing: 'border-box' }}>
-                 
-                 {/* Center Watermark */}
-                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
-                    <img src="/logo.png" className="w-80 h-80 grayscale" alt="watermark" />
-                 </div>
-
-                 <div className="relative z-10 flex flex-col h-full border-[10mm] border-double border-primary/10 p-6">
-                    
-                    {/* [البسملة] */}
-                    <div className="text-center font-serif font-black text-[14pt] text-primary mb-4">
-                       بسم الله الرحمن الرحيم
-                    </div>
-
-                    {/* [الترويسة الرئيسية] Triple Column Balanced */}
-                    <header className="grid grid-cols-3 items-start gap-4 border-b-2 border-primary/20 pb-4 mb-4">
-                       {/* اليمين بالعربية */}
-                       <div className="text-center space-y-1">
-                          <p className="text-[9.5pt] font-black text-primary leading-tight font-arabic">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
-                          <p className="text-[8pt] text-slate-500 font-bold font-arabic">ميشيغان - الولايات المتحدة الأمريكية</p>
-                       </div>
-                       
-                       {/* المنتصف شعار */}
-                       <div className="flex justify-center items-center">
-                          <img src="/logo.png" className="h-16 w-16 object-contain" alt="Logo" />
-                       </div>
-                       
-                       {/* اليسار بالإنجليزية */}
-                       <div className="text-center space-y-1">
-                          <p className="text-[9pt] font-black text-primary leading-tight">Masjid Al-Salam & Banaat Academy for Distance Education & Academic Excellence</p>
-                          <p className="text-[8pt] text-slate-500 font-bold">Michigan - USA</p>
-                       </div>
-                    </header>
-
-                    {/* [عنوان الشهادة] */}
-                    <div className="text-center mb-6 space-y-2">
-                       <h1 className="bg-primary text-white py-2 px-10 rounded-lg inline-block text-[12pt] font-black uppercase tracking-widest shadow-md">
-                          {isAr ? `شهادة نتيجة الاختبار ${printType === 'monthly' ? 'الشهري' : 'الفصلي'}` : `Official ${printType === 'monthly' ? 'Monthly' : 'Semester'} Examination Report`}
-                       </h1>
-                       <div className="flex justify-center gap-8 text-[10pt] font-black text-slate-600 uppercase tracking-tight">
-                          <span>Academic Year: {plan.year}</span>
-                          <span className="text-secondary opacity-30">|</span>
-                          <span>Term: {plan.term}</span>
-                       </div>
-                    </div>
-
-                    {/* [النص الرسمي للشهادة] */}
-                    <div className="text-center px-6 mb-8 space-y-3">
-                       <p className="text-[11pt] text-slate-800 leading-relaxed font-arabic">
-                          تشهد إدارة أكاديمية البنين والبنات - ميشيغان، بأن الطالب/ـة: 
-                          <span className="mx-2 px-6 border-b-2 border-primary font-black text-primary text-[12pt]">{student?.firstName} {student?.lastName}</span>
-                       </p>
-                       <p className="text-[11pt] text-slate-800 leading-relaxed font-arabic">
-                          بالمقيد في الصف / المرحلة: <span className="mx-2 font-black text-primary">{student?.gradeLevel}</span>، قد أتم/ت متطلبات الاختبارات للفصل الدراسي 
-                          <span className="mx-2 font-black text-primary">{plan.term === 'First Semester' ? 'الأول' : 'الثاني'}</span> بكل جدارة واقتدار، وتقديراً لجهوده/ا المثمرة ومثابرته/ا، تُمنح هذه الشهادة مع خالص التمنيات له/ا دوام النجاح والتألق.
-                       </p>
-                    </div>
-
-                    {/* [جدول الدرجات والنتيجة] Dynamic Matrix */}
-                    <div className="flex-1 overflow-hidden">
-                       <table className="w-full border-collapse border-2 border-primary/20 text-[9pt]">
-                          <thead>
-                             <tr className="bg-primary text-white">
-                                <th className="border border-white/20 p-3 text-center w-36 font-arabic uppercase">اسم المادة <br/> Course Name</th>
-                                {planSubjects.map((sub: any, sIdx: number) => (
-                                   <th key={sIdx} className="border border-white/20 p-2 text-center">
-                                      <div className="font-arabic font-black leading-tight">{sub.nameAr || '-'}</div>
-                                      <div className="text-[8pt] font-medium opacity-80">{sub.nameEn || '-'}</div>
-                                   </th>
-                                ))}
-                                <th className="border border-white/20 p-3 text-center w-20 font-arabic uppercase">التقدير <br/> Grade</th>
-                                <th className="border border-white/20 p-3 text-center w-20 font-arabic uppercase">الإجمالي <br/> Total</th>
-                             </tr>
-                          </thead>
-                          <tbody>
-                             {/* أعمال شهرية */}
-                             <tr className="bg-slate-50/50">
-                                <td className="border border-slate-200 p-3 font-black text-slate-700 font-arabic">Monthly Assessment <br/> الأعمال الشهرية</td>
-                                {planSubjects.map((sub: any, sIdx: number) => {
-                                   const g = planGradesRaw.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
-                                   return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
-                                })}
-                                <td className="border border-slate-200 p-2 text-center">-</td>
-                                <td className="border border-slate-200 p-2 text-center">-</td>
-                             </tr>
-                             {/* اختبارات فصلية */}
-                             <tr className="bg-white">
-                                <td className="border border-slate-200 p-3 font-black text-slate-700 font-arabic">Term Examinations <br/> الاختبارات الفصلية</td>
-                                {planSubjects.map((sub: any, sIdx: number) => {
-                                   const g = planGradesRaw.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
-                                   return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
-                                })}
-                                <td className="border border-slate-200 p-2 text-center">-</td>
-                                <td className="border border-slate-200 p-2 text-center">-</td>
-                             </tr>
-                             {/* الإجمالي */}
-                             <tr className="bg-secondary/5 font-black border-t-2 border-primary/10">
-                                <td className="border border-primary/10 p-3 text-primary font-arabic">Total (AR / EN) <br/> الإجمالي (عربي / إنجليزي)</td>
-                                {planSubjects.map((sub: any, sIdx: number) => {
-                                   const matched = planGradesRaw.find(g => g.subject === (sub.nameEn || sub.nameAr));
-                                   const pct = matched ? Math.round((Number(matched.score) / Number(matched.totalScore)) * 100) : 0;
-                                   return <td key={sIdx} className="border border-primary/10 p-2 text-center text-primary">{pct > 0 ? `${pct}%` : '-'}</td>;
-                                })}
-                                <td className="border border-primary/10 p-2 text-center bg-primary text-white text-[11pt]">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</td>
-                                <td className="border border-primary/10 p-2 text-center bg-primary text-white text-[11pt]">{stats.avg}%</td>
-                             </tr>
-                          </tbody>
-                       </table>
-
-                       {/* Summary Info Bar */}
-                       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 font-arabic">
-                          <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex justify-between items-center">
-                             <span className="text-[9pt] font-black text-slate-400 uppercase tracking-widest">Total Points</span>
-                             <span className="text-xl font-black text-primary">{stats.avg}%</span>
-                          </div>
-                          <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex justify-between items-center">
-                             <span className="text-[9pt] font-black text-slate-400 uppercase tracking-widest">Overall Grade</span>
-                             <span className="text-xl font-black text-primary">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</span>
-                          </div>
-                          <div className="bg-primary p-4 rounded-xl shadow-lg flex justify-between items-center text-white">
-                             <span className="text-[9pt] font-black opacity-60 uppercase">Final Result</span>
-                             <span className="text-lg font-black">{isAr ? 'ناجح ومنقول / PASS' : 'PASS / PROMOTED'}</span>
-                          </div>
-                       </div>
-                    </div>
-
-                    {/* [التوقيعات والاعتمادات] Absolute Bottom Placement */}
-                    <footer className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t-2 border-slate-100 text-center font-arabic">
-                       <div className="space-y-6">
-                          <div className="space-y-1">
-                             <p className="text-[10pt] font-black text-slate-900">معلم المادة</p>
-                             <p className="text-[8pt] text-slate-400 font-bold uppercase tracking-widest">Subject Teacher</p>
-                          </div>
-                          <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
-                             <p className="text-[8pt] text-slate-300">التوقيع / التاريخ</p>
-                             <p className="text-[8pt] text-slate-300">Signature / Date</p>
-                          </div>
-                       </div>
-                       
-                       <div className="space-y-6">
-                          <div className="space-y-1">
-                             <p className="text-[10pt] font-black text-slate-900">القبول والتسجيل</p>
-                             <p className="text-[8pt] text-slate-400 font-bold uppercase tracking-widest">Admission & Registration</p>
-                          </div>
-                          <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
-                             <p className="text-[8pt] text-slate-300">ختم الأكاديمية</p>
-                             <p className="text-[8pt] text-slate-300">Official Seal</p>
-                          </div>
-                       </div>
-                       
-                       <div className="space-y-6">
-                          <div className="space-y-1">
-                             <p className="text-[10pt] font-black text-slate-900">مدير الأكاديمية</p>
-                             <p className="text-[8pt] text-slate-400 font-bold uppercase tracking-widest">Academy Director</p>
-                          </div>
-                          <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
-                             <p className="text-[9pt] font-black text-primary">Dr. Mustafa Ali</p>
-                             <p className="text-[8pt] text-slate-300">Approved & Signed</p>
-                          </div>
-                       </div>
-                    </footer>
-                 </div>
-              </div>
-
             </AccordionItem>
           );
         })}
@@ -834,18 +824,38 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
-        <AlertDialogContent className="rounded-2xl">
-           <AlertDialogHeader>
-              <AlertDialogTitle className="font-black">{t.confirmDelete}</AlertDialogTitle>
-              <AlertDialogDescription className="text-xs font-bold text-slate-500">{t.deleteDesc}</AlertDialogDescription>
-           </AlertDialogHeader>
-           <AlertDialogFooter>
-              <AlertDialogCancel className="font-bold">{t.cancel}</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-rose-600 hover:bg-rose-700 font-bold">{isAr ? 'حذف' : 'Delete'}</AlertDialogAction>
-           </AlertDialogFooter>
+        <AlertDialogContent className="rounded-2xl border-none shadow-2xl p-0 overflow-hidden bg-white">
+           <div className="bg-red-500 p-8 text-white flex flex-col items-center gap-4 text-center">
+              <div className="h-16 w-16 rounded-xl bg-white/20 flex items-center justify-center shadow-xl"><AlertTriangle className="h-8 w-8" /></div>
+              <AlertDialogTitle className="text-xl font-black uppercase tracking-tight">{t.confirmDelete}</AlertDialogTitle>
+           </div>
+           <div className="p-8 space-y-8">
+              <AlertDialogDescription className="text-slate-500 font-bold text-sm text-center leading-relaxed">{t.deleteDesc}</AlertDialogDescription>
+              <div className="flex flex-col gap-3">
+                 <Button onClick={handleDelete} className="h-14 rounded-xl bg-red-600 text-white font-black uppercase tracking-widest transition-all shadow-xl shadow-red-500/20 hover:bg-red-700">
+                    {isAr ? 'تأكيد الحذف' : 'Delete Now'}
+                 </Button>
+                 <Button variant="ghost" onClick={() => setDeleteId(null)} className="h-14 rounded-xl font-black text-slate-400 uppercase tracking-widest">
+                    {t.cancel}
+                 </Button>
+              </div>
+           </div>
         </AlertDialogContent>
       </AlertDialog>
 
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
+        }
+      `}</style>
     </div>
   );
 }
