@@ -306,7 +306,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       toast({ title: isAr ? "تم تحميل الصورة بنجاح" : "Image downloaded successfully" });
     } catch (error) {
       console.error('Export Error:', error);
-      toast({ variant: 'destructive', title: "Export failed", description: "Image generation encountered an error." });
+      toast({ variant: "destructive", title: "Export failed", description: "Image generation encountered an error." });
     } finally {
       setIsExportingImage(false);
     }
@@ -492,15 +492,18 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                      fontFamily: 'sans-serif'
                    }}
                  >
+                    {/* Background Watermark Seal */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
                        <img src="/logo.png" className="w-96 h-96 grayscale" alt="watermark" />
                     </div>
 
                     <div className="relative z-10 flex flex-col h-full border-[10mm] border-double border-primary/10 p-10" style={{ font: 'inherit' }}>
+                       {/* Bismillah Header */}
                        <div className="text-center font-black text-[16pt] text-primary mb-6" style={{ font: 'inherit' }}>
                           بسم الله الرحمن الرحيم
                        </div>
 
+                       {/* Professional Symmetrical Header */}
                        <header className="grid grid-cols-3 items-center gap-6 border-b-2 border-primary/20 pb-6 mb-8" style={{ font: 'inherit' }}>
                           <div className="text-center space-y-1">
                              <p className="text-[10pt] font-black text-primary leading-tight">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
@@ -517,9 +520,10 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </div>
                        </header>
 
+                       {/* Document Title Badge */}
                        <div className="text-center mb-8 space-y-3" style={{ font: 'inherit' }}>
                           <h1 className="bg-primary text-white py-3 px-12 rounded-lg inline-block text-[14pt] font-black uppercase tracking-widest shadow-lg">
-                             {exportType === 'monthly' ? 'Monthly Examination Report' : 'Semester Examination Report'}
+                             Official Semester Examination Report
                           </h1>
                           {plans.find(p => p.id === selectedPlanId) && (
                              <div className="flex justify-center gap-8 text-[11pt] font-black text-slate-600 uppercase tracking-tight pt-2">
@@ -530,109 +534,98 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           )}
                        </div>
 
-                       <div className="text-center px-10 mb-10 space-y-4" style={{ font: 'inherit' }}>
-                          <p className="text-[12pt] text-slate-800 leading-relaxed">
-                             تشهد إدارة أكاديمية البنين والبنات - ميشيغان، بأن الطالب/ـة: 
-                             <span className="mx-2 px-8 border-b-2 border-primary font-black text-primary text-[14pt]">{student?.firstName} {student?.lastName}</span>
-                          </p>
-                          <p className="text-[12pt] text-slate-800 leading-relaxed">
-                             بالمقيد في الصف / المرحلة: <span className="mx-2 font-black text-primary">{student?.gradeLevel}</span>، قد أتم/ت متطلبات الاختبارات للفصل الدراسي 
-                             <span className="mx-2 font-black text-primary">{plans.find(p => p.id === selectedPlanId)?.term === 'First Semester' ? 'الأول' : 'الثاني'}</span> بكل جدارة واقتدار، وتقديراً لجهوده/ا المثمرة ومثابرته/ا، تُمنح هذه الشهادة مع خالص التمنيات له/ا دوام النجاح والتألق.
+                       {/* English Certification Statement */}
+                       <div className="text-center px-10 mb-10 space-y-4" style={{ font: 'inherit' }} dir="ltr">
+                          <p className="text-[11pt] text-slate-700 leading-relaxed font-medium">
+                             The Administration of Baneen and Banaat Academy - Michigan hereby certifies that the student: 
+                             <span className="mx-2 px-2 font-black text-secondary text-[12pt] border-b border-secondary/30">{student?.firstName} {student?.lastName}</span>
+                             enrolled in Grade: <span className="mx-1 font-black text-primary">{student?.gradeLevel}</span>, has successfully completed the examination requirements for the 
+                             <span className="mx-1 font-black text-primary uppercase">{plans.find(p => p.id === selectedPlanId)?.term || 'Current Term'}</span> with merit and distinction. In appreciation of their fruitful efforts and perseverance, this certificate is awarded with our best wishes for continued success and brilliance.
                           </p>
                        </div>
 
-                       <div className="flex-1" style={{ font: 'inherit' }}>
-                          <table className="w-full border-collapse border-2 border-primary/20 text-[10pt]" style={{ font: 'inherit' }}>
+                       {/* English Grade Matrix (Subjects as Columns) */}
+                       <div className="flex-1" style={{ font: 'inherit' }} dir="ltr">
+                          <table className="w-full border-collapse border-2 border-primary/20 text-[9.5pt]" style={{ font: 'inherit' }}>
                              <thead>
-                                <tr className="bg-primary text-white h-20">
-                                   <th className="border border-white/20 p-3 text-center w-40 uppercase leading-tight">Course Name <br/> اسم المادة</th>
+                                <tr className="bg-primary text-white h-16">
+                                   <th className="border border-white/20 p-3 text-center w-44 uppercase leading-tight font-black">Course Name</th>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
-                                      <th key={sIdx} className="border border-white/20 p-2 text-center">
-                                         <div className="font-black leading-tight text-[11pt]">{sub.nameAr || '-'}</div>
-                                         <div className="text-[9pt] font-medium opacity-80 uppercase">{sub.nameEn || '-'}</div>
+                                      <th key={sIdx} className="border border-white/20 p-2 text-center uppercase font-black">
+                                         {sub.nameEn || sub.nameAr || 'Course'}
                                       </th>
                                    ))}
-                                   <th className="border border-white/20 p-3 text-center w-24 uppercase">Grade <br/> التقدير</th>
-                                   <th className="border border-white/20 p-3 text-center w-24 uppercase">Total <br/> الإجمالي</th>
+                                   <th className="border border-white/20 p-3 text-center w-24 uppercase font-black">Total</th>
                                 </tr>
                              </thead>
                              <tbody>
-                                <tr className="bg-slate-50/50 h-14">
-                                   <td className="border border-slate-200 p-4 font-black text-slate-700">Monthly Assessment <br/> الأعمال الشهرية</td>
+                                <tr className="bg-slate-50/50 h-12">
+                                   <td className="border border-slate-200 p-3 font-bold text-slate-700">Monthly Assessment</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
                                       return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
                                    })}
-                                   <td className="border border-slate-200 p-2 text-center">-</td>
-                                   <td className="border border-slate-200 p-2 text-center">-</td>
+                                   <td className="border border-slate-200 p-2 text-center font-black">-</td>
                                 </tr>
-                                <tr className="bg-white h-14">
-                                   <td className="border border-slate-200 p-4 font-black text-slate-700">Term Examinations <br/> الاختبارات الفصلية</td>
+                                <tr className="bg-white h-12">
+                                   <td className="border border-slate-200 p-3 font-bold text-slate-700">Term Examinations</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
                                       return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
                                    })}
-                                   <td className="border border-slate-200 p-2 text-center">-</td>
-                                   <td className="border border-slate-200 p-2 text-center">-</td>
+                                   <td className="border border-slate-200 p-2 text-center font-black">-</td>
                                 </tr>
-                                <tr className="bg-secondary/5 font-black border-t-2 border-primary/10 h-16">
-                                   <td className="border border-primary/10 p-4 text-primary">Total (AR / EN) <br/> الإجمالي (عربي / إنجليزي)</td>
+                                <tr className="bg-secondary/5 font-black border-t-2 border-primary/20 h-14">
+                                   <td className="border border-primary/10 p-3 text-primary uppercase">Calculated Total</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
-                                      const grades = groupedGrades[selectedPlanId!]?.filter(g => g.subject === (sub.nameEn || sub.nameAr)) || [];
-                                      const pct = grades.length ? Math.round(grades.reduce((a,b) => a + (Number(b.score)/Number(b.totalScore))*100, 0) / grades.length) : 0;
-                                      return <td key={sIdx} className="border border-primary/10 p-2 text-center text-primary text-[12pt]">{pct > 0 ? `${pct}%` : '-'}</td>;
+                                      const monthly = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
+                                      const term = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
+                                      const sum = (Number(monthly?.score || 0) + Number(term?.score || 0));
+                                      return <td key={sIdx} className="border border-primary/10 p-2 text-center text-primary text-[11pt]">{sum > 0 ? sum : '-'}</td>;
                                    })}
-                                   <td className="border border-primary/10 p-2 text-center bg-primary text-white text-[12pt]">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</td>
-                                   <td className="border border-primary/10 p-2 text-center bg-primary text-white text-[12pt]">{stats.avg}%</td>
+                                   <td className="border border-primary/10 p-2 text-center bg-primary text-white text-[11pt]">{stats.avg}%</td>
+                                </tr>
+                                {/* Consolidated Summary Row under the table */}
+                                <tr className="bg-slate-900 text-white font-black h-14">
+                                   <td colSpan={(plans.find(p => p.id === selectedPlanId)?.subjects?.length || 0) + 2} className="border border-white/10 px-6 py-2">
+                                      <div className="flex justify-between items-center w-full uppercase tracking-widest text-[9pt]">
+                                         <span>Total Points: <span className="text-secondary">{stats.avg}%</span></span>
+                                         <span>Overall Grade: <span className="text-secondary">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</span></span>
+                                         <span>Final Result: <span className="text-emerald-400">PASS / PROMOTED</span></span>
+                                      </div>
+                                   </td>
                                 </tr>
                              </tbody>
                           </table>
-
-                          <div className="mt-8 grid grid-cols-3 gap-6 px-2" style={{ font: 'inherit' }}>
-                             <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center shadow-sm">
-                                <span className="text-[10pt] font-black text-slate-400 uppercase tracking-widest">Total Points</span>
-                                <span className="text-2xl font-black text-primary">{stats.avg}%</span>
-                             </div>
-                             <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center shadow-sm">
-                                <span className="text-[10pt] font-black text-slate-400 uppercase tracking-widest">Overall Grade</span>
-                                <span className="text-2xl font-black text-primary">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</span>
-                             </div>
-                             <div className="bg-primary p-5 rounded-2xl shadow-xl flex justify-between items-center text-white">
-                                <span className="text-[10pt] font-black opacity-60 uppercase">Final Result</span>
-                                <span className="text-xl font-black">{isAr ? 'ناجح ومنقول' : 'PASS / PROMOTED'}</span>
-                             </div>
-                          </div>
                        </div>
 
-                       <footer className="grid grid-cols-3 gap-12 mt-20 pt-10 border-t-2 border-slate-100 text-center" style={{ font: 'inherit' }}>
-                          <div className="space-y-8">
+                       {/* Distributed Triple Signature Footer */}
+                       <footer className="grid grid-cols-3 gap-12 mt-12 pt-8 border-t-2 border-slate-100 text-center" style={{ font: 'inherit' }} dir="ltr">
+                          <div className="space-y-6">
                              <div className="space-y-1">
-                                <p className="text-[11pt] font-black text-slate-900">معلم المادة</p>
-                                <p className="text-[9pt] text-slate-400 font-bold uppercase tracking-widest">Subject Teacher</p>
+                                <p className="text-[10pt] font-black text-slate-800">Subject Teacher</p>
                              </div>
-                             <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
-                                <p className="text-[9pt] text-slate-300 italic">Signature & Date</p>
+                             <div className="pt-4 border-t border-slate-300 w-4/5 mx-auto">
+                                <p className="text-[8pt] text-slate-400 italic">Signature & Date</p>
                              </div>
                           </div>
                           
-                          <div className="space-y-8">
+                          <div className="space-y-6">
                              <div className="space-y-1">
-                                <p className="text-[11pt] font-black text-slate-900">القبول والتسجيل</p>
-                                <p className="text-[9pt] text-slate-400 font-bold uppercase tracking-widest">Admission & Registration</p>
+                                <p className="text-[10pt] font-black text-slate-800">Admissions & Registration</p>
                              </div>
-                             <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
-                                <p className="text-[9pt] text-slate-300 italic">Official Seal</p>
+                             <div className="pt-4 border-t border-slate-300 w-4/5 mx-auto">
+                                <p className="text-[8pt] text-slate-400 italic">Official Seal</p>
                              </div>
                           </div>
                           
-                          <div className="space-y-8">
+                          <div className="space-y-6">
                              <div className="space-y-1">
-                                <p className="text-[11pt] font-black text-slate-900">مدير الأكاديمية</p>
-                                <p className="text-[9pt] text-slate-400 font-bold uppercase tracking-widest">Academy Director</p>
+                                <p className="text-[10pt] font-black text-primary">Academy Director</p>
+                                <p className="text-[9pt] font-bold text-slate-500">Dr. Mustafa Ali</p>
                              </div>
-                             <div className="pt-4 border-t border-slate-200 w-4/5 mx-auto">
-                                <p className="text-[10pt] font-black text-primary">Dr. Mustafa Ali</p>
-                                <p className="text-[9pt] text-slate-300 italic">Approved & Signed</p>
+                             <div className="pt-4 border-t border-slate-300 w-4/5 mx-auto">
+                                <p className="text-[8pt] text-slate-400 italic">Approved & Signed</p>
                              </div>
                           </div>
                        </footer>
@@ -853,3 +846,4 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
+
