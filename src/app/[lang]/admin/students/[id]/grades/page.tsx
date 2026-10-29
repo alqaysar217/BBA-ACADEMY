@@ -289,16 +289,15 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     if (!certificateRef.current) return;
     setIsExportingImage(true);
     try {
-      // Use toPng with options to bypass the font.trim() crash
-      // Explicitly setting font style to inherit often fixes normalizeFontFamily issue
+      // skipping fonts to avoid normalizeFontFamily crash
       const dataUrl = await htmlToImage.toPng(certificateRef.current, {
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#ffffff',
+        skipFonts: true,
         style: {
-           font: 'inherit'
-        },
-        skipFonts: false
+          font: 'inherit'
+        }
       });
       const link = document.createElement('a');
       link.download = `BBA_Certificate_${student?.firstName}_${selectedPlanId}.png`;
@@ -308,7 +307,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       toast({ title: isAr ? "تم تحميل الصورة بنجاح" : "Image downloaded successfully" });
     } catch (error) {
       console.error('Export Error:', error);
-      toast({ variant: 'destructive', title: "Export failed", description: "Could not process fonts. Try using a modern browser." });
+      toast({ variant: 'destructive', title: "Export failed", description: "Image generation encountered an error." });
     } finally {
       setIsExportingImage(false);
     }
@@ -485,13 +484,13 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
               <div className="flex justify-center">
                  <div 
                    ref={certificateRef}
-                   className="bg-white text-slate-900 flex flex-col relative font-sans shadow-2xl overflow-hidden" 
+                   className="bg-white text-slate-900 flex flex-col relative shadow-2xl overflow-hidden" 
                    style={{ 
                      width: '210mm', 
                      height: '297mm', 
                      minHeight: '297mm', 
                      boxSizing: 'border-box',
-                     fontFamily: 'var(--font-inter), sans-serif'
+                     fontFamily: 'sans-serif'
                    }}
                  >
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
@@ -499,14 +498,14 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     </div>
 
                     <div className="relative z-10 flex flex-col h-full border-[10mm] border-double border-primary/10 p-10" style={{ font: 'inherit' }}>
-                       <div className="text-center font-serif font-black text-[16pt] text-primary mb-6">
+                       <div className="text-center font-black text-[16pt] text-primary mb-6" style={{ font: 'inherit' }}>
                           بسم الله الرحمن الرحيم
                        </div>
 
-                       <header className="grid grid-cols-3 items-start gap-6 border-b-2 border-primary/20 pb-6 mb-8">
+                       <header className="grid grid-cols-3 items-center gap-6 border-b-2 border-primary/20 pb-6 mb-8" style={{ font: 'inherit' }}>
                           <div className="text-center space-y-1">
-                             <p className="text-[10pt] font-black text-primary leading-tight font-arabic">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
-                             <p className="text-[8pt] text-slate-500 font-bold font-arabic">ميشيغان - الولايات المتحدة الأمريكية</p>
+                             <p className="text-[10pt] font-black text-primary leading-tight">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
+                             <p className="text-[8pt] text-slate-500 font-bold">ميشيغان - الولايات المتحدة الأمريكية</p>
                           </div>
                           
                           <div className="flex justify-center items-center">
@@ -519,9 +518,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </div>
                        </header>
 
-                       <div className="text-center mb-8 space-y-3">
+                       <div className="text-center mb-8 space-y-3" style={{ font: 'inherit' }}>
                           <h1 className="bg-primary text-white py-3 px-12 rounded-lg inline-block text-[14pt] font-black uppercase tracking-widest shadow-lg">
-                             {exportType === 'monthly' ? (isAr ? 'شهادة نتيجة الاختبار الشهري' : 'Monthly Examination Report') : (isAr ? 'شهادة نتيجة الاختبار الفصلي' : 'Semester Examination Report')}
+                             {exportType === 'monthly' ? 'Monthly Examination Report' : 'Semester Examination Report'}
                           </h1>
                           {plans.find(p => p.id === selectedPlanId) && (
                              <div className="flex justify-center gap-8 text-[11pt] font-black text-slate-600 uppercase tracking-tight pt-2">
@@ -532,35 +531,35 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           )}
                        </div>
 
-                       <div className="text-center px-10 mb-10 space-y-4">
-                          <p className="text-[12pt] text-slate-800 leading-relaxed font-arabic">
+                       <div className="text-center px-10 mb-10 space-y-4" style={{ font: 'inherit' }}>
+                          <p className="text-[12pt] text-slate-800 leading-relaxed">
                              تشهد إدارة أكاديمية البنين والبنات - ميشيغان، بأن الطالب/ـة: 
                              <span className="mx-2 px-8 border-b-2 border-primary font-black text-primary text-[14pt]">{student?.firstName} {student?.lastName}</span>
                           </p>
-                          <p className="text-[12pt] text-slate-800 leading-relaxed font-arabic">
+                          <p className="text-[12pt] text-slate-800 leading-relaxed">
                              بالمقيد في الصف / المرحلة: <span className="mx-2 font-black text-primary">{student?.gradeLevel}</span>، قد أتم/ت متطلبات الاختبارات للفصل الدراسي 
                              <span className="mx-2 font-black text-primary">{plans.find(p => p.id === selectedPlanId)?.term === 'First Semester' ? 'الأول' : 'الثاني'}</span> بكل جدارة واقتدار، وتقديراً لجهوده/ا المثمرة ومثابرته/ا، تُمنح هذه الشهادة مع خالص التمنيات له/ا دوام النجاح والتألق.
                           </p>
                        </div>
 
-                       <div className="flex-1">
-                          <table className="w-full border-collapse border-2 border-primary/20 text-[10pt]">
+                       <div className="flex-1" style={{ font: 'inherit' }}>
+                          <table className="w-full border-collapse border-2 border-primary/20 text-[10pt]" style={{ font: 'inherit' }}>
                              <thead>
                                 <tr className="bg-primary text-white h-20">
-                                   <th className="border border-white/20 p-3 text-center w-40 font-arabic uppercase leading-tight">اسم المادة <br/> Course Name</th>
+                                   <th className="border border-white/20 p-3 text-center w-40 uppercase leading-tight">Course Name <br/> اسم المادة</th>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
                                       <th key={sIdx} className="border border-white/20 p-2 text-center">
-                                         <div className="font-arabic font-black leading-tight text-[11pt]">{sub.nameAr || '-'}</div>
+                                         <div className="font-black leading-tight text-[11pt]">{sub.nameAr || '-'}</div>
                                          <div className="text-[9pt] font-medium opacity-80 uppercase">{sub.nameEn || '-'}</div>
                                       </th>
                                    ))}
-                                   <th className="border border-white/20 p-3 text-center w-24 font-arabic uppercase">التقدير <br/> Grade</th>
-                                   <th className="border border-white/20 p-3 text-center w-24 font-arabic uppercase">الإجمالي <br/> Total</th>
+                                   <th className="border border-white/20 p-3 text-center w-24 uppercase">Grade <br/> التقدير</th>
+                                   <th className="border border-white/20 p-3 text-center w-24 uppercase">Total <br/> الإجمالي</th>
                                 </tr>
                              </thead>
                              <tbody>
                                 <tr className="bg-slate-50/50 h-14">
-                                   <td className="border border-slate-200 p-4 font-black text-slate-700 font-arabic">Monthly Assessment <br/> الأعمال الشهرية</td>
+                                   <td className="border border-slate-200 p-4 font-black text-slate-700">Monthly Assessment <br/> الأعمال الشهرية</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
                                       return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
@@ -569,7 +568,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    <td className="border border-slate-200 p-2 text-center">-</td>
                                 </tr>
                                 <tr className="bg-white h-14">
-                                   <td className="border border-slate-200 p-4 font-black text-slate-700 font-arabic">Term Examinations <br/> الاختبارات الفصلية</td>
+                                   <td className="border border-slate-200 p-4 font-black text-slate-700">Term Examinations <br/> الاختبارات الفصلية</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
                                       return <td key={sIdx} className="border border-slate-200 p-2 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
@@ -578,7 +577,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    <td className="border border-slate-200 p-2 text-center">-</td>
                                 </tr>
                                 <tr className="bg-secondary/5 font-black border-t-2 border-primary/10 h-16">
-                                   <td className="border border-primary/10 p-4 text-primary font-arabic">Total (AR / EN) <br/> الإجمالي (عربي / إنجليزي)</td>
+                                   <td className="border border-primary/10 p-4 text-primary">Total (AR / EN) <br/> الإجمالي (عربي / إنجليزي)</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const grades = groupedGrades[selectedPlanId!]?.filter(g => g.subject === (sub.nameEn || sub.nameAr)) || [];
                                       const pct = grades.length ? Math.round(grades.reduce((a,b) => a + (Number(b.score)/Number(b.totalScore))*100, 0) / grades.length) : 0;
@@ -590,7 +589,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                              </tbody>
                           </table>
 
-                          <div className="mt-8 grid grid-cols-3 gap-6 font-arabic px-2">
+                          <div className="mt-8 grid grid-cols-3 gap-6 px-2" style={{ font: 'inherit' }}>
                              <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center shadow-sm">
                                 <span className="text-[10pt] font-black text-slate-400 uppercase tracking-widest">Total Points</span>
                                 <span className="text-2xl font-black text-primary">{stats.avg}%</span>
@@ -606,7 +605,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </div>
                        </div>
 
-                       <footer className="grid grid-cols-3 gap-12 mt-20 pt-10 border-t-2 border-slate-100 text-center font-arabic">
+                       <footer className="grid grid-cols-3 gap-12 mt-20 pt-10 border-t-2 border-slate-100 text-center" style={{ font: 'inherit' }}>
                           <div className="space-y-8">
                              <div className="space-y-1">
                                 <p className="text-[11pt] font-black text-slate-900">معلم المادة</p>
@@ -855,3 +854,4 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
+
