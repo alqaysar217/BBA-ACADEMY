@@ -291,9 +291,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     try {
       const dataUrl = await htmlToImage.toPng(certificateRef.current, {
         quality: 1,
-        pixelRatio: 2,
+        pixelRatio: 3, // Higher ratio for crystal clear text
         backgroundColor: '#ffffff',
-        skipFonts: true,
+        skipFonts: true, // Use system fonts to avoid undefined trim() errors
         style: {
           font: 'inherit'
         }
@@ -475,7 +475,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                     disabled={isExportingImage}
                     className="h-10 px-8 bg-secondary hover:bg-primary text-white font-black rounded-lg shadow-xl transition-all text-xs uppercase tracking-widest gap-2"
                  >
-                    {isExportingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    {isExportingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
                     {t.export.download}
                  </Button>
               </div>
@@ -489,7 +489,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                      height: '297mm', 
                      minHeight: '297mm', 
                      boxSizing: 'border-box',
-                     fontFamily: 'sans-serif'
+                     fontFamily: 'system-ui, sans-serif'
                    }}
                  >
                     {/* Background Watermark Seal */}
@@ -497,86 +497,84 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                        <img src="/logo.png" className="w-96 h-96 grayscale" alt="watermark" />
                     </div>
 
-                    <div className="relative z-10 flex flex-col h-full border-[10mm] border-double border-primary/10 p-10" style={{ font: 'inherit' }}>
+                    <div className="relative z-10 flex flex-col h-full border-[8mm] border-double border-primary/10 p-10" style={{ font: 'inherit' }}>
                        {/* Bismillah Header */}
-                       <div className="text-center font-black text-[16pt] text-primary mb-6" style={{ font: 'inherit' }}>
+                       <div className="text-center font-black text-[14pt] text-primary mb-4" style={{ font: 'inherit' }}>
                           بسم الله الرحمن الرحيم
                        </div>
 
                        {/* Professional Symmetrical Header */}
-                       <header className="grid grid-cols-3 items-center gap-6 border-b-2 border-primary/20 pb-6 mb-8" style={{ font: 'inherit' }}>
+                       <header className="grid grid-cols-3 items-center gap-4 border-b-2 border-primary/20 pb-4 mb-6" style={{ font: 'inherit' }}>
                           <div className="text-center space-y-1">
                              <p className="text-[10pt] font-black text-primary leading-tight">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
-                             <p className="text-[8pt] text-slate-500 font-bold">ميشيغان - الولايات المتحدة الأمريكية</p>
+                             <p className="text-[8pt] text-slate-500 font-bold uppercase tracking-tight">Michigan - USA</p>
                           </div>
                           
                           <div className="flex justify-center items-center">
-                             <img src="/logo.png" className="h-20 w-20 object-contain" alt="Logo" />
+                             <img src="/logo.png" className="h-14 w-14 object-contain" alt="Logo" />
                           </div>
                           
                           <div className="text-center space-y-1">
                              <p className="text-[9pt] font-black text-primary leading-tight">Masjid Al-Salam & Banaat Academy for Distance Education & Academic Excellence</p>
-                             <p className="text-[8pt] text-slate-500 font-bold">Michigan - USA</p>
+                             <p className="text-[8pt] text-slate-500 font-bold uppercase tracking-tight">Michigan - USA</p>
                           </div>
                        </header>
 
                        {/* Document Title Badge */}
-                       <div className="text-center mb-8 space-y-3" style={{ font: 'inherit' }}>
-                          <h1 className="bg-primary text-white py-3 px-12 rounded-lg inline-block text-[14pt] font-black uppercase tracking-widest shadow-lg">
+                       <div className="text-center mb-6 space-y-2" style={{ font: 'inherit' }}>
+                          <h1 className="bg-primary text-white py-2 px-10 rounded-lg inline-block text-[13pt] font-black uppercase tracking-widest shadow-lg">
                              Official Semester Examination Report
                           </h1>
-                          {plans.find(p => p.id === selectedPlanId) && (
-                             <div className="flex justify-center gap-8 text-[11pt] font-black text-slate-600 uppercase tracking-tight pt-2">
-                                <span>Academic Year: {plans.find(p => p.id === selectedPlanId)?.year}</span>
-                                <span className="text-secondary opacity-30">|</span>
-                                <span>Term: {plans.find(p => p.id === selectedPlanId)?.term}</span>
-                             </div>
-                          )}
+                          <div className="flex justify-center gap-6 text-[10pt] font-black text-slate-600 uppercase tracking-tight pt-1">
+                             <span>Term: {plans.find(p => p.id === selectedPlanId)?.term}</span>
+                             <span className="text-secondary opacity-30">|</span>
+                             <span>Academic Year: {plans.find(p => p.id === selectedPlanId)?.year}</span>
+                          </div>
                        </div>
 
                        {/* English Certification Statement */}
-                       <div className="text-center px-10 mb-10 space-y-4" style={{ font: 'inherit' }} dir="ltr">
-                          <p className="text-[11pt] text-slate-700 leading-relaxed font-medium">
+                       <div className="text-center px-10 mb-8 space-y-3" style={{ font: 'inherit' }} dir="ltr">
+                          <p className="text-[10.5pt] text-slate-700 leading-relaxed font-medium">
                              The Administration of Baneen and Banaat Academy - Michigan hereby certifies that the student: 
-                             <span className="mx-2 px-2 font-black text-secondary text-[11pt]">{student?.firstName} {student?.lastName}</span>
-                             enrolled in Grade: <span className="mx-1 font-black text-primary">{student?.gradeLevel}</span>, has successfully completed the examination requirements for the 
+                             <span className="mx-2 px-1 font-black text-secondary text-[11pt] border-b-2 border-secondary/20">{student?.firstName} {student?.lastName}</span>
+                             enrolled in Grade: <span className="font-black text-primary">{student?.gradeLevel}</span>, has successfully completed the examination requirements for the 
                              <span className="mx-1 font-black text-primary uppercase">{plans.find(p => p.id === selectedPlanId)?.term || 'Current Term'}</span> with merit and distinction. In appreciation of their fruitful efforts and perseverance, this certificate is awarded with our best wishes for continued success and brilliance.
                           </p>
                        </div>
 
-                       {/* Scaled English Grade Matrix (Optimized Font for Width) */}
+                       {/* Scaled English Grade Matrix - OPTIMIZED FONT FOR CLARITY */}
                        <div className="flex-1" style={{ font: 'inherit' }} dir="ltr">
-                          <table className="w-full border-collapse border-2 border-primary/20 text-[7.5pt]" style={{ font: 'inherit', tableLayout: 'fixed' }}>
+                          <table className="w-full border-collapse border-2 border-primary/20 text-[8pt]" style={{ font: 'inherit', tableLayout: 'fixed' }}>
                              <thead>
-                                <tr className="bg-primary text-white h-12">
-                                   <th className="border border-white/20 p-2 text-center w-24 uppercase leading-tight font-black">Course Name</th>
+                                <tr className="bg-primary text-white">
+                                   <th className="border border-white/20 p-2 text-center w-24 uppercase font-black tracking-tighter leading-none">Course Name</th>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
-                                      <th key={sIdx} className="border border-white/20 p-1 text-center uppercase font-bold overflow-hidden break-words">
+                                      <th key={sIdx} className="border border-white/20 p-1.5 text-center uppercase font-bold text-[7pt] leading-tight overflow-hidden tracking-tighter">
                                          {sub.nameEn || sub.nameAr || 'Course'}
                                       </th>
                                    ))}
-                                   <th className="border border-white/20 p-2 text-center w-16 uppercase font-black">Total</th>
+                                   <th className="border border-white/20 p-2 text-center w-16 uppercase font-black tracking-tighter">Total</th>
                                 </tr>
                              </thead>
                              <tbody>
-                                <tr className="bg-slate-50/50 h-10">
-                                   <td className="border border-slate-200 p-1.5 font-bold text-slate-700">Monthly Assessment</td>
+                                <tr className="bg-slate-50/50">
+                                   <td className="border border-slate-200 p-2 font-bold text-slate-700">Monthly Assessment</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
                                       return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
                                    })}
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
-                                <tr className="bg-white h-10">
-                                   <td className="border border-slate-200 p-1.5 font-bold text-slate-700">Term Examinations</td>
+                                <tr className="bg-white">
+                                   <td className="border border-slate-200 p-2 font-bold text-slate-700">Term Examinations</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
                                       return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
                                    })}
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
-                                <tr className="bg-secondary/5 font-black border-t-2 border-primary/20 h-12">
-                                   <td className="border border-primary/10 p-1.5 text-primary uppercase">Calculated Total</td>
+                                <tr className="bg-secondary/5 font-black border-t-2 border-primary/20">
+                                   <td className="border border-primary/10 p-2 text-primary uppercase">Calculated Total</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const monthly = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
                                       const term = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
@@ -586,9 +584,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    <td className="border border-primary/10 p-1 text-center bg-primary text-white text-[9pt]">{stats.avg}%</td>
                                 </tr>
                                 {/* Consolidated Summary Row (Black Bar) */}
-                                <tr className="bg-slate-900 text-white font-black h-12">
-                                   <td colSpan={(plans.find(p => p.id === selectedPlanId)?.subjects?.length || 0) + 2} className="border border-white/10 px-4 py-2">
-                                      <div className="flex justify-between items-center w-full uppercase tracking-widest text-[7.5pt]">
+                                <tr className="bg-slate-900 text-white font-black">
+                                   <td colSpan={(plans.find(p => p.id === selectedPlanId)?.subjects?.length || 0) + 2} className="border border-white/10 px-4 py-3">
+                                      <div className="flex justify-between items-center w-full uppercase tracking-[0.1em] text-[7.5pt]">
                                          <span>Overall Score: <span className="text-secondary">{stats.avg}%</span></span>
                                          <span className="opacity-30">|</span>
                                          <span>Overall Grade: <span className="text-secondary">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</span></span>
@@ -601,33 +599,29 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </table>
                        </div>
 
-                       {/* Distributed Triple Signature Footer */}
-                       <footer className="grid grid-cols-3 gap-12 mt-12 pt-8 border-t-2 border-slate-100 text-center" style={{ font: 'inherit' }} dir="ltr">
-                          <div className="space-y-6">
-                             <div className="space-y-1">
-                                <p className="text-[10pt] font-black text-slate-800">Subject Teacher</p>
-                             </div>
-                             <div className="pt-4 border-t border-slate-300 w-4/5 mx-auto">
-                                <p className="text-[8pt] text-slate-400 italic">Signature & Date</p>
+                       {/* Distributed Triple Signature Footer - FIXED TO BOTTOM */}
+                       <footer className="grid grid-cols-3 gap-10 mt-10 pt-6 border-t-2 border-slate-100 text-center" style={{ font: 'inherit' }} dir="ltr">
+                          <div className="space-y-4">
+                             <p className="text-[9pt] font-black text-slate-800 uppercase tracking-tight">Subject Teacher</p>
+                             <div className="pt-3 border-t border-slate-300 w-3/4 mx-auto">
+                                <p className="text-[7pt] text-slate-400 italic">Signature & Date</p>
                              </div>
                           </div>
                           
-                          <div className="space-y-6">
-                             <div className="space-y-1">
-                                <p className="text-[10pt] font-black text-slate-800">Admissions & Registration</p>
-                             </div>
-                             <div className="pt-4 border-t border-slate-300 w-4/5 mx-auto">
-                                <p className="text-[8pt] text-slate-400 italic">Official Seal</p>
+                          <div className="space-y-4">
+                             <p className="text-[9pt] font-black text-slate-800 uppercase tracking-tight">Admissions & Registration</p>
+                             <div className="pt-3 border-t border-slate-300 w-3/4 mx-auto">
+                                <p className="text-[7pt] text-slate-400 italic">Official Seal</p>
                              </div>
                           </div>
                           
-                          <div className="space-y-6">
-                             <div className="space-y-1">
-                                <p className="text-[10pt] font-black text-primary">Academy Director</p>
-                                <p className="text-[9pt] font-bold text-slate-500">Dr. Mustafa Ali</p>
+                          <div className="space-y-4">
+                             <div>
+                                <p className="text-[9pt] font-black text-primary uppercase tracking-tight">Academy Director</p>
+                                <p className="text-[8pt] font-bold text-slate-500">Dr. Mustafa Ali</p>
                              </div>
-                             <div className="pt-4 border-t border-slate-300 w-4/5 mx-auto">
-                                <p className="text-[8pt] text-slate-400 italic">Approved & Signed</p>
+                             <div className="pt-3 border-t border-slate-300 w-3/4 mx-auto">
+                                <p className="text-[7pt] text-slate-400 italic">Approved & Signed</p>
                              </div>
                           </div>
                        </footer>
