@@ -291,9 +291,9 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     try {
       const dataUrl = await htmlToImage.toPng(certificateRef.current, {
         quality: 1,
-        pixelRatio: 3, // Higher ratio for crystal clear text
+        pixelRatio: 3, 
         backgroundColor: '#ffffff',
-        skipFonts: true, // Use system fonts to avoid undefined trim() errors
+        skipFonts: true, 
         style: {
           font: 'inherit'
         }
@@ -306,7 +306,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
       toast({ title: isAr ? "تم تحميل الصورة بنجاح" : "Image downloaded successfully" });
     } catch (error) {
       console.error('Export Error:', error);
-      toast({ variant: "destructive", title: "Export failed", description: "Image generation encountered an error." });
+      toast({ variant: "destructive", title: "Export failed" });
     } finally {
       setIsExportingImage(false);
     }
@@ -542,15 +542,17 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </p>
                        </div>
 
-                       {/* Scaled English Grade Matrix - OPTIMIZED FONT FOR CLARITY */}
+                       {/* Scaled English Grade Matrix */}
                        <div className="flex-1" style={{ font: 'inherit' }} dir="ltr">
                           <table className="w-full border-collapse border-2 border-primary/20 text-[8pt]" style={{ font: 'inherit', tableLayout: 'fixed' }}>
                              <thead>
                                 <tr className="bg-primary text-white">
-                                   <th className="border border-white/20 p-2 text-center w-24 uppercase font-black tracking-tighter leading-none">Course Name</th>
+                                   <th className="border border-white/20 p-2 text-center w-28 uppercase font-black tracking-tighter leading-none">Course Name</th>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
-                                      <th key={sIdx} className="border border-white/20 p-1.5 text-center uppercase font-bold text-[7pt] leading-tight overflow-hidden tracking-tighter">
-                                         {sub.nameEn || sub.nameAr || 'Course'}
+                                      <th key={sIdx} className="border border-white/20 p-0 text-center uppercase font-bold text-[7.5pt] overflow-hidden">
+                                         <div className="flex flex-col items-center justify-center h-12 leading-tight px-1 tracking-tighter">
+                                            {sub.nameEn || sub.nameAr || 'Course'}
+                                         </div>
                                       </th>
                                    ))}
                                    <th className="border border-white/20 p-2 text-center w-16 uppercase font-black tracking-tighter">Total</th>
@@ -558,30 +560,30 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                              </thead>
                              <tbody>
                                 <tr className="bg-slate-50/50">
-                                   <td className="border border-slate-200 p-2 font-bold text-slate-700">Monthly Assessment</td>
+                                   <td className="border border-slate-200 p-2 font-bold text-slate-700 text-[7.5pt]">Monthly Assessment</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
-                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
+                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary text-[8.5pt]">{g ? g.score : '-'}</td>;
                                    })}
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
                                 <tr className="bg-white">
-                                   <td className="border border-slate-200 p-2 font-bold text-slate-700">Term Examinations</td>
+                                   <td className="border border-slate-200 p-2 font-bold text-slate-700 text-[7.5pt]">Term Examinations</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
-                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
+                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary text-[8.5pt]">{g ? g.score : '-'}</td>;
                                    })}
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
                                 <tr className="bg-secondary/5 font-black border-t-2 border-primary/20">
-                                   <td className="border border-primary/10 p-2 text-primary uppercase">Calculated Total</td>
+                                   <td className="border border-primary/10 p-2 text-primary uppercase text-[7.5pt]">Calculated Total</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const monthly = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
                                       const term = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
                                       const sum = (Number(monthly?.score || 0) + Number(term?.score || 0));
-                                      return <td key={sIdx} className="border border-primary/10 p-1 text-center text-primary text-[9pt]">{sum > 0 ? sum : '-'}</td>;
+                                      return <td key={sIdx} className="border border-primary/10 p-1 text-center text-primary text-[8.5pt]">{sum > 0 ? sum : '-'}</td>;
                                    })}
-                                   <td className="border border-primary/10 p-1 text-center bg-primary text-white text-[9pt]">{stats.avg}%</td>
+                                   <td className="border border-primary/10 p-1 text-center bg-primary text-white text-[8.5pt]">{stats.avg}%</td>
                                 </tr>
                                 {/* Consolidated Summary Row (Black Bar) */}
                                 <tr className="bg-slate-900 text-white font-black">
@@ -842,3 +844,4 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
+
