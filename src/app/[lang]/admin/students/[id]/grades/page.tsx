@@ -117,13 +117,11 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   const [editGrade, setEditGrade] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // Simulation & Export States
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [exportType, setExportType] = useState<'monthly' | 'final'>('final');
   const [isExportingImage, setIsExportingImage] = useState(false);
 
-  // Column visibility state
   const [visibleColumns, setVisibleColumns] = useState<string[]>(['subject', 'score', 'percent', 'grade', 'date']);
   const [activeTypeFilter, setActiveTypeFilter] = useState<string>('all');
 
@@ -159,12 +157,12 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     return selectedPlanForForm?.subjects || [];
   }, [selectedPlanForForm]);
 
-  const getLetterGrade = (percent: number) => {
-    if (percent >= 90) return 'A';
-    if (percent >= 80) return 'B';
-    if (percent >= 70) return 'C';
-    if (percent >= 60) return 'D';
-    return 'F';
+  const getDescriptiveGrade = (percent: number) => {
+    if (percent >= 90) return 'Excellent';
+    if (percent >= 80) return 'Very Good';
+    if (percent >= 70) return 'Good';
+    if (percent >= 60) return 'Satisfactory';
+    return 'Needs Improvement';
   };
 
   const t = {
@@ -317,7 +315,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-32 px-4 animate-in fade-in duration-500">
       
-      {/* 1. Navigation */}
       <div className="flex items-center gap-1 border-b border-slate-100 mb-8 overflow-x-auto no-scrollbar bg-white/50 p-1 rounded-xl shadow-sm">
          {[
            { id: 'profile', label: t.nav.profile, icon: User, href: `/${lang}/admin/students/${id}` },
@@ -337,7 +334,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          ))}
       </div>
 
-      {/* 2. Header */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
          <div className="flex items-center gap-5 text-start w-full lg:w-auto">
             <div className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-xl"><Trophy className="h-7 w-7 text-secondary" /></div>
@@ -444,7 +440,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </div>
       </div>
 
-      {/* 3. Export Simulation Dialog */}
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
         <DialogContent className="max-w-5xl rounded-2xl border-none shadow-2xl p-0 overflow-hidden flex flex-col h-[90vh]" dir={isAr ? 'rtl' : 'ltr'}>
            <div className="bg-primary p-6 text-white text-center flex flex-col items-center gap-3 shrink-0">
@@ -492,35 +487,33 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                      fontFamily: 'system-ui, sans-serif'
                    }}
                  >
-                    {/* Background Watermark Seal */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
                        <img src="/logo.png" className="w-96 h-96 grayscale" alt="watermark" />
                     </div>
 
                     <div className="relative z-10 flex flex-col h-full border-[8mm] border-double border-primary/10 p-10" style={{ font: 'inherit' }}>
-                       {/* Bismillah Header */}
                        <div className="text-center font-black text-[14pt] text-primary mb-4" style={{ font: 'inherit' }}>
                           بسم الله الرحمن الرحيم
                        </div>
 
-                       {/* Professional Symmetrical Header */}
                        <header className="grid grid-cols-3 items-center gap-4 border-b-2 border-primary/20 pb-4 mb-6" style={{ font: 'inherit' }}>
-                          <div className="text-center space-y-1">
-                             <p className="text-[10pt] font-black text-primary leading-tight">أكاديمية البنين والبنات للتعليم عن بعد والتفوق الأكاديمي</p>
-                             <p className="text-[8pt] text-slate-500 font-bold uppercase tracking-tight">Michigan - USA</p>
+                          <div className="text-center space-y-0.5">
+                             <p className="text-[10pt] font-black text-primary leading-tight">أكاديمية البنين والبنات</p>
+                             <p className="text-[8.5pt] text-slate-700 font-bold leading-tight">للتعليم عن بعد والتفوق الأكاديمي</p>
+                             <p className="text-[8pt] text-slate-500 font-bold uppercase tracking-tight">MICHIGAN - USA</p>
                           </div>
                           
                           <div className="flex justify-center items-center">
                              <img src="/logo.png" className="h-14 w-14 object-contain" alt="Logo" />
                           </div>
                           
-                          <div className="text-center space-y-1">
-                             <p className="text-[9pt] font-black text-primary leading-tight">Masjid Al-Salam & Banaat Academy for Distance Education & Academic Excellence</p>
+                          <div className="text-center space-y-0.5">
+                             <p className="text-[9pt] font-black text-primary leading-tight">Masjid Al-Salam & Banaat Academy</p>
+                             <p className="text-[8.5pt] text-slate-700 font-bold leading-tight">Distance Education & Academic Excellence</p>
                              <p className="text-[8pt] text-slate-500 font-bold uppercase tracking-tight">Michigan - USA</p>
                           </div>
                        </header>
 
-                       {/* Document Title Badge */}
                        <div className="text-center mb-6 space-y-2" style={{ font: 'inherit' }}>
                           <h1 className="bg-primary text-white py-2 px-10 rounded-lg inline-block text-[13pt] font-black uppercase tracking-widest shadow-lg">
                              Official Semester Examination Report
@@ -532,53 +525,51 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </div>
                        </div>
 
-                       {/* English Certification Statement */}
                        <div className="text-center px-10 mb-8 space-y-3" style={{ font: 'inherit' }} dir="ltr">
                           <p className="text-[10.5pt] text-slate-700 leading-relaxed font-medium">
                              The Administration of Baneen and Banaat Academy - Michigan hereby certifies that the student: 
-                             <span className="mx-2 px-1 font-black text-secondary text-[11pt] border-b-2 border-secondary/20">{student?.firstName} {student?.lastName}</span>
-                             enrolled in Grade: <span className="font-black text-primary">{student?.gradeLevel}</span>, has successfully completed the examination requirements for the 
+                             <span className="mx-2 px-1 font-black text-secondary text-[11pt] border-b-2 border-secondary/20 uppercase">{student?.firstName} {student?.lastName}</span>
+                             enrolled in Grade: <span className="font-black text-primary uppercase">Grade {student?.gradeLevel}</span>, has successfully completed the examination requirements for the 
                              <span className="mx-1 font-black text-primary uppercase">{plans.find(p => p.id === selectedPlanId)?.term || 'Current Term'}</span> with merit and distinction. In appreciation of their fruitful efforts and perseverance, this certificate is awarded with our best wishes for continued success and brilliance.
                           </p>
                        </div>
 
-                       {/* Scaled English Grade Matrix */}
                        <div className="flex-1" style={{ font: 'inherit' }} dir="ltr">
                           <table className="w-full border-collapse border-2 border-primary/20 text-[8pt]" style={{ font: 'inherit', tableLayout: 'fixed' }}>
                              <thead>
                                 <tr className="bg-primary text-white">
-                                   <th className="border border-white/20 p-1 text-center w-24 uppercase font-bold text-[7pt] leading-tight">
+                                   <th className="border border-white/20 p-2 text-center w-24 uppercase font-black text-[7pt] leading-none">
                                       <div className="flex flex-col items-center justify-center">
                                          <span>Course</span>
                                          <span>Name</span>
                                       </div>
                                    </th>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
-                                      <th key={sIdx} className="border border-white/20 p-0 text-center uppercase font-bold text-[7pt] overflow-hidden">
-                                         <div className="flex flex-col items-center justify-center h-12 leading-tight px-1 tracking-tighter">
+                                      <th key={sIdx} className="border border-white/20 p-1 text-center uppercase font-black text-[7pt] overflow-hidden">
+                                         <div className="flex flex-col items-center justify-center h-10 leading-none">
                                             {(sub.nameEn || sub.nameAr || 'Course').split(' ').map((word: string, wIdx: number) => (
                                               <span key={wIdx}>{word}</span>
                                             ))}
                                          </div>
                                       </th>
                                    ))}
-                                   <th className="border border-white/20 p-1 text-center w-16 uppercase font-bold text-[7pt]">Total</th>
+                                   <th className="border border-white/20 p-1 text-center w-16 uppercase font-black text-[7pt]">Total</th>
                                 </tr>
                              </thead>
                              <tbody>
                                 <tr className="bg-slate-50/50">
-                                   <td className="border border-slate-200 p-2 font-bold text-slate-700 text-[7.5pt]">Monthly Assessment</td>
+                                   <td className="border border-slate-200 p-2 font-black text-slate-500 text-[7.5pt] uppercase leading-none">Monthly<br/>Assessment</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
-                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary text-[8.5pt]">{g ? g.score : '-'}</td>;
+                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-slate-700 text-[8.5pt]">{g ? g.score : '-'}</td>;
                                    })}
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
                                 <tr className="bg-white">
-                                   <td className="border border-slate-200 p-2 font-bold text-slate-700 text-[7.5pt]">Term Examinations</td>
+                                   <td className="border border-slate-200 p-2 font-black text-slate-500 text-[7.5pt] uppercase leading-none">Term<br/>Examinations</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
-                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary text-[8.5pt]">{g ? g.score : '-'}</td>;
+                                      return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-slate-700 text-[8.5pt]">{g ? g.score : '-'}</td>;
                                    })}
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
@@ -592,13 +583,12 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    })}
                                    <td className="border border-primary/10 p-1 text-center bg-primary text-white text-[8.5pt]">{stats.avg}%</td>
                                 </tr>
-                                {/* Consolidated Summary Row (Black Bar) */}
                                 <tr className="bg-slate-900 text-white font-black">
                                    <td colSpan={(plans.find(p => p.id === selectedPlanId)?.subjects?.length || 0) + 2} className="border border-white/10 px-4 py-3">
                                       <div className="flex justify-between items-center w-full uppercase tracking-[0.1em] text-[7.5pt]">
                                          <span>Overall Score: <span className="text-secondary">{stats.avg}%</span></span>
                                          <span className="opacity-30">|</span>
-                                         <span>Overall Grade: <span className="text-secondary">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</span></span>
+                                         <span>Overall Grade: <span className="text-secondary">{stats.avg > 0 ? getDescriptiveGrade(stats.avg) : '-'}</span></span>
                                          <span className="opacity-30">|</span>
                                          <span>Final Result: <span className="text-emerald-400">PASS / PROMOTED</span></span>
                                       </div>
@@ -608,7 +598,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           </table>
                        </div>
 
-                       {/* Distributed Triple Signature Footer - FIXED TO BOTTOM */}
                        <footer className="grid grid-cols-3 gap-10 mt-10 pt-6 border-t-2 border-slate-100 text-center" style={{ font: 'inherit' }} dir="ltr">
                           <div className="space-y-4">
                              <p className="text-[9pt] font-black text-slate-800 uppercase tracking-tight">Subject Teacher</p>
@@ -641,7 +630,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
         </DialogContent>
       </Dialog>
 
-      {/* 4. Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          <Card className="border border-slate-200 shadow-sm bg-white p-6 flex flex-col items-center text-center space-y-2 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Star className="h-16 w-16" /></div>
@@ -660,7 +648,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
          </Card>
       </div>
 
-      {/* 5. Plan Tables */}
       <Accordion type="multiple" className="space-y-6">
         {plans.map(plan => {
           const planGradesRaw = groupedGrades[plan.id] || [];
@@ -756,7 +743,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                              ) : (
                                 filteredGrades.map((g: any) => {
                                    const percent = Math.round((Number(g.score) / Number(g.totalScore)) * 100);
-                                   const letter = getLetterGrade(percent);
                                    return (
                                       <tr key={g.id} className="hover:bg-slate-50/50 transition-colors">
                                          {visibleColumns.includes('subject') && (
@@ -784,7 +770,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                          )}
                                          {visibleColumns.includes('grade') && (
                                             <td className="px-8 py-5 text-center">
-                                               <span className="h-8 w-8 rounded-lg bg-slate-100 text-slate-700 inline-flex items-center justify-center font-black text-xs">{letter}</span>
+                                               <span className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 inline-flex items-center justify-center font-black text-[9px] uppercase">{getDescriptiveGrade(percent)}</span>
                                             </td>
                                          )}
                                          {visibleColumns.includes('date') && (
@@ -814,7 +800,6 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
         })}
       </Accordion>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
         <AlertDialogContent className="rounded-2xl border-none shadow-2xl p-0 overflow-hidden bg-white">
            <div className="bg-red-500 p-8 text-white flex flex-col items-center gap-4 text-center">
@@ -851,3 +836,4 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
+
