@@ -377,7 +377,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                      </div>
                      <div className="space-y-1.5">
                         <Label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 px-1">
-                           <BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subject}
+                           < BookOpen className="h-3 w-3 text-secondary" /> {t.fields.subject}
                         </Label>
                         <Select disabled={!formData.planId} value={formData.subject} onValueChange={(v) => setFormData({...formData, subject: v})}>
                            <SelectTrigger className="h-12 border-slate-200 rounded-xl font-bold bg-white">
@@ -547,15 +547,22 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                           <table className="w-full border-collapse border-2 border-primary/20 text-[8pt]" style={{ font: 'inherit', tableLayout: 'fixed' }}>
                              <thead>
                                 <tr className="bg-primary text-white">
-                                   <th className="border border-white/20 p-2 text-center w-28 uppercase font-black tracking-tighter leading-none">Course Name</th>
+                                   <th className="border border-white/20 p-1 text-center w-24 uppercase font-bold text-[7pt] leading-tight">
+                                      <div className="flex flex-col items-center justify-center">
+                                         <span>Course</span>
+                                         <span>Name</span>
+                                      </div>
+                                   </th>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
-                                      <th key={sIdx} className="border border-white/20 p-0 text-center uppercase font-bold text-[7.5pt] overflow-hidden">
+                                      <th key={sIdx} className="border border-white/20 p-0 text-center uppercase font-bold text-[7pt] overflow-hidden">
                                          <div className="flex flex-col items-center justify-center h-12 leading-tight px-1 tracking-tighter">
-                                            {sub.nameEn || sub.nameAr || 'Course'}
+                                            {(sub.nameEn || sub.nameAr || 'Course').split(' ').map((word: string, wIdx: number) => (
+                                              <span key={wIdx}>{word}</span>
+                                            ))}
                                          </div>
                                       </th>
                                    ))}
-                                   <th className="border border-white/20 p-2 text-center w-16 uppercase font-black tracking-tighter">Total</th>
+                                   <th className="border border-white/20 p-1 text-center w-16 uppercase font-bold text-[7pt]">Total</th>
                                 </tr>
                              </thead>
                              <tbody>
@@ -844,4 +851,3 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
     </div>
   );
 }
-
