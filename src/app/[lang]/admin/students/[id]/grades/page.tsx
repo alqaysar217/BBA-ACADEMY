@@ -458,7 +458,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
            <div className="flex-1 overflow-y-auto bg-slate-100 p-8 custom-scrollbar">
               <div className="max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                  <div className="flex items-center gap-3">
-                   <span className="text-[10px] font-black uppercase text-slate-400">{isAr ? 'Report Type:' : 'Report Type:'}</span>
+                   <span className="text-[10px] font-black uppercase text-slate-400">Report Type:</span>
                    <Select value={exportType} onValueChange={(v: any) => setExportType(v)}>
                       <SelectTrigger className="h-10 w-44 border-slate-200 rounded-lg font-bold">
                          <SelectValue />
@@ -546,21 +546,21 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
 
                        {/* Scaled English Grade Matrix (Optimized Font for Width) */}
                        <div className="flex-1" style={{ font: 'inherit' }} dir="ltr">
-                          <table className="w-full border-collapse border-2 border-primary/20 text-[8pt]" style={{ font: 'inherit', tableLayout: 'auto' }}>
+                          <table className="w-full border-collapse border-2 border-primary/20 text-[7.5pt]" style={{ font: 'inherit', tableLayout: 'fixed' }}>
                              <thead>
                                 <tr className="bg-primary text-white h-12">
-                                   <th className="border border-white/20 p-2 text-center w-32 uppercase leading-tight font-black">Course Name</th>
+                                   <th className="border border-white/20 p-2 text-center w-24 uppercase leading-tight font-black">Course Name</th>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => (
-                                      <th key={sIdx} className="border border-white/20 p-1 text-center uppercase font-bold">
+                                      <th key={sIdx} className="border border-white/20 p-1 text-center uppercase font-bold overflow-hidden break-words">
                                          {sub.nameEn || sub.nameAr || 'Course'}
                                       </th>
                                    ))}
-                                   <th className="border border-white/20 p-2 text-center w-20 uppercase font-black">Total</th>
+                                   <th className="border border-white/20 p-2 text-center w-16 uppercase font-black">Total</th>
                                 </tr>
                              </thead>
                              <tbody>
                                 <tr className="bg-slate-50/50 h-10">
-                                   <td className="border border-slate-200 p-2 font-bold text-slate-700">Monthly Assessment</td>
+                                   <td className="border border-slate-200 p-1.5 font-bold text-slate-700">Monthly Assessment</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
                                       return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
@@ -568,7 +568,7 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
                                 <tr className="bg-white h-10">
-                                   <td className="border border-slate-200 p-2 font-bold text-slate-700">Term Examinations</td>
+                                   <td className="border border-slate-200 p-1.5 font-bold text-slate-700">Term Examinations</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const g = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
                                       return <td key={sIdx} className="border border-slate-200 p-1 text-center font-bold text-primary">{g ? g.score : '-'}</td>;
@@ -576,21 +576,23 @@ export default function StudentGradesIndividualPage({ params }: { params: Promis
                                    <td className="border border-slate-200 p-1 text-center font-black">-</td>
                                 </tr>
                                 <tr className="bg-secondary/5 font-black border-t-2 border-primary/20 h-12">
-                                   <td className="border border-primary/10 p-2 text-primary uppercase">Calculated Total</td>
+                                   <td className="border border-primary/10 p-1.5 text-primary uppercase">Calculated Total</td>
                                    {plans.find(p => p.id === selectedPlanId)?.subjects?.map((sub: any, sIdx: number) => {
                                       const monthly = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'monthly');
                                       const term = groupedGrades[selectedPlanId!]?.find(x => x.subject === (sub.nameEn || sub.nameAr) && x.reportType === 'final');
                                       const sum = (Number(monthly?.score || 0) + Number(term?.score || 0));
-                                      return <td key={sIdx} className="border border-primary/10 p-1 text-center text-primary text-[10pt]">{sum > 0 ? sum : '-'}</td>;
+                                      return <td key={sIdx} className="border border-primary/10 p-1 text-center text-primary text-[9pt]">{sum > 0 ? sum : '-'}</td>;
                                    })}
-                                   <td className="border border-primary/10 p-1 text-center bg-primary text-white text-[10pt]">{stats.avg}%</td>
+                                   <td className="border border-primary/10 p-1 text-center bg-primary text-white text-[9pt]">{stats.avg}%</td>
                                 </tr>
-                                {/* Consolidated Summary Row (Embedded into Table) */}
+                                {/* Consolidated Summary Row (Black Bar) */}
                                 <tr className="bg-slate-900 text-white font-black h-12">
                                    <td colSpan={(plans.find(p => p.id === selectedPlanId)?.subjects?.length || 0) + 2} className="border border-white/10 px-4 py-2">
-                                      <div className="flex justify-between items-center w-full uppercase tracking-widest text-[8pt]">
+                                      <div className="flex justify-between items-center w-full uppercase tracking-widest text-[7.5pt]">
                                          <span>Overall Score: <span className="text-secondary">{stats.avg}%</span></span>
+                                         <span className="opacity-30">|</span>
                                          <span>Overall Grade: <span className="text-secondary">{stats.avg > 0 ? getLetterGrade(stats.avg) : '-'}</span></span>
+                                         <span className="opacity-30">|</span>
                                          <span>Final Result: <span className="text-emerald-400">PASS / PROMOTED</span></span>
                                       </div>
                                    </td>
